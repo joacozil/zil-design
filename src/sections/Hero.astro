@@ -1,20 +1,27 @@
 ---
 import Button from "../components/astro/Button.astro";
+import HeroFloaters from "../components/react/HeroFloaters.tsx";
 ---
 
 <section
   id="hero"
-  class="mx-auto flex min-h-svh w-full max-w-6xl flex-col items-center justify-center px-6 py-16 text-center tablet:px-8 desktop:px-12"
+  class="relative flex min-h-svh w-full flex-col items-center justify-center overflow-hidden"
 >
-  <h1 class="max-w-[15ch] text-h1 text-balance">
-    El diseño como herramienta de negocio
-  </h1>
+  <HeroFloaters client:load />
 
-  <p class="mt-6 max-w-[42ch] text-p-lg text-pretty text-muted">
-    El mercado premia las marcas que comunican con claridad.
-  </p>
+  <div
+    class="relative z-10 mx-auto flex w-full max-w-6xl flex-col items-center px-6 py-16 text-center tablet:px-8 desktop:px-12"
+  >
+    <h1 class="max-w-[15ch] text-h1 text-balance">
+      El diseño como herramienta de negocio
+    </h1>
 
-  <div class="mt-10">
-    <Button href="#cta">Hablemos de tu marca</Button>
+    <p class="mt-6 max-w-[42ch] text-p-lg text-pretty text-muted">
+      El mercado premia las marcas que comunican con claridad.
+    </p>
+
+    <div class="mt-10">
+      <Button href="#cta">Hablemos de tu marca</Button>
+    </div>
   </div>
 </section>
