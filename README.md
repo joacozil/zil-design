@@ -87,6 +87,36 @@ finalized in Figma is marked with a `TODO: confirm from Figma` comment.
 | white / black      | `#FFFFFF` / `#000000`                    |
 | `muted` / `border` | placeholder — _TODO: confirm from Figma_ |
 
+## Typography scale
+
+There is **one class per type role** — never write inline size chains like
+`text-2xl tablet:text-3xl`. The class carries font-size, line-height,
+letter-spacing and weight, and the **size steps automatically** at our two
+breakpoints (and nowhere else). Just write `class="text-h1"`.
+
+| Class       | Mobile | Tablet | Desktop | Line-height | Weight |
+| ----------- | ------ | ------ | ------- | ----------- | ------ |
+| `text-h1`   | 40px   | 52px   | 68px    | 1.05        | 900    |
+| `text-h2`   | 32px   | 40px   | 52px    | 1.10        | 700    |
+| `text-h3`   | 24px   | 28px   | 36px    | 1.15        | 700    |
+| `text-h4`   | 20px   | 22px   | 26px    | 1.25        | 500    |
+| `text-h5`   | 17px   | 18px   | 20px    | 1.30        | 500    |
+| `text-p-lg` | 18px   | 19px   | 20px    | 1.55        | 400    |
+| `text-p`    | 16px   | 16px   | 17px    | 1.60        | 400    |
+| `text-p-sm` | 14px   | 14px   | 15px    | 1.50        | 400    |
+
+**How it works:** each role is a Tailwind `--text-*` token in `@theme`
+(so `text-h1` etc. are real utilities). The font-size reads `var(--text-<role>)`,
+and that variable is re-defined inside two `@media` blocks at 640px / 1024px at
+the bottom of [`global.css`](src/styles/global.css) — the only place sizes step.
+Line-height / tracking / weight stay constant across breakpoints. **To retune
+the scale, edit the mobile base in `@theme` and those two media blocks; don't add
+a third breakpoint.** These are defaults — a Tailwind `font-*` / `leading-*`
+utility on the same element still overrides when you need an exception.
+
+Tags are not auto-styled (Tailwind Preflight resets headings), so apply the role
+class explicitly, e.g. `<h1 class="text-h1">`.
+
 ## Fonts & logo
 
 - **Circular** is self-hosted from [`public/fonts/`](public/fonts) (weights
