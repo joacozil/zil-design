@@ -4,6 +4,8 @@ import AutoScroll from "embla-carousel-auto-scroll";
 export interface ClientLogo {
   src: string;
   alt: string;
+  /** Per-logo height class, e.g. "h-7". */
+  h: string;
 }
 
 /**
@@ -39,7 +41,7 @@ export default function ClientsMarquee({ logos }: { logos: ClientLogo[] }) {
             <img
               src={logo.src}
               alt={logo.alt}
-              className="h-6 w-auto opacity-60"
+              className={`${logo.h} w-auto opacity-60`}
               draggable={false}
             />
           </li>

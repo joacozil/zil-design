@@ -1,0 +1,23 @@
+---
+import Button from "../components/astro/Button.astro";
+
+// TODO: replace with the real booking link (e.g. Calendly / contact form).
+const bookingUrl = "#";
+---
+
+<section id="cta" class="border-t border-border/60">
+  <div
+    class="mx-auto flex w-full max-w-6xl flex-col items-center px-6 py-24 text-center tablet:px-8 tablet:py-28 desktop:px-12 desktop:py-36"
+  >
+    <h2 class="max-w-[24ch] text-h2 text-balance">Hablemos de tu marca.</h2>
+
+    <p class="mt-6 max-w-[46ch] text-p-lg text-pretty text-muted">
+      La verdadera ventaja aparece cuando la complejidad deja de ser un problema
+      operativo.
+    </p>
+
+    <div class="mt-10">
+      <Button href={bookingUrl}>Agendar una llamada</Button>
+    </div>
+  </div>
+</section>

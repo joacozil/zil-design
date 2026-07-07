@@ -162,6 +162,8 @@
   html {
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    /* Offset anchor jumps by the fixed header height (h-20 = 5rem). */
+    scroll-padding-top: 5rem;
   }
 
   body {
