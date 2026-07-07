@@ -1,0 +1,11 @@
+dist/
+.astro/
+node_modules/
+public/fonts/
+package-lock.json
+# Vendored tooling / editor config — leave as-is.
+.claude/
+.impeccable/
+.vscode/
+# Reference-only parent Zil site — not part of this project.
+zil-landing/

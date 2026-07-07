@@ -22,3 +22,9 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# reference-only parent Zil site (has its own git repo; not part of this project)
+zil-landing/
+
+# impeccable generated cache
+.impeccable/hook.cache.json

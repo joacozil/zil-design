@@ -1,0 +1,127 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   DESIGN TOKENS — single source of truth
+   ----------------------------------------------------------------------------
+   Change a value ONCE here and it propagates everywhere via Tailwind utilities
+   and CSS variables. Components should use the SEMANTIC tokens (primary, surface,
+   text, accent, ...), never the raw palette names directly, so the whole site
+   can be re-themed by only remapping the aliases below.
+
+   Values marked `TODO: confirm from Figma` are placeholders.
+   ========================================================================== */
+
+@theme {
+  /* --- Breakpoints -----------------------------------------------------------
+     ONLY two breakpoints exist. All Tailwind defaults (sm/md/lg/xl/2xl) are
+     wiped so no third layout can be introduced by accident.
+       unprefixed = mobile   (< 640px)
+       tablet:     = ≥ 640px
+       desktop:    = ≥ 1024px
+     Do NOT add breakpoints here. */
+  --breakpoint-*: initial;
+  --breakpoint-tablet: 640px;
+  --breakpoint-desktop: 1024px;
+
+  /* --- Typography ------------------------------------------------------------ */
+  --font-sans:
+    "Circular", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+
+  /* --- Raw palette (from Figma) ---------------------------------------------
+     The literal brand values. Edit hex here; semantic aliases below inherit. */
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-violet: #9747ff; /* primary brand violet */
+  --color-violet-dark: #4b256e;
+  --color-violet-light: #e7d5ff;
+  --color-lime: #c2fe2d; /* accent */
+
+  /* --- Semantic aliases (use THESE in components) ---------------------------- */
+  --color-primary: var(--color-violet);
+  --color-primary-dark: var(--color-violet-dark);
+  --color-primary-light: var(--color-violet-light);
+  --color-accent: var(--color-lime);
+
+  --color-surface: var(--color-white); /* default page background */
+  --color-surface-inverse: var(--color-black);
+  --color-text: var(--color-black); /* default body text */
+  --color-text-inverse: var(--color-white);
+  --color-muted: #6b6b6b; /* TODO: confirm from Figma */
+  --color-border: #e5e5e5; /* TODO: confirm from Figma */
+
+  /* --- Radii — TODO: confirm from Figma -------------------------------------- */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1rem;
+  --radius-full: 9999px;
+
+  /* --- Shadows — TODO: confirm from Figma ------------------------------------ */
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.06);
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 0.08);
+  --shadow-lg: 0 12px 32px rgb(0 0 0 / 0.12);
+}
+
+/* ============================================================================
+   Self-hosted Circular (shared with the parent Zil brand). Only the four weights
+   we actually use are loaded, as woff2 (with woff fallback).
+   ========================================================================== */
+
+@font-face {
+  font-family: "Circular";
+  src:
+    url("/fonts/CircularStd-Book.woff2") format("woff2"),
+    url("/fonts/CircularStd-Book.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Circular";
+  src:
+    url("/fonts/CircularStd-Medium.woff2") format("woff2"),
+    url("/fonts/CircularStd-Medium.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Circular";
+  src:
+    url("/fonts/CircularStd-Bold.woff2") format("woff2"),
+    url("/fonts/CircularStd-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Circular";
+  src:
+    url("/fonts/CircularStd-Black.woff2") format("woff2"),
+    url("/fonts/CircularStd-Black.woff") format("woff");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ============================================================================
+   Base layer — global defaults built on the tokens above.
+   ========================================================================== */
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
