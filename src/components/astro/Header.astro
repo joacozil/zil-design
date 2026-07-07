@@ -1,0 +1,42 @@
+---
+import { NAV_LINKS } from "../../config/nav";
+import MobileMenu from "../react/MobileMenu.tsx";
+import logo from "../../assets/logo.svg";
+---
+
+<header class="sticky top-0 z-40 bg-surface">
+  <div
+    class="mx-auto flex h-20 w-full max-w-6xl items-center justify-between px-6 tablet:px-8 desktop:px-12"
+  >
+    {/* Left: logo (recolored Zil Design violet) */}
+    <a href="#hero" class="shrink-0" aria-label="Zil Design — inicio">
+      <img
+        src={logo.src}
+        alt="Zil Design"
+        width="50"
+        height="28"
+        class="h-7 w-auto"
+      />
+    </a>
+
+    {/* Right: inline nav (desktop) + hamburger (mobile / tablet) */}
+    <div class="flex items-center">
+      <nav
+        class="hidden items-center gap-8 desktop:flex"
+        aria-label="Principal"
+      >
+        {
+          NAV_LINKS.map((link) => (
+            <a
+              href={link.href}
+              class="text-p-sm font-medium text-text/70 transition-colors duration-200 hover:text-text"
+            >
+              {link.label}
+            </a>
+          ))
+        }
+      </nav>
+      <MobileMenu client:load />
+    </div>
+  </div>
+</header>

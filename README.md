@@ -154,10 +154,13 @@ Setup is intentionally minimal. Real work happens **one section at a time**:
    skill.
 3. Any missing values are asked for, not guessed.
 
-### Throwaway test block
+### Built so far
 
-[`src/pages/index.astro`](src/pages/index.astro) currently contains a **throwaway
-breakpoint test block** (labeled in a comment) that shows `MOBILE` / `TABLET` /
-`DESKTOP` and swaps background color at each breakpoint, plus a small React
-island to confirm hydration. **Delete it before building the first real
-section.**
+- **Header** — [`components/astro/Header.astro`](src/components/astro/Header.astro):
+  inline nav (left) + logo (right) on desktop; below desktop it collapses to the
+  animated hamburger in [`components/react/MobileMenu.tsx`](src/components/react/MobileMenu.tsx)
+  (full-screen slide-in menu, reduced-motion aware). Nav links come from the
+  shared [`config/nav.ts`](src/config/nav.ts).
+- **Hero** — [`sections/Hero.astro`](src/sections/Hero.astro): headline +
+  subtitle + CTA, using the [`Button`](src/components/astro/Button.astro)
+  component (renders `<a>` when given `href`, otherwise `<button>`).

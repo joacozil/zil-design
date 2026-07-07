@@ -212,3 +212,28 @@
     --text-p-sm: 0.9375rem; /* 15px */
   }
 }
+
+/* ============================================================================
+   Page gutter — the distance from the edge to the content edge of the standard
+   container (mx-auto max-w-6xl px-*). Full-bleed elements (e.g. the projects
+   slider) use `var(--gutter)` as side padding so they start aligned with normal
+   content while running to the true screen edge. Steps with the container's own
+   px-6 / px-8 / px-12 at our two breakpoints.
+
+   Uses `100%` (not 100vw) so it MUST be applied on a full-width element; this
+   keeps it pixel-accurate against the centered container, which — unlike 100vw —
+   excludes the scrollbar width.
+   ========================================================================== */
+:root {
+  --gutter: max(1.5rem, calc((100% - 72rem) / 2 + 1.5rem));
+}
+@media (width >= 640px) {
+  :root {
+    --gutter: max(2rem, calc((100% - 72rem) / 2 + 2rem));
+  }
+}
+@media (width >= 1024px) {
+  :root {
+    --gutter: max(3rem, calc((100% - 72rem) / 2 + 3rem));
+  }
+}

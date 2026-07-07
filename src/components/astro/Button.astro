@@ -1,0 +1,35 @@
+---
+/**
+ * Reusable button / link. Renders an <a> when `href` is given, otherwise a
+ * <button>. Styling comes from design tokens so it re-themes automatically.
+ */
+interface Props {
+  href?: string;
+  type?: "button" | "submit" | "reset";
+  variant?: "primary" | "secondary";
+  class?: string;
+}
+
+const {
+  href,
+  type = "button",
+  variant = "primary",
+  class: className = "",
+} = Astro.props;
+
+const base =
+  "inline-flex cursor-pointer items-center justify-center rounded-md px-7 py-3.5 text-p font-medium transition-[transform,background-color,box-shadow] duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface motion-reduce:transition-none motion-reduce:hover:translate-y-0";
+
+const variants: Record<NonNullable<Props["variant"]>, string> = {
+  primary:
+    "bg-surface-inverse text-text-inverse hover:bg-surface-inverse/90 hover:shadow-md",
+  secondary: "bg-primary-light text-primary-dark hover:bg-primary-light/80",
+};
+
+const cls = [base, variants[variant], className].filter(Boolean).join(" ");
+const Tag = href ? "a" : "button";
+---
+
+<Tag class={cls} {...href ? { href } : { type }}>
+  <slot />
+</Tag>

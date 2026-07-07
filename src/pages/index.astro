@@ -1,38 +1,18 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import HydrationCheck from "../components/react/HydrationCheck.tsx";
-import logo from "../assets/logo.svg";
+import Header from "../components/astro/Header.astro";
+import Hero from "../sections/Hero.astro";
+import Clients from "../sections/Clients.astro";
+import Claim from "../sections/Claim.astro";
+import Projects from "../sections/Projects.astro";
 ---
 
 <Layout title="Zil Design">
-  {
-    /*
-    THROWAWAY TEST BLOCK — verifies the three-layout / two-breakpoint system
-    end to end. Background color and the big label both swap at exactly 640px
-    and 1024px, and nowhere else. Delete this whole block before real work.
-  */
-  }
-  <main
-    class="flex min-h-screen flex-col items-center justify-center gap-8 bg-primary text-text-inverse tablet:bg-accent tablet:text-text desktop:bg-primary-dark desktop:text-text-inverse"
-  >
-    <img src={logo.src} alt="Zil Design" width="120" height="66" />
-
-    <p class="text-sm font-medium tracking-widest uppercase opacity-80">
-      Breakpoint test
-    </p>
-
-    <h1 class="text-6xl font-black tracking-tight">
-      <span class="tablet:hidden">MOBILE</span>
-      <span class="hidden tablet:inline desktop:hidden">TABLET</span>
-      <span class="hidden desktop:inline">DESKTOP</span>
-    </h1>
-
-    <p class="max-w-[40ch] text-center text-base opacity-80">
-      Resize the window: this swaps only at <strong>640px</strong> and
-      <strong>1024px</strong>. Mobile = violet, Tablet = lime, Desktop = deep
-      violet.
-    </p>
-
-    <HydrationCheck client:load />
+  <Header />
+  <main>
+    <Hero />
+    <Clients />
+    <Claim />
+    <Projects />
   </main>
 </Layout>
