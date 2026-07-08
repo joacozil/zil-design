@@ -5,10 +5,12 @@ import quantia from "../assets/img/quantia.svg";
 import clojure from "../assets/img/clojure.svg";
 import netValue from "../assets/img/net-value.svg";
 import advantia from "../assets/img/advantia.svg";
+import nu from "../assets/img/nu.svg";
 
 // `h` is a per-logo height class — logos are normalized by height, but some
 // marks read smaller at the same height, so they get a larger value.
 const logos = [
+  { img: nu, alt: "Nu", h: "h-8" },
   { img: mmg, alt: "MMG Bank", h: "h-7" },
   { img: advantia, alt: "Advantia", h: "h-10" },
   { img: quantia, alt: "Quantia", h: "h-7" },
@@ -23,7 +25,7 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
 <section id="clients" class="border-t border-border/60 py-14 tablet:py-16">
   {/* Tablet / desktop: static row (inside the standard container) */}
   <ul
-    class="mx-auto hidden w-full max-w-6xl items-center justify-between gap-10 px-6 tablet:flex tablet:px-8 desktop:px-12"
+    class="mx-auto hidden w-full max-w-8xl items-center justify-between gap-10 px-6 tablet:flex tablet:px-8 desktop:px-12"
   >
     {
       logos.map(({ img, alt, h }) => (

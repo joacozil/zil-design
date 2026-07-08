@@ -1,0 +1,65 @@
+---
+import Badge from "../components/astro/Badge.astro";
+import ServicesSelector, {
+  type Service,
+} from "../components/react/ServicesSelector.tsx";
+import uxui from "../assets/img/ux-ui.svg";
+import webDesign from "../assets/img/web-design.svg";
+import branding from "../assets/img/branding.svg";
+import socialMedia from "../assets/img/social-media.svg";
+
+// TODO: replace the placeholder copy + badges with the real per-service content.
+const PLACEHOLDER =
+  "Transformamos tu presencia digital en una herramienta de comunicación que fortalece.";
+
+const services: Service[] = [
+  {
+    name: "UX/UI Design",
+    icon: uxui.src,
+    text: PLACEHOLDER,
+    badges: ["Usabilidad", "Wireframes", "Prototipado"],
+    variant: "lilac",
+  },
+  {
+    name: "Web Design",
+    icon: webDesign.src,
+    text: PLACEHOLDER,
+    badges: ["Interactivo", "Organizado", "Responsive"],
+    variant: "dark",
+  },
+  {
+    name: "Branding",
+    icon: branding.src,
+    text: PLACEHOLDER,
+    badges: ["Identidad", "Logotipo", "Estrategia"],
+    variant: "lime",
+  },
+  {
+    name: "Social Media",
+    icon: socialMedia.src,
+    text: PLACEHOLDER,
+    badges: ["Contenido", "Campañas", "Community"],
+    variant: "primary",
+  },
+];
+---
+
+<section id="servicios" class="border-t border-border/60">
+  <div
+    class="mx-auto w-full max-w-8xl px-6 py-20 tablet:px-8 tablet:py-28 desktop:px-12 desktop:py-32"
+  >
+    {/* Header */}
+    <Badge>Servicios</Badge>
+    <h2 class="mt-6 text-h2 font-black tracking-[-0.03em] text-balance">
+      Claridad visual como ventaja competitiva.
+    </h2>
+    <p class="mt-4 text-p text-pretty text-muted">
+      Nuestro objetivo es ordenar, fortalecer y amplificar el potencial de tu
+      negocio.
+    </p>
+
+    <div class="mt-12 tablet:mt-16">
+      <ServicesSelector client:visible services={services} />
+    </div>
+  </div>
+</section>

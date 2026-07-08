@@ -1,5 +1,6 @@
 ---
 import { getImage } from "astro:assets";
+import Badge from "../components/astro/Badge.astro";
 import ProjectsSlider from "../components/react/ProjectsSlider.tsx";
 import mmg from "../assets/img/mmg.jpg";
 import quantia from "../assets/img/quantia.jpg";
@@ -30,5 +31,19 @@ const optimized = await Promise.all(
   id="work"
   class="border-t border-border/60 py-20 tablet:py-28 desktop:py-32"
 >
-  <ProjectsSlider client:visible projects={optimized} />
+  {/* Header (aligned with the container; the slider below is full-bleed) */}
+  <div class="mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12">
+    <Badge>Nuestros proyectos</Badge>
+    <h2 class="mt-6 text-h2 font-black tracking-[-0.03em] text-balance">
+      Cada punto de contacto comunica.
+    </h2>
+    <p class="mt-4 text-p text-pretty text-muted">
+      Sin una estrategia detrás, se pierden oportunidades de crecimiento y
+      diferenciación.
+    </p>
+  </div>
+
+  <div class="mt-12 tablet:mt-16">
+    <ProjectsSlider client:visible projects={optimized} />
+  </div>
 </section>

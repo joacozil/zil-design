@@ -14,10 +14,19 @@ interface Floater {
   v: Variant;
 }
 
-// Distributed around the perimeter, leaving the center clear for the content.
-// The top band starts below ~13% so nothing hides behind the fixed header.
-// Empty for now — the graphic elements inside get filled in later.
-const RAW: Floater[] = [
+function withDist(raw: Floater[]) {
+  const maxDist = Math.max(...raw.map((f) => Math.hypot(f.x - 50, f.y - 50)));
+  return raw.map((f) => ({
+    ...f,
+    // 0 at the center, 1 at the outermost element — drives the radial stagger.
+    dist: Math.hypot(f.x - 50, f.y - 50) / maxDist,
+  }));
+}
+
+// Desktop: the hero text sits in a narrow center column, so the field can wrap
+// around it on all sides. The top band starts below ~13% so nothing hides
+// behind the fixed header.
+const DESKTOP_FLOATERS = withDist([
   { x: 31, y: 14, s: 60, v: "accent" },
   { x: 5, y: 20, s: 64, v: "card" },
   { x: 56, y: 17, s: 54, v: "card" },
@@ -34,14 +43,24 @@ const RAW: Floater[] = [
   { x: 90, y: 64, s: 60, v: "card" },
   { x: 46, y: 87, s: 60, v: "card" },
   { x: 76, y: 87, s: 56, v: "accent" },
-];
+]);
 
-const maxDist = Math.max(...RAW.map((f) => Math.hypot(f.x - 50, f.y - 50)));
-const FLOATERS = RAW.map((f) => ({
-  ...f,
-  // 0 at the center, 1 at the outermost element — drives the radial stagger.
-  dist: Math.hypot(f.x - 50, f.y - 50) / maxDist,
-}));
+// Mobile / tablet: the stacked text spans nearly the full width in a vertical
+// band roughly 30–68% down the hero, with no side margin to speak of. So this
+// layout is confined to a top band and a bottom band instead of wrapping
+// around a center column.
+const COMPACT_FLOATERS = withDist([
+  { x: 10, y: 14, s: 44, v: "card" },
+  { x: 33, y: 20, s: 40, v: "accent" },
+  { x: 58, y: 13, s: 48, v: "card" },
+  { x: 80, y: 18, s: 44, v: "primary-dark" },
+  { x: 93, y: 25, s: 40, v: "card" },
+  { x: 6, y: 90, s: 40, v: "primary-dark" },
+  { x: 27, y: 79, s: 48, v: "primary" },
+  { x: 50, y: 92, s: 40, v: "card" },
+  { x: 71, y: 82, s: 44, v: "primary-light" },
+  { x: 91, y: 90, s: 44, v: "accent" },
+]);
 
 const VARIANT_CLASS: Record<Variant, string> = {
   accent: "bg-accent",
@@ -51,8 +70,38 @@ const VARIANT_CLASS: Record<Variant, string> = {
   card: "border border-border/70 bg-surface shadow-md",
 };
 
+function Field({
+  floaters,
+  className = "",
+}: {
+  floaters: ReturnType<typeof withDist>;
+  className?: string;
+}) {
+  return (
+    <div className={`absolute inset-0 ${className}`}>
+      {floaters.map((f, i) => (
+        <div
+          key={i}
+          data-floater
+          data-dist={f.dist.toFixed(3)}
+          className={`absolute rounded-2xl ${VARIANT_CLASS[f.v]}`}
+          style={{
+            left: `${f.x}%`,
+            top: `${f.y}%`,
+            width: f.s,
+            height: f.s,
+            translate: "-50% -50%",
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 /**
- * Decorative floating squares around the hero content (desktop only).
+ * Decorative floating squares around the hero content, on all three layouts —
+ * a compact top/bottom-band field on mobile & tablet (where the stacked text
+ * spans nearly the full width), and a wider field wrapping the text on desktop.
  *
  * Intro: the pieces compose outward from the center — scaling up and coming
  * into focus (blur → sharp) in a radial wave — as if the visual system is being
@@ -127,23 +176,10 @@ export default function HeroFloaters() {
     <div
       ref={root}
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 hidden desktop:block"
+      className="pointer-events-none absolute inset-0"
     >
-      {FLOATERS.map((f, i) => (
-        <div
-          key={i}
-          data-floater
-          data-dist={f.dist.toFixed(3)}
-          className={`absolute rounded-2xl ${VARIANT_CLASS[f.v]}`}
-          style={{
-            left: `${f.x}%`,
-            top: `${f.y}%`,
-            width: f.s,
-            height: f.s,
-            translate: "-50% -50%",
-          }}
-        />
-      ))}
+      <Field floaters={COMPACT_FLOATERS} className="desktop:hidden" />
+      <Field floaters={DESKTOP_FLOATERS} className="hidden desktop:block" />
     </div>
   );
 }

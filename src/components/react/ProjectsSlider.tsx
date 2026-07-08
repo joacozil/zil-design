@@ -126,7 +126,7 @@ export default function ProjectsSlider({ projects }: { projects: Project[] }) {
       </div>
 
       {/* Controls stay within the standard container. */}
-      <div className="mx-auto mt-10 flex w-full max-w-6xl items-center justify-between gap-6 px-6 tablet:px-8 desktop:px-12">
+      <div className="mx-auto mt-10 flex w-full max-w-8xl items-center justify-between gap-6 px-6 tablet:px-8 desktop:px-12">
         <div className="relative h-[3px] w-full max-w-xs overflow-hidden rounded-full bg-border">
           <span
             className="absolute top-0 h-full rounded-full bg-text"

@@ -1,0 +1,19 @@
+---
+/**
+ * Small pill label used above a section heading (e.g. "MÉTODO ZIL").
+ */
+interface Props {
+  class?: string;
+}
+
+const { class: className = "" } = Astro.props;
+---
+
+<span
+  class:list={[
+    "inline-flex items-center rounded-md bg-primary-light px-4 py-2 text-p-sm font-bold tracking-wide text-primary-dark uppercase",
+    className,
+  ]}
+>
+  <slot />
+</span>
