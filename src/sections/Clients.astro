@@ -18,33 +18,14 @@ const logos = [
   { img: netValue, alt: "Net Value", h: "h-10" },
 ];
 
-// Plain, serializable data for the mobile marquee island.
+// Plain, serializable data for the marquee island.
 const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
 ---
 
 <section id="clients" class="border-t border-border/60 py-14 tablet:py-16">
-  {/* Tablet / desktop: static row (inside the standard container) */}
-  <ul
-    class="mx-auto hidden w-full max-w-8xl items-center justify-between gap-10 px-6 tablet:flex tablet:px-8 desktop:px-12"
-  >
-    {
-      logos.map(({ img, alt, h }) => (
-        <li class="flex items-center">
-          <img
-            src={img.src}
-            alt={alt}
-            class:list={[
-              h,
-              "w-auto opacity-60 transition-opacity duration-300 hover:opacity-100",
-            ]}
-          />
-        </li>
-      ))
-    }
-  </ul>
-
-  {/* Mobile: full-bleed infinite marquee (edge to edge) */}
-  <div class="tablet:hidden">
-    <ClientsMarquee client:visible logos={marqueeLogos} />
-  </div>
+  {
+    /* Full-bleed infinite marquee on all breakpoints. `client:load` so the
+      auto-scroll is already running by the time the section scrolls into view. */
+  }
+  <ClientsMarquee client:load logos={marqueeLogos} />
 </section>

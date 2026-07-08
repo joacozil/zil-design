@@ -9,9 +9,9 @@ export interface ClientLogo {
 }
 
 /**
- * Continuous, infinitely-looping logo marquee for mobile. Uses Embla + the
- * AutoScroll plugin. Auto-scroll is disabled under prefers-reduced-motion
- * (the row is still draggable). Tablet / desktop render a static row instead.
+ * Continuous, infinitely-looping logo marquee (all breakpoints). Uses Embla +
+ * the AutoScroll plugin. Auto-scroll is disabled under prefers-reduced-motion
+ * (the row is still draggable).
  */
 export default function ClientsMarquee({ logos }: { logos: ClientLogo[] }) {
   const reduceMotion =
@@ -36,7 +36,7 @@ export default function ClientsMarquee({ logos }: { logos: ClientLogo[] }) {
         {items.map((logo, i) => (
           <li
             key={i}
-            className="flex shrink-0 grow-0 basis-auto items-center px-8"
+            className="flex shrink-0 grow-0 basis-auto items-center px-8 desktop:px-12"
           >
             <img
               src={logo.src}
