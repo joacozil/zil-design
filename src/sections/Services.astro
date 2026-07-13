@@ -8,36 +8,32 @@ import webDesign from "../assets/img/web-design-icon.svg";
 import branding from "../assets/img/branding-icon.svg";
 import socialMedia from "../assets/img/social-media-icon.svg";
 
-// TODO: replace the placeholder copy + badges with the real per-service content.
-const PLACEHOLDER =
-  "Transformamos tu presencia digital en una herramienta de comunicación que fortalece.";
-
 const services: Service[] = [
   {
     name: "UX/UI Design",
     icon: uxui.src,
-    text: PLACEHOLDER,
+    text: "Estructuramos la experiencia interactiva de sus plataformas mediante un diseño funcional que optimiza la conversión y el desempeño técnico.",
     badges: ["Usabilidad", "Wireframes", "Prototipado"],
     variant: "lilac",
   },
   {
     name: "Web Design",
     icon: webDesign.src,
-    text: PLACEHOLDER,
+    text: "Desarrollamos interfaces digitales de alta precisión que transforman su presencia en un motor comercial continuo y una ventaja competitiva real.",
     badges: ["Interactivo", "Organizado", "Responsive"],
     variant: "lime",
   },
   {
     name: "Branding",
     icon: branding.src,
-    text: PLACEHOLDER,
+    text: "Construimos una arquitectura de marca organizada con el fin de proyectar solidez institucional, potenciar su valor y blindar su diferenciación.",
     badges: ["Identidad", "Logotipo", "Estrategia"],
     variant: "dark",
   },
   {
     name: "Social Media",
     icon: socialMedia.src,
-    text: PLACEHOLDER,
+    text: "Gestionamos canales digitales con criterio estratégico para transformar la comunicación en una herramienta activa de posicionamiento.",
     badges: ["Contenido", "Campañas", "Community"],
     variant: "primary",
   },
@@ -51,9 +47,7 @@ const services: Service[] = [
     {/* Header */}
     <div id="servicios" class="scroll-anchor"></div>
     <Badge>Servicios</Badge>
-    <h2
-      class="mt-6 max-w-230 text-h2 tracking-[-0.03em] text-balance"
-    >
+    <h2 class="mt-6 max-w-230 text-h2 tracking-[-0.03em] text-balance">
       Una comunicación visual sin dirección dificulta el crecimiento.
     </h2>
     <p class="mt-4 max-w-190 text-p text-pretty text-muted">

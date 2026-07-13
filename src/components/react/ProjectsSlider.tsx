@@ -23,7 +23,7 @@ function Arrow({
       onClick={onClick}
       disabled={disabled}
       aria-label={direction === "prev" ? "Anterior" : "Siguiente"}
-      className="flex h-12 w-12 items-center justify-center rounded-full border border-border text-text transition-colors duration-200 hover:border-text disabled:pointer-events-none disabled:opacity-30"
+      className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border border-border text-text transition-colors duration-200 hover:border-primary disabled:pointer-events-none disabled:opacity-30"
     >
       <svg
         width="18"

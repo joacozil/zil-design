@@ -105,40 +105,57 @@ export default function ServicesSelector({
         })}
       </ul>
 
-      {/* Card (themed by the active service's variant) */}
-      <div className={`flex rounded-2xl p-8 desktop:p-10 ${v.card}`}>
-        <div
-          key={active}
-          className="flex w-full animate-fade-up flex-col justify-between gap-12 motion-reduce:animate-none"
-        >
-          <img
-            src={current.icon}
-            alt=""
-            aria-hidden="true"
-            className="h-30 w-auto shrink-0 object-contain object-left desktop:h-48"
-          />
-          <div>
-            <h3
-              className={`text-h5 font-bold tracking-wide uppercase ${v.kicker}`}
+      {/* Card (themed by the active service's variant). ALL services render
+          stacked in the same grid cell — inactive ones are invisible but still
+          take up space, so the card is always as tall as the tallest content
+          and never resizes (no layout shift / hover flicker) when switching. */}
+      <div className={`grid rounded-2xl p-8 desktop:p-10 ${v.card}`}>
+        {services.map((service, i) => {
+          const isActive = i === active;
+          const sv = VARIANTS[service.variant];
+          return (
+            <div
+              // Key flips with active state so the fade-up replays on switch.
+              key={`${service.name}-${isActive ? "on" : "off"}`}
+              aria-hidden={!isActive}
+              className={`col-start-1 row-start-1 flex w-full flex-col justify-between gap-12 ${
+                isActive
+                  ? "animate-fade-up motion-reduce:animate-none"
+                  : "invisible"
+              }`}
             >
-              {current.name}
-            </h3>
-            <p className={`mt-3 max-w-[38ch] text-p text-pretty ${v.text}`}>
-              {current.text}
-            </p>
-            <ul className="mt-6 flex flex-wrap gap-2">
-              {current.badges.map((badge) => (
-                <li key={badge}>
-                  <span
-                    className={`inline-flex rounded-full px-4 py-2 text-p-sm font-bold tracking-wide uppercase ${v.badge}`}
-                  >
-                    {badge}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+              <img
+                src={service.icon}
+                alt=""
+                aria-hidden="true"
+                className="tablet: h-30 w-auto shrink-0 object-contain object-left desktop:h-48"
+              />
+              <div>
+                <h3
+                  className={`text-h5 font-bold tracking-wide uppercase ${sv.kicker}`}
+                >
+                  {service.name}
+                </h3>
+                <p
+                  className={`mt-3 max-w-[38ch] text-p text-pretty ${sv.text}`}
+                >
+                  {service.text}
+                </p>
+                <ul className="mt-6 flex flex-wrap gap-2">
+                  {service.badges.map((badge) => (
+                    <li key={badge}>
+                      <span
+                        className={`inline-flex rounded-full px-4 py-2 text-p-sm font-bold tracking-wide uppercase ${sv.badge}`}
+                      >
+                        {badge}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

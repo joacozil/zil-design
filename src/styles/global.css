@@ -88,13 +88,13 @@ html {
   --text-h5--letter-spacing: -0.005em;
   --text-h5--font-weight: 500;
 
-  --text-p-lg: 1.125rem;
-  /* 18px → 19 → 20 */
+  --text-p-lg: 1rem;
+  /* 16px → 18 → 20 */
   --text-p-lg--line-height: 1.55;
   --text-p-lg--font-weight: 400;
 
-  --text-p: 1rem;
-  /* 16px → 16 → 17 */
+  --text-p: 0.9375rem;
+  /* 15px → 16 → 17 */
   --text-p--line-height: 1.6;
   --text-p--font-weight: 400;
 
@@ -253,9 +253,11 @@ html {
     /* 22px */
     --text-h5: 1.125rem;
     /* 18px */
-    --text-p-lg: 1.1875rem;
-    /* 19px */
-    /* --text-p / --text-p-sm hold at their mobile size on tablet */
+    --text-p-lg: 1.125rem;
+    /* 18px */
+    --text-p: 1rem;
+    /* 16px */
+    /* --text-p-sm holds at its mobile size on tablet */
   }
 }
 
