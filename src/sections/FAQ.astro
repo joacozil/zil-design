@@ -1,0 +1,117 @@
+---
+import Badge from "../components/astro/Badge.astro";
+
+const faqs = [
+  {
+    question: "¿Trabajan con cualquier tipo de empresa?",
+    answer:
+      "Trabajamos con empresas de distintos tamaños e industrias. Nuestro enfoque se adapta a las necesidades específicas de cada proyecto, priorizando siempre la claridad estratégica y el impacto visual.",
+  },
+  {
+    question: "¿Cómo nos comunicamos durante el proyecto?",
+    answer:
+      "Mantenemos una comunicación fluida a través de reuniones periódicas y canales directos. Cada etapa incluye instancias de revisión para asegurar que el resultado esté alineado con tus objetivos.",
+  },
+  {
+    question: "¿En cuánto tiempo voy a obtener resultados?",
+    answer:
+      "Los plazos varían según la complejidad del proyecto. En la etapa inicial definimos un cronograma claro con entregables parciales para que puedas ver avances desde las primeras semanas.",
+  },
+  {
+    question: "¿Qué incluye el proceso de diseño?",
+    answer:
+      "Nuestro proceso abarca desde la investigación y estrategia inicial hasta el diseño final y la entrega de archivos listos para implementar. Cada proyecto incluye descubrimiento, propuesta conceptual, iteraciones y entrega documentada.",
+  },
+  {
+    question: "¿Puedo solicitar cambios durante el proceso?",
+    answer:
+      "Por supuesto. Cada etapa contempla rondas de feedback para ajustar el trabajo según tus necesidades. Creemos en un proceso colaborativo donde tu visión guía cada decisión de diseño.",
+  },
+];
+---
+
+<section id="faq">
+  <div
+    class="mx-auto flex w-full max-w-8xl flex-col items-center px-6 py-20 tablet:px-8 tablet:py-28 desktop:px-12 desktop:py-32"
+  >
+    <Badge class="mb-6">Preguntas frecuentes</Badge>
+    <h2
+      class="max-w-[20ch] text-center text-h2 tracking-[-0.03em] text-balance"
+    >
+      ¿Tenés alguna duda?
+    </h2>
+
+    <div class="mt-12 w-full max-w-3xl tablet:mt-16">
+      {
+        faqs.map((faq) => (
+          <div class="faq-item border-b border-border/60">
+            <button
+              type="button"
+              class="flex w-full cursor-pointer items-center justify-between gap-4 py-6 text-left text-p font-medium"
+              aria-expanded="false"
+            >
+              <span>{faq.question}</span>
+              <svg class="faq-icon size-5 shrink-0 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <line x1="12" y1="5" x2="12" y2="19" class="faq-vertical" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+            </button>
+            <div class="faq-content" aria-hidden="true">
+              <div class="faq-inner">
+                <p class="pb-6 pr-10 text-p text-muted">{faq.answer}</p>
+              </div>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq-content {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.35s ease;
+  }
+
+  .faq-content.is-open {
+    grid-template-rows: 1fr;
+  }
+
+  .faq-inner {
+    overflow: hidden;
+  }
+
+  .faq-vertical {
+    transition: transform 0.35s ease;
+    transform-origin: center;
+  }
+
+  .faq-item.is-open .faq-vertical {
+    transform: scaleY(0);
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLDivElement>(".faq-item").forEach((item) => {
+    const btn = item.querySelector("button")!;
+    const content = item.querySelector<HTMLDivElement>(".faq-content")!;
+
+    btn.addEventListener("click", () => {
+      const isOpen = content.classList.contains("is-open");
+
+      if (isOpen) {
+        content.classList.remove("is-open");
+        item.classList.remove("is-open");
+        btn.setAttribute("aria-expanded", "false");
+        content.setAttribute("aria-hidden", "true");
+      } else {
+        content.classList.add("is-open");
+        item.classList.add("is-open");
+        btn.setAttribute("aria-expanded", "true");
+        content.setAttribute("aria-hidden", "false");
+      }
+    });
+  });
+</script>

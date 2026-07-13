@@ -1,33 +1,29 @@
 import { useState } from "react";
 
 // Each service card renders in one of four themes — all built from our color
-// tokens. The active service's variant themes the whole card (bg, icon, kicker,
-// body text and badges).
+// tokens. The active service's variant themes the whole card (bg, kicker, body
+// text and badges). The icon keeps its own colors.
 const VARIANTS = {
   lilac: {
     card: "bg-primary-light",
-    icon: "bg-primary-dark",
     kicker: "text-primary-dark",
     text: "text-text",
     badge: "bg-primary-dark text-text-inverse",
   },
   dark: {
     card: "bg-primary-dark",
-    icon: "bg-accent",
     kicker: "text-text-inverse",
     text: "text-text-inverse",
     badge: "bg-accent text-primary-dark",
   },
   lime: {
     card: "bg-accent",
-    icon: "bg-primary",
     kicker: "text-primary",
     text: "text-text",
     badge: "bg-primary text-text-inverse",
   },
   primary: {
     card: "bg-primary",
-    icon: "bg-text-inverse",
     kicker: "text-text-inverse",
     text: "text-text-inverse",
     badge: "bg-surface text-primary-dark",
@@ -38,7 +34,7 @@ export type ServiceVariant = keyof typeof VARIANTS;
 
 export interface Service {
   name: string;
-  icon: string; // optimized src (used as a mask so it can be recolored)
+  icon: string; // icon src, shown in its own colors
   text: string;
   badges: string[];
   variant: ServiceVariant;
@@ -113,21 +109,13 @@ export default function ServicesSelector({
       <div className={`flex rounded-2xl p-8 desktop:p-10 ${v.card}`}>
         <div
           key={active}
-          className="flex w-full animate-fade-up flex-col justify-between gap-10 motion-reduce:animate-none"
+          className="flex w-full animate-fade-up flex-col justify-between gap-12 motion-reduce:animate-none"
         >
-          <span
+          <img
+            src={current.icon}
+            alt=""
             aria-hidden="true"
-            className={`block h-16 w-16 shrink-0 desktop:h-36 desktop:w-36 ${v.icon}`}
-            style={{
-              maskImage: `url(${current.icon})`,
-              WebkitMaskImage: `url(${current.icon})`,
-              maskRepeat: "no-repeat",
-              WebkitMaskRepeat: "no-repeat",
-              maskPosition: "center",
-              WebkitMaskPosition: "center",
-              maskSize: "contain",
-              WebkitMaskSize: "contain",
-            }}
+            className="h-30 w-auto shrink-0 object-contain object-left desktop:h-48"
           />
           <div>
             <h3

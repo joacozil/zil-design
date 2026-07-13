@@ -9,7 +9,8 @@ export interface NavLink {
  */
 export const NAV_LINKS: NavLink[] = [
   { label: "Trabajo", href: "#work" },
+  { label: "Cómo trabajamos", href: "#how-we-work" },
   { label: "Servicios", href: "#servicios" },
-  { label: "Filosofía", href: "#claim" },
+  { label: "FAQ", href: "#faq" },
   { label: "Contacto", href: "#cta" },
 ];

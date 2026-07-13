@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NAV_LINKS } from "../../config/nav";
 
 /**
@@ -10,19 +10,43 @@ import { NAV_LINKS } from "../../config/nav";
  */
 export default function MobileMenu() {
   const [open, setOpen] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const closingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Lock body scroll + close on Escape while the menu is open.
+  const linkCount = NAV_LINKS.length;
+  const staggerMs = 60;
+  const staggerBase = 120;
+  const closeDuration = staggerBase + (linkCount - 1) * staggerMs + 300;
+
+  function handleClose() {
+    if (closing) return;
+    setClosing(true);
+    closingTimer.current = setTimeout(() => {
+      setOpen(false);
+      setClosing(false);
+    }, closeDuration);
+  }
+
+  function handleToggle() {
+    if (open && !closing) {
+      handleClose();
+    } else if (!open) {
+      setOpen(true);
+    }
+  }
+
   useEffect(() => {
     if (!open) return;
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") handleClose();
     };
     window.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = prevOverflow;
       window.removeEventListener("keydown", onKey);
+      if (closingTimer.current) clearTimeout(closingTimer.current);
     };
   }, [open]);
 
@@ -34,22 +58,22 @@ export default function MobileMenu() {
         aria-label={open ? "Cerrar menú" : "Abrir menú"}
         aria-expanded={open}
         aria-controls="mobile-menu"
-        onClick={() => setOpen((v) => !v)}
+        onClick={handleToggle}
         className="relative z-50 -mr-2 flex h-10 w-10 items-center justify-center"
       >
         <span
           className={`absolute h-0.5 w-6 rounded-full bg-text transition-transform duration-300 ease-out motion-reduce:transition-none ${
-            open ? "rotate-45" : "-translate-y-[6px]"
+            open && !closing ? "rotate-45" : "-translate-y-[6px]"
           }`}
         />
         <span
           className={`absolute h-0.5 w-6 rounded-full bg-text transition-opacity duration-300 ease-out motion-reduce:transition-none ${
-            open ? "opacity-0" : "opacity-100"
+            open && !closing ? "opacity-0" : "opacity-100"
           }`}
         />
         <span
           className={`absolute h-0.5 w-6 rounded-full bg-text transition-transform duration-300 ease-out motion-reduce:transition-none ${
-            open ? "-rotate-45" : "translate-y-[6px]"
+            open && !closing ? "-rotate-45" : "translate-y-[6px]"
           }`}
         />
       </button>
@@ -58,10 +82,11 @@ export default function MobileMenu() {
       <div
         id="mobile-menu"
         className={`fixed inset-0 z-40 bg-surface transition-[opacity,transform] duration-[400ms] ease-out motion-reduce:transition-none ${
-          open
+          open && !closing
             ? "translate-x-0 opacity-100"
             : "pointer-events-none translate-x-full opacity-0"
         }`}
+        style={closing ? { transitionDelay: `${closeDuration - 400}ms` } : undefined}
       >
         <nav
           aria-label="Principal"
@@ -71,11 +96,20 @@ export default function MobileMenu() {
             <a
               key={link.href}
               href={link.href}
-              onClick={() => setOpen(false)}
-              className={`text-h3 font-medium text-text transition-[transform,opacity] duration-500 ease-out motion-reduce:transition-none ${
-                open ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+              onClick={(e) => {
+                e.preventDefault();
+                handleClose();
+                const target = document.querySelector(link.href);
+                if (target) setTimeout(() => target.scrollIntoView({ behavior: "smooth" }), closeDuration);
+              }}
+              className={`text-h3 font-medium text-text transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none ${
+                open && !closing ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
               }`}
-              style={{ transitionDelay: open ? `${120 + i * 60}ms` : "0ms" }}
+              style={{
+                transitionDelay: open && !closing
+                  ? `${staggerBase + i * staggerMs}ms`
+                  : `${(linkCount - 1 - i) * staggerMs}ms`,
+              }}
             >
               {link.label}
             </a>

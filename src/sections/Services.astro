@@ -3,10 +3,10 @@ import Badge from "../components/astro/Badge.astro";
 import ServicesSelector, {
   type Service,
 } from "../components/react/ServicesSelector.tsx";
-import uxui from "../assets/img/ux-ui.svg";
-import webDesign from "../assets/img/web-design.svg";
-import branding from "../assets/img/branding.svg";
-import socialMedia from "../assets/img/social-media.svg";
+import uxui from "../assets/img/ux-ui-icon.svg";
+import webDesign from "../assets/img/web-design-icon.svg";
+import branding from "../assets/img/branding-icon.svg";
+import socialMedia from "../assets/img/social-media-icon.svg";
 
 // TODO: replace the placeholder copy + badges with the real per-service content.
 const PLACEHOLDER =
@@ -25,14 +25,14 @@ const services: Service[] = [
     icon: webDesign.src,
     text: PLACEHOLDER,
     badges: ["Interactivo", "Organizado", "Responsive"],
-    variant: "dark",
+    variant: "lime",
   },
   {
     name: "Branding",
     icon: branding.src,
     text: PLACEHOLDER,
     badges: ["Identidad", "Logotipo", "Estrategia"],
-    variant: "lime",
+    variant: "dark",
   },
   {
     name: "Social Media",
@@ -44,14 +44,14 @@ const services: Service[] = [
 ];
 ---
 
-<section id="servicios" class="border-t border-border/60">
+<section id="servicios">
   <div
     class="mx-auto w-full max-w-8xl px-6 py-20 tablet:px-8 tablet:py-28 desktop:px-12 desktop:py-32"
   >
     {/* Header */}
     <Badge>Servicios</Badge>
     <h2
-      class="mt-6 max-w-230 text-h2 font-black tracking-[-0.03em] text-balance"
+      class="mt-6 max-w-230 text-h2 tracking-[-0.03em] text-balance"
     >
       Una comunicación visual sin dirección dificulta el crecimiento.
     </h2>

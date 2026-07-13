@@ -22,7 +22,7 @@ const logos = [
 const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
 ---
 
-<section id="clients" class="border-t border-border/60 py-14 tablet:py-16">
+<section id="clients" class="py-14 tablet:py-16">
   {
     /* Full-bleed infinite marquee on all breakpoints. `client:load` so the
       auto-scroll is already running by the time the section scrolls into view. */
