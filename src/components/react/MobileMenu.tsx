@@ -1,92 +1,93 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { NAV_LINKS } from "../../config/nav";
 
-/**
- * Mobile / tablet navigation: an animated hamburger that toggles a full-screen
- * slide-in menu. Hidden on desktop (the inline nav takes over there).
- *
- * Interactive, so it lives as a React island. Motion is CSS-transition based
- * (transform + opacity) and fully disabled under prefers-reduced-motion.
- */
 export default function MobileMenu() {
   const [open, setOpen] = useState(false);
-  const [closing, setClosing] = useState(false);
-  const closingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [visible, setVisible] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const linkCount = NAV_LINKS.length;
-  const staggerMs = 60;
-  const staggerBase = 120;
-  const closeDuration = staggerBase + (linkCount - 1) * staggerMs + 300;
+  const stagger = 60;
+  const baseDelay = 100;
+  const linksFadeOut = (linkCount - 1) * stagger + 300;
+  const overlayFade = 350;
 
-  function handleClose() {
-    if (closing) return;
-    setClosing(true);
-    closingTimer.current = setTimeout(() => {
-      setOpen(false);
-      setClosing(false);
-    }, closeDuration);
-  }
+  const doOpen = useCallback(() => {
+    if (timer.current) clearTimeout(timer.current);
+    setOpen(true);
+    requestAnimationFrame(() => setVisible(true));
+  }, []);
 
-  function handleToggle() {
-    if (open && !closing) {
-      handleClose();
-    } else if (!open) {
-      setOpen(true);
-    }
-  }
+  const doClose = useCallback(() => {
+    if (timer.current) clearTimeout(timer.current);
+    setVisible(false);
+    timer.current = setTimeout(() => setOpen(false), linksFadeOut + overlayFade);
+  }, [linksFadeOut, overlayFade]);
 
   useEffect(() => {
     if (!open) return;
-    const prevOverflow = document.body.style.overflow;
+    const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") handleClose();
+      if (e.key === "Escape") doClose();
     };
     window.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = prevOverflow;
+      document.body.style.overflow = prev;
       window.removeEventListener("keydown", onKey);
-      if (closingTimer.current) clearTimeout(closingTimer.current);
+      if (timer.current) clearTimeout(timer.current);
     };
-  }, [open]);
+  }, [open, doClose]);
+
+  if (!open) {
+    return (
+      <div className="desktop:hidden">
+        <button
+          type="button"
+          aria-label="Abrir menú"
+          aria-expanded={false}
+          aria-controls="mobile-menu"
+          onClick={doOpen}
+          className="relative z-50 -mr-2 flex h-10 w-10 items-center justify-center"
+        >
+          <span className="absolute h-0.5 w-6 -translate-y-[6px] rounded-full bg-text transition-transform duration-300 ease-out motion-reduce:transition-none" />
+          <span className="absolute h-0.5 w-6 rounded-full bg-text opacity-100 transition-opacity duration-300 ease-out motion-reduce:transition-none" />
+          <span className="absolute h-0.5 w-6 translate-y-[6px] rounded-full bg-text transition-transform duration-300 ease-out motion-reduce:transition-none" />
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="desktop:hidden">
-      {/* Hamburger → X */}
       <button
         type="button"
-        aria-label={open ? "Cerrar menú" : "Abrir menú"}
-        aria-expanded={open}
+        aria-label="Cerrar menú"
+        aria-expanded={true}
         aria-controls="mobile-menu"
-        onClick={handleToggle}
+        onClick={doClose}
         className="relative z-50 -mr-2 flex h-10 w-10 items-center justify-center"
       >
         <span
-          className={`absolute h-0.5 w-6 rounded-full bg-text transition-transform duration-300 ease-out motion-reduce:transition-none ${
-            open && !closing ? "rotate-45" : "-translate-y-[6px]"
-          }`}
+          className={`absolute h-0.5 w-6 rounded-full bg-text transition-transform duration-300 ease-out motion-reduce:transition-none ${visible ? "rotate-45" : "-translate-y-[6px]"}`}
         />
         <span
-          className={`absolute h-0.5 w-6 rounded-full bg-text transition-opacity duration-300 ease-out motion-reduce:transition-none ${
-            open && !closing ? "opacity-0" : "opacity-100"
-          }`}
+          className={`absolute h-0.5 w-6 rounded-full bg-text transition-opacity duration-300 ease-out motion-reduce:transition-none ${visible ? "opacity-0" : "opacity-100"}`}
         />
         <span
-          className={`absolute h-0.5 w-6 rounded-full bg-text transition-transform duration-300 ease-out motion-reduce:transition-none ${
-            open && !closing ? "-rotate-45" : "translate-y-[6px]"
-          }`}
+          className={`absolute h-0.5 w-6 rounded-full bg-text transition-transform duration-300 ease-out motion-reduce:transition-none ${visible ? "-rotate-45" : "translate-y-[6px]"}`}
         />
       </button>
 
-      {/* Full-screen overlay menu */}
       <div
         id="mobile-menu"
-        className={`fixed inset-0 z-40 bg-surface transition-[opacity,transform] duration-[400ms] ease-out motion-reduce:transition-none ${
-          open && !closing
-            ? "translate-x-0 opacity-100"
-            : "pointer-events-none translate-x-full opacity-0"
-        }`}
-        style={closing ? { transitionDelay: `${closeDuration - 400}ms` } : undefined}
+        className="fixed inset-0 z-40 motion-reduce:transition-none"
+        style={{
+          backgroundColor: "var(--color-surface)",
+          opacity: visible ? 1 : 0,
+          transition: `opacity ${overlayFade}ms ease-out`,
+          transitionDelay: visible ? "0ms" : `${linksFadeOut}ms`,
+        }}
       >
         <nav
           aria-label="Principal"
@@ -98,17 +99,21 @@ export default function MobileMenu() {
               href={link.href}
               onClick={(e) => {
                 e.preventDefault();
-                handleClose();
-                const target = document.querySelector(link.href);
-                if (target) setTimeout(() => target.scrollIntoView({ behavior: "smooth" }), closeDuration);
+                doClose();
+                const href = link.href;
+                setTimeout(() => {
+                  const target = document.querySelector(href);
+                  if (target) target.scrollIntoView({ behavior: "smooth" });
+                }, linksFadeOut + overlayFade);
               }}
-              className={`text-h3 font-medium text-text transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none ${
-                open && !closing ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
-              }`}
+              className="text-h3 font-medium text-text motion-reduce:transition-none"
               style={{
-                transitionDelay: open && !closing
-                  ? `${staggerBase + i * staggerMs}ms`
-                  : `${(linkCount - 1 - i) * staggerMs}ms`,
+                opacity: visible ? 1 : 0,
+                transform: visible ? "translateY(0)" : "translateY(1rem)",
+                transition: "opacity 300ms ease-out, transform 300ms ease-out",
+                transitionDelay: visible
+                  ? `${baseDelay + i * stagger}ms`
+                  : `${(linkCount - 1 - i) * stagger}ms`,
               }}
             >
               {link.label}

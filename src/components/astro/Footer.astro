@@ -1,0 +1,96 @@
+---
+import { NAV_LINKS } from "../../config/nav";
+import logo from "../../assets/logo.svg";
+---
+
+<footer class="bg-primary-dark text-text-inverse">
+  <div
+    class="mx-auto flex w-full max-w-8xl flex-col px-6 pt-16 pb-10 tablet:px-8 tablet:pt-20 tablet:pb-12 desktop:px-12 desktop:pt-24 desktop:pb-14"
+  >
+    {/* Top row: info + nav */}
+    <div
+      class="flex flex-col justify-between gap-12 tablet:flex-row tablet:items-start"
+    >
+      {/* Left — brand block */}
+      <div class="max-w-xs">
+        <img
+          src={logo.src}
+          alt="Zil Design"
+          width="50"
+          height="28"
+          class="h-10 w-auto"
+        />
+        <p class="mt-5 text-h4 font-medium">Zil Design</p>
+        <p class="mt-3 text-p-sm text-text-inverse/70">
+          Hablemos, contáctanos mediante nuestro formulario de contacto o
+          info@zil.global
+        </p>
+      </div>
+
+      {/* Right — nav links */}
+      <nav aria-label="Footer" class="flex flex-col gap-3">
+        {
+          NAV_LINKS.map((link) => (
+            <a
+              href={link.href}
+              class="text-p-sm text-text-inverse/70 transition-colors duration-200 hover:text-text-inverse"
+            >
+              {link.label}
+            </a>
+          ))
+        }
+      </nav>
+    </div>
+
+    {/* Bottom row: legal + scroll-to-top */}
+    <div
+      class="mt-14 flex flex-col items-start justify-between gap-6 border-t border-text-inverse/15 pt-8 tablet:flex-row tablet:items-center"
+    >
+      <div class="text-p-sm text-text-inverse/50">
+        <p>2026 Zil Design LLC. Todos los derechos reservados.</p>
+        <p>El logo y otras marcas de Zil son marcas registradas</p>
+        <a
+          href="#"
+          class="mt-2 inline-block text-text-inverse/70 transition-colors duration-200 hover:text-text-inverse"
+        >
+          Política de Privacidad y Cookies
+        </a>
+      </div>
+
+      {/* "Ir Arriba" pill — arrow slides up from below on hover */}
+      <a
+        href="#hero"
+        class="group relative inline-flex shrink-0 items-center overflow-hidden rounded-full border-2 border-primary py-3 pr-8 pl-5 text-p-sm font-medium text-text-inverse transition-[padding] duration-300 ease-out hover:pr-14 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-primary-dark focus-visible:outline-none motion-reduce:transition-none"
+      >
+        <span>Ir Arriba</span>
+        <span
+          aria-hidden="true"
+          class="ir-arriba-circle pointer-events-none absolute right-2 grid size-9 place-items-center rounded-full bg-white text-primary opacity-0 transition-[translate,opacity] duration-300 ease-out group-hover:opacity-100 motion-reduce:transition-none"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="size-4"
+          >
+            <path d="M12 19V5M6 11l6-6 6 6"></path>
+          </svg>
+        </span>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .ir-arriba-circle {
+    top: 50%;
+    translate: 0 80%;
+  }
+
+  .group:hover .ir-arriba-circle {
+    translate: 0 -50%;
+  }
+</style>
