@@ -1,73 +1,24 @@
 ---
 import Badge from "../components/astro/Badge.astro";
-import analisis from "../assets/img/analisis.svg";
-import desarrollo from "../assets/img/desarrollo.svg";
-import aliado from "../assets/img/aliado.svg";
-
-const steps = [
-  {
-    icon: desarrollo,
-    title: "Análisis Estratégico",
-    lead: "Diagnóstico inicial para proyectar el potencial de su marca.",
-    body: "Un formulario breve y una llamada con nuestro equipo nos permiten entender sus objetivos y trazar la estrategia.",
-  },
-  {
-    icon: aliado,
-    title: "Desarrollo Criterioso",
-    lead: "Rigurosidad metodológica orientada a la diferenciación.",
-    body: "Fusionamos pensamiento estratégico y comunicación visual, con un enfoque analítico y una curaduría cuidada en cada etapa.",
-  },
-  {
-    icon: analisis,
-    title: "Aliado Comprometido",
-    lead: "Acompañamiento corporativo enfocado en el crecimiento y resultados.",
-    body: "Un compromiso integral con su negocio, de principio a fin, con soluciones de alto impacto que impulsan su crecimiento.",
-  },
-];
+import MetodoZil from "../components/react/MetodoZil.tsx";
 ---
 
 <section>
+  {/* Intro */}
   <div
-    class="mx-auto flex w-full max-w-8xl flex-col items-center px-6 py-20 tablet:px-8 tablet:py-28 desktop:px-12 desktop:py-32"
+    class="mx-auto flex w-full max-w-8xl flex-col items-center px-6 pt-20 text-center tablet:px-8 tablet:pt-28 desktop:px-12 desktop:pt-32"
   >
-    {/* Intro */}
-    <div class="flex w-full max-w-4xl flex-col items-center text-center">
-      <div id="how-we-work" class="scroll-anchor"></div>
-      <Badge class="mb-6">Método Zil</Badge>
-      <h2 class="text-h2 tracking-[-0.03em] text-balance">
-        Una comunicación visual sin dirección dificulta el crecimiento.
-      </h2>
-      <p class="mt-6 max-w-[42ch] text-p-lg text-pretty text-muted">
-        Es por esto que tener una estrategia clara convierte cada interacción en
-        una oportunidad de negocio.
-      </p>
-    </div>
-
-    {/* Steps (an ordered process), one per column */}
-    <ol
-      class="mt-16 flex flex-col gap-12 tablet:mt-20 tablet:gap-16 desktop:gap-24"
-    >
-      {
-        steps.map((step) => (
-          <li class="grid grid-cols-1 items-center gap-6 tablet:grid-cols-[240px_1fr] tablet:gap-12 desktop:gap-20">
-            <img
-              src={step.icon.src}
-              alt=""
-              width={step.icon.width}
-              height={step.icon.height}
-              class="w-full max-w-[240px]"
-            />
-            <div class="max-w-[62ch]">
-              <h5 class="text-h5 font-bold tracking-wide text-primary-dark uppercase">
-                {step.title}
-              </h5>
-              <p class="mt-4 text-p text-text">
-                <strong class="font-bold">{step.lead}</strong> {step.body}
-              </p>
-            </div>
-          </li>
-        ))
-      }
-    </ol>
+    <div id="how-we-work" class="scroll-anchor"></div>
+    <Badge class="mb-6">Método Zil</Badge>
+    <h2 class="text-h2 tracking-[-0.03em] text-balance">
+      Una comunicación visual sin dirección dificulta el crecimiento.
+    </h2>
+    <p class="mt-6 max-w-[42ch] text-p-lg text-pretty text-muted">
+      Es por esto que tener una estrategia clara convierte cada interacción en
+      una oportunidad de negocio.
+    </p>
   </div>
+
+  {/* Pinned, scroll-scrubbed mark that morphs through the three states */}
+  <MetodoZil client:load />
 </section>

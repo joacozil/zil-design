@@ -8,7 +8,7 @@ export interface NavLink {
  * TODO: confirm final labels/targets once sections are built.
  */
 export const NAV_LINKS: NavLink[] = [
-  { label: "Trabajo", href: "#work" },
+  { label: "Proyectos", href: "#work" },
   { label: "Cómo trabajamos", href: "#how-we-work" },
   { label: "Servicios", href: "#servicios" },
   { label: "FAQ", href: "#faq" },
