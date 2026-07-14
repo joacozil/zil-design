@@ -1,13 +1,23 @@
 ---
 /**
  * Reusable button / link. Renders an <a> when `href` is given, otherwise a
- * <button>. Styling comes from design tokens so it re-themes automatically.
+ * <button>. Every button on the site uses one of these variants.
+ *
+ * Variants:
+ *  - pill        → Hero CTA (bg-primary, white arrow circle on hover)
+ *  - pill-dark   → Form submit (bg-primary-dark, light arrow circle on hover)
+ *  - pill-sm     → Mobile header Contacto (bg-primary, compact, no arrow)
+ *  - outline     → Footer "Ir Arriba" (border-primary, arrow slides up on hover)
+ *  - primary     → Generic dark button
+ *  - secondary   → Generic light button
  */
 interface Props {
   href?: string;
   type?: "button" | "submit" | "reset";
-  variant?: "primary" | "secondary";
+  variant?:
+    "pill" | "pill-dark" | "pill-sm" | "outline" | "primary" | "secondary";
   class?: string;
+  arrowDirection?: "right" | "up";
 }
 
 const {
@@ -15,21 +25,120 @@ const {
   type = "button",
   variant = "primary",
   class: className = "",
+  arrowDirection = "right",
 } = Astro.props;
 
-const base =
-  "inline-flex cursor-pointer items-center justify-center rounded-md px-7 py-3.5 text-p font-medium transition-[transform,background-color,box-shadow] duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface motion-reduce:transition-none motion-reduce:hover:translate-y-0";
+const hasPillArrow = variant === "pill" || variant === "pill-dark";
+const hasOutlineArrow = variant === "outline";
+const hasArrow = hasPillArrow || hasOutlineArrow;
 
-const variants: Record<NonNullable<Props["variant"]>, string> = {
-  primary:
-    "bg-surface-inverse text-text-inverse hover:bg-surface-inverse/90 hover:shadow-md",
-  secondary: "bg-primary-light text-primary-dark hover:bg-primary-light/80",
+const Tag = href ? "a" : "button";
+
+const arrowPaths: Record<string, string> = {
+  right: "M5 12h14M13 6l6 6-6 6",
+  up: "M12 19V5M6 11l6-6 6 6",
 };
 
-const cls = [base, variants[variant], className].filter(Boolean).join(" ");
-const Tag = href ? "a" : "button";
+const variantClasses: Record<string, string> = {
+  pill: "bg-primary py-4 pr-9 pl-9 text-p-lg font-medium text-text-inverse transition-[padding] duration-300 ease-out desktop:hover:pr-[4.5rem] focus-visible:ring-primary focus-visible:ring-offset-surface",
+  "pill-dark":
+    "bg-primary-dark py-4 pr-9 pl-9 text-p-lg font-medium text-text-inverse transition-[padding] duration-300 ease-out desktop:hover:pr-[3.75rem] focus-visible:ring-primary-dark focus-visible:ring-offset-primary-light",
+  "pill-sm":
+    "bg-primary px-5 py-2.5 text-p-sm font-medium text-text-inverse transition-colors duration-200",
+  outline:
+    "border-2 border-primary py-3 px-8 text-p-sm font-medium text-text-inverse focus-visible:ring-primary focus-visible:ring-offset-primary-dark",
+  primary:
+    "bg-surface-inverse px-7 py-3.5 text-p font-medium text-text-inverse transition-[transform,background-color,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:bg-surface-inverse/90 hover:shadow-md active:translate-y-0 focus-visible:ring-primary focus-visible:ring-offset-surface",
+  secondary:
+    "bg-primary-light px-7 py-3.5 text-p font-medium text-primary-dark transition-[transform,background-color,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:bg-primary-light/80 active:translate-y-0 focus-visible:ring-primary focus-visible:ring-offset-surface",
+};
+
+const circleClasses: Record<string, string> = {
+  pill: "bg-white text-primary",
+  "pill-dark": "bg-white text-primary",
+  outline: "ir-arriba-circle bg-white text-primary",
+};
+
+const base =
+  "group relative inline-flex cursor-pointer items-center overflow-hidden rounded-full focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transition-none";
+
+const cls = [base, variantClasses[variant], className]
+  .filter(Boolean)
+  .join(" ");
 ---
 
 <Tag class={cls} {...href ? { href } : { type }}>
-  <slot />
+  {
+    hasPillArrow ? (
+      <>
+        <span
+          class:list={[
+            "transition-[translate] duration-300 ease-out motion-reduce:transition-none",
+            variant === "pill-dark" && "desktop:group-hover:-translate-x-2",
+          ]}
+        >
+          <slot />
+        </span>
+        <span
+          aria-hidden="true"
+          class:list={[
+            "pointer-events-none absolute top-1/2 right-2 grid size-12 translate-x-[160%] -translate-y-1/2 place-items-center rounded-full opacity-0 transition-[translate,opacity] duration-300 ease-out motion-reduce:transition-none desktop:group-hover:translate-x-0 desktop:group-hover:opacity-100",
+            circleClasses[variant],
+          ]}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="size-5"
+          >
+            <path d={arrowPaths[arrowDirection]} />
+          </svg>
+        </span>
+      </>
+    ) : hasOutlineArrow ? (
+      <>
+        <span class="transition-[translate] duration-300 ease-out motion-reduce:transition-none desktop:group-hover:-translate-x-5">
+          <slot />
+        </span>
+        <span
+          aria-hidden="true"
+          class:list={[
+            "pointer-events-none absolute right-2 grid size-9 place-items-center rounded-full opacity-0 transition-[translate,opacity] duration-300 ease-out motion-reduce:transition-none desktop:group-hover:opacity-100",
+            circleClasses[variant],
+          ]}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="size-4"
+          >
+            <path d={arrowPaths[arrowDirection]} />
+          </svg>
+        </span>
+      </>
+    ) : (
+      <slot />
+    )
+  }
 </Tag>
+
+<style>
+  .ir-arriba-circle {
+    top: 50%;
+    translate: 0 80%;
+  }
+
+  @media (width >= 1024px) {
+    .group:hover .ir-arriba-circle {
+      translate: 0 -50%;
+    }
+  }
+</style>

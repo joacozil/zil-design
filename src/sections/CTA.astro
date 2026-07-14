@@ -1,4 +1,6 @@
 ---
+import Button from "../components/astro/Button.astro";
+
 // Shared classes for the white fields so every input/textarea matches.
 const fieldBase =
   "w-full rounded-2xl bg-surface px-6 py-4 text-p text-text placeholder:text-p placeholder:font-normal placeholder:text-gray focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-primary-light";
@@ -61,33 +63,7 @@ const fieldBase =
             class={`${fieldBase} resize-none`}></textarea>
 
           <div class="mt-2">
-            {/* Pill submit: arrow circle slides in from the right on hover. */}
-            <button
-              type="submit"
-              class="group relative inline-flex cursor-pointer items-center overflow-hidden rounded-full bg-primary-dark py-4 pr-9 pl-9 text-p-lg font-medium text-text-inverse transition-[padding] duration-300 ease-out focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2 focus-visible:ring-offset-primary-light focus-visible:outline-none motion-reduce:transition-none desktop:hover:pr-[3.75rem]"
-            >
-              <span
-                class="transition-[translate] duration-300 ease-out motion-reduce:transition-none desktop:group-hover:-translate-x-2"
-              >
-                Descubre Zil Design
-              </span>
-              <span
-                aria-hidden="true"
-                class="pointer-events-none absolute top-1/2 right-2 grid size-12 translate-x-[160%] -translate-y-1/2 place-items-center rounded-full bg-primary-light text-primary opacity-0 transition-[translate,opacity] duration-300 ease-out motion-reduce:transition-none desktop:group-hover:translate-x-0 desktop:group-hover:opacity-100"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="size-5"
-                >
-                  <path d="M5 12h14M13 6l6 6-6 6"></path>
-                </svg>
-              </span>
-            </button>
+            <Button type="submit" variant="pill-dark">Descubre Zil Design</Button>
           </div>
         </form>
       </div>

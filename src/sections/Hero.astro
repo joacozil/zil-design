@@ -1,5 +1,6 @@
 ---
 import HeroFloaters from "../components/react/HeroFloaters.tsx";
+import Button from "../components/astro/Button.astro";
 ---
 
 <section
@@ -26,32 +27,7 @@ import HeroFloaters from "../components/react/HeroFloaters.tsx";
     </p>
 
     <div class="mt-10">
-      {
-        /* Pill CTA: on hover the arrow circle slides in from the right and the
-        button expands to make room for it. */
-      }
-      <a
-        href="#cta"
-        class="group relative inline-flex items-center overflow-hidden rounded-full bg-primary py-4 pr-9 pl-9 text-p-lg font-medium text-text-inverse transition-[padding] duration-300 ease-out desktop:hover:pr-[4.5rem] focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface focus-visible:outline-none motion-reduce:transition-none"
-      >
-        <span>Hablemos de tu marca</span>
-        <span
-          aria-hidden="true"
-          class="pointer-events-none absolute top-1/2 right-2 grid size-12 translate-x-[160%] -translate-y-1/2 place-items-center rounded-full bg-white text-primary opacity-0 transition-[translate,opacity] duration-300 ease-out desktop:group-hover:translate-x-0 desktop:group-hover:opacity-100 motion-reduce:transition-none"
-        >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="size-5"
-          >
-            <path d="M5 12h14M13 6l6 6-6 6"></path>
-          </svg>
-        </span>
-      </a>
+      <Button href="#cta" variant="pill">Hablemos de tu marca</Button>
     </div>
   </div>
 </section>

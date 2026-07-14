@@ -1,6 +1,7 @@
 ---
 import { NAV_LINKS } from "../../config/nav";
 import MobileMenu from "../react/MobileMenu.tsx";
+import Button from "./Button.astro";
 import logo from "../../assets/logo.svg";
 ---
 
@@ -36,12 +37,7 @@ import logo from "../../assets/logo.svg";
           ))
         }
       </nav>
-      <a
-        href="#cta"
-        class="inline-flex items-center rounded-full bg-primary px-5 py-2.5 text-p-sm font-medium text-text-inverse transition-colors duration-200 desktop:hidden"
-      >
-        Contacto
-      </a>
+      <Button href="#cta" variant="pill-sm" class="desktop:hidden">Contacto</Button>
       <MobileMenu client:load logoSrc={logo.src} />
     </div>
   </div>

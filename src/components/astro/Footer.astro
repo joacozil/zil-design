@@ -1,5 +1,6 @@
 ---
 import { NAV_LINKS } from "../../config/nav";
+import Button from "./Button.astro";
 import logo from "../../assets/logo.svg";
 ---
 
@@ -57,47 +58,7 @@ import logo from "../../assets/logo.svg";
         </a>
       </div>
 
-      {/* "Ir Arriba" pill — arrow slides up from below on hover */}
-      <a
-        href="#hero"
-        class="group relative inline-flex shrink-0 items-center overflow-hidden rounded-full border-2 border-primary py-3 px-8 text-p-sm font-medium text-text-inverse focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-primary-dark focus-visible:outline-none motion-reduce:transition-none"
-      >
-        <span
-          class="transition-[translate] duration-300 ease-out desktop:group-hover:-translate-x-5 motion-reduce:transition-none"
-        >
-          Ir Arriba
-        </span>
-        <span
-          aria-hidden="true"
-          class="ir-arriba-circle pointer-events-none absolute right-2 grid size-9 place-items-center rounded-full bg-white text-primary opacity-0 transition-[translate,opacity] duration-300 ease-out desktop:group-hover:opacity-100 motion-reduce:transition-none"
-        >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="size-4"
-          >
-            <path d="M12 19V5M6 11l6-6 6 6"></path>
-          </svg>
-        </span>
-      </a>
+      <Button href="#hero" variant="outline" arrowDirection="up" class="shrink-0">Ir Arriba</Button>
     </div>
   </div>
 </footer>
-
-<style>
-  .ir-arriba-circle {
-    top: 50%;
-    translate: 0 80%;
-  }
-
-  /* Hover reveal only on desktop — touch devices have no hover. */
-  @media (width >= 1024px) {
-    .group:hover .ir-arriba-circle {
-      translate: 0 -50%;
-    }
-  }
-</style>
