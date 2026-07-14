@@ -274,7 +274,7 @@ export default function MetodoZil() {
           browser holding the stage now instead of GSAP.
           Under reduced motion nothing animates, so the runway collapses to the
           stage and the section scrolls like any other block. */}
-      <div data-runway className="relative h-[400svh] motion-reduce:h-auto">
+      <div data-runway className="relative h-[300svh] motion-reduce:h-auto">
         <div
           data-stage
           // Mobile only: stacked, and centred in the area BELOW the fixed 80px

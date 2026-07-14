@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { NAV_LINKS } from "../../config/nav";
 
-export default function MobileMenu() {
+export default function MobileMenu({ logoSrc }: { logoSrc: string }) {
   const [open, setOpen] = useState(false);
   const [visible, setVisible] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -21,7 +21,10 @@ export default function MobileMenu() {
   const doClose = useCallback(() => {
     if (timer.current) clearTimeout(timer.current);
     setVisible(false);
-    timer.current = setTimeout(() => setOpen(false), linksFadeOut + overlayFade);
+    timer.current = setTimeout(
+      () => setOpen(false),
+      linksFadeOut + overlayFade,
+    );
   }, [linksFadeOut, overlayFade]);
 
   useEffect(() => {
@@ -91,7 +94,7 @@ export default function MobileMenu() {
       >
         <nav
           aria-label="Principal"
-          className="flex h-full flex-col items-start justify-center gap-2 px-8"
+          className="flex h-full flex-col items-start justify-center gap-8 px-8"
         >
           {NAV_LINKS.map((link, i) => (
             <a
@@ -120,6 +123,24 @@ export default function MobileMenu() {
             </a>
           ))}
         </nav>
+
+        <div
+          className="absolute bottom-10 left-8 motion-reduce:transition-none"
+          style={{
+            opacity: visible ? 1 : 0,
+            transform: visible ? "translateY(0)" : "translateY(1rem)",
+            transition: "opacity 300ms ease-out, transform 300ms ease-out",
+            transitionDelay: visible
+              ? `${baseDelay + linkCount * stagger}ms`
+              : "0ms",
+          }}
+        >
+          <img
+            src={logoSrc}
+            alt="Zil Design"
+            className="h-8 w-auto"
+          />
+        </div>
       </div>
     </div>
   );
