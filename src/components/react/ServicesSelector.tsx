@@ -99,6 +99,12 @@ function CardBody({ service }: { service: Service }) {
         <p className={`mt-3 max-w-[38ch] text-p text-pretty ${v.text}`}>
           {service.text}
         </p>
+        {/* On a mobile card these wrap to two rows, and the break lands wherever
+            the first two pills stop fitting — so the order in `services` is
+            load-bearing, not cosmetic: it is what keeps every card breaking
+            2-on-top / 1-below. Each service lists its two narrowest labels first
+            and its widest last. See the note in sections/Services.astro before
+            reordering or rewording any badge. */}
         <ul className="mt-6 flex flex-wrap gap-2">
           {service.badges.map((badge) => (
             <li key={badge}>
@@ -121,7 +127,10 @@ function CardBody({ service }: { service: Service }) {
  * stretches to the tallest one — the height never jumps between services.
  */
 function ServicesCarousel({ services }: { services: Service[] }) {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ align: "center", loop: true });
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    align: "center",
+    loop: true,
+  });
   const [selected, setSelected] = useState(0);
 
   const onSelect = useCallback((api: EmblaCarouselType) => {

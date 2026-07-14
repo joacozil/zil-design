@@ -8,6 +8,17 @@ import webDesign from "../assets/img/web-design-icon.svg";
 import branding from "../assets/img/branding-icon.svg";
 import socialMedia from "../assets/img/social-media-icon.svg";
 
+// BADGE ORDER IS LOAD-BEARING. On a mobile card the three badges wrap to two
+// rows, and the break falls wherever the first two pills stop fitting — so the
+// order decides whether a card reads 2-on-top/1-below or 1-on-top/2-below, and
+// cards with different orders disagree with each other. Rule: list the two
+// NARROWEST labels first, widest last. Web Design was the odd one out (its
+// widest, "Organizado", sat second, pushing the pair to 270px against 278px of
+// card) — hence Responsive before Organizado below.
+//
+// This holds the pattern from ~380px up; it is the best ordering can do, since
+// on a narrower phone even the two narrowest pills of these two services exceed
+// the row. Reword a badge and the widths shift — re-check the order on mobile.
 const services: Service[] = [
   {
     name: "UX/UI Design",
@@ -20,7 +31,7 @@ const services: Service[] = [
     name: "Web Design",
     icon: webDesign.src,
     text: "Desarrollamos interfaces digitales de alta precisión que transforman su presencia en un motor comercial continuo y una ventaja competitiva real.",
-    badges: ["Interactivo", "Organizado", "Responsive"],
+    badges: ["Interactivo", "Responsive", "Organizado"],
     variant: "lime",
   },
   {

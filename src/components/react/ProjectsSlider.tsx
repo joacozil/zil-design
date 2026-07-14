@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import type { EmblaCarouselType } from "embla-carousel";
 
@@ -50,8 +50,27 @@ function Arrow({
  * mobile / tablet / desktop with a peek of the next.
  */
 export default function ProjectsSlider({ projects }: { projects: Project[] }) {
+  const firstSlide = useRef<HTMLLIElement>(null);
+
+  // Every slide comes to rest at the container's content edge, so the active card
+  // lines up with the section heading above it. `start` alignment can't do this:
+  // it snaps each slide to the VIEWPORT edge, which on this full-bleed track is
+  // the screen edge — leaving only slide 0 aligned (by its own margin) and every
+  // later slide one gutter too far left. Offsetting each snap by the gutter fixes
+  // all of them at once.
+  //
+  // The offset is read off slide 0's `ml-[var(--gutter)]` rather than re-deriving
+  // the calc in JS: global.css stays the only definition of the gutter, and the
+  // two can't drift, since `containScroll` pins the opening snap to the natural
+  // scroll origin and therefore to exactly that margin. Re-runs on every reInit,
+  // so it re-measures when the gutter steps at a breakpoint.
+  const alignToGutter = useCallback(() => {
+    const el = firstSlide.current;
+    return el ? parseFloat(getComputedStyle(el).marginLeft) || 0 : 0;
+  }, []);
+
   const [emblaRef, emblaApi] = useEmblaCarousel({
-    align: "start",
+    align: alignToGutter,
     containScroll: "trimSnaps",
   });
 
@@ -103,6 +122,7 @@ export default function ProjectsSlider({ projects }: { projects: Project[] }) {
           {projects.map((project, i) => (
             <li
               key={i}
+              ref={i === 0 ? firstSlide : undefined}
               className={`min-w-0 shrink-0 grow-0 basis-[76%] tablet:basis-[48%] desktop:basis-[34%] ${i === 0 ? "ml-[var(--gutter)]" : ""} ${i === projects.length - 1 ? "mr-[var(--gutter)]" : ""}`}
             >
               <div className="aspect-[3/2] overflow-hidden rounded-lg bg-surface-inverse">

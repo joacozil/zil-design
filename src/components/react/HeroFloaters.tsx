@@ -49,14 +49,22 @@ const DESKTOP_FLOATERS = withDist([
 // band roughly 30–68% down the hero, with no side margin to speak of. So this
 // layout is confined to a top band and a bottom band instead of wrapping
 // around a center column.
+//
+// `y` is a % of hero height but the header is a fixed 80px, so the top band's
+// clearance shrinks as the viewport does: at 100svh = 653px (Safari with its
+// chrome shown) 80px is 12.3% of the hero, vs 9.5% at 844px. That short hero is
+// the binding case — it leaves only ~86px between the header (80) and the
+// headline (~166), so the whole top band has to fit in that strip: y ≥ 18 to
+// clear the header, and low enough not to collide with the h1. Anything at
+// x 17–83 sits over the headline and has no room to escape downward.
 const COMPACT_FLOATERS = withDist([
-  { x: 10, y: 14, s: 44, v: "card" },
+  { x: 10, y: 18, s: 44, v: "card" },
   { x: 33, y: 20, s: 40, v: "accent" },
-  { x: 58, y: 13, s: 48, v: "card" },
+  { x: 58, y: 19, s: 48, v: "card" },
   { x: 80, y: 18, s: 44, v: "primary-dark" },
   { x: 93, y: 25, s: 40, v: "card" },
   { x: 6, y: 90, s: 40, v: "primary-dark" },
-  { x: 27, y: 79, s: 48, v: "primary" },
+  { x: 27, y: 84, s: 48, v: "primary" },
   { x: 50, y: 92, s: 40, v: "card" },
   { x: 71, y: 82, s: 44, v: "primary-light" },
   { x: 91, y: 90, s: 44, v: "accent" },
