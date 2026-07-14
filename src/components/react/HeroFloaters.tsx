@@ -39,7 +39,7 @@ const DESKTOP_FLOATERS = withDist([
   { x: 10, y: 50, s: 56, v: "card" },
   { x: 26, y: 73, s: 64, v: "primary" },
   { x: 5, y: 81, s: 52, v: "primary-dark" },
-  { x: 64, y: 72, s: 52, v: "primary" },
+  { x: 68, y: 66, s: 52, v: "primary" },
   { x: 90, y: 64, s: 60, v: "card" },
   { x: 46, y: 87, s: 60, v: "card" },
   { x: 76, y: 87, s: 56, v: "accent" },

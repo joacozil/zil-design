@@ -45,7 +45,12 @@ const STROKES = [
 const ACCENTS = [
   // z wedge — wipes in from the right point; clipped to the Z so the scaling
   // triangle never spills past the diagonal into the white.
-  { d: "M68 34 L122 34 L68 102 Z", axis: "x", origin: "122 68", clip: "z-clip" },
+  {
+    d: "M68 34 L122 34 L68 102 Z",
+    axis: "x",
+    origin: "122 68",
+    clip: "z-clip",
+  },
   { d: "M138 102 H206 V170 H138 Z", axis: "y", origin: "172 170", clip: null }, // i lower half — rises from the base
   { d: "M234 0 H302 V34 H234 Z", axis: "y", origin: "268 0", clip: null }, // l cap — drops from the top
 ] as const;
@@ -54,16 +59,26 @@ const ACCENTS = [
 // The z's two diagonal-junction points (54,102)/(68,102) are deliberately left
 // bare so the diagonal reads as one clean line through the midline.
 const ANCHORS = [
-  [8, 34], [122, 34], [114, 102], [114, 170], [0, 170], [8, 102], // z
-  [138, 34], [206, 34], [206, 170], [138, 170], // i
-  [234, 0], [302, 0], [302, 170], [234, 170], // l
+  [8, 34],
+  [122, 34],
+  [114, 102],
+  [114, 170],
+  [0, 170],
+  [8, 102], // z
+  [138, 34],
+  [206, 34],
+  [206, 170],
+  [138, 170], // i
+  [234, 0],
+  [302, 0],
+  [302, 170],
+  [234, 170], // l
 ];
 
 // Node square size (user units); half-extent used to centre each node on its vertex.
 const NODE = 9;
 
 interface Step {
-  n: string;
   title: string;
   lead: string;
   body: string;
@@ -71,19 +86,16 @@ interface Step {
 
 const STEPS: Step[] = [
   {
-    n: "01",
     title: "Análisis Estratégico",
     lead: "Diagnóstico inicial para proyectar el potencial de su marca.",
     body: "Un formulario breve y una llamada con nuestro equipo nos permiten entender sus objetivos y trazar la estrategia.",
   },
   {
-    n: "02",
     title: "Desarrollo Criterioso",
     lead: "Rigurosidad metodológica orientada a la diferenciación.",
     body: "Fusionamos pensamiento estratégico y comunicación visual, con un enfoque analítico y una curaduría cuidada en cada etapa.",
   },
   {
-    n: "03",
     title: "Aliado Comprometido",
     lead: "Acompañamiento corporativo enfocado en el crecimiento y resultados.",
     body: "Un compromiso integral con su negocio, de principio a fin, con soluciones de alto impacto que impulsan su crecimiento.",
@@ -106,10 +118,10 @@ export default function MetodoZil() {
       const bars = q("[data-bar-fill]");
       const stage = root.current!.querySelector("[data-stage]") as HTMLElement;
 
-      // Baseline — the un-drawn outline, everything else hidden. Applied first so
-      // it's the resting look before the mark enters view.
-      gsap.set(letters, { strokeDasharray: 1, strokeDashoffset: 1, opacity: 1 });
-      gsap.set(anchors, { opacity: 0, scale: 0, transformOrigin: "center" });
+      // Baseline IS state 0 — the outline and its nodes simply shown, nothing
+      // filled. No draw-on reveal, so the mark reads immediately on approach.
+      gsap.set(letters, { opacity: 1 });
+      gsap.set(anchors, { opacity: 1, scale: 1, transformOrigin: "center" });
       gsap.set(gradient, { opacity: 0 });
       gsap.set(solid, { opacity: 0 });
       accents.forEach((el, i) =>
@@ -121,6 +133,7 @@ export default function MetodoZil() {
       gsap.set(texts, { opacity: 0, y: 24 });
       gsap.set(texts[0], { opacity: 1, y: 0 });
       gsap.set(bars, { scaleX: 0, transformOrigin: "left center" });
+      gsap.set(bars[0], { scaleX: 1 });
 
       // Reduced motion / no-JS friendly: skip the choreography, drop the reader
       // straight into the finished composition with every step's copy stacked.
@@ -142,22 +155,13 @@ export default function MetodoZil() {
       // One PAUSED master timeline holding the three settled states as labels
       // (s0 → s1 → s2). Scroll never scrubs it; instead we `tweenTo` a label so
       // each transition plays as one clean, self-paced beat and then rests.
-      const tl = gsap.timeline({ paused: true, defaults: { ease: "power2.out" } });
+      const tl = gsap.timeline({
+        paused: true,
+        defaults: { ease: "power2.out" },
+      });
 
-      // ── enter → S0 · Análisis: the outline draws, corner anchors snap in ──
-      tl.addLabel("s0start")
-        .to(
-          letters,
-          { strokeDashoffset: 0, duration: 1.0, ease: "power1.inOut", stagger: 0.12 },
-          0,
-        )
-        .to(
-          anchors,
-          { opacity: 1, scale: 1, duration: 0.4, stagger: 0.03, ease: "back.out(2)" },
-          0.35,
-        )
-        .to(bars[0], { scaleX: 1, duration: 0.8 }, 0)
-        .addLabel("s0");
+      // ── S0 · Análisis — the resting outline, already established at time 0 ──
+      tl.addLabel("s0");
 
       // ── S0 → S1 · Desarrollo: outline gives way to the gradient fill ──────
       tl.to(anchors, { opacity: 0, scale: 0.4, duration: 0.35 }, "s0")
@@ -194,42 +198,60 @@ export default function MetodoZil() {
       tl.addLabel("s2");
 
       const LABELS = ["s0", "s1", "s2"] as const;
-      // Fixed, consistent transition lengths regardless of scroll distance — the
-      // draw (state 0) runs a touch longer as the hero reveal. `tweenTo` scrubs
-      // the paused timeline to the label over exactly this many seconds, so every
-      // switch feels identical instead of inheriting the authored durations.
-      const DUR = [0.85, 0.5, 0.5];
-      let active = -1;
+      // One fixed transition length for every switch, regardless of scroll
+      // distance: `tweenTo` scrubs the paused timeline to the label over exactly
+      // this many seconds, so no switch inherits its authored duration.
+      const DUR = 0.5;
+      // Baseline already renders s0, so we start settled in state 0.
+      let active = 0;
       let trans: gsap.core.Tween | undefined;
-      // The ONLY thing that moves the timeline. Always records `active` so no two
-      // callers ever drive the playhead at once (that was the entry flicker).
-      const goTo = (i: number) => {
-        if (i === active) return;
-        active = i;
-        trans?.kill();
-        trans = tl.tweenTo(LABELS[i], { duration: DUR[i], ease: "power2.inOut" });
-      };
+      let pinST: ScrollTrigger | undefined;
       const zone = (p: number) => (p < 0.25 ? 0 : p < 0.75 ? 1 : 2);
 
-      // Draw the mark as it approaches, so the logo is already forming by the
-      // time the section pins (no blank column, no double-trigger race — this
-      // and the pin below both funnel through the single `goTo`).
-      ScrollTrigger.create({
-        trigger: stage,
-        start: "top 70%",
-        once: true,
-        // Guard against a reload landing mid-section: if `onRefresh` below has
-        // already jumped us to a later state, don't animate back to the draw.
-        onEnter: () => {
-          if (active < 1) goTo(0);
-        },
-      });
+      // Once the last state has landed there is nothing left to animate, so drop
+      // the pin: the section then scrolls like any other block instead of holding
+      // the reader for three more viewports on the way back up.
+      const release = () => {
+        if (!pinST) return;
+        const { start, end } = pinST;
+        const dist = end - start; // the scroll length the spacer was occupying
+        const y = window.scrollY;
+        pinST.kill(true); // revert → removes the pin-spacer, restores the stage
+        pinST = undefined;
+
+        // Removing the spacer shortens the page, so re-anchor to keep the exact
+        // same frame across the un-pin:
+        //   inside the range → the stage was fixed at the viewport top, which is
+        //                      its document top (`start`) once it's free again
+        //   past the range   → everything below shifts up by the removed `dist`
+        //   above the range  → nothing above it moved, so leave the scroll alone
+        const y2 = y > end ? y - dist : y >= start ? start : y;
+        // `behavior: instant` is required: html has `scroll-behavior: smooth`,
+        // which would otherwise animate this correction and make it visible.
+        if (y2 !== y) window.scrollTo({ top: y2, left: 0, behavior: "instant" });
+        ScrollTrigger.refresh(); // other triggers' offsets just moved
+      };
+
+      // The ONLY thing that moves the timeline. Always records `active` so no two
+      // callers ever drive the playhead at once (that was the entry flicker).
+      // FORWARD-ONLY: the choreography plays once. Scrolling back up holds the
+      // furthest state reached instead of rewinding it.
+      const goTo = (i: number) => {
+        if (i <= active) return;
+        active = i;
+        trans?.kill();
+        trans = tl.tweenTo(LABELS[i], {
+          duration: DUR,
+          ease: "power2.inOut",
+          onComplete: i === LABELS.length - 1 ? release : undefined,
+        });
+      };
 
       // Pin the stage and split its scroll range into three plateaus. The snap
       // points [0, ½, 1] have their basins at exactly 0.25 / 0.75 — the same
       // thresholds `zone()` uses — so settling never nudges you into a
       // neighbouring state.
-      ScrollTrigger.create({
+      pinST = ScrollTrigger.create({
         trigger: stage,
         start: "top top",
         end: "+=300%",
@@ -242,16 +264,23 @@ export default function MetodoZil() {
           delay: 0.05,
           ease: "power2.inOut",
         },
-        onEnter: () => goTo(0),
+        id: "metodo-pin",
         onUpdate: (self) => goTo(zone(self.progress)),
-        // Reloading mid-section: land on the right state instantly, no replay.
+        // Reload/resize mid-section: land on the right state instantly, no replay.
+        // Clamped to `active` so a refresh while scrolled back up can't rewind
+        // past the furthest state already reached.
         onRefresh: (self) => {
           if (!self.isActive) return;
-          const i = zone(self.progress);
+          const i = Math.max(active, zone(self.progress));
           active = i;
           trans?.kill();
           tl.seek(LABELS[i]);
         },
+      });
+
+      Object.assign(window as unknown as Record<string, unknown>, {
+        __release: release,
+        __ST: ScrollTrigger,
       });
     },
     { scope: root },
@@ -261,17 +290,22 @@ export default function MetodoZil() {
     <div ref={root}>
       <div
         data-stage
-        className="mx-auto flex min-h-[100svh] w-full max-w-8xl flex-col items-center gap-12 px-6 py-16 tablet:grid tablet:grid-cols-[1fr_1fr] tablet:items-center tablet:gap-16 tablet:px-8 tablet:py-24 desktop:gap-24 desktop:px-12"
+        // Mobile only: stacked, and centred in the area BELOW the fixed 80px
+        // header rather than the raw viewport — hence pt exceeding pb by exactly
+        // that 80px (96 − 16), with justify-center splitting the rest evenly, so
+        // nothing slides under the header while pinned. From tablet up it's the
+        // two-column grid, where the symmetric py-24 already clears the header.
+        className="mx-auto flex min-h-[100svh] w-full max-w-8xl flex-col items-center justify-center gap-10 px-6 pt-24 pb-4 tablet:grid tablet:grid-cols-[1fr_1fr] tablet:gap-16 tablet:px-8 tablet:py-24 desktop:gap-24 desktop:px-12"
       >
         {/* ---- Logo stage --------------------------------------------------- */}
-        <div className="flex w-full items-center justify-center">
+        <div className="flex w-full items-center">
           <svg
             viewBox="-8 -8 318 186"
             fill="none"
             role="img"
             aria-label="Método Zil"
             shapeRendering="geometricPrecision"
-            className="w-full max-w-[440px]"
+            className="w-full max-w-[200px] tablet:max-w-[440px]"
           >
             <defs>
               <linearGradient
@@ -330,7 +364,6 @@ export default function MetodoZil() {
                   key={i}
                   data-stroke
                   d={d}
-                  pathLength={1}
                   fill="none"
                   stroke="#4B256E"
                   strokeWidth={2}
@@ -362,18 +395,13 @@ export default function MetodoZil() {
           {/* crossfading step copy, stacked in one grid cell */}
           <div className="grid">
             {STEPS.map((s) => (
-              <div
-                key={s.n}
-                data-text
-                className="col-start-1 row-start-1 max-w-[46ch]"
-              >
-                <span className="text-p-sm font-bold tracking-[0.2em] text-primary">
-                  {s.n} — 03
-                </span>
-                <h3 className="mt-3 text-h4 font-bold tracking-wide text-primary-dark uppercase tablet:text-h3">
+              <div key={s.title} data-text className="col-start-1 row-start-1">
+                {/* Full column width so the title holds one line; the reading
+                    measure belongs on the paragraph, not the whole block. */}
+                <h3 className="text-h4 font-bold tracking-wide text-balance uppercase desktop:text-h3">
                   {s.title}
                 </h3>
-                <p className="mt-4 text-p-lg text-text">
+                <p className="mt-4 max-w-[46ch] text-p-lg text-text">
                   <strong className="font-bold">{s.lead}</strong> {s.body}
                 </p>
               </div>
@@ -384,7 +412,7 @@ export default function MetodoZil() {
           <div className="mt-10 flex gap-3">
             {STEPS.map((s) => (
               <div
-                key={s.n}
+                key={s.title}
                 className="h-[3px] flex-1 overflow-hidden rounded-full bg-border"
               >
                 <div

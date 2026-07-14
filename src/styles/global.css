@@ -1,12 +1,15 @@
 @import "tailwindcss";
 
+/* `!important` is load-bearing: GSAP ScrollTrigger (hero floaters parallax) sets
+   an inline `scroll-behavior: auto` on the scroller at init, which would
+   otherwise win over this rule and kill smooth anchor scrolling. */
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: smooth !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
   html {
-    scroll-behavior: auto;
+    scroll-behavior: auto !important;
   }
 }
 

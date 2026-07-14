@@ -1,0 +1,32 @@
+---
+/**
+ * Standalone claim that leads into the Método Zil section.
+ *
+ * Deliberately tighter than the site's standard section rhythm
+ * (py-20 / 28 / 32) — this is a single line of display type, not a full block,
+ * so it reads as a beat between sections rather than a section of its own.
+ */
+---
+
+<section>
+  <div
+    class="mx-auto w-full max-w-8xl px-6 py-12 text-center tablet:px-8 desktop:px-12"
+  >
+    <div id="how-we-work" class="scroll-anchor"></div>
+    {
+      /* The closing clause is marker-highlighted. `box-decoration-clone` keeps the
+        padding intact if it ever breaks across lines. The relaxed leading is
+        required: an inline background covers the font's content area (~1.26em),
+        which is taller than the h1 token's own 1.05 line-height, so without it
+        the block collides with the line above. */
+    }
+    <h2
+      class="text-h2 leading-[1.3] tracking-[-0.03em] text-balance desktop:text-h1"
+    >
+      Una comunicación visual con dirección clara <span
+        class="bg-primary-dark box-decoration-clone px-3 text-accent"
+        >impulsa el crecimiento.</span
+      >
+    </h2>
+  </div>
+</section>

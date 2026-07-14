@@ -1,24 +1,8 @@
 ---
-import Badge from "../components/astro/Badge.astro";
 import MetodoZil from "../components/react/MetodoZil.tsx";
 ---
 
+{/* Pinned mark that switches through the three states */}
 <section>
-  {/* Intro */}
-  <div
-    class="mx-auto flex w-full max-w-8xl flex-col items-center px-6 pt-20 text-center tablet:px-8 tablet:pt-28 desktop:px-12 desktop:pt-32"
-  >
-    <div id="how-we-work" class="scroll-anchor"></div>
-    <Badge class="mb-6">Método Zil</Badge>
-    <h2 class="text-h2 tracking-[-0.03em] text-balance">
-      Una comunicación visual sin dirección dificulta el crecimiento.
-    </h2>
-    <p class="mt-6 max-w-[42ch] text-p-lg text-pretty text-muted">
-      Es por esto que tener una estrategia clara convierte cada interacción en
-      una oportunidad de negocio.
-    </p>
-  </div>
-
-  {/* Pinned, scroll-scrubbed mark that morphs through the three states */}
   <MetodoZil client:load />
 </section>
