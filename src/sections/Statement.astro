@@ -1,8 +1,8 @@
 ---
 /**
- * Standalone claim that leads into the Método Zil section — it carries the
- * #how-we-work anchor, so it IS the head of that section, not a section of its
- * own.
+ * Standalone claim that leads into the Método Zil section. It reads as the head
+ * of that section rather than a section of its own — but the #how-we-work anchor
+ * lives on Método Zil itself, so "Cómo trabajamos" lands on the mark, not here.
  *
  * Spacing is deliberately asymmetric, and that is the rhythm working, not
  * drifting: `pt-section` gives the standard half-gap above (Projects supplies
@@ -18,8 +18,8 @@
 <section>
   <div
     class="mx-auto w-full max-w-8xl px-6 pt-section text-center tablet:px-8 desktop:px-12"
+    data-reveal-group
   >
-    <div id="how-we-work" class="scroll-anchor"></div>
     {
       /* The marker-highlighted closing clause must always read as one unbroken
         band, so it carries `whitespace-nowrap`. That makes type size the binding
@@ -42,12 +42,34 @@
         content area (~1.26em), which is taller than the h1 token's own 1.05
         line-height, so without it the block collides with the line above. */
     }
+    {
+      /* Entrance — the one signature move on the page, and the reason it is here
+        rather than anywhere else: this sentence IS the site's thesis, and the
+        marker band is the "dirección clara" it is talking about. So the clause
+        opens as reserved white space, the band strokes across it left to right,
+        and the lime words arrive inside as it lands. The claim and the gesture
+        are the same thing.
+
+        The band is painted by growing `background-size`, never by transforming
+        this span, and every constraint in the note above is why: the clause is
+        measured to the pixel, `whitespace-nowrap` makes it atomic, and the inline
+        background is what forces the relaxed leading. transform/clip-path would
+        need the span to stop being inline and put all of that back in play.
+        background-size moves nothing at any width. Details in reveal.ts.
+
+        `bg-primary-dark` stays on the span so no-JS and reduced-motion readers get
+        the finished band from the class alone; the engine's gradient paints the
+        same colour and hands it back on completion. */
+    }
     <h2
       class="text-[30px] leading-[1.3] tracking-[-0.03em] tablet:text-h2 tablet:text-balance desktop:text-h1"
+      data-reveal
     >
       Una comunicación visual con dirección clara <span
         class="bg-primary-dark px-3 whitespace-nowrap text-accent"
-        >impulsa el crecimiento.</span
+        data-reveal="band"
+        data-reveal-delay="0.45"
+        ><span data-band-text>impulsa el crecimiento.</span></span
       >
     </h2>
   </div>

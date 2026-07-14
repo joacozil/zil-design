@@ -33,33 +33,49 @@ const faqs = [
 <section>
   <div
     class="mx-auto flex w-full max-w-8xl flex-col items-center px-6 py-section tablet:px-8 desktop:px-12"
+    data-reveal-group
   >
     <div id="faq" class="scroll-anchor"></div>
-    <Badge class="mb-6">Preguntas frecuentes</Badge>
+    <Badge class="mb-6" data-reveal>Preguntas frecuentes</Badge>
     <h2
       class="max-w-[20ch] text-center text-h2 tracking-[-0.03em] text-balance"
+      data-reveal
     >
       ¿Tenés alguna duda?
     </h2>
 
-    <div class="mt-12 w-full max-w-3xl tablet:mt-16">
+    {
+      /* The rows carry their own group so they sequence off their own scroll
+        position rather than the heading's — the list is taller than the fold on
+        a phone, and an outer group would run the last questions while they are
+        still well below it. Nesting works because an element joins its CLOSEST
+        group, so the heading above stays with the outer one. */
+    }
+    <div class="mt-12 w-full max-w-3xl tablet:mt-16" data-reveal-group>
       {
         faqs.map((faq) => (
-          <div class="faq-item border-b border-border/60">
+          <div class="faq-item border-b border-border/60" data-reveal>
             <button
               type="button"
               class="flex w-full cursor-pointer items-center justify-between gap-4 py-6 text-left text-p font-medium"
               aria-expanded="false"
             >
               <span>{faq.question}</span>
-              <svg class="faq-icon size-5 shrink-0 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <svg
+                class="faq-icon size-5 shrink-0 text-primary"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              >
                 <line x1="12" y1="5" x2="12" y2="19" class="faq-vertical" />
                 <line x1="5" y1="12" x2="19" y2="12" />
               </svg>
             </button>
             <div class="faq-content" aria-hidden="true">
               <div class="faq-inner">
-                <p class="pb-6 pr-10 text-p text-muted">{faq.answer}</p>
+                <p class="pr-10 pb-6 text-p text-muted">{faq.answer}</p>
               </div>
             </div>
           </div>

@@ -31,6 +31,36 @@ const {
     />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
+    {
+      /* Arms the scroll entrances. This is the ONE place that decides whether any
+        element is allowed to start hidden; global.css hides only from
+        `html.reveal-armed`, and scripts/reveal.ts animates only if this class is
+        present, so the decision cannot be made twice and drift.
+
+        It must stay INLINE and in <head>. Inline is what puts the decision before
+        first paint: a deferred module would let the page render, then yank content
+        away to animate it in.
+
+        Three readers get the finished page precisely because they never reach
+        `add()`:
+          · no JS at all, and crawlers that don't run it — the class never lands.
+          · prefers-reduced-motion — nothing hides, so nothing needs revealing.
+          · a document that is HIDDEN at load: a tab opened in the background, a
+            headless renderer. GSAP's ticker is requestAnimationFrame-driven, so
+            in a hidden document tweens never advance — arming there would hide
+            every element behind an animation that cannot run and leave the page
+            blank. HeroFloaters guards the same trap for the same reason; the
+            trade is that a background-opened tab shows a composed page with no
+            entrance, which is the right way to fail. */
+    }
+    <script is:inline>
+      if (
+        document.visibilityState === "visible" &&
+        !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ) {
+        document.documentElement.classList.add("reveal-armed");
+      }
+    </script>
     {/* Preload the two most-used weights to avoid a flash of fallback text. */}
     <link
       rel="preload"
@@ -50,6 +80,14 @@ const {
   </head>
   <body>
     <slot />
+
+    {
+      /* Scroll entrances for the whole site. Declarative: sections opt in with
+        `data-reveal` attributes and this engine drives them. See scripts/reveal.ts. */
+    }
+    <script>
+      import "../scripts/reveal";
+    </script>
 
     <script>
       /**

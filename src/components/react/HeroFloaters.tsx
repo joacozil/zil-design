@@ -5,6 +5,21 @@ import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
+/**
+ * How long the field holds before composing, so the hero copy can set first.
+ *
+ * This field's whole idea is that it builds AROUND the core message, which only
+ * reads if the message is already on screen — start them together and it is just
+ * decoration moving at the same time as the headline. Hero.astro reveals its copy
+ * at t=0 with a 0.09 stagger over three items, so the headline has landed and the
+ * paragraph is well under way by the time this starts; the field then composes
+ * outward beneath the settling CTA.
+ *
+ * The two halves are timed against each other by hand, so retuning either means
+ * retuning both. The counterpart is the `data-reveal-group` in Hero.astro.
+ */
+const HERO_TEXT_LEAD = 0.3;
+
 type Variant = "accent" | "primary" | "primary-dark" | "primary-light" | "card";
 
 interface Floater {
@@ -141,10 +156,11 @@ function Field({
  * desktop both wrap a centre column, but tablet's is far wider (see each set).
  * Counts scale with the room available: 8 / 13 / 16.
  *
- * Intro: the pieces compose outward from the center — scaling up and coming
- * into focus (blur → sharp) in a radial wave — as if the visual system is being
- * built around the core message. They then settle into a gentle, desynced float.
- * On scroll, the whole field parallaxes (scrolls slower than the page).
+ * Intro: the hero copy sets first (see HERO_TEXT_LEAD), then the pieces compose
+ * outward from the center — scaling up and coming into focus (blur → sharp) in a
+ * radial wave — as if the visual system is being built around the core message.
+ * They then settle into a gentle, desynced float. On scroll, the whole field
+ * parallaxes (scrolls slower than the page).
  *
  * Robustness: the field is visible by default; the intro only hard-hides then
  * reveals when the document is actually visible, since time-based tweens pause
@@ -199,6 +215,7 @@ export default function HeroFloaters() {
           filter: "blur(8px)",
           duration: 1,
           ease: "expo.out",
+          delay: HERO_TEXT_LEAD,
           stagger: (_i, t) => Number(t.dataset.dist) * 0.5,
         });
         intro.eventCallback("onComplete", startFloat);

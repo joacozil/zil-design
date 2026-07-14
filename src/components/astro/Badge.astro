@@ -1,15 +1,22 @@
 ---
 /**
  * Small pill label used above a section heading (e.g. "MÉTODO ZIL").
+ *
+ * Extra attributes pass straight through to the span. That is how a badge joins
+ * its section's scroll entrance (`data-reveal`) without being wrapped in a div —
+ * a wrapper would be a block box around an inline-flex pill and would change the
+ * spacing to the heading below it.
  */
 interface Props {
   class?: string;
+  [key: string]: unknown;
 }
 
-const { class: className = "" } = Astro.props;
+const { class: className = "", ...rest } = Astro.props;
 ---
 
 <span
+  {...rest}
   class:list={[
     "inline-flex items-center rounded-md bg-primary-light px-4 py-2 text-p-sm font-bold tracking-wide text-primary-dark uppercase",
     className,

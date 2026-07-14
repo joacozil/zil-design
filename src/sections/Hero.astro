@@ -9,24 +9,41 @@ import Button from "../components/astro/Button.astro";
 >
   <HeroFloaters client:load />
 
-  {/* Viewport-pinned: min-h-svh with centred content, so the section rhythm
+  {
+    /* Viewport-pinned: min-h-svh with centred content, so the section rhythm
       (`py-section`) deliberately does NOT apply here — the space Clients sees
       below is (svh − content) / 2 from the centring, not this padding. The py
       below is only a floor for short viewports, where the content would
-      otherwise touch the edges. See the rhythm note in styles/global.css. */}
+      otherwise touch the edges. See the rhythm note in styles/global.css. */
+  }
+  {
+    /* Entrance: the message sets FIRST, in reading order, and only then does the
+      floater field compose outward around it. That order is the point rather than
+      a preference — HeroFloaters exists to read as the visual system being built
+      around the core message, which it can only do if the message is already
+      there to build around. The two are sequenced by numbers on both sides:
+      this group runs at t=0 and HeroFloaters holds for HERO_TEXT_LEAD. Retiming
+      one means retiming the other; see the note there. */
+  }
   <div
     class="relative z-10 mx-auto flex w-full max-w-8xl flex-col items-center px-6 py-16 text-center tablet:px-8 desktop:px-12"
+    data-reveal-group
   >
-    <h1 class="max-w-[15ch] text-h1 text-balance">
+    <h1 class="max-w-[15ch] text-h1 text-balance" data-reveal>
       El diseño como herramienta de negocio
     </h1>
 
-    <p class="mt-6 max-w-[42ch] text-p-lg text-pretty text-muted">
+    <p class="mt-6 max-w-[42ch] text-p-lg text-pretty text-muted" data-reveal>
       Diseñamos sistemas visuales que aportan dirección, fortalecen el
       posicionamiento y potencian el valor percibido de tu marca.
     </p>
 
-    <div class="mt-10">
+    {
+      /* The reveal goes on the wrapper, not the Button: the pill owns its own
+        hover choreography on transform/padding and must not share a transform
+        with an entrance tween. */
+    }
+    <div class="mt-10" data-reveal>
       <Button href="#cta" variant="pill">Hablemos de tu marca</Button>
     </div>
   </div>

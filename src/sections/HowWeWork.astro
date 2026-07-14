@@ -4,5 +4,20 @@ import MetodoZil from "../components/react/MetodoZil.tsx";
 
 {/* Pinned mark that switches through the three states */}
 <section>
+  {
+    /* Target of the "Cómo trabajamos" nav link — lands on the mark itself, not
+      on the claim that precedes it. Empty and zero-height, so it sits exactly at
+      the pinned stage's top without affecting its layout or pin start.
+
+      It deliberately does NOT use the shared `.scroll-anchor` class. That class
+      adds 2.25rem on top of the scroller's `scroll-padding-top: 5rem` (the fixed
+      header), landing its target 116px down — right for a normal section, wrong
+      for this one: the stage is viewport-pinned, so anything other than flush
+      leaves it mid-transition, with the claim's last line still peeking in above.
+      `-scroll-mt-20` cancels the 5rem padding to net zero, so the section lands
+      exactly on its pin start and reads as the composed, pinned frame. The stage
+      clears the header on its own via its own top padding. */
+  }
+  <div id="how-we-work" class="-scroll-mt-20"></div>
   <MetodoZil client:load />
 </section>

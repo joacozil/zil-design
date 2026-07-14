@@ -102,6 +102,53 @@ arrow-circle reveal, and the padding growth that makes room for it.
 Pure colour/border feedback (`hover:text-text`, `hover:border-primary`) stays
 ungated — it costs nothing on touch.
 
+### Motion — scroll entrances
+
+`src/scripts/reveal.ts` is the single source of truth for entrance motion, the way
+this file's tokens are for the type scale. **Every distance, duration, ease and
+stagger lives there.** Sections opt in declaratively and carry no motion numbers:
+
+```
+data-reveal[="rise"|"rail"|"band"]   reveal this element (omit the value → rise)
+data-reveal-group                    sequence this element's own [data-reveal]
+                                     descendants off one trigger, in DOM order
+data-reveal-delay="0.45"             extra seconds on top of its sequence slot
+```
+
+Groups nest — an element joins its **closest** group — so a section can sequence
+its header and its body off their own scroll positions.
+
+The concept is **dirección**: the page's own copy argues that communication
+_con dirección clara_ impulsa el crecimiento, so nothing here fades in. Things
+arrive along an axis and settle into register. The vocabulary is deliberately
+tiny: `rise` does almost everything, and `rail` / `band` exist only because the
+Projects track and the Statement thesis make an argument motion can state. **A
+new variant needs that kind of reason** — a section wanting to feel different is
+not one.
+
+Three rules that are load-bearing, not preferences:
+
+- **Never hard-code a hidden state in markup or CSS.** Only
+  `html.reveal-armed [data-reveal]:not([data-revealed])` may hide anything, and the
+  inline head script in `Layout.astro` is the **one** place that decides whether it
+  applies. It withholds the class for no-JS, for reduced motion, and for a document
+  hidden at load — GSAP's ticker is rAF-driven, so in a hidden document (background
+  tab, headless renderer) tweens never advance and anything hidden stays hidden.
+  Deciding this twice is how the page goes blank.
+- **An element must reach `[data-revealed]` before its tween runs**, or the
+  `clearProps` at the end drops it back to `opacity: 0`.
+- **Reveal server-rendered markup, not hydrated markup.** Inside a `client:visible`
+  island, declare `data-reveal` in the JSX and let the global engine drive it: a
+  `useGSAP` hook cannot touch the DOM until hydration, which fires exactly when the
+  island scrolls into view — i.e. after the reader has already seen it. And never
+  put the attribute on an Embla `<li>`; Embla measures those, so use an inner
+  wrapper (see `ProjectsSlider`).
+
+Not every section gets one, and the two exceptions are deliberate — do not "finish
+the job" by adding entrances to them. `Clients` is already a perpetual marquee, and
+an entrance on top of perpetual motion is noise. The `Footer` arrives settled: it is
+the page signing off, and chrome should not ask for attention the CTA just spent.
+
 ## Documentation
 
 Full documentation: https://docs.astro.build

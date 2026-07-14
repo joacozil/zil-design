@@ -135,11 +135,7 @@ export default function MobileMenu({ logoSrc }: { logoSrc: string }) {
               : "0ms",
           }}
         >
-          <img
-            src={logoSrc}
-            alt="Zil Design"
-            className="h-8 w-auto"
-          />
+          <img src={logoSrc} alt="Zil Design" className="h-8 w-auto" />
         </div>
       </div>
     </div>

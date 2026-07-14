@@ -191,6 +191,36 @@
 }
 
 /* ============================================================================
+   Scroll entrances — the PRE-REVEAL state only.
+   ----------------------------------------------------------------------------
+   Unlike the type scale and the section rhythm, global.css is NOT the source of
+   truth for motion: scripts/reveal.ts is, and it owns every distance, duration
+   and ease. This block is the one part that cannot live there, because it has to
+   be true at first paint — before a deferred module has run — or the page shows
+   its content and then yanks it away to animate it in.
+
+   So it is deliberately opacity-ONLY. No transform, no duration, no easing: the
+   start transform is written by GSAP's own `from()` at init, which means there is
+   no number here that could drift out of step with the engine.
+
+   Both gates matter:
+     · `.reveal-armed` is added by the inline head script in Layout.astro, which
+       is the single arbiter of whether entrances run at all — it withholds the
+       class for no-JS, for reduced motion, and for a document that is hidden at
+       load (where GSAP's rAF ticker never advances). Deciding it there and only
+       there is what keeps this rule from hiding anything the engine cannot then
+       reveal. Read that comment before touching this one.
+     · `[data-revealed]` is stamped by reveal.ts the moment an element starts
+       animating, which is what lets its tweens `clearProps` at the end: without
+       it, clearing the inline opacity would drop the element back to 0 here and
+       it would vanish on completion.
+   ========================================================================== */
+
+html.reveal-armed [data-reveal]:not([data-revealed]) {
+  opacity: 0;
+}
+
+/* ============================================================================
    Self-hosted Circular (shared with the parent Zil brand). Only the four weights
    we actually use are loaded, as woff2 (with woff fallback).
    ========================================================================== */

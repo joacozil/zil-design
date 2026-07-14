@@ -13,13 +13,28 @@ const fieldBase =
     <div id="cta" class="scroll-anchor"></div>
 
     <div class="rounded-3xl bg-primary-light p-8 tablet:p-12 desktop:p-16">
-      <div class="grid grid-cols-1 gap-10 desktop:grid-cols-2 desktop:gap-16">
+      {
+        /* Entrance: the pitch lands, then the form assembles a line at a time.
+          This is the page's conversion moment and the only place a sequence of
+          form fields means anything — the form building itself in front of the
+          reader reads as the invitation opening, where revealing the card as one
+          block would just be a panel appearing. One group across both columns, so
+          the copy and the fields are a single beat in reading order rather than
+          two animations that happen to overlap. */
+      }
+      <div
+        class="grid grid-cols-1 gap-10 desktop:grid-cols-2 desktop:gap-16"
+        data-reveal-group
+      >
         {/* Left — intro */}
         <div>
-          <h2 class="max-w-[16ch] text-h2 tracking-[-0.03em] text-balance">
+          <h2
+            class="max-w-[16ch] text-h2 tracking-[-0.03em] text-balance"
+            data-reveal
+          >
             Hablemos de tu marca
           </h2>
-          <p class="mt-4 max-w-[36ch] text-p-lg text-pretty">
+          <p class="mt-4 max-w-[36ch] text-p-lg text-pretty" data-reveal>
             Descubre el potencial de tu marca que todavía no está aprovechado.
           </p>
         </div>
@@ -33,6 +48,7 @@ const fieldBase =
             placeholder="Tu nombre"
             autocomplete="name"
             class={fieldBase}
+            data-reveal
           />
           <input
             type="text"
@@ -40,6 +56,7 @@ const fieldBase =
             placeholder="¿De qué empresa venís?"
             autocomplete="organization"
             class={fieldBase}
+            data-reveal
           />
           <input
             type="email"
@@ -48,6 +65,7 @@ const fieldBase =
             placeholder="Email"
             autocomplete="email"
             class={fieldBase}
+            data-reveal
           />
           <input
             type="tel"
@@ -55,15 +73,19 @@ const fieldBase =
             placeholder="Celular"
             autocomplete="tel"
             class={fieldBase}
+            data-reveal
           />
           <textarea
             name="mensaje"
             rows="4"
             placeholder="Contanos brevemente qué necesitas"
-            class={`${fieldBase} resize-none`}></textarea>
+            class={`${fieldBase} resize-none`}
+            data-reveal></textarea>
 
-          <div class="mt-2">
-            <Button type="submit" variant="pill-dark">Descubre Zil Design</Button>
+          <div class="mt-2" data-reveal>
+            <Button type="submit" variant="pill-dark"
+              >Descubre Zil Design</Button
+            >
           </div>
         </form>
       </div>

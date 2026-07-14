@@ -117,28 +117,49 @@ export default function ProjectsSlider({ projects }: { projects: Project[] }) {
     <div>
       {/* Full-bleed track: starts aligned with content (left gutter) and runs to
           the screen edge; the last snap stops at the content edge (right gutter). */}
+      {/* The section heading is "Cada punto de contacto comunica", so the cards
+          land one after another along their own rail — the sequence IS the claim,
+          which is the only reason a stagger earns its place here.
+
+          Two things are deliberate. The entrance is declared in markup and run by
+          the global engine (scripts/reveal.ts) rather than by a useGSAP hook in
+          this island: these slides are server-rendered, so the engine can hide
+          them from first paint, whereas a hook could not touch them until
+          `client:visible` hydration — which fires exactly when the slider scrolls
+          into view, i.e. after the reader has already seen the cards. That would
+          flash them in and then animate them.
+
+          And `data-reveal` sits on an inner wrapper, never on the <li>: Embla
+          measures the slides to compute its snap points, and a transform on them
+          during init would misalign every card until the next reInit. React does
+          not manage a `style` prop on these nodes, so GSAP's inline writes survive
+          hydration and re-render untouched. */}
       <div className="overflow-hidden" ref={emblaRef}>
-        <ul className="flex gap-4 tablet:gap-6">
+        <ul className="flex gap-4 tablet:gap-6" data-reveal-group>
           {projects.map((project, i) => (
             <li
               key={i}
               ref={i === 0 ? firstSlide : undefined}
               className={`min-w-0 shrink-0 grow-0 basis-[76%] tablet:basis-[48%] desktop:basis-[34%] ${i === 0 ? "ml-[var(--gutter)]" : ""} ${i === projects.length - 1 ? "mr-[var(--gutter)]" : ""}`}
             >
-              <div className="aspect-[3/2] overflow-hidden rounded-lg bg-surface-inverse">
-                <img
-                  src={project.src}
-                  alt={project.name}
-                  loading="lazy"
-                  className="h-full w-full object-cover"
-                  draggable={false}
-                />
-              </div>
-              <div className="mt-4 flex items-baseline justify-between gap-4">
-                <span className="text-p font-medium text-text">
-                  {project.name}
-                </span>
-                <span className="text-p-sm text-muted">{project.category}</span>
+              <div data-reveal="rail">
+                <div className="aspect-[3/2] overflow-hidden rounded-lg bg-surface-inverse">
+                  <img
+                    src={project.src}
+                    alt={project.name}
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                    draggable={false}
+                  />
+                </div>
+                <div className="mt-4 flex items-baseline justify-between gap-4">
+                  <span className="text-p font-medium text-text">
+                    {project.name}
+                  </span>
+                  <span className="text-p-sm text-muted">
+                    {project.category}
+                  </span>
+                </div>
               </div>
             </li>
           ))}
