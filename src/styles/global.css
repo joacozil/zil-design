@@ -108,6 +108,30 @@
   --text-p-sm--line-height: 1.5;
   --text-p-sm--font-weight: 400;
 
+  /* --- Section rhythm --------------------------------------------------------
+     The vertical space BETWEEN sections. ONE rule: every flow section owns HALF
+     the gap — it applies `py-section`, and the gap to its neighbour is the sum
+     of their two halves. So any two standard sections sit exactly
+     2 × --spacing-section apart at every breakpoint, and neither has to know
+     what the other does. NEVER write `py-20 tablet:py-28` on a section again:
+     that is how the rhythm drifted to a 96–160px spread in the first place.
+
+     `section-tight` is exactly half of `section`, for beats that are a strip
+     rather than a block (the client marquee), so the halves stay harmonic.
+
+     Like the type scale, these are the MOBILE base and step in the two media
+     queries at the bottom of this file.
+
+     DOES NOT APPLY to the two viewport-pinned sections, Hero and Método Zil.
+     Both fill 100svh and centre their content, so the space a neighbour sees is
+     (viewport − content) / 2 — set by the centring, not by this rhythm. Forcing
+     `py-section` onto them would decentre them and change nothing. See the note
+     in Statement.astro, which is the one section that borders a pinned one. */
+  --spacing-section: 5rem;
+  /* 80px → 112 → 128 */
+  --spacing-section-tight: 2.5rem;
+  /* 40px → 56 → 64 */
+
   /* --- Raw palette (from Figma) ---------------------------------------------
      The literal brand values. Edit hex here; semantic aliases below inherit. */
   --color-white: #ffffff;
@@ -263,6 +287,11 @@
     --text-p: 1rem;
     /* 16px */
     /* --text-p-sm holds at its mobile size on tablet */
+
+    --spacing-section: 7rem;
+    /* 112px */
+    --spacing-section-tight: 3.5rem;
+    /* 56px */
   }
 }
 
@@ -285,6 +314,11 @@
     /* 17px */
     --text-p-sm: 0.9375rem;
     /* 15px */
+
+    --spacing-section: 8rem;
+    /* 128px */
+    --spacing-section-tight: 4rem;
+    /* 64px */
   }
 }
 

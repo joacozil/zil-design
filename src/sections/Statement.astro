@@ -1,16 +1,23 @@
 ---
 /**
- * Standalone claim that leads into the Método Zil section.
+ * Standalone claim that leads into the Método Zil section — it carries the
+ * #how-we-work anchor, so it IS the head of that section, not a section of its
+ * own.
  *
- * Deliberately tighter than the site's standard section rhythm
- * (py-20 / 28 / 32) — this is a single line of display type, not a full block,
- * so it reads as a beat between sections rather than a section of its own.
+ * Spacing is deliberately asymmetric, and that is the rhythm working, not
+ * drifting: `pt-section` gives the standard half-gap above (Projects supplies
+ * the matching half), while below is ZERO. Método Zil is viewport-pinned — its
+ * stage is min-h-100svh with centred content, so it already opens with
+ * (100svh − content) / 2 of space above its logo, measured at ~264px on a
+ * 375×812 phone. Any padding added here is stacked on top of that, which is
+ * exactly what made this seam read as lopsided (128px above vs 312px below).
+ * Let the pinned stage own the space below; do not add `pb-*` here.
  */
 ---
 
 <section>
   <div
-    class="mx-auto w-full max-w-8xl px-6 py-12 text-center tablet:px-8 desktop:px-12"
+    class="mx-auto w-full max-w-8xl px-6 pt-section text-center tablet:px-8 desktop:px-12"
   >
     <div id="how-we-work" class="scroll-anchor"></div>
     {

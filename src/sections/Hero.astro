@@ -8,6 +8,11 @@ import HeroFloaters from "../components/react/HeroFloaters.tsx";
 >
   <HeroFloaters client:load />
 
+  {/* Viewport-pinned: min-h-svh with centred content, so the section rhythm
+      (`py-section`) deliberately does NOT apply here — the space Clients sees
+      below is (svh − content) / 2 from the centring, not this padding. The py
+      below is only a floor for short viewports, where the content would
+      otherwise touch the edges. See the rhythm note in styles/global.css. */}
   <div
     class="relative z-10 mx-auto flex w-full max-w-8xl flex-col items-center px-6 py-16 text-center tablet:px-8 desktop:px-12"
   >

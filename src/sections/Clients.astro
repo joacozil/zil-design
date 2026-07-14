@@ -26,7 +26,8 @@ const logos = [
 const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
 ---
 
-<section id="clients" class="py-14 tablet:py-16">
+{/* A trust strip, not a content block — hence the tight half of the rhythm. */}
+<section id="clients" class="py-section-tight">
   {
     /* Full-bleed infinite marquee on all breakpoints. `client:load` so the
       auto-scroll is already running by the time the section scrolls into view. */
