@@ -58,11 +58,9 @@ const DESKTOP_FLOATERS = withDist([
 // clear the header, and low enough not to collide with the h1. Anything at
 // x 17–83 sits over the headline and has no room to escape downward.
 const COMPACT_FLOATERS = withDist([
-  { x: 10, y: 18, s: 44, v: "card" },
-  { x: 33, y: 20, s: 40, v: "accent" },
-  { x: 58, y: 19, s: 48, v: "card" },
-  { x: 80, y: 18, s: 44, v: "primary-dark" },
-  { x: 93, y: 25, s: 40, v: "card" },
+  { x: 12, y: 19, s: 44, v: "accent" },
+  { x: 50, y: 17, s: 40, v: "card" },
+  { x: 88, y: 20, s: 44, v: "primary-dark" },
   { x: 6, y: 90, s: 40, v: "primary-dark" },
   { x: 27, y: 84, s: 48, v: "primary" },
   { x: 50, y: 92, s: 40, v: "card" },

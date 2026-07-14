@@ -1,17 +1,19 @@
 @import "tailwindcss";
 
-/* `!important` is load-bearing: GSAP ScrollTrigger (hero floaters parallax) sets
-   an inline `scroll-behavior: auto` on the scroller at init, which would
-   otherwise win over this rule and kill smooth anchor scrolling. */
-html {
-  scroll-behavior: smooth !important;
-}
+/* Deliberately NO `scroll-behavior` rule here — anchor smoothing is done in JS,
+   in Layout.astro. Do not reintroduce one.
+   ----------------------------------------------------------------------------
+   GSAP ScrollTrigger writes an inline `scroll-behavior: auto` on the scroller at
+   init, and that value is load-bearing for GSAP, not incidental: while measuring
+   (every `refresh()`, which fires on resize, on orientation change, and when the
+   Método pin releases) ScrollTrigger jumps the page to 0, reads natural offsets,
+   then jumps back. Both hops must be instant.
 
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto !important;
-  }
-}
+   Declaring `smooth` here needs `!important` to beat GSAP's inline style — and
+   that turns the internal round-trip into two real animations. The jump to 0
+   becomes a visible flight to the top of the page, and the restore is left to
+   win a race it does not reliably win: on iOS Safari, where a touch or momentum
+   can cancel a programmatic smooth scroll, the reader is stranded at the top. */
 
 .scroll-anchor {
   scroll-margin-top: 2.25rem;

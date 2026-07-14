@@ -50,5 +50,46 @@ const {
   </head>
   <body>
     <slot />
+
+    <script>
+      /**
+       * Smooth in-page anchor scrolling.
+       *
+       * This lives here rather than as `html { scroll-behavior: smooth }` in
+       * global.css on purpose. GSAP ScrollTrigger writes an inline
+       * `scroll-behavior: auto` on the scroller and relies on it: every
+       * `refresh()` jumps the page to 0 to measure natural offsets and jumps
+       * back, and both hops have to be instant. A CSS rule would need
+       * `!important` to beat that inline style, which animates the jump to 0 —
+       * a visible flight to the top, and on iOS Safari the restore can be
+       * cancelled by touch/momentum, stranding the reader there.
+       *
+       * Passing `behavior` explicitly overrides the computed `auto` for this one
+       * call, so anchors smooth-scroll and GSAP keeps its instant writes.
+       */
+      const reduceMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      );
+
+      document.addEventListener("click", (event) => {
+        // The mobile menu closes itself first and then runs its own scroll.
+        if (event.defaultPrevented) return;
+        const el = event.target as HTMLElement | null;
+        const link = el?.closest<HTMLAnchorElement>('a[href^="#"]');
+        const hash = link?.getAttribute("href");
+        if (!hash || hash.length < 2) return;
+        const dest = document.querySelector(hash);
+        if (!dest) return;
+
+        event.preventDefault();
+        // scrollIntoView honours `scroll-padding-top` and the `.scroll-anchor`
+        // scroll-margin, so targets clear the fixed header exactly as before.
+        dest.scrollIntoView({
+          behavior: reduceMotion.matches ? "auto" : "smooth",
+          block: "start",
+        });
+        history.pushState(null, "", hash);
+      });
+    </script>
   </body>
 </html>
