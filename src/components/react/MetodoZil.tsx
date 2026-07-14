@@ -264,7 +264,6 @@ export default function MetodoZil() {
           delay: 0.05,
           ease: "power2.inOut",
         },
-        id: "metodo-pin",
         onUpdate: (self) => goTo(zone(self.progress)),
         // Reload/resize mid-section: land on the right state instantly, no replay.
         // Clamped to `active` so a refresh while scrolled back up can't rewind
@@ -276,11 +275,6 @@ export default function MetodoZil() {
           trans?.kill();
           tl.seek(LABELS[i]);
         },
-      });
-
-      Object.assign(window as unknown as Record<string, unknown>, {
-        __release: release,
-        __ST: ScrollTrigger,
       });
     },
     { scope: root },
