@@ -45,8 +45,12 @@ const variantClasses: Record<string, string> = {
     "bg-primary-dark py-4 pr-9 pl-9 text-p-lg font-medium text-text-inverse transition-[padding] duration-300 ease-out desktop:hover:pr-[3.75rem] focus-visible:ring-primary-dark focus-visible:ring-offset-primary-light",
   "pill-sm":
     "bg-primary px-5 py-2.5 text-p-sm font-medium text-text-inverse transition-colors duration-200",
+  // pr/pl split (not px-8) so the hover growth below cleanly overrides only the
+  // right side, same as the pills. pr 32 → 52 opens exactly the 20px the arrow
+  // needs: see the note on the label span below for why that ALSO slides the
+  // label, and why it must not carry its own translate.
   outline:
-    "border-2 border-primary py-3 px-8 text-p-sm font-medium text-text-inverse focus-visible:ring-primary focus-visible:ring-offset-primary-dark",
+    "border-2 border-primary py-3 pr-8 pl-8 text-p-sm font-medium text-text-inverse transition-[padding] duration-300 ease-out desktop:hover:pr-13 focus-visible:ring-primary focus-visible:ring-offset-primary-dark",
   primary:
     "bg-surface-inverse px-7 py-3.5 text-p font-medium text-text-inverse transition-[transform,background-color,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:bg-surface-inverse/90 hover:shadow-md active:translate-y-0 focus-visible:ring-primary focus-visible:ring-offset-surface",
   secondary:
@@ -101,7 +105,16 @@ const cls = [base, variantClasses[variant], className]
       </>
     ) : hasOutlineArrow ? (
       <>
-        <span class="transition-[translate] duration-300 ease-out motion-reduce:transition-none desktop:group-hover:-translate-x-5">
+        {/* No `-translate-x-*` here, unlike pill-dark, and that is deliberate.
+            This button is right-aligned in the footer's `justify-between` row, so
+            growing its pr on hover pins the RIGHT edge and pushes the LEFT edge
+            out — which slides the label left by the full growth (20px) on its
+            own. A translate would stack on top and open a 44px gap. Pinning the
+            right edge is also what keeps the arrow's slide purely vertical: the
+            circle is anchored `right-2`, so it cannot drift sideways. (Growth is
+            desktop-only; on mobile this row is a left-aligned column, where
+            growing would drag the circle sideways into a diagonal.) */}
+        <span>
           <slot />
         </span>
         <span
