@@ -84,6 +84,17 @@ function Arrow({
 /** Inner card content, shared by the desktop card and the slider cards. */
 function CardBody({ service }: { service: Service }) {
   const v = VARIANTS[service.variant];
+
+  const renderBadge = (badge: string) => (
+    <li key={badge}>
+      <span
+        className={`inline-flex rounded-full px-3 py-1.5 text-[0.6875rem] font-bold tracking-wide uppercase ${v.badge}`}
+      >
+        {badge}
+      </span>
+    </li>
+  );
+
   return (
     <>
       <img
@@ -93,29 +104,30 @@ function CardBody({ service }: { service: Service }) {
         className="h-30 w-auto shrink-0 object-contain object-left desktop:h-48"
       />
       <div>
-        <h3 className={`text-h5 font-bold tracking-wide uppercase ${v.kicker}`}>
-          {service.name}
-        </h3>
-        <p className={`mt-3 max-w-[38ch] text-p text-pretty ${v.text}`}>
+        <p className={`max-w-[38ch] text-p text-pretty ${v.text}`}>
           {service.text}
         </p>
-        {/* On a mobile card these wrap to two rows, and the break lands wherever
-            the first two pills stop fitting — so the order in `services` is
-            load-bearing, not cosmetic: it is what keeps every card breaking
-            2-on-top / 1-below. Each service lists its two narrowest labels first
-            and its widest last. See the note in sections/Services.astro before
-            reordering or rewording any badge. */}
-        <ul className="mt-6 flex flex-wrap gap-2">
-          {service.badges.map((badge) => (
-            <li key={badge}>
-              <span
-                className={`inline-flex rounded-full px-4 py-2 text-p-sm font-bold tracking-wide uppercase ${v.badge}`}
-              >
-                {badge}
-              </span>
-            </li>
-          ))}
-        </ul>
+        {/* Badges wrap in SYNC across every card, driven by breakpoint rather
+            than each card's natural label widths (which broke earlier: the
+            longest-label cards stacked to three rows while others used two).
+            The two `ul`s are the top row (first two labels) and the bottom row
+            (the rest):
+              • mobile (<640)   → stacked (flex-col): every card is 2-on-top/1-below
+              • tablet & up     → side by side (flex-row): every card is one row
+            The order in `services` still matters — the first two labels share the
+            top row, so list the two NARROWEST first and the widest last (see the
+            note in Services.astro), and the font is sized so the widest top pair
+            fits the mobile row. */}
+        <div className="mt-6 flex flex-col gap-2 tablet:flex-row">
+          <ul className="flex flex-wrap gap-2">
+            {service.badges.slice(0, 2).map(renderBadge)}
+          </ul>
+          {service.badges.length > 2 && (
+            <ul className="flex flex-wrap gap-2">
+              {service.badges.slice(2).map(renderBadge)}
+            </ul>
+          )}
+        </div>
       </div>
     </>
   );
@@ -167,12 +179,11 @@ function ServicesCarousel({ services }: { services: Service[] }) {
         </ul>
       </div>
 
-      {/* Controls: active service name on the left, arrows grouped on the right. */}
-      <div className="mt-6 flex items-center justify-between gap-4">
-        <span
-          aria-live="polite"
-          className="min-w-0 truncate text-h3 font-medium text-text"
-        >
+      {/* Controls: just the arrows, grouped on the right. The active service name
+          is kept for screen readers only (aria-live announces each change) but is
+          not shown as a visible title. */}
+      <div className="mt-6 flex items-center justify-end gap-4">
+        <span aria-live="polite" className="sr-only">
           {services[selected]?.name}
         </span>
         <div className="flex shrink-0 items-center gap-3">
