@@ -88,7 +88,7 @@ function CardBody({ service }: { service: Service }) {
   const renderBadge = (badge: string) => (
     <li key={badge}>
       <span
-        className={`inline-flex rounded-full px-3 py-1.5 text-[0.6875rem] font-bold tracking-wide uppercase ${v.badge}`}
+        className={`inline-flex rounded-full px-3 py-1.5 text-[0.71rem] font-bold tracking-wide uppercase ${v.badge}`}
       >
         {badge}
       </span>
