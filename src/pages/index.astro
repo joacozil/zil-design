@@ -10,6 +10,7 @@ import HowWeWork from "../sections/HowWeWork.astro";
 import FAQ from "../sections/FAQ.astro";
 import CTA from "../sections/CTA.astro";
 import Footer from "../components/astro/Footer.astro";
+import ContactDrawer from "../components/astro/ContactDrawer.astro";
 ---
 
 <Layout title="Zil Design">
@@ -25,4 +26,9 @@ import Footer from "../components/astro/Footer.astro";
     <FAQ />
   </main>
   <Footer />
+  {
+    /* Mobile / tablet only — the persistent invitation to contact. Mounted here
+      rather than in Layout because it observes this page's #cta section. */
+  }
+  <ContactDrawer />
 </Layout>

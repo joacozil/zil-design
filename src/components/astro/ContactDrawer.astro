@@ -1,0 +1,403 @@
+---
+/**
+ * Mobile / tablet contact drawer — a peek bar pinned to the bottom of the
+ * viewport that swipes (or taps) up into the contact form.
+ *
+ * It exists because the reader on a phone has no persistent invitation to
+ * convert: the CTA is one section near the end of a long page. The drawer keeps
+ * that invitation in reach the whole way down, then gets out of the way when the
+ * real CTA arrives — showing both at once would be the same ask twice.
+ *
+ * Desktop is `desktop:hidden`: the header's inline nav already carries Contacto,
+ * and a thumb-reach bottom sheet is a touch idiom.
+ *
+ * Four states, all driven by classes on the root:
+ *   (default)  hidden below the fold — nothing to invite yet, the hero IS the pitch
+ *   .visible   peeking, once the reader has committed to scrolling
+ *   .open      slid up to the form
+ *   .at-cta    stashed away, because the CTA section is on screen
+ *
+ * MOTION: the sheet is laid out at its FULL height and parked off-screen with
+ * `translate`; opening only changes that translate. Nothing animates height, so
+ * every frame is compositor-only — this is a rigid drawer sliding, which is also
+ * the physical metaphor. (Note the FAQ's `grid-template-rows: 0fr→1fr` idiom is
+ * the right tool for an accordion growing in flow, but it is a layout animation;
+ * a sheet that is already positioned doesn't need one.)
+ *
+ * The form intentionally MIRRORS sections/CTA.astro (same fields, same names,
+ * same voseo copy). Keep the two in sync — if you add a field there, add it here.
+ */
+import Button from "./Button.astro";
+
+// Same field treatment as the CTA card, but on `surface` rather than the lilac
+// card — hence the border and the surface ring-offset.
+const fieldBase =
+  "w-full rounded-2xl border border-border bg-surface px-5 py-3.5 text-p text-text placeholder:text-p placeholder:font-normal placeholder:text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface";
+---
+
+<div id="contact-drawer" class="contact-drawer desktop:hidden">
+  {/* Backdrop — click to dismiss. Under the sheet, over the page. */}
+  <div class="drawer-backdrop" id="drawer-backdrop"></div>
+
+  <div class="drawer-sheet" id="drawer-sheet">
+    {/* Head — the always-visible peek. Its measured height IS `--peek`. */}
+    <div class="drawer-head" id="drawer-head">
+      {/* Grab handle — affords the swipe before the reader tries it. */}
+      <div class="drawer-grip" aria-hidden="true"></div>
+
+      <button
+        type="button"
+        class="drawer-peek"
+        id="drawer-peek"
+        aria-expanded="false"
+        aria-controls="drawer-body"
+      >
+        <span class="flex items-center justify-between gap-4">
+          <span class="text-h3 font-medium text-text">Hablemos</span>
+          <span class="drawer-chevron grid size-9 shrink-0 place-items-center">
+            <svg
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="size-5 text-primary"
+              aria-hidden="true"
+            >
+              <path d="M5 12L10 7L15 12"></path>
+            </svg>
+          </span>
+        </span>
+        <span class="drawer-peek-sub mt-1 block text-p-sm text-muted">
+          Contanos sobre tu marca
+        </span>
+      </button>
+    </div>
+
+    {
+      /* Body — laid out at full height even while closed; the sheet's translate
+        is what hides it. `inert` keeps it out of the tab order until then. */
+    }
+    <div class="drawer-body" id="drawer-body">
+      {
+        /* No intro line here: the peek's sub-line is visible in this state too
+          and already serves as one. */
+      }
+      <form class="flex flex-col gap-3">
+        <input
+          type="text"
+          name="nombre"
+          required
+          placeholder="Tu nombre"
+          autocomplete="name"
+          class={fieldBase}
+        />
+        <input
+          type="text"
+          name="empresa"
+          placeholder="¿De qué empresa venís?"
+          autocomplete="organization"
+          class={fieldBase}
+        />
+        <input
+          type="email"
+          name="email"
+          required
+          placeholder="Email"
+          autocomplete="email"
+          class={fieldBase}
+        />
+        <input
+          type="tel"
+          name="celular"
+          placeholder="Celular"
+          autocomplete="tel"
+          class={fieldBase}
+        />
+        <textarea
+          name="mensaje"
+          rows="3"
+          placeholder="Contanos brevemente qué necesitas"
+          class={`${fieldBase} resize-none`}></textarea>
+
+        <div class="mt-2">
+          <Button
+            type="submit"
+            variant="pill-dark"
+            class="w-full justify-center">Descubre Zil Design</Button
+          >
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+  .contact-drawer {
+    /* How much of the sheet shows at rest. The head is DECLARED to be exactly
+       this tall (see .drawer-head) rather than measured at runtime, so the
+       resting translate below is exact from the very first paint — with no JS,
+       and in a document that never runs a rendering frame (background tab,
+       headless renderer), where a ResizeObserver would never fire and would
+       strand the sheet at a stale height.
+       One value, no breakpoint step: the peek row's height is pinned by the
+       36px chevron, not by its text, and `text-h3` only reaches 28px at tablet —
+       so the head measures 107px on both. 112 leaves 5px of slack. Desktop,
+       where h3 would finally exceed the chevron, never renders this. */
+    --peek: 7rem;
+    /* 112px */
+
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 30; /* under the header (z-40), over the page */
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 300ms ease;
+  }
+
+  .contact-drawer.visible {
+    opacity: 1;
+  }
+
+  /* While open, lift the whole drawer above the header (z-40) so the backdrop
+     scrim covers the header too, not just the page below it. At rest it stays at
+     z-30, under the header, so the peek bar tucks beneath it as before. */
+  .contact-drawer.open {
+    z-index: 50;
+  }
+
+  .drawer-sheet {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    /* Full height is capped, not collapsed — the body scrolls if the form is
+       taller than this (short phones, landscape). */
+    max-height: 92svh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-lg);
+    pointer-events: auto;
+    /* Parked so exactly `--peek` shows. `100%` here is the sheet's own height,
+       so this holds at any content height without JS re-measuring it. */
+    translate: 0 calc(100% - var(--peek));
+    transition: translate 400ms cubic-bezier(0.32, 0.72, 0, 1);
+    /* The browser keeps horizontal panning; vertical drags are ours. */
+    touch-action: pan-x;
+  }
+
+  .contact-drawer.open .drawer-sheet {
+    translate: 0 0;
+  }
+
+  /* The CTA section is on screen — the real form is right there, so stash the
+     drawer rather than asking twice. Never while open: yanking the sheet out
+     from under someone mid-typing would be hostile. */
+  .contact-drawer.at-cta:not(.open) .drawer-sheet {
+    translate: 0 110%;
+  }
+
+  /* Height is declared, not natural: it IS `--peek`, which is what makes the
+     sheet's resting translate exact. See the note on --peek above. */
+  .drawer-head {
+    flex: none;
+    height: var(--peek);
+  }
+
+  .drawer-grip {
+    margin: 0.75rem auto 0.375rem;
+    height: 4px;
+    width: 36px;
+    border-radius: var(--radius-full);
+    background-color: var(--color-border);
+  }
+
+  .drawer-peek {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 1.5rem 1rem;
+    text-align: left;
+    cursor: pointer;
+    /* The peek is the drag surface — the browser must not claim the gesture. */
+    touch-action: none;
+  }
+
+  .drawer-chevron {
+    transition: rotate 350ms ease;
+  }
+
+  .contact-drawer.open .drawer-chevron {
+    rotate: 180deg;
+  }
+
+  /* The sub-line stays in BOTH states on purpose. Hiding it when open would drop
+     the head's content to 58px inside its declared 112px, leaving a band of dead
+     space under "Hablemos" — and shrinking the head to match would change the
+     sheet's height mid-transition, which is what `translate` percentages resolve
+     against, so the slide would jump. It reads as the invitation when closed and
+     as the form's intro when open, so it earns its place either way. */
+
+  .drawer-body {
+    /* min-height:0 lets this shrink inside the flex column so `overflow-y` can
+       actually scroll instead of the sheet growing past its cap. */
+    min-height: 0;
+    flex: 1;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    /* padding-top is NOT just rhythm — `overflow-y` makes this a scroll
+       container, which clips anything outside its padding box, and the fields'
+       focus ring draws 4px beyond their edge (ring-2 + ring-offset-2). With the
+       first field flush against the top, that ring lost its upper edge. Keep
+       this comfortably above 4px. */
+    padding-top: 0.75rem;
+    padding-inline: 1.5rem;
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+  }
+
+  .drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgb(0 0 0 / 0.45);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 300ms ease;
+  }
+
+  .contact-drawer.open .drawer-backdrop {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .contact-drawer,
+    .drawer-sheet,
+    .drawer-chevron,
+    .drawer-backdrop {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const root = document.getElementById("contact-drawer");
+  const sheet = document.getElementById("drawer-sheet");
+  const peek = document.getElementById("drawer-peek");
+  const body = document.getElementById("drawer-body");
+  const backdrop = document.getElementById("drawer-backdrop");
+
+  if (root && sheet && peek && body && backdrop) {
+    let isOpen = false;
+
+    /** Clear any drag transform so the CSS class transition owns the motion. */
+    const releaseDrag = () => {
+      sheet.style.transition = "";
+      sheet.style.translate = "";
+    };
+
+    const setOpen = (next: boolean) => {
+      if (next === isOpen) return;
+      isOpen = next;
+      releaseDrag();
+      root.classList.toggle("open", next);
+      peek.setAttribute("aria-expanded", String(next));
+      // Closed, the form is laid out but parked off-screen — `inert` keeps it
+      // out of the tab order and the a11y tree while it is not reachable.
+      body.inert = !next;
+      // The sheet scrolls its own body; the page behind must not.
+      document.body.style.overflow = next ? "hidden" : "";
+    };
+
+    setOpen(false);
+    body.inert = true;
+
+    peek.addEventListener("click", () => setOpen(!isOpen));
+    backdrop.addEventListener("click", () => setOpen(false));
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && isOpen) setOpen(false);
+    });
+
+    /* ---- Swipe -----------------------------------------------------------
+       Drag is only previewed while CLOSING. Opening snaps on release and lets
+       the CSS transition play: the intent is already unambiguous from the
+       direction, and following the finger up buys nothing. */
+    let startY = 0;
+    let currentY = 0;
+    let dragging = false;
+
+    sheet.addEventListener(
+      "touchstart",
+      (e) => {
+        const target = e.target as HTMLElement;
+        const onHead = !!target.closest(".drawer-head");
+        // While open, only drag from the head or when the body is already
+        // scrolled to the top — otherwise the reader is scrolling the form and
+        // the sheet must stay put.
+        dragging = isOpen ? onHead || body.scrollTop <= 0 : onHead;
+        if (!dragging) return;
+        startY = currentY = e.touches[0].clientY;
+      },
+      { passive: true },
+    );
+
+    sheet.addEventListener(
+      "touchmove",
+      (e) => {
+        if (!dragging) return;
+        currentY = e.touches[0].clientY;
+        const dy = currentY - startY;
+        if (isOpen && dy > 0) {
+          sheet.style.transition = "none";
+          sheet.style.translate = `0 ${dy}px`;
+        }
+      },
+      { passive: true },
+    );
+
+    sheet.addEventListener(
+      "touchend",
+      () => {
+        if (!dragging) return;
+        dragging = false;
+        const dy = currentY - startY;
+        // Asymmetric thresholds: opening is cheap to undo, closing can lose
+        // typed input, so it asks for a more deliberate pull.
+        if (!isOpen && dy < -40) setOpen(true);
+        else if (isOpen && dy > 80) setOpen(false);
+        else releaseDrag();
+      },
+      { passive: true },
+    );
+
+    /* ---- Visibility ------------------------------------------------------ */
+    // Hold the drawer back over the hero: that screen is the pitch, and the
+    // invitation only earns its place once the reader has chosen to go deeper.
+    const onScroll = () => {
+      if (isOpen) return;
+      root.classList.toggle("visible", window.scrollY > 150);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+
+    // Stash it while the CTA is on screen — see the .at-cta note in the styles.
+    //
+    // Observe the SECTION, not `#cta` itself: that id belongs to a zero-height
+    // `.scroll-anchor` div at the section's top edge. Watching the anchor would
+    // report not-intersecting the moment it scrolled past, popping the drawer
+    // back up while the reader is still sitting in the form it duplicates.
+    const cta = document.getElementById("cta")?.closest("section");
+    if (cta) {
+      new IntersectionObserver(
+        ([entry]) => {
+          if (!isOpen) root.classList.toggle("at-cta", entry.isIntersecting);
+        },
+        // The section is taller than the viewport, so `threshold: 0` alone would
+        // latch on as its very first pixel appears. Trimming the bottom of the
+        // root means the form has to be genuinely arriving, not just peeking.
+        { rootMargin: "0px 0px -25% 0px" },
+      ).observe(cta);
+    }
+  }
+</script>

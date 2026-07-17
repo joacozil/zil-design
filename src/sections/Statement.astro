@@ -61,15 +61,27 @@
         the finished band from the class alone; the engine's gradient paints the
         same colour and hands it back on completion. */
     }
+    {
+      /* `inline-block` (not the plain `inline` this once was) because the band
+        ROTATES its word, and `width` has no effect on an inline box — the engine
+        pins the span to the widest word so the line never re-centres and "clara
+        es" never shifts. `whitespace-nowrap` keeps it an atomic, unbroken band.
+
+        The word list is the source of truth for the rotation; `data-band-text`
+        holds the FIRST word statically so no-JS and reduced-motion readers get a
+        finished, meaningful sentence from the markup alone. Keep the two in sync:
+        data-band-text must equal the first entry of data-band-words. */
+    }
     <h2
       class="text-[30px] leading-[1.3] tracking-[-0.03em] tablet:text-h2 tablet:text-balance desktop:text-h1"
       data-reveal
     >
-      Una comunicación visual con dirección clara <span
-        class="bg-primary-dark px-3 whitespace-nowrap text-accent"
+      Una comunicación visual clara es <span
+        class="inline-block bg-primary-dark px-3 whitespace-nowrap text-left text-accent"
         data-reveal="band"
         data-reveal-delay="0.45"
-        ><span data-band-text>impulsa el crecimiento.</span></span
+        data-band-words='["crecimiento.", "estrategia.", "diferenciación."]'
+        ><span data-band-text>crecimiento.</span></span
       >
     </h2>
   </div>

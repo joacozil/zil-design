@@ -1,7 +1,6 @@
 ---
 import { NAV_LINKS } from "../../config/nav";
 import MobileMenu from "../react/MobileMenu.tsx";
-import Button from "./Button.astro";
 import logo from "../../assets/logo.svg";
 ---
 
@@ -37,9 +36,12 @@ import logo from "../../assets/logo.svg";
           ))
         }
       </nav>
-      <Button href="#cta" variant="pill-sm" class="desktop:hidden"
-        >Contacto</Button
-      >
+      {
+        /* No Contacto button here on mobile/tablet — ContactDrawer is the
+          persistent invitation at those sizes, and two competing asks in one
+          viewport is one too many. The inline nav above still carries Contacto
+          on desktop, where the drawer is hidden. */
+      }
       <MobileMenu client:load logoSrc={logo.src} />
     </div>
   </div>
