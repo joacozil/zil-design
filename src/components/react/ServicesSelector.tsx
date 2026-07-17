@@ -101,7 +101,7 @@ function CardBody({ service }: { service: Service }) {
         src={service.icon}
         alt=""
         aria-hidden="true"
-        className="h-30 w-auto shrink-0 object-contain object-left desktop:h-48"
+        className="h-40 w-auto shrink-0 object-contain object-left tablet:h-48"
       />
       <div>
         <p className={`max-w-[38ch] text-p text-pretty ${v.text}`}>
