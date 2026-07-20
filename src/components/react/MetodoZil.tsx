@@ -90,25 +90,21 @@ const NODE = 9;
 
 interface Step {
   title: string;
-  lead: string;
-  body: string;
+  copy: string;
 }
 
 const STEPS: Step[] = [
   {
-    title: "Análisis Estratégico",
-    lead: "Diagnóstico inicial para proyectar el potencial de su marca.",
-    body: "Un formulario breve y una llamada con nuestro equipo nos permiten entender sus objetivos y trazar la estrategia.",
+    title: "Entendemos tu negocio",
+    copy: "Te acompañamos con un análisis 100% personalizado, diseñando una hoja de ruta técnica para construir presencia y diferenciación real en tu mercado.",
   },
   {
-    title: "Desarrollo Criterioso",
-    lead: "Rigurosidad metodológica orientada a la diferenciación.",
-    body: "Fusionamos pensamiento estratégico y comunicación visual, con un enfoque analítico y una curaduría cuidada en cada etapa.",
+    title: "Desarrollamos tu estructura",
+    copy: "Transformamos tu comunicación en un activo comercial con propuestas visuales que potencian el engagement, aumentan la conversión y aportan valor.",
   },
   {
-    title: "Aliado Comprometido",
-    lead: "Acompañamiento corporativo enfocado en el crecimiento y resultados.",
-    body: "Un compromiso integral con su negocio, de principio a fin, con soluciones de alto impacto que impulsan su crecimiento.",
+    title: "Acompañamos tu crecimiento",
+    copy: "Nos integramos como tu aliado estratégico para guiarte y resolver en cada paso, alineando cada pieza de diseño con los objetivos de tu negocio.",
   },
 ];
 
@@ -131,11 +127,22 @@ export default function MetodoZil() {
       ) as HTMLElement;
       const stage = root.current!.querySelector("[data-stage]") as HTMLElement;
 
-      // Baseline IS state 0 — the outline and its nodes simply shown, nothing
-      // filled. No draw-on reveal, so the mark reads immediately on approach.
+      const wipe = root.current!.querySelector("#zil-wipe-grad");
+
+      // Pre-entrance state: each outline hides behind its own full dash length
+      // so it can trace itself out (the vector draw-on) as the section
+      // approaches; the nodes wait to pop onto the corners it draws.
+      letters.forEach((p) => {
+        const len = (p as unknown as SVGPathElement).getTotalLength();
+        gsap.set(p, { strokeDasharray: len, strokeDashoffset: len });
+      });
       gsap.set(letters, { opacity: 1 });
-      gsap.set(anchors, { opacity: 1, scale: 1, transformOrigin: "center" });
-      gsap.set(gradient, { opacity: 0 });
+      gsap.set(anchors, { opacity: 0, scale: 0.4, transformOrigin: "center" });
+      // The gradient layer itself stays at full opacity — its entrance is the
+      // wipe mask, rewound here from its authored end to just past the
+      // top-left corner so the layer starts fully masked out.
+      gsap.set(gradient, { opacity: 1 });
+      gsap.set(wipe, { attr: { x1: -190, y1: -130, x2: -100, y2: -70 } });
       gsap.set(solid, { opacity: 0 });
       accents.forEach((el, i) =>
         gsap.set(el, {
@@ -173,13 +180,37 @@ export default function MetodoZil() {
         defaults: { ease: "power2.out" },
       });
 
-      // ── S0 · Análisis — the resting outline, already established at time 0 ──
-      tl.addLabel("s0");
+      // ── Entrance → S0 · Análisis: the outline draws itself letter by letter,
+      // then the nodes pop onto the corners it just traced. This lives INSIDE
+      // the master timeline, before the s0 label, so a reader who blasts past
+      // the entrance simply has it fast-forwarded by the same tweenTo that
+      // carries them to their zone — one playhead, no competing writers.
+      tl.to(
+        letters,
+        {
+          strokeDashoffset: 0,
+          duration: 0.9,
+          ease: "power2.inOut",
+          stagger: 0.15,
+        },
+        0,
+      )
+        .to(anchors, { opacity: 1, scale: 1, duration: 0.35, stagger: 0.02 }, 0.55)
+        .addLabel("s0");
 
-      // ── S0 → S1 · Desarrollo: outline gives way to the gradient fill ──────
+      // ── S0 → S1 · Desarrollo: the gradient sweeps over the outline on a soft
+      // diagonal front, top-left → bottom-right ──────────────────────────────
       tl.to(anchors, { opacity: 0, scale: 0.4, duration: 0.35 }, "s0")
         .to(letters, { opacity: 0, duration: 0.4 }, "s0+=0.1")
-        .to(gradient, { opacity: 1, duration: 0.6 }, "s0")
+        .to(
+          wipe,
+          {
+            attr: { x1: 310, y1: 178, x2: 400, y2: 238 },
+            duration: 0.6,
+            ease: "power2.inOut",
+          },
+          "s0",
+        )
         .to(texts[0], { opacity: 0, y: -24, duration: 0.35 }, "s0")
         .to(texts[1], { opacity: 1, y: 0, duration: 0.45 }, "s0+=0.2")
         .to(bars[1], { scaleX: 1, duration: 0.6 }, "s0")
@@ -215,7 +246,9 @@ export default function MetodoZil() {
       // distance: `tweenTo` scrubs the paused timeline to the label over exactly
       // this many seconds, so no switch inherits its authored duration.
       const DUR = 0.5;
-      // Baseline already renders s0, so we start settled in state 0.
+      // The playhead starts BEFORE s0 (the un-drawn mark); the entrance trigger
+      // below carries it to s0. `active` still starts at 0 because state-wise
+      // the section is in análisis — only the drawing hasn't happened yet.
       let active = 0;
       let trans: gsap.core.Tween | undefined;
       const zone = (p: number) => (p < 0.25 ? 0 : p < 0.75 ? 1 : 2);
@@ -229,6 +262,23 @@ export default function MetodoZil() {
         trans?.kill();
         trans = tl.tweenTo(LABELS[i], { duration: DUR, ease: "power2.inOut" });
       };
+
+      // Entrance: the draw-on plays at its authored pace as the section
+      // approaches, well before the pin. It shares the `trans` slot with goTo,
+      // so if a zone switch lands mid-draw it is killed and the same playhead
+      // is carried straight on through s0 to the target — never two writers.
+      ScrollTrigger.create({
+        trigger: runway,
+        start: "top 85%",
+        once: true,
+        onEnter: () => {
+          // A refresh that landed mid-section has already seeked past the
+          // entrance; only play it from an untouched playhead.
+          if (active === 0 && !trans && tl.time() === 0) {
+            trans = tl.tweenTo("s0");
+          }
+        },
+      });
 
       // READ-ONLY trigger: it reports progress and nothing else. The stage is held
       // at the top by CSS `position: sticky`, NOT by `pin: true`.
@@ -277,12 +327,15 @@ export default function MetodoZil() {
       <div data-runway className="relative h-[300svh] motion-reduce:h-auto">
         <div
           data-stage
-          // Mobile only: stacked, and centred in the area BELOW the fixed 80px
-          // header rather than the raw viewport — hence pt exceeding pb by exactly
-          // that 80px (96 − 16), with justify-center splitting the rest evenly, so
-          // nothing slides under the header while stuck. From tablet up it's the
-          // two-column grid, where the symmetric py-24 already clears the header.
-          className="sticky top-0 mx-auto flex min-h-[100svh] w-full max-w-8xl flex-col items-center justify-center gap-10 px-6 pt-24 pb-4 motion-reduce:static tablet:grid tablet:grid-cols-[1fr_1fr] tablet:gap-16 tablet:px-8 tablet:py-24 desktop:gap-24 desktop:px-12"
+          // Mobile AND tablet: stacked, and centred in the band the chrome leaves
+          // visible — pt-20 clears the 80px header (it hides on scroll-down but
+          // returns on any scroll-up, so its slot must stay reserved) and pb-28
+          // clears the ContactDrawer's 7rem peek pinned to the bottom at these
+          // sizes; justify-center splits the leftover evenly so the composition
+          // sits centred between the two. Desktop is the two-column grid: the
+          // drawer is gone there, so symmetric py-24 recentres against the raw
+          // viewport (it clears the header on its own).
+          className="sticky top-0 mx-auto flex min-h-[100svh] w-full max-w-8xl flex-col items-center justify-center gap-10 px-6 pt-20 pb-28 motion-reduce:static tablet:px-8 desktop:grid desktop:grid-cols-[1fr_1fr] desktop:gap-24 desktop:px-12 desktop:py-24"
         >
           {/* ---- Logo stage --------------------------------------------------- */}
           <div className="flex w-full items-center">
@@ -292,7 +345,7 @@ export default function MetodoZil() {
               role="img"
               aria-label="Método Zil"
               shapeRendering="geometricPrecision"
-              className="w-full max-w-[200px] tablet:max-w-[440px]"
+              className="w-full max-w-[200px] tablet:max-w-[300px] desktop:max-w-[440px]"
             >
               <defs>
                 <linearGradient
@@ -311,10 +364,34 @@ export default function MetodoZil() {
                 <clipPath id="z-clip">
                   <path d={LETTERS[0]} />
                 </clipPath>
+                {/* Diagonal-wipe mask for the gradient state. AUTHORED at its
+                  end position — everything white, gradient fully shown — so a
+                  no-JS render shows the finished layer stack; the init below
+                  rewinds it before anything plays. */}
+                <linearGradient
+                  id="zil-wipe-grad"
+                  x1="310"
+                  y1="178"
+                  x2="400"
+                  y2="238"
+                  gradientUnits="userSpaceOnUse"
+                >
+                  <stop stopColor="#fff" />
+                  <stop offset="1" stopColor="#000" />
+                </linearGradient>
+                <mask id="zil-wipe" maskUnits="userSpaceOnUse">
+                  <rect
+                    x="-8"
+                    y="-8"
+                    width="318"
+                    height="186"
+                    fill="url(#zil-wipe-grad)"
+                  />
+                </mask>
               </defs>
 
-              {/* gradient fill layer */}
-              <g data-gradient>
+              {/* gradient fill layer — enters via the diagonal wipe, not a fade */}
+              <g data-gradient mask="url(#zil-wipe)">
                 {LETTERS.map((d, i) => (
                   <path key={i} d={d} fill="url(#zil-grad)" />
                 ))}
@@ -389,11 +466,15 @@ export default function MetodoZil() {
                 >
                   {/* Full column width so the title holds one line; the reading
                     measure belongs on the paragraph, not the whole block. */}
-                  <h3 className="text-h4 font-bold tracking-wide text-balance uppercase desktop:text-h3">
+                  {/* max-w-[16ch] forces every title onto two lines — without
+                      it the shortest ("Entendemos tu negocio") held one line
+                      while the other two wrapped, and the crossfade jumped.
+                      text-balance splits the pair evenly. */}
+                  <h3 className="max-w-[16ch] text-h4 font-bold tracking-wide text-balance uppercase desktop:text-h3">
                     {s.title}
                   </h3>
                   <p className="mt-4 max-w-[46ch] text-p-lg text-text">
-                    <strong className="font-bold">{s.lead}</strong> {s.body}
+                    {s.copy}
                   </p>
                 </div>
               ))}
