@@ -23,8 +23,9 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
-# reference-only parent Zil site (has its own git repo; not part of this project)
+# reference-only repos cloned for agent context (have their own git repos; not part of this project)
 zil-landing/
+meraki-frontend/
 
 # impeccable generated cache
 .impeccable/hook.cache.json

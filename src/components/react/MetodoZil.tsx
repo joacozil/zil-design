@@ -370,7 +370,7 @@ export default function MetodoZil() {
                     y={y - NODE / 2}
                     width={NODE}
                     height={NODE}
-                    fill="#9747FF"
+                    fill="#4B256E"
                   />
                 ))}
               </g>

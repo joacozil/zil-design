@@ -67,12 +67,6 @@ const STAGGER = 0.09;
 const BAND_STROKE = 0.55;
 /** The lime words arriving inside the band. */
 const BAND_INK = 0.3;
-/** Retracting is quicker than stroking: undoing a mark is not the statement,
- *  making it is. */
-const BAND_RETRACT = 0.35;
-/** How long a word holds before the band moves on. Long enough to read the
- *  whole sentence and land on the word, not so long the reader has left. */
-const BAND_HOLD = 1.1;
 
 /** Fire when the trigger's top reaches 85% of the viewport — just inside the
  *  fold, so the move is finished by the time the element is properly being read. */
@@ -113,64 +107,23 @@ const VARIANTS: Record<string, Build> = {
    * The marker band in Statement — the one signature move on the page.
    *
    * The sentence is the site's thesis: "Una comunicación visual clara es
-   * **crecimiento.**" The highlight IS the clarity. So the clause opens as
+   * **diferenciación.**" The highlight IS the clarity. So the clause opens as
    * reserved white space, the band strokes across it left to right like a
    * marker, and the lime word lands inside as it arrives. The argument and the
    * animation are the same gesture.
    *
    * The band is painted by growing a `background-size`, NOT by scaling the span.
-   * background-size touches no layout, so the stroke moves nothing at any width
-   * — which is what lets the clause stay measured to the pixel (see the note in
-   * Statement.astro). `transform` and `clip-path` would both fight that.
+   * background-size touches no layout, so the stroke moves nothing at any width.
+   * `transform` and `clip-path` would both fight that.
    *
-   * If the span carries `data-band-words`, the word then ROTATES: the band
-   * retracts, the text swaps while collapsed, and the band strokes back in.
-   * Same gesture, replayed — the site's vocabulary is deliberately tiny (see
-   * the header), so a rotating word reuses the band rather than earning a new
-   * move. The span is pinned to the widest word so the line never shifts.
-   *
-   * No `clearProps` here, unlike rise/rail: this element's background and its
-   * word's opacity are animated for as long as the page lives, so handing them
-   * back to the class mid-flight would fight the rotation. The gradient paints
-   * the identical colour as the `bg-primary-dark` class beneath it, so there is
-   * no seam either way. (No-JS and reduced-motion readers never reach this code
-   * at all — they get the finished band from the class, holding the first word.)
+   * No `clearProps` here, unlike rise/rail: the gradient paints the identical
+   * colour as the `bg-primary-dark` class beneath it, so there is no seam.
+   * (No-JS and reduced-motion readers get the finished band from the class.)
    */
   band: (tl, el, at) => {
     const text = el.querySelector<HTMLElement>("[data-band-text]");
     if (!text) return;
 
-    let words: string[] = [];
-    try {
-      words = JSON.parse(el.dataset.bandWords || "[]");
-    } catch {
-      words = [];
-    }
-
-    // Multi-word: pin the span to the widest word so the line never re-centres,
-    // then stroke only to the FIRST word's ratio so the purple fits the word.
-    let maxWidth = 0;
-    const wordWidths: number[] = [];
-
-    if (words.length > 1) {
-      const original = text.textContent;
-      for (const w of words) {
-        text.textContent = w;
-        const ww = el.getBoundingClientRect().width;
-        wordWidths.push(ww);
-        maxWidth = Math.max(maxWidth, ww);
-      }
-      text.textContent = original;
-      gsap.set(el, { width: maxWidth });
-    }
-
-    const firstPct =
-      maxWidth > 0 ? `${(wordWidths[0] / maxWidth) * 100}% 100%` : "100% 100%";
-
-    // Eager, outside the timeline: a `set()` positioned inside a paused timeline
-    // is ambiguous about when it renders, and the band must be collapsed from
-    // build time — it is on screen (behind the CSS opacity gate) long before the
-    // timeline plays.
     gsap.set(el, {
       backgroundColor: "transparent",
       backgroundImage:
@@ -184,7 +137,7 @@ const VARIANTS: Record<string, Build> = {
     tl.to(
       el,
       {
-        backgroundSize: firstPct,
+        backgroundSize: "100% 100%",
         duration: BAND_STROKE,
         ease: "power2.inOut",
       },
@@ -194,91 +147,8 @@ const VARIANTS: Record<string, Build> = {
       { opacity: 1, duration: BAND_INK, ease: "power1.out" },
       at + BAND_STROKE - BAND_INK,
     );
-
-    if (words.length > 1) {
-      tl.call(
-        () => rotate(el, text, words, maxWidth, wordWidths),
-        undefined,
-        at + BAND_STROKE,
-      );
-    }
   },
 };
-
-/**
- * Rotate the banded word forever, replaying the band move for each one.
- *
- * The span is pinned to the widest word so the h2 never re-centres, but the
- * purple `backgroundSize` adapts to each word — it strokes only as far as the
- * word's ratio of the pinned width. A resize listener re-measures so
- * breakpoint steps are picked up live.
- */
-function rotate(
-  el: HTMLElement,
-  text: HTMLElement,
-  words: string[],
-  maxWidth: number,
-  wordWidths: number[],
-) {
-  let i = 0;
-
-  const remeasure = () => {
-    const original = text.textContent;
-    gsap.set(el, { width: "auto" });
-    maxWidth = 0;
-    wordWidths.length = 0;
-    for (const w of words) {
-      text.textContent = w;
-      const ww = el.getBoundingClientRect().width;
-      wordWidths.push(ww);
-      maxWidth = Math.max(maxWidth, ww);
-    }
-    text.textContent = original;
-    gsap.set(el, { width: maxWidth });
-  };
-
-  window.addEventListener("resize", remeasure);
-
-  const cycle = () => {
-    const nextIdx = (i + 1) % words.length;
-    const next = words[nextIdx];
-    const pct = `${(wordWidths[nextIdx] / maxWidth) * 100}% 100%`;
-
-    gsap
-      .timeline({
-        onComplete: () => {
-          i = nextIdx;
-          cycle();
-        },
-      })
-      .to(text, {
-        opacity: 0,
-        duration: BAND_INK * 0.6,
-        ease: "power1.in",
-        delay: BAND_HOLD,
-      })
-      .to(el, {
-        backgroundSize: "0% 100%",
-        duration: BAND_RETRACT,
-        ease: "power2.inOut",
-      })
-      .add(() => {
-        text.textContent = next;
-      })
-      .to(el, {
-        backgroundSize: pct,
-        duration: BAND_STROKE,
-        ease: "power2.inOut",
-      })
-      .to(
-        text,
-        { opacity: 1, duration: BAND_INK, ease: "power1.out" },
-        `-=${BAND_INK}`,
-      );
-  };
-
-  cycle();
-}
 
 /**
  * Pick an element's move, defaulting to `rise`.
