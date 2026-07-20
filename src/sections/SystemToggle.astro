@@ -1,0 +1,13 @@
+---
+/**
+ * Viewport-pinned (sticky) section — the stage fills 100svh and the runway
+ * behind it is 200svh, so like Hero and MetodoZil it is EXEMPT from the
+ * py-section rhythm and carries no data-reveal: the scroll-driven switch is
+ * its entrance.
+ */
+import SystemToggle from "../components/react/SystemToggle.tsx";
+---
+
+<section>
+  <SystemToggle client:visible />
+</section>

@@ -4,7 +4,10 @@ import MobileMenu from "../react/MobileMenu.tsx";
 import logo from "../../assets/logo.svg";
 ---
 
-<header class="fixed inset-x-0 top-0 z-40 bg-surface">
+<header
+  class="fixed inset-x-0 top-0 z-40 bg-surface transition-transform duration-300 ease-out motion-reduce:transition-none"
+  data-header
+>
   <div
     class="mx-auto flex h-20 w-full max-w-8xl items-center justify-between px-6 tablet:px-8 desktop:px-12"
   >
@@ -46,3 +49,36 @@ import logo from "../../assets/logo.svg";
     </div>
   </div>
 </header>
+
+<script>
+  // Hide-on-scroll header: scrolling down slides it away, any upward scroll
+  // brings it back. The 4px dead zone swallows scroll jitter (iOS momentum
+  // wobble, trackpad noise) so the header doesn't flicker at rest, and the
+  // `y > 120` guard keeps it visible near the top — including during iOS
+  // rubber-band bounces, which report negative scrollY.
+  const header = document.querySelector<HTMLElement>("[data-header]");
+  let last = window.scrollY;
+  let ticking = false;
+
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (ticking || !header) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const y = window.scrollY;
+        const delta = y - last;
+        if (Math.abs(delta) > 4) {
+          if (delta > 0 && y > 120) {
+            header.classList.add("-translate-y-full");
+          } else {
+            header.classList.remove("-translate-y-full");
+          }
+        }
+        last = y;
+        ticking = false;
+      });
+    },
+    { passive: true },
+  );
+</script>

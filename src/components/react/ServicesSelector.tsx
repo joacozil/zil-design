@@ -179,11 +179,9 @@ function ServicesCarousel({ services }: { services: Service[] }) {
         </ul>
       </div>
 
-      {/* Controls: just the arrows, grouped on the right. The active service name
-          is kept for screen readers only (aria-live announces each change) but is
-          not shown as a visible title. */}
-      <div className="mt-6 flex items-center justify-end gap-4">
-        <span aria-live="polite" className="sr-only">
+      {/* Controls: service title on the left, arrows on the right */}
+      <div className="mt-6 flex items-center justify-between">
+        <span aria-live="polite" className="text-h3 font-medium">
           {services[selected]?.name}
         </span>
         <div className="flex shrink-0 items-center gap-3">

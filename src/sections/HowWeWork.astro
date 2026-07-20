@@ -1,23 +1,190 @@
 ---
-import MetodoZil from "../components/react/MetodoZil.tsx";
+/**
+ * Método Zil — three states of the ZIL mark (wireframe → gradient → solid with
+ * accents). Geometry is the same integer-grid ZIL mark MetodoZil.tsx built
+ * (bar T=68, diagonal run 54, viewBox padded 8u for the corner nodes).
+ *
+ * Spacing: the section ABOVE (SystemToggle) is viewport-pinned — its centred
+ * stage already owns the space below it — so like Statement did with MetodoZil,
+ * this section contributes NO top padding and only `pb-section` below, where it
+ * borders normal-flow Services.
+ */
+
+const LETTERS = [
+  "M8 34 L122 34 L68 102 L114 102 L114 170 L0 170 L54 102 L8 102 Z", // z
+  "M138 34 H206 V170 H138 Z", // i
+  "M234 0 H302 V170 H234 Z", // l
+];
+
+const STROKES = [
+  "M8 34 L122 34 L68 102 L114 102 L114 170 L0 170 L54 102 L8 102 Z M54 102 L68 102",
+  LETTERS[1],
+  LETTERS[2],
+];
+
+const ACCENTS = [
+  { d: "M68 34 L122 34 L68 102 Z", clip: true },
+  { d: "M138 102 H206 V170 H138 Z", clip: false },
+  { d: "M234 0 H302 V34 H234 Z", clip: false },
+];
+
+const ANCHORS = [
+  [8, 34],
+  [122, 34],
+  [114, 102],
+  [114, 170],
+  [0, 170],
+  [8, 102],
+  [138, 34],
+  [206, 34],
+  [206, 170],
+  [138, 170],
+  [234, 0],
+  [302, 0],
+  [302, 170],
+  [234, 170],
+];
+
+const NODE = 9;
+
+const STEPS = [
+  {
+    state: "analisis",
+    title: "Entendemos tu negocio",
+    copy: "Te acompañamos con un análisis 100% personalizado, diseñando una hoja de ruta técnica para construir presencia y diferenciación real en tu mercado.",
+  },
+  {
+    state: "desarrollo",
+    title: "Desarrollamos tu estructura",
+    copy: "Transformamos tu comunicación en un activo comercial con propuestas visuales que potencian el engagement, aumentan la conversión y aportan valor.",
+  },
+  {
+    state: "aliado",
+    title: "Acompañamos tu crecimiento",
+    copy: "Nos integramos como tu aliado estratégico para guiarte y resolver en cada paso, alineando cada pieza de diseño con los objetivos de tu negocio.",
+  },
+];
 ---
 
-{/* Pinned mark that switches through the three states */}
 <section>
-  {
-    /* Target of the "Cómo trabajamos" nav link — lands on the mark itself, not
-      on the claim that precedes it. Empty and zero-height, so it sits exactly at
-      the pinned stage's top without affecting its layout or pin start.
+  <div
+    class="mx-auto w-full max-w-8xl px-6 pb-section tablet:px-8 desktop:px-12"
+    data-reveal-group
+  >
+    <div id="how-we-work" class="scroll-anchor"></div>
 
-      It deliberately does NOT use the shared `.scroll-anchor` class. That class
-      adds 2.25rem on top of the scroller's `scroll-padding-top: 5rem` (the fixed
-      header), landing its target 116px down — right for a normal section, wrong
-      for this one: the stage is viewport-pinned, so anything other than flush
-      leaves it mid-transition, with the claim's last line still peeking in above.
-      `-scroll-mt-20` cancels the 5rem padding to net zero, so the section lands
-      exactly on its pin start and reads as the composed, pinned frame. The stage
-      clears the header on its own via its own top padding. */
-  }
-  <div id="how-we-work" class="-scroll-mt-20"></div>
-  <MetodoZil client:load />
+    {/* Header */}
+    <div class="flex flex-col items-center gap-6 text-center">
+      <span
+        class="inline-flex items-center rounded-md bg-primary-light px-4 py-2 text-p-sm font-bold tracking-wide text-primary-dark uppercase"
+        data-reveal>Método Zil</span
+      >
+      <h2 class="text-h2 tracking-[-0.025em] text-balance" data-reveal>
+        Un proceso en movimiento.
+      </h2>
+    </div>
+
+    {/* Steps on the rail */}
+    <div
+      class="relative mt-14 grid grid-cols-1 gap-14 tablet:mt-18 tablet:grid-cols-3 tablet:gap-12"
+    >
+      {/* Horizontal rail connecting the three marks (tablet+ only) */}
+      <div
+        class="pointer-events-none absolute top-[130px] right-[16.66%] left-[16.66%] hidden h-px bg-border tablet:block"
+        aria-hidden="true"
+      >
+      </div>
+
+      {
+        STEPS.map((step) => (
+          <div
+            class="relative flex flex-col items-center gap-5 text-center"
+            data-reveal
+          >
+            <div class="flex h-[260px] items-center justify-center">
+              <div class="w-64 bg-surface px-5">
+                <svg
+                  viewBox="-8 -8 318 186"
+                  fill="none"
+                  aria-hidden="true"
+                  class="block h-auto w-full"
+                >
+                  {step.state === "analisis" && (
+                    <>
+                      {STROKES.map((d) => (
+                        <path
+                          d={d}
+                          fill="none"
+                          stroke="var(--color-primary-dark)"
+                          stroke-width="2"
+                          stroke-linejoin="miter"
+                          stroke-miterlimit="8"
+                        />
+                      ))}
+                      {ANCHORS.map(([x, y]) => (
+                        <rect
+                          x={x - NODE / 2}
+                          y={y - NODE / 2}
+                          width={NODE}
+                          height={NODE}
+                          fill="var(--color-primary-dark)"
+                        />
+                      ))}
+                    </>
+                  )}
+                  {step.state === "desarrollo" && (
+                    <>
+                      <defs>
+                        <linearGradient
+                          id="metodo-grad"
+                          x1="8"
+                          y1="34"
+                          x2="302"
+                          y2="170"
+                          gradientUnits="userSpaceOnUse"
+                        >
+                          <stop stop-color="var(--color-primary)" />
+                          <stop
+                            offset="1"
+                            stop-color="var(--color-primary-light)"
+                          />
+                        </linearGradient>
+                      </defs>
+                      {LETTERS.map((d) => (
+                        <path d={d} fill="url(#metodo-grad)" />
+                      ))}
+                    </>
+                  )}
+                  {step.state === "aliado" && (
+                    <>
+                      <defs>
+                        <clipPath id="metodo-clip">
+                          <path d={LETTERS[0]} />
+                        </clipPath>
+                      </defs>
+                      {LETTERS.map((d) => (
+                        <path d={d} fill="var(--color-primary-dark)" />
+                      ))}
+                      {ACCENTS.map((a) =>
+                        a.clip ? (
+                          <g clip-path="url(#metodo-clip)">
+                            <path d={a.d} fill="var(--color-primary)" />
+                          </g>
+                        ) : (
+                          <path d={a.d} fill="var(--color-primary)" />
+                        ),
+                      )}
+                    </>
+                  )}
+                </svg>
+              </div>
+            </div>
+            <h3 class="text-h4">{step.title}</h3>
+            <p class="max-w-[34ch] text-p text-pretty text-muted">{step.copy}</p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
 </section>
+

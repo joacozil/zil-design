@@ -46,12 +46,12 @@ const variantClasses: Record<string, string> = {
     "bg-primary-dark py-4 pr-9 pl-9 text-p-lg font-medium text-text-inverse transition-[padding] duration-300 ease-out desktop:hover:pr-[3.75rem] focus-visible:ring-primary-dark focus-visible:ring-offset-primary-light",
   "pill-sm":
     "bg-primary px-5 py-2.5 text-p-sm font-medium text-text-inverse transition-colors duration-200",
-  // pr/pl split (not px-8) so the hover growth below cleanly overrides only the
-  // right side, same as the pills. pr 32 → 52 opens exactly the 20px the arrow
-  // needs: see the note on the label span below for why that ALSO slides the
-  // label, and why it must not carry its own translate.
+  // pr/pl split (not px-8) so the hover growth cleanly overrides only the right
+  // side. pr 32 → 52 opens exactly 20px for the arrow. mr-5 at rest reserves
+  // 20px of space that collapses to 0 on hover, so the button grows RIGHTWARD
+  // into its own margin — matching the pill CTAs — even when flex-pinned right.
   outline:
-    "border-2 border-primary py-3 pr-8 pl-8 text-p-sm font-medium text-text-inverse transition-[padding] duration-300 ease-out desktop:hover:pr-13 focus-visible:ring-primary focus-visible:ring-offset-primary-dark",
+    "border-2 border-primary py-3 pr-8 pl-8 mr-5 text-p-sm font-medium text-text-inverse transition-[padding,margin] duration-300 ease-out desktop:hover:pr-13 desktop:hover:mr-0 focus-visible:ring-primary focus-visible:ring-offset-primary-dark",
   primary:
     "bg-surface-inverse px-7 py-3.5 text-p font-medium text-text-inverse transition-[transform,background-color,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:bg-surface-inverse/90 hover:shadow-md active:translate-y-0 focus-visible:ring-primary focus-visible:ring-offset-surface",
   secondary:
@@ -61,7 +61,7 @@ const variantClasses: Record<string, string> = {
 const circleClasses: Record<string, string> = {
   pill: "bg-white text-primary",
   "pill-dark": "bg-white text-primary",
-  outline: "ir-arriba-circle bg-white text-primary",
+  outline: "bg-white text-primary",
 };
 
 const base =
@@ -106,22 +106,13 @@ const cls = [base, variantClasses[variant], className]
       </>
     ) : hasOutlineArrow ? (
       <>
-        {/* No `-translate-x-*` here, unlike pill-dark, and that is deliberate.
-            This button is right-aligned in the footer's `justify-between` row, so
-            growing its pr on hover pins the RIGHT edge and pushes the LEFT edge
-            out — which slides the label left by the full growth (20px) on its
-            own. A translate would stack on top and open a 44px gap. Pinning the
-            right edge is also what keeps the arrow's slide purely vertical: the
-            circle is anchored `right-2`, so it cannot drift sideways. (Growth is
-            desktop-only; on mobile this row is a left-aligned column, where
-            growing would drag the circle sideways into a diagonal.) */}
-        <span>
+        <span class="transition-[translate] duration-300 ease-out motion-reduce:transition-none desktop:group-hover:-translate-x-2">
           <slot />
         </span>
         <span
           aria-hidden="true"
           class:list={[
-            "pointer-events-none absolute right-2 grid size-9 place-items-center rounded-full opacity-0 transition-[translate,opacity] duration-300 ease-out motion-reduce:transition-none desktop:group-hover:opacity-100",
+            "pointer-events-none absolute top-1/2 right-2 grid size-9 translate-x-[160%] -translate-y-1/2 place-items-center rounded-full opacity-0 transition-[translate,opacity] duration-300 ease-out motion-reduce:transition-none desktop:group-hover:translate-x-0 desktop:group-hover:opacity-100",
             circleClasses[variant],
           ]}
         >
@@ -144,15 +135,3 @@ const cls = [base, variantClasses[variant], className]
   }
 </Tag>
 
-<style>
-  .ir-arriba-circle {
-    top: 50%;
-    translate: 0 80%;
-  }
-
-  @media (width >= 1024px) {
-    .group:hover .ir-arriba-circle {
-      translate: 0 -50%;
-    }
-  }
-</style>
