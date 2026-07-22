@@ -18,9 +18,30 @@ const OFF = {
   body: "Las piezas sueltas no acumulan: cada comunicación empieza de cero y el mercado no te recuerda.",
   bodyColor: "#a1a1a8",
   bars: [
-    { h: 70, color: "#d4d4d8", stat: "8%", label: "Costo oportunidad", statColor: "#a1a1a8", labelColor: "#c7c7cc" },
-    { h: 65, color: "#c7c7cc", stat: "2%", label: "Retención", statColor: "#a1a1a8", labelColor: "#b0b0b5" },
-    { h: 72, color: "#d4d4d8", stat: "2×", label: "Esfuerzo", statColor: "#a1a1a8", labelColor: "#c7c7cc" },
+    {
+      h: 70,
+      color: "#d4d4d8",
+      stat: "8%",
+      label: "Costo oportunidad",
+      statColor: "#a1a1a8",
+      labelColor: "#c7c7cc",
+    },
+    {
+      h: 65,
+      color: "#c7c7cc",
+      stat: "2%",
+      label: "Retención",
+      statColor: "#a1a1a8",
+      labelColor: "#b0b0b5",
+    },
+    {
+      h: 72,
+      color: "#d4d4d8",
+      stat: "3×",
+      label: "Esfuerzo",
+      statColor: "#a1a1a8",
+      labelColor: "#c7c7cc",
+    },
   ] as Bar[],
 };
 

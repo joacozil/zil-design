@@ -3,57 +3,73 @@ import Badge from "../components/astro/Badge.astro";
 
 const faqs = [
   {
-    question: "¿Se adaptan a empresas de cualquier rubro, modelo de negocio o industria?",
+    question: "¿Qué es Zil Design?",
+    answer:
+      "Somos un estudio de diseño estratégico y consultoría visual para clientes corporativos e institucionales, que opera como la división especializada de Zil Global. Funcionamos como un aliado independiente enfocado en resolver problemas complejos de comunicación, identidad y experiencia de marca. Transformamos la estrategia de tu negocio en una presencia visual clara, sólida y determinante que transmite confianza y criterio en el mercado.",
+  },
+  {
+    question:
+      "¿Se adaptan a empresas de cualquier rubro, modelo de negocio o industria?",
     answer:
       "Sí, no nos limitamos a un solo sector. Nuestra metodología no se basa en recetas fijas, sino en la estrategia de negocio. Analizamos tu mercado, tu competencia y tus objetivos comerciales para crear soluciones visuales a medida, ya seas una empresa de servicios, un e-commerce o una firma corporativa.",
   },
   {
-    question: "¿Cómo gestionan los proyectos con clientes en diferentes países y zonas horarias?",
+    question:
+      "¿Cómo gestionan los proyectos con clientes en diferentes países y zonas horarias?",
     answer:
       "Estamos 100% preparados para el trabajo global. Centralizamos la comunicación en plataformas eficientes, pautamos reuniones virtuales optimizando las diferencias horarias y te mantenemos al tanto del avance del proyecto mediante reportes claros. Esto te permite revisar el trabajo en el momento del día que mejor te convenga, sin frenar tu agenda.",
   },
   {
-    question: "¿Cómo se presupuestan los proyectos y qué facilidades de pago internacionales ofrecen?",
+    question:
+      "¿Cómo se presupuestan los proyectos y qué facilidades de pago internacionales ofrecen?",
     answer:
       "Cotizamos a medida según el alcance y los objetivos de tu empresa. Para tu comodidad y transparencia, trabajamos con contratos claros por hitos y ofrecemos diversas plataformas de pago internacionales (como Stripe, PayPal o transferencias bancarias directas) para que operar con nosotros sea simple desde cualquier parte del mundo.",
   },
   {
-    question: "¿Cuándo empezaré a notar el impacto de la nueva estrategia visual en el posicionamiento de mi marca?",
+    question:
+      "¿Cuándo empezaré a notar el impacto de la nueva estrategia visual en el posicionamiento de mi marca?",
     answer:
       "El diseño estratégico es un activo a mediano y largo plazo. Sin embargo, notarás un impacto inmediato en la percepción de profesionalismo y confianza de tu marca desde el día del lanzamiento. Esto se traduce en interacciones de mayor calidad, clientes más decididos y una ventaja competitiva clara frente a tu competencia.",
   },
   {
-    question: "¿Trabajan por proyecto cerrado o bajo un esquema de fee mensual?",
+    question:
+      "¿Trabajan por proyecto cerrado o bajo un esquema de fee mensual?",
     answer:
       "Manejamos ambas modalidades según tus necesidades. Los servicios de transformación profunda como el Branding o el Desarrollo Web se cotizan por proyecto cerrado con entregables definidos. Para servicios continuos como el diseño de redes sociales o soporte UX/UI, trabajamos con un esquema de abono (fee) mensual para acompañar el crecimiento constante de tu negocio.",
   },
   {
-    question: "No sé de diseño, ¿cómo me aseguro de que las propuestas se alineen con los objetivos de mi negocio?",
+    question:
+      "No sé de diseño, ¿cómo me aseguro de que las propuestas se alineen con los objetivos de mi negocio?",
     answer:
       "No necesitás saber de diseño, para eso nos contratás. Nuestro proceso no se basa en el gusto estético subjetivo, sino en un diagnóstico previo de tu empresa. Cada propuesta visual que te presentemos estará respaldada por argumentos estratégicos orientados a resolver un problema comercial o a captar a tu cliente ideal.",
   },
   {
-    question: "¿El equipo de la agencia se encarga de la dirección creativa o debo guiar el contenido yo mismo?",
+    question:
+      "¿El equipo de la agencia se encarga de la dirección creativa o debo guiar el contenido yo mismo?",
     answer:
       "Nosotros nos encargamos por completo. Tras una primera sesión de alineación donde nos transmitís los objetivos de tu empresa, nuestro equipo asume la dirección creativa y estratégica. Tu rol será validar y darnos feedback sobre las propuestas que preparemos, permitiéndote delegar con total tranquilidad.",
   },
   {
-    question: "¿Puedo contratar sus servicios si no cuento con un departamento de marketing en mi empresa?",
+    question:
+      "¿Puedo contratar sus servicios si no cuento con un departamento de marketing en mi empresa?",
     answer:
       "Totalmente, funcionamos como un brazo externo de diseño estratégico para tu negocio. Si no tenés un equipo interno, nosotros cubrimos esa necesidad. Si ya contás con profesionales de marketing, nos acoplamos perfectamente a ellos para potenciar las directrices actuales y llevar la ejecución visual al siguiente nivel.",
   },
   {
-    question: "Si no tengo material visual propio (fotos/videos corporativos), ¿cómo resuelven la creación de las piezas?",
+    question:
+      "Si no tengo material visual propio (fotos/videos corporativos), ¿cómo resuelven la creación de las piezas?",
     answer:
       "Eso no va a frenar el proyecto. Resolvemos la falta de material propio mediante una curaduría profesional de bancos de imágenes de alta calidad, desarrollo de ilustraciones personalizadas o diseño gráfico avanzado. La identidad de tu marca se verá de primer nivel, usemos o no recursos generados por vos.",
   },
   {
-    question: "Al finalizar el proyecto, ¿qué activos de marca recibo y cómo garantizan que pueda usarlos fácilmente?",
+    question:
+      "Al finalizar el proyecto, ¿qué activos de marca recibo y cómo garantizan que pueda usarlos fácilmente?",
     answer:
       "Te entregamos un ecosistema completo de marca listo para usar. Esto incluye los archivos originales en alta resolución, guías visuales de aplicación y formatos optimizados para entornos digitales e impresos. Todo organizado de forma intuitiva para que cualquier persona de tu equipo pueda utilizarlos sin complicaciones en el día a día.",
   },
   {
-    question: "Además del diseño, ¿ofrecen soluciones para impulsar las ventas a través de campañas de publicidad paga (Ads)?",
+    question:
+      "Además del diseño, ¿ofrecen soluciones para impulsar las ventas a través de campañas de publicidad paga (Ads)?",
     answer:
       "Sí, entendemos que un buen diseño necesita alcance para generar retornos. Diseñamos piezas optimizadas visualmente para anuncios (Meta Ads, Google Ads) con estructuras que captan la atención y convierten. Nos enfocamos en que las piezas gráficas de tus campañas de pago estén alineadas con la estrategia de ventas de tu negocio.",
   },
