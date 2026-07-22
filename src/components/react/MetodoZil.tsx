@@ -518,12 +518,9 @@ export default function MetodoZil() {
                       data-text
                       className="col-start-1 row-start-1"
                     >
-                      {/* One line at every size (whitespace-nowrap), so all three
-                      steps are the same height and the crossfade never jumps —
-                      the job the old max-w-[16ch] two-line clamp used to do, now
-                      done by keeping each title single-line at the smaller
-                      text-h4 role. */}
-                      <h3 className="text-h3 whitespace-nowrap">{s.title}</h3>
+                      <h3 className="text-h3 tablet:whitespace-nowrap">
+                        {s.title}
+                      </h3>
                       <p className="mt-4 max-w-[46ch] text-p-lg text-muted">
                         {s.copy}
                       </p>
