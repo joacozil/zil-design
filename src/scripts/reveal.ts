@@ -4,10 +4,11 @@
  * CONCEPT · "dirección"
  * The page argues, in its own copy, that visual communication *con dirección
  * clara* impulsa el crecimiento and *sin dirección* dificulta el crecimiento.
- * HeroFloaters already stages that argument — its field composes around the core
- * message. So nothing on this site is allowed to simply fade in. Elements ARRIVE:
- * along an axis, in reading order, settling into register — the same thing the
- * agency claims to do for a brand. That is the whole brief for this file.
+ * The hero states that argument at load — its full-bleed photo SETTLES into
+ * register while the copy rises over it (see `heroIntro`). So nothing on this
+ * site is allowed to simply fade in. Elements ARRIVE: along an axis, in reading
+ * order, settling into register — the same thing the agency claims to do for a
+ * brand. That is the whole brief for this file.
  *
  * There is ONE base move (`rise`) doing almost all the work, because a house
  * style that reads as deliberate is a small vocabulary used consistently, not a
@@ -71,6 +72,23 @@ const BAND_INK = 0.3;
 /** Fire when the trigger's top reaches 85% of the viewport — just inside the
  *  fold, so the move is finished by the time the element is properly being read. */
 const START = "top 85%";
+
+/* --- Hero background settle (see heroIntro) ------------------------------- */
+
+/** The photo starts a touch overscaled and eases back to 1. Small — the settle
+ *  should read as the image coming to rest, not a zoom. */
+const HERO_SETTLE_FROM = 1.12;
+/** Long and slow, so it is still easing under the copy as the copy finishes
+ *  rising — the whole hero arrives as one unhurried gesture. */
+const HERO_SETTLE_DURATION = 1.8;
+const HERO_SETTLE_EASE = "power2.out";
+
+/** The logo strip closes the hero intro. It rises like any other element, but is
+ *  driven from heroIntro rather than its own ScrollTrigger: pinned at the foot of
+ *  the hero it sits below the `top 85%` fire line, so a per-element trigger would
+ *  never fire at load and the strip would only appear once the reader scrolled.
+ *  A short lead lets the copy land first without making the reader wait. */
+const HERO_LOGOS_DELAY = 0.3;
 
 type Build = (tl: gsap.core.Timeline, el: HTMLElement, at: number) => void;
 
@@ -164,6 +182,47 @@ function variantOf(el: HTMLElement): Build {
   return VARIANTS[el.dataset.reveal ?? ""] ?? VARIANTS.rise;
 }
 
+/**
+ * The one load-time move on the page. Everything else ARRIVES on scroll, but the
+ * hero is already in view at load, so instead of rising it SETTLES: the
+ * full-bleed photo starts slightly overscaled and eases back into register while
+ * the copy rises over it — the "dirección" idea stated by the image itself.
+ *
+ * Deliberately NOT routed through the `[data-reveal]` opacity gate: that gate
+ * hides its element until revealed, and the hero photo must never blink to
+ * transparent (its scrims would sit over the bare white page for a frame). So
+ * this animates transform ONLY, and leans on the same `reveal-armed` decision as
+ * its guard — it is called from init(), after that check, so no-JS and
+ * reduced-motion readers get the photo already at rest.
+ */
+function heroIntro() {
+  const img = document.querySelector<HTMLElement>("[data-hero-image]");
+  if (img) {
+    gsap.from(img, {
+      scale: HERO_SETTLE_FROM,
+      duration: HERO_SETTLE_DURATION,
+      ease: HERO_SETTLE_EASE,
+      clearProps: "transform",
+    });
+  }
+
+  // The logo strip: stamp `data-revealed` first (releasing the CSS opacity gate,
+  // exactly as the batch trigger does) then rise it in. Excluded from the batch
+  // system via `[data-hero-logos]` so this is its only driver — see init().
+  const logos = document.querySelector<HTMLElement>("[data-hero-logos]");
+  if (logos) {
+    logos.dataset.revealed = "";
+    gsap.from(logos, {
+      y: RISE_Y,
+      opacity: 0,
+      duration: DURATION,
+      ease: EASE,
+      delay: HERO_LOGOS_DELAY,
+      clearProps: "opacity,transform",
+    });
+  }
+}
+
 function init() {
   // The inline head script in Layout.astro already decided whether entrances may
   // run (no-JS, reduced motion, or a document hidden at load — see the comment
@@ -176,6 +235,8 @@ function init() {
   // exists to prevent.
   if (!document.documentElement.classList.contains("reveal-armed")) return;
 
+  heroIntro();
+
   const batches: { trigger: HTMLElement; items: HTMLElement[] }[] = [];
   const claimed = new Set<HTMLElement>();
 
@@ -185,14 +246,16 @@ function init() {
     // `closest` is what makes groups nestable: a descendant inside a nearer group
     // belongs to that one, not to this outer sweep.
     const items = Array.from(
-      group.querySelectorAll<HTMLElement>("[data-reveal]"),
+      group.querySelectorAll<HTMLElement>("[data-reveal]:not([data-hero-logos])"),
     ).filter((el) => el.closest("[data-reveal-group]") === group);
 
     items.forEach((el) => claimed.add(el));
     if (items.length) batches.push({ trigger: group, items });
   }
 
-  for (const el of document.querySelectorAll<HTMLElement>("[data-reveal]")) {
+  for (const el of document.querySelectorAll<HTMLElement>(
+    "[data-reveal]:not([data-hero-logos])",
+  )) {
     if (!claimed.has(el)) batches.push({ trigger: el, items: [el] });
   }
 

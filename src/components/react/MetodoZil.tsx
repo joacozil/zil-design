@@ -283,14 +283,16 @@ export default function MetodoZil() {
       // the runway's top reaches the viewport top, so the mark is only near the
       // centre of the viewport once the runway top is near 0 — an earlier start
       // (e.g. "top 85%") drew the whole logo while it was still below the fold,
-      // finishing long before the reader scrolled it into view. "top 25%" fires
-      // with the mark in the lower third and rising, so it draws as it centres.
+      // finishing long before the reader scrolled it into view. "top 40%" fires
+      // with the mark still low and rising, so it draws as it centres — early
+      // enough that the reader catches the draw-on rather than arriving to a mark
+      // that has already finished settling.
       // It shares the `trans` slot with goTo, so if a zone switch lands mid-draw
       // it is killed and the same playhead is carried straight on through s0 to
       // the target — never two writers.
       ScrollTrigger.create({
         trigger: runway,
-        start: "top 25%",
+        start: "top 40%",
         once: true,
         onEnter: () => {
           // A refresh that landed mid-section has already seeked past the
@@ -353,10 +355,13 @@ export default function MetodoZil() {
           // returns on any scroll-up, so its slot must stay reserved) and pb-28
           // clears the ContactDrawer's 7rem peek pinned to the bottom at these
           // sizes; justify-center splits the leftover evenly so the composition
-          // sits centred between the two. Desktop is the two-column grid: the
-          // drawer is gone there, so symmetric py-24 recentres against the raw
-          // viewport (it clears the header on its own).
-          className="sticky top-0 mx-auto flex min-h-[100svh] w-full max-w-8xl flex-col items-center justify-center gap-12 px-6 pt-20 pb-28 motion-reduce:static tablet:gap-16 tablet:px-8 desktop:gap-20 desktop:px-12 desktop:pt-10 desktop:pb-24"
+          // sits centred between the two. That band is only ~svh−192 on a phone,
+          // so the whole mobile composition is deliberately compact — small logo,
+          // tight gap-6, trimmed card padding — to keep BOTH the title and the
+          // card clear of the drawer. Desktop is the two-column grid: the drawer
+          // is gone there, so symmetric py-24 recentres against the raw viewport
+          // (it clears the header on its own).
+          className="sticky top-0 mx-auto flex min-h-[100svh] w-full max-w-8xl flex-col items-center justify-center gap-6 px-6 pb-28 motion-reduce:static tablet:gap-16 tablet:px-8 desktop:gap-20 desktop:px-12 desktop:pt-10 desktop:pb-24"
         >
           {/* ---- Section header ------------------------------------------------
               Sits above the animated exhibit and stays put while the runway
@@ -388,8 +393,8 @@ export default function MetodoZil() {
               don't float in whitespace. Same treatment as the contact/CTA card
               (rounded-3xl + p-8/12/16), on the muted surface token instead of the
               lilac, so the two sections read as one system. */}
-          <div className="w-full rounded-3xl bg-surface-muted p-8 tablet:p-12 desktop:p-16">
-            <div className="flex w-full flex-col items-center gap-10 desktop:grid desktop:grid-cols-[1fr_1fr] desktop:items-center desktop:gap-24">
+          <div className="w-full rounded-3xl bg-surface-muted p-6 tablet:p-12 desktop:p-16">
+            <div className="flex w-full flex-col items-center gap-6 tablet:gap-10 desktop:grid desktop:grid-cols-[1fr_1fr] desktop:items-center desktop:gap-24">
               {/* ---- Logo stage --------------------------------------------------- */}
               <div className="flex w-full items-center">
                 <svg
@@ -398,7 +403,7 @@ export default function MetodoZil() {
                   role="img"
                   aria-label="Método Zil"
                   shapeRendering="geometricPrecision"
-                  className="w-full max-w-[200px] tablet:max-w-[300px] desktop:max-w-[440px]"
+                  className="w-full max-w-[160px] tablet:max-w-[300px] desktop:max-w-[440px]"
                 >
                   <defs>
                     <linearGradient
@@ -529,7 +534,7 @@ export default function MetodoZil() {
                 </div>
 
                 {/* progress rail — three segments fill as each state completes */}
-                <div className="mt-10 flex gap-3">
+                <div className="mt-6 flex gap-3 tablet:mt-10">
                   {STEPS.map((s) => (
                     <div
                       key={s.title}

@@ -12,8 +12,18 @@ export interface ClientLogo {
  * Continuous, infinitely-looping logo marquee (all breakpoints). Uses Embla +
  * the AutoScroll plugin. Auto-scroll is disabled under prefers-reduced-motion
  * (the row is still draggable).
+ *
+ * `tone` picks how the (dark) marks are rendered: "dark" is the default muted
+ * grey for light surfaces; "light" flattens them to white (`brightness-0
+ * invert`) for use over a dark image, e.g. pinned at the foot of the Hero.
  */
-export default function ClientsMarquee({ logos }: { logos: ClientLogo[] }) {
+export default function ClientsMarquee({
+  logos,
+  tone = "dark",
+}: {
+  logos: ClientLogo[];
+  tone?: "dark" | "light";
+}) {
   const reduceMotion =
     typeof window !== "undefined" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -41,7 +51,7 @@ export default function ClientsMarquee({ logos }: { logos: ClientLogo[] }) {
             <img
               src={logo.src}
               alt={logo.alt}
-              className={`${logo.h} w-auto opacity-60`}
+              className={`${logo.h} w-auto ${tone === "light" ? "opacity-75 brightness-0 invert" : "opacity-60"}`}
               draggable={false}
             />
           </li>

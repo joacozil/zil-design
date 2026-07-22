@@ -4,48 +4,59 @@ import MobileMenu from "../react/MobileMenu.tsx";
 import logo from "../../assets/logo.svg";
 ---
 
+{
+  /* Floating pill header: the bar detaches from the viewport edges and rides as
+    a rounded, shadowed island over the content. It stays solid `bg-surface` at
+    all scroll positions (so the violet logo and dark nav are always legible) —
+    the float is the whole effect. The outer <header> owns only positioning + the
+    hide-on-scroll transform; the pt is the gap it floats below the top edge. */
+}
 <header
-  class="fixed inset-x-0 top-0 z-40 bg-surface transition-transform duration-300 ease-out motion-reduce:transition-none"
+  class="fixed inset-x-0 top-0 z-40 transition-transform duration-300 ease-out motion-reduce:transition-none"
   data-header
 >
   <div
-    class="mx-auto flex h-20 w-full max-w-8xl items-center justify-between px-6 tablet:px-8 desktop:px-12"
+    class="mx-auto flex w-full max-w-8xl px-6 pt-4 tablet:px-8 desktop:px-12"
   >
-    {/* Left: logo (recolored Zil Design violet) */}
-    <a href="#hero" class="shrink-0" aria-label="Zil Design — inicio">
-      <img
-        src={logo.src}
-        alt="Zil Design"
-        width="50"
-        height="28"
-        class="h-7 w-auto"
-      />
-    </a>
+    <div
+      class="flex w-full items-center justify-between gap-6 rounded-full border border-border/60 bg-surface px-6 py-2 shadow-lg tablet:px-8 desktop:py-4"
+    >
+      {/* Left: logo (recolored Zil Design violet) */}
+      <a href="#hero" class="shrink-0" aria-label="Zil Design — inicio">
+        <img
+          src={logo.src}
+          alt="Zil Design"
+          width="50"
+          height="28"
+          class="h-6 w-auto"
+        />
+      </a>
 
-    {/* Right: inline nav (desktop) + hamburger (mobile / tablet) */}
-    <div class="flex items-center gap-3">
-      <nav
-        class="hidden items-center gap-8 desktop:flex"
-        aria-label="Principal"
-      >
+      {/* Right: inline nav (desktop) + hamburger (mobile / tablet) */}
+      <div class="flex items-center gap-3">
+        <nav
+          class="hidden items-center gap-8 desktop:flex"
+          aria-label="Principal"
+        >
+          {
+            NAV_LINKS.map((link) => (
+              <a
+                href={link.href}
+                class="text-p-sm font-medium text-text/70 transition-colors duration-200 hover:text-text"
+              >
+                {link.label}
+              </a>
+            ))
+          }
+        </nav>
         {
-          NAV_LINKS.map((link) => (
-            <a
-              href={link.href}
-              class="text-p-sm font-medium text-text/70 transition-colors duration-200 hover:text-text"
-            >
-              {link.label}
-            </a>
-          ))
-        }
-      </nav>
-      {
-        /* No Contacto button here on mobile/tablet — ContactDrawer is the
+          /* No Contacto button here on mobile/tablet — ContactDrawer is the
           persistent invitation at those sizes, and two competing asks in one
           viewport is one too many. The inline nav above still carries Contacto
           on desktop, where the drawer is hidden. */
-      }
-      <MobileMenu client:load logoSrc={logo.src} />
+        }
+        <MobileMenu client:load logoSrc={logo.src} />
+      </div>
     </div>
   </div>
 </header>
