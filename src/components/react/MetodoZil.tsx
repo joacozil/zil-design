@@ -122,6 +122,9 @@ export default function MetodoZil() {
       const anchors = q("[data-anchor]");
       const texts = q("[data-text]");
       const bars = q("[data-bar-fill]");
+      const header = root.current!.querySelector(
+        "[data-section-head]",
+      ) as HTMLElement;
       const runway = root.current!.querySelector(
         "[data-runway]",
       ) as HTMLElement;
@@ -138,9 +141,9 @@ export default function MetodoZil() {
       });
       gsap.set(letters, { opacity: 1 });
       gsap.set(anchors, { opacity: 0, scale: 0.4, transformOrigin: "center" });
-      // The gradient layer itself stays at full opacity — its entrance is the
-      // wipe mask, rewound here from its authored end to just past the
-      // top-left corner so the layer starts fully masked out.
+      // The fill layer stays at full opacity — its entrance is the wipe mask,
+      // rewound here from its authored end to just past the top-left corner so
+      // the layer starts fully masked out. The solid layer waits underneath.
       gsap.set(gradient, { opacity: 1 });
       gsap.set(wipe, { attr: { x1: -190, y1: -130, x2: -100, y2: -70 } });
       gsap.set(solid, { opacity: 0 });
@@ -152,6 +155,10 @@ export default function MetodoZil() {
       );
       gsap.set(texts, { opacity: 0, y: 24 });
       gsap.set(texts[0], { opacity: 1, y: 0 });
+      // The header rises in with the draw-on (tween added at the head of the
+      // master timeline below), then holds for every state — hidden here so it
+      // isn't present before its beat.
+      gsap.set(header, { opacity: 0, y: 24 });
       gsap.set(bars, { scaleX: 0, transformOrigin: "left center" });
       gsap.set(bars[0], { scaleX: 1 });
 
@@ -169,6 +176,7 @@ export default function MetodoZil() {
           marginBottom: 40,
         });
         gsap.set(bars, { scaleX: 1 });
+        gsap.set(header, { opacity: 1, y: 0 });
         return;
       }
 
@@ -185,20 +193,25 @@ export default function MetodoZil() {
       // the master timeline, before the s0 label, so a reader who blasts past
       // the entrance simply has it fast-forwarded by the same tweenTo that
       // carries them to their zone — one playhead, no competing writers.
-      tl.to(
-        letters,
-        {
-          strokeDashoffset: 0,
-          duration: 0.9,
-          ease: "power2.inOut",
-          stagger: 0.15,
-        },
-        0,
-      )
-        .to(anchors, { opacity: 1, scale: 1, duration: 0.35, stagger: 0.02 }, 0.55)
+      tl.to(header, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0)
+        .to(
+          letters,
+          {
+            strokeDashoffset: 0,
+            duration: 0.9,
+            ease: "power2.inOut",
+            stagger: 0.15,
+          },
+          0,
+        )
+        .to(
+          anchors,
+          { opacity: 1, scale: 1, duration: 0.35, stagger: 0.02 },
+          0.55,
+        )
         .addLabel("s0");
 
-      // ── S0 → S1 · Desarrollo: the gradient sweeps over the outline on a soft
+      // ── S0 → S1 · Desarrollo: the fill sweeps over the outline on a soft
       // diagonal front, top-left → bottom-right ──────────────────────────────
       tl.to(anchors, { opacity: 0, scale: 0.4, duration: 0.35 }, "s0")
         .to(letters, { opacity: 0, duration: 0.4 }, "s0+=0.1")
@@ -216,7 +229,9 @@ export default function MetodoZil() {
         .to(bars[1], { scaleX: 1, duration: 0.6 }, "s0")
         .addLabel("s1");
 
-      // ── S1 → S2 · Aliado: gradient hardens to solid, accent blocks slide in ─
+      // ── S1 → S2 · Aliado: the light gradient hardens to the solid dark fill
+      // and the accent blocks slide in. The two layers are different colours, so
+      // the crossfade reads as the fill deepening, not a flicker. ──────────────
       tl.to(solid, { opacity: 1, duration: 0.5, ease: "power2.inOut" }, "s1")
         .to(gradient, { opacity: 0, duration: 0.5, ease: "power2.inOut" }, "s1")
         .to(texts[1], { opacity: 0, y: -24, duration: 0.35 }, "s1")
@@ -263,13 +278,19 @@ export default function MetodoZil() {
         trans = tl.tweenTo(LABELS[i], { duration: DUR, ease: "power2.inOut" });
       };
 
-      // Entrance: the draw-on plays at its authored pace as the section
-      // approaches, well before the pin. It shares the `trans` slot with goTo,
-      // so if a zone switch lands mid-draw it is killed and the same playhead
-      // is carried straight on through s0 to the target — never two writers.
+      // Entrance: the draw-on plays at its authored pace as the stage settles
+      // into place. The stage sits at the TOP of the 300svh runway and pins when
+      // the runway's top reaches the viewport top, so the mark is only near the
+      // centre of the viewport once the runway top is near 0 — an earlier start
+      // (e.g. "top 85%") drew the whole logo while it was still below the fold,
+      // finishing long before the reader scrolled it into view. "top 25%" fires
+      // with the mark in the lower third and rising, so it draws as it centres.
+      // It shares the `trans` slot with goTo, so if a zone switch lands mid-draw
+      // it is killed and the same playhead is carried straight on through s0 to
+      // the target — never two writers.
       ScrollTrigger.create({
         trigger: runway,
-        start: "top 85%",
+        start: "top 25%",
         once: true,
         onEnter: () => {
           // A refresh that landed mid-section has already seeked past the
@@ -335,164 +356,196 @@ export default function MetodoZil() {
           // sits centred between the two. Desktop is the two-column grid: the
           // drawer is gone there, so symmetric py-24 recentres against the raw
           // viewport (it clears the header on its own).
-          className="sticky top-0 mx-auto flex min-h-[100svh] w-full max-w-8xl flex-col items-center justify-center gap-10 px-6 pt-20 pb-28 motion-reduce:static tablet:px-8 desktop:grid desktop:grid-cols-[1fr_1fr] desktop:gap-24 desktop:px-12 desktop:py-24"
+          className="sticky top-0 mx-auto flex min-h-[100svh] w-full max-w-8xl flex-col items-center justify-center gap-12 px-6 pt-20 pb-28 motion-reduce:static tablet:gap-16 tablet:px-8 desktop:gap-20 desktop:px-12 desktop:pt-10 desktop:pb-24"
         >
-          {/* ---- Logo stage --------------------------------------------------- */}
-          <div className="flex w-full items-center">
-            <svg
-              viewBox="-8 -8 318 186"
-              fill="none"
-              role="img"
-              aria-label="Método Zil"
-              shapeRendering="geometricPrecision"
-              className="w-full max-w-[200px] tablet:max-w-[300px] desktop:max-w-[440px]"
-            >
-              <defs>
-                <linearGradient
-                  id="zil-grad"
-                  x1="8"
-                  y1="34"
-                  x2="302"
-                  y2="170"
-                  gradientUnits="userSpaceOnUse"
+          {/* ---- Section header ------------------------------------------------
+              Sits above the animated exhibit and stays put while the runway
+              scrolls (it lives inside the sticky stage), so the section keeps a
+              stable title anchor through all three states. Its entrance is wired
+              into the master timeline below — it rises in alongside the draw-on
+              rather than being present from frame one, so it reads as part of the
+              same choreography.
+
+              It stays in the flow so the WHOLE composition (title + exhibit)
+              centres as one block — `justify-center` on the stage then gives it
+              equal space above the title and below the exhibit, which reads as
+              balanced. (Floating the header to dead-centre the exhibit alone left
+              the section top-loaded with an empty lower half.) */}
+          <header
+            data-section-head
+            className="flex flex-col items-center text-center"
+          >
+            <span className="inline-flex items-center rounded-md bg-primary-light px-4 py-2 text-p-sm font-bold tracking-wide text-primary-dark uppercase">
+              Método Zil
+            </span>
+            <h2 className="mt-5 max-w-[16ch] text-h2 tracking-[-0.03em] text-balance">
+              Cómo trabajamos
+            </h2>
+          </header>
+
+          {/* ---- Exhibit card ------------------------------------------------
+              A light-gray rounded panel that grounds the mark + copy so they
+              don't float in whitespace. Same treatment as the contact/CTA card
+              (rounded-3xl + p-8/12/16), on the muted surface token instead of the
+              lilac, so the two sections read as one system. */}
+          <div className="w-full rounded-3xl bg-surface-muted p-8 tablet:p-12 desktop:p-16">
+            <div className="flex w-full flex-col items-center gap-10 desktop:grid desktop:grid-cols-[1fr_1fr] desktop:items-center desktop:gap-24">
+              {/* ---- Logo stage --------------------------------------------------- */}
+              <div className="flex w-full items-center">
+                <svg
+                  viewBox="-8 -8 318 186"
+                  fill="none"
+                  role="img"
+                  aria-label="Método Zil"
+                  shapeRendering="geometricPrecision"
+                  className="w-full max-w-[200px] tablet:max-w-[300px] desktop:max-w-[440px]"
                 >
-                  <stop stopColor="#9747FF" />
-                  <stop offset="1" stopColor="#E7D5FF" />
-                </linearGradient>
-                {/* clips the z accent to the letter so its slide-in never spills
+                  <defs>
+                    <linearGradient
+                      id="zil-grad"
+                      x1="8"
+                      y1="34"
+                      x2="302"
+                      y2="170"
+                      gradientUnits="userSpaceOnUse"
+                    >
+                      <stop stopColor="#9747FF" />
+                      <stop offset="1" stopColor="#E7D5FF" />
+                    </linearGradient>
+                    {/* clips the z accent to the letter so its slide-in never spills
                   outside the diagonal */}
-                <clipPath id="z-clip">
-                  <path d={LETTERS[0]} />
-                </clipPath>
-                {/* Diagonal-wipe mask for the gradient state. AUTHORED at its
-                  end position — everything white, gradient fully shown — so a
-                  no-JS render shows the finished layer stack; the init below
-                  rewinds it before anything plays. */}
-                <linearGradient
-                  id="zil-wipe-grad"
-                  x1="310"
-                  y1="178"
-                  x2="400"
-                  y2="238"
-                  gradientUnits="userSpaceOnUse"
-                >
-                  <stop stopColor="#fff" />
-                  <stop offset="1" stopColor="#000" />
-                </linearGradient>
-                <mask id="zil-wipe" maskUnits="userSpaceOnUse">
-                  <rect
-                    x="-8"
-                    y="-8"
-                    width="318"
-                    height="186"
-                    fill="url(#zil-wipe-grad)"
-                  />
-                </mask>
-              </defs>
+                    <clipPath id="z-clip">
+                      <path d={LETTERS[0]} />
+                    </clipPath>
+                    {/* Diagonal-wipe mask for the fill state. AUTHORED at its
+                  end position — everything white, fill fully shown — so a no-JS
+                  render shows the finished layer stack; the init below rewinds
+                  it before anything plays. */}
+                    <linearGradient
+                      id="zil-wipe-grad"
+                      x1="310"
+                      y1="178"
+                      x2="400"
+                      y2="238"
+                      gradientUnits="userSpaceOnUse"
+                    >
+                      <stop stopColor="#fff" />
+                      <stop offset="1" stopColor="#000" />
+                    </linearGradient>
+                    <mask id="zil-wipe" maskUnits="userSpaceOnUse">
+                      <rect
+                        x="-8"
+                        y="-8"
+                        width="318"
+                        height="186"
+                        fill="url(#zil-wipe-grad)"
+                      />
+                    </mask>
+                  </defs>
 
-              {/* gradient fill layer — enters via the diagonal wipe, not a fade */}
-              <g data-gradient mask="url(#zil-wipe)">
-                {LETTERS.map((d, i) => (
-                  <path key={i} d={d} fill="url(#zil-grad)" />
-                ))}
-              </g>
+                  {/* gradient fill layer (state 2) — enters via the diagonal
+                    wipe, not a fade. */}
+                  <g data-gradient mask="url(#zil-wipe)">
+                    {LETTERS.map((d, i) => (
+                      <path key={i} d={d} fill="url(#zil-grad)" />
+                    ))}
+                  </g>
 
-              {/* solid dark fill layer (fades over the gradient in state 3) */}
-              <g data-solid>
-                {LETTERS.map((d, i) => (
-                  <path key={i} d={d} fill="#4B256E" />
-                ))}
-              </g>
+                  {/* solid dark fill layer */}
+                  <g data-solid>
+                    {LETTERS.map((d, i) => (
+                      <path key={i} d={d} fill="#4B256E" />
+                    ))}
+                  </g>
 
-              {/* violet accent blocks that slide in over the dark letters. The
-                clip lives on a static wrapper so the accent's own scale doesn't
-                drag it along. */}
-              <g>
-                {ACCENTS.map((a, i) => {
-                  const block = <path data-accent d={a.d} fill="#9747FF" />;
-                  return a.clip ? (
-                    <g key={i} clipPath={`url(#${a.clip})`}>
-                      {block}
-                    </g>
-                  ) : (
-                    <g key={i}>{block}</g>
-                  );
-                })}
-              </g>
+                  {/* violet accent blocks that slide into the letters (state 3).
+                    The clip lives on a static wrapper so the accent's own scale
+                    doesn't drag it along. */}
+                  <g>
+                    {ACCENTS.map((a, i) => {
+                      const block = <path data-accent d={a.d} fill="#9747FF" />;
+                      return a.clip ? (
+                        <g key={i} clipPath={`url(#${a.clip})`}>
+                          {block}
+                        </g>
+                      ) : (
+                        <g key={i}>{block}</g>
+                      );
+                    })}
+                  </g>
 
-              {/* stroke outline that draws itself in state 1 — technical, sharp
+                  {/* stroke outline that draws itself in state 1 — technical, sharp
                 mitred corners, thin uniform weight */}
-              <g>
-                {STROKES.map((d, i) => (
-                  <path
-                    key={i}
-                    data-stroke
-                    d={d}
-                    fill="none"
-                    stroke="#4B256E"
-                    strokeWidth={2}
-                    strokeLinejoin="miter"
-                    strokeMiterlimit={8}
-                  />
-                ))}
-              </g>
+                  <g>
+                    {STROKES.map((d, i) => (
+                      <path
+                        key={i}
+                        data-stroke
+                        d={d}
+                        fill="none"
+                        stroke="#4b256e"
+                        strokeWidth={2}
+                        strokeLinejoin="miter"
+                        strokeMiterlimit={8}
+                      />
+                    ))}
+                  </g>
 
-              {/* solid square nodes on every vertex, centred exactly */}
-              <g>
-                {ANCHORS.map(([x, y], i) => (
-                  <rect
-                    key={i}
-                    data-anchor
-                    x={x - NODE / 2}
-                    y={y - NODE / 2}
-                    width={NODE}
-                    height={NODE}
-                    fill="#4B256E"
-                  />
-                ))}
-              </g>
-            </svg>
-          </div>
+                  {/* solid square nodes on every vertex, centred exactly */}
+                  <g>
+                    {ANCHORS.map(([x, y], i) => (
+                      <rect
+                        key={i}
+                        data-anchor
+                        x={x - NODE / 2}
+                        y={y - NODE / 2}
+                        width={NODE}
+                        height={NODE}
+                        fill="#4b256e"
+                      />
+                    ))}
+                  </g>
+                </svg>
+              </div>
 
-          {/* ---- Text stage --------------------------------------------------- */}
-          <div className="flex w-full flex-col">
-            {/* crossfading step copy, stacked in one grid cell */}
-            <div className="grid">
-              {STEPS.map((s) => (
-                <div
-                  key={s.title}
-                  data-text
-                  className="col-start-1 row-start-1"
-                >
-                  {/* Full column width so the title holds one line; the reading
-                    measure belongs on the paragraph, not the whole block. */}
-                  {/* max-w-[16ch] forces every title onto two lines — without
-                      it the shortest ("Entendemos tu negocio") held one line
-                      while the other two wrapped, and the crossfade jumped.
-                      text-balance splits the pair evenly. */}
-                  <h3 className="max-w-[16ch] text-h4 font-bold tracking-wide text-balance uppercase desktop:text-h3">
-                    {s.title}
-                  </h3>
-                  <p className="mt-4 max-w-[46ch] text-p-lg text-text">
-                    {s.copy}
-                  </p>
+              {/* ---- Text stage --------------------------------------------------- */}
+              <div className="flex w-full flex-col">
+                {/* crossfading step copy, stacked in one grid cell */}
+                <div className="grid">
+                  {STEPS.map((s) => (
+                    <div
+                      key={s.title}
+                      data-text
+                      className="col-start-1 row-start-1"
+                    >
+                      {/* One line at every size (whitespace-nowrap), so all three
+                      steps are the same height and the crossfade never jumps —
+                      the job the old max-w-[16ch] two-line clamp used to do, now
+                      done by keeping each title single-line at the smaller
+                      text-h4 role. */}
+                      <h3 className="text-h3 whitespace-nowrap">{s.title}</h3>
+                      <p className="mt-4 max-w-[46ch] text-p-lg text-muted">
+                        {s.copy}
+                      </p>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
 
-            {/* progress rail — three segments fill as each state completes */}
-            <div className="mt-10 flex gap-3">
-              {STEPS.map((s) => (
-                <div
-                  key={s.title}
-                  className="h-[3px] flex-1 overflow-hidden rounded-full bg-border"
-                >
-                  <div
-                    data-bar-fill
-                    className="h-full w-full origin-left rounded-full bg-primary"
-                  />
+                {/* progress rail — three segments fill as each state completes */}
+                <div className="mt-10 flex gap-3">
+                  {STEPS.map((s) => (
+                    <div
+                      key={s.title}
+                      className="h-[3px] flex-1 overflow-hidden rounded-full bg-border"
+                    >
+                      <div
+                        data-bar-fill
+                        className="h-full w-full origin-left rounded-full bg-primary"
+                      />
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
           </div>
         </div>
