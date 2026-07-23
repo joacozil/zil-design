@@ -105,8 +105,24 @@ export default function MobileMenu({ logoSrc }: { logoSrc: string }) {
                 doClose();
                 const href = link.href;
                 setTimeout(() => {
-                  const target = document.querySelector(href);
-                  if (target) target.scrollIntoView({ behavior: "smooth" });
+                  const target = document.querySelector<HTMLElement>(href);
+                  if (!target) return;
+                  // Scroll through Lenis when it owns the scroll, else native —
+                  // a native scroll races Lenis's rAF loop and stalls. See the
+                  // note in smooth-scroll.ts.
+                  const lenis = window.lenis;
+                  if (lenis) {
+                    const spt =
+                      parseFloat(
+                        getComputedStyle(document.documentElement)
+                          .scrollPaddingTop,
+                      ) || 0;
+                    const smt =
+                      parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
+                    lenis.scrollTo(target, { offset: -(spt + smt) });
+                  } else {
+                    target.scrollIntoView({ behavior: "smooth" });
+                  }
                 }, linksFadeOut + overlayFade);
               }}
               className="text-h3 font-medium text-text motion-reduce:transition-none"

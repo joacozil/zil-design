@@ -12,14 +12,14 @@ import logo from "../../assets/logo.svg";
     hide-on-scroll transform; the pt is the gap it floats below the top edge. */
 }
 <header
-  class="fixed inset-x-0 top-0 z-40 transition-transform duration-300 ease-out motion-reduce:transition-none"
+  class="header-intro fixed inset-x-0 top-0 z-40 transition-transform duration-300 ease-out motion-reduce:transition-none"
   data-header
 >
   <div
     class="mx-auto flex w-full max-w-8xl px-6 pt-4 tablet:px-8 desktop:px-12"
   >
     <div
-      class="flex w-full items-center justify-between gap-6 rounded-full border border-border/60 bg-surface px-6 py-2 shadow-lg tablet:px-8 desktop:py-4"
+      class="flex w-full items-center justify-between gap-6 border border-border/60 bg-surface px-6 py-2 shadow-lg tablet:px-8 desktop:py-4"
     >
       {/* Left: logo (recolored Zil Design violet) */}
       <a href="#hero" class="shrink-0" aria-label="Zil Design — inicio">
@@ -60,6 +60,35 @@ import logo from "../../assets/logo.svg";
     </div>
   </div>
 </header>
+
+{
+  /* Initial entrance: the bar slides down from above the top edge on load, the
+    same transform-and-ease gesture the hide-on-scroll uses when it re-appears.
+    Pure CSS so it needs no JS and can't leave the header stranded off-screen;
+    reduced-motion readers get it already in place. It animates transform only,
+    so it never fights the class-toggled `-translate-y-full` once it has run. */
+}
+<style>
+  @keyframes header-slide-in {
+    from {
+      transform: translateY(-100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  .header-intro {
+    /* Matches the hide-on-scroll transition exactly (duration-300 ease-out). */
+    animation: header-slide-in 0.3s ease-out both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .header-intro {
+      animation: none;
+    }
+  }
+</style>
 
 <script>
   // Hide-on-scroll header: scrolling down slides it away, any upward scroll

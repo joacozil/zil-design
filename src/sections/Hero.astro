@@ -1,47 +1,26 @@
 ---
 import Button from "../components/astro/Button.astro";
-import ClientsMarquee from "../components/react/ClientsMarquee.tsx";
-import mmg from "../assets/img/mmg.svg";
-import quantia from "../assets/img/quantia.svg";
-import clojure from "../assets/img/clojure.svg";
-import netValue from "../assets/img/net-value.svg";
-import advantia from "../assets/img/advantia.svg";
-import nu from "../assets/img/nu.svg";
-import kfc from "../assets/img/kfc.svg";
-import wendys from "../assets/img/wendys.svg";
-
-/* Placeholder hero background — swap for the final brand asset. */
-const HERO_IMAGE =
-  "https://images.pexels.com/photos/2983018/pexels-photo-2983018.jpeg";
-
-// Client trust strip, pinned to the foot of the hero. `h` is a per-logo height
-// class — logos are normalized by height, but some marks read smaller at the
-// same height, so they get a larger value.
-const logos = [
-  { img: nu, alt: "Nu", h: "h-8" },
-  { img: mmg, alt: "MMG Bank", h: "h-7" },
-  { img: advantia, alt: "Advantia", h: "h-10" },
-  { img: quantia, alt: "Quantia", h: "h-7" },
-  { img: clojure, alt: "Clojure", h: "h-9" },
-  { img: netValue, alt: "Net Value", h: "h-10" },
-  { img: kfc, alt: "KFC", h: "h-8" },
-  { img: wendys, alt: "Wendy's", h: "h-8" },
-];
-
-// Plain, serializable data for the marquee island.
-const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
+import heroImage from "../assets/img/hero.avif";
 ---
 
+{
+  /* Viewport-pinned hero: `min-h-svh` with the copy bottom-aligned (`items-end`),
+    so — like the other pinned sections — the section rhythm (`py-section`) does
+    NOT apply here. The space a neighbour sees below is owned by the pinned
+    stage, not by padding. See the rhythm note in styles/global.css. */
+}
 <section
   id="hero"
-  class="relative flex min-h-svh w-full items-center justify-center overflow-hidden"
+  class="relative flex min-h-svh w-full items-end overflow-hidden"
 >
   {
-    /* Full-bleed background image, behind everything at -z-10; the copy rides
-      above on z-10. Placeholder for now (see HERO_IMAGE). */
+    /* Full-bleed office photo behind everything at -z-10; the copy rides above at
+      z-10. `data-hero-image` hands the settle-scale intro to reveal.ts. */
   }
   <img
-    src={HERO_IMAGE}
+    src={heroImage.src}
+    width={heroImage.width}
+    height={heroImage.height}
     alt=""
     aria-hidden="true"
     fetchpriority="high"
@@ -49,11 +28,11 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
     class="absolute inset-0 -z-10 h-full w-full object-cover"
   />
   {
-    /* Legibility scrims, both decorative: an even darkening so the centred white
-      copy holds over any part of the image, plus a faint brand wash so the photo
-      reads as ours. */
+    /* Legibility scrims, both decorative: an even darkening so the white copy
+      holds over any part of the image, plus a faint brand wash so the photo reads
+      as ours. */
   }
-  <div aria-hidden="true" class="absolute inset-0 -z-10 bg-black/45"></div>
+  <div aria-hidden="true" class="absolute inset-0 -z-10 bg-black/20"></div>
   <div
     aria-hidden="true"
     class="absolute inset-0 -z-10 bg-primary-dark/25 mix-blend-multiply"
@@ -61,53 +40,37 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
   </div>
 
   {
-    /* Viewport-pinned: min-h-svh with centred content, so the section rhythm
-      (`py-section`) deliberately does NOT apply here — the space Clients sees
-      below is (svh − content) / 2 from the centring, not this padding. The py
-      below is only a floor for short viewports, where the content would
-      otherwise touch the edges. See the rhythm note in styles/global.css. */
+    /* Bottom-aligned copy: headline + description on the left, CTA on the right.
+      They stack on mobile and split into a row from `tablet:` up. The reveal
+      group sequences the headline, description and CTA off one trigger. */
   }
   <div
-    class="relative z-10 mx-auto flex w-full max-w-8xl flex-col items-center px-6 py-16 text-center tablet:px-8 desktop:px-12"
+    class="relative z-10 mx-auto flex w-full max-w-8xl flex-col gap-8 px-6 pb-16 tablet:px-8 tablet:pb-20 desktop:px-12 desktop:pb-24"
     data-reveal-group
   >
-    <h1 class="max-w-[15ch] text-h1 text-balance text-text-inverse" data-reveal>
+    <h1 class="max-w-[18ch] text-h1 text-balance text-text-inverse" data-reveal>
       El diseño como herramienta de negocio
     </h1>
 
-    <p
-      class="mt-6 max-w-[42ch] text-p-lg text-pretty text-text-inverse/80"
-      data-reveal
+    <div
+      class="flex flex-col gap-6 tablet:flex-row tablet:items-end tablet:justify-between"
     >
-      Diseñamos sistemas visuales que aportan dirección, fortalecen el
-      posicionamiento y potencian el valor percibido de tu marca.
-    </p>
+      <p
+        class="max-w-[42ch] text-p text-pretty text-text-inverse/80"
+        data-reveal
+      >
+        Diseñamos sistemas visuales que aportan dirección, fortalecen el
+        posicionamiento y potencian el valor percibido de tu marca.
+      </p>
 
-    {
-      /* The reveal goes on the wrapper, not the Button: the pill owns its own
-        hover choreography on transform/padding and must not share a transform
-        with an entrance tween. */
-    }
-    <div class="mt-10" data-reveal>
-      <Button href="#cta" variant="pill">Hablemos de tu marca</Button>
+      {
+        /* The reveal goes on the wrapper, not the Button: the pill owns its own
+          hover choreography on transform/padding and must not share a transform
+          with an entrance tween. */
+      }
+      <div class="shrink-0" data-reveal>
+        <Button href="#cta" variant="pill">Hablemos de tu marca</Button>
+      </div>
     </div>
-  </div>
-
-  {
-    /* Client trust strip, pinned to the foot of the hero and full-bleed. `light`
-      tone flattens the dark marks to white for the photo behind them. It arrives
-      as the closing beat of the hero intro. `data-reveal` supplies only the
-      pre-reveal opacity gate; `data-hero-logos` hands the actual motion to
-      heroIntro (reveal.ts) instead of a per-element ScrollTrigger, which — pinned
-      this low in the viewport — would sit below the fire line and never play at
-      load. The reveal goes on this server-rendered wrapper, never inside the
-      Embla island. */
-  }
-  <div
-    class="absolute inset-x-0 bottom-0 z-10 pb-8 tablet:pb-10"
-    data-reveal
-    data-hero-logos
-  >
-    <ClientsMarquee client:load logos={marqueeLogos} tone="light" />
   </div>
 </section>
