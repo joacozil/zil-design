@@ -87,7 +87,10 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
       <div
         class="flex flex-col gap-6 tablet:flex-row tablet:items-end tablet:justify-between"
       >
-        <p class="max-w-[42ch] text-p text-pretty text-text-inverse" data-reveal>
+        <p
+          class="max-w-[42ch] text-p text-pretty text-text-inverse"
+          data-reveal
+        >
           Diseñamos sistemas visuales que aportan dirección, fortalecen el
           posicionamiento y potencian el valor percibido de tu marca.
         </p>
@@ -111,10 +114,7 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
         margin mirrors the section's bottom padding so the strip sits with equal
         breathing room above and below. */
     }
-    <div
-      class="hero-logos-fade mt-12 tablet:mt-16 desktop:mt-20"
-      data-reveal
-    >
+    <div class="hero-logos-fade mt-12 tablet:mt-16 desktop:mt-20" data-reveal>
       <ClientsMarquee client:load logos={marqueeLogos} tone="light" />
     </div>
   </div>

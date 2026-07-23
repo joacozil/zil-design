@@ -79,14 +79,17 @@ import logo from "../../assets/logo.svg";
   }
 
   .header-intro {
-    /* Matches the hide-on-scroll transition exactly (duration-300 ease-out).
+    /* Synced to the scroll-entrance timing in reveal.ts (0.7s, power3.out ≈
+      cubic-bezier(0.33, 1, 0.68, 1)) so the bar settles in step with the hero
+      copy rather than snapping in ahead of it. This is deliberately slower than
+      the 0.3s hide-on-scroll transition — that is a different moment.
       `backwards` (not `both`/`forwards`) is deliberate: a retained end transform
       would leave `transform: translateY(0)` on the header forever, and a
       transformed ancestor becomes the containing block for its `position: fixed`
       descendants — which would trap the mobile menu overlay inside the header
       instead of the viewport. `backwards` only pre-applies the start frame, then
       releases the transform once the entrance finishes. */
-    animation: header-slide-in 0.3s ease-out backwards;
+    animation: header-slide-in 0.7s cubic-bezier(0.33, 1, 0.68, 1) backwards;
   }
 
   @media (prefers-reduced-motion: reduce) {

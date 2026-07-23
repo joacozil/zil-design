@@ -4,7 +4,7 @@
  * <button>. Every button on the site uses one of these variants.
  *
  * Variants:
- *  - pill        → Hero CTA (bg-primary, white arrow circle on hover)
+ *  - pill        → Hero CTA (bg-accent, primary arrow circle w/ white arrow on hover)
  *  - pill-dark   → Form submit (bg-primary-dark, light arrow circle on hover)
  *  - pill-sm     → compact pill, no arrow. Currently unused: it was the mobile
  *                  header's Contacto, which ContactDrawer replaced.
@@ -41,7 +41,7 @@ const arrowPaths: Record<string, string> = {
 };
 
 const variantClasses: Record<string, string> = {
-  pill: "bg-primary py-4 pr-9 pl-9 text-p-lg font-medium text-text-inverse transition-[padding] duration-300 ease-out desktop:hover:pr-[4.5rem] focus-visible:ring-primary focus-visible:ring-offset-surface",
+  pill: "bg-accent  py-4 pr-9 pl-9 text-p-lg font-medium transition-[padding] duration-300 ease-out desktop:hover:pr-[4.5rem] focus-visible:ring-primary focus-visible:ring-offset-surface",
   "pill-dark":
     "bg-primary-dark py-4 pr-9 pl-9 text-p-lg font-medium text-text-inverse transition-[padding] duration-300 ease-out desktop:hover:pr-[3.75rem] focus-visible:ring-primary-dark focus-visible:ring-offset-primary-light",
   "pill-sm":
@@ -59,7 +59,10 @@ const variantClasses: Record<string, string> = {
 };
 
 const circleClasses: Record<string, string> = {
-  pill: "bg-white text-primary",
+  // pill sits on `bg-accent`, where a white circle reads washed out — so its
+  // circle is primary with a white arrow. pill-dark / outline sit on dark
+  // backgrounds where the white circle still holds.
+  pill: "bg-primary text-text-inverse",
   "pill-dark": "bg-white text-primary",
   outline: "bg-white text-primary",
 };
@@ -134,4 +137,3 @@ const cls = [base, variantClasses[variant], className]
     )
   }
 </Tag>
-
