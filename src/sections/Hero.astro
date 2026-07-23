@@ -1,6 +1,32 @@
 ---
 import Button from "../components/astro/Button.astro";
+import ClientsMarquee from "../components/react/ClientsMarquee.tsx";
 import heroImage from "../assets/img/hero.avif";
+import mmg from "../assets/img/mmg.svg";
+import quantia from "../assets/img/quantia.svg";
+import clojure from "../assets/img/clojure.svg";
+import netValue from "../assets/img/net-value.svg";
+import advantia from "../assets/img/advantia.svg";
+import nu from "../assets/img/nu.svg";
+import kfc from "../assets/img/kfc.svg";
+import wendys from "../assets/img/wendys.svg";
+
+// Client trust strip. `h` is a per-logo height class — logos are normalized by
+// height, but some marks read smaller at the same height, so they get a larger
+// value.
+const logos = [
+  { img: nu, alt: "Nu", h: "h-8" },
+  { img: mmg, alt: "MMG Bank", h: "h-7" },
+  { img: advantia, alt: "Advantia", h: "h-10" },
+  { img: quantia, alt: "Quantia", h: "h-7" },
+  { img: clojure, alt: "Clojure", h: "h-9" },
+  { img: netValue, alt: "Net Value", h: "h-10" },
+  { img: kfc, alt: "KFC", h: "h-8" },
+  { img: wendys, alt: "Wendy's", h: "h-8" },
+];
+
+// Plain, serializable data for the marquee island.
+const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
 ---
 
 {
@@ -40,37 +66,77 @@ import heroImage from "../assets/img/hero.avif";
   </div>
 
   {
-    /* Bottom-aligned copy: headline + description on the left, CTA on the right.
-      They stack on mobile and split into a row from `tablet:` up. The reveal
-      group sequences the headline, description and CTA off one trigger. */
+    /* Bottom-aligned copy: headline + description on the left, CTA on the right,
+      then the client trust strip below. They stack on mobile and split into a row
+      from `tablet:` up. The reveal group sequences headline, description, CTA and
+      the strip off one trigger. */
   }
   <div
-    class="relative z-10 mx-auto flex w-full max-w-8xl flex-col gap-8 px-6 pb-16 tablet:px-8 tablet:pb-20 desktop:px-12 desktop:pb-24"
+    class="relative z-10 mx-auto flex w-full max-w-8xl flex-col px-6 pb-12 tablet:px-8 tablet:pb-16 desktop:px-12 desktop:pb-20"
     data-reveal-group
   >
-    <h1 class="max-w-[18ch] text-h1 text-balance text-text-inverse" data-reveal>
-      El diseño como herramienta de negocio
-    </h1>
-
-    <div
-      class="flex flex-col gap-6 tablet:flex-row tablet:items-end tablet:justify-between"
-    >
-      <p
-        class="max-w-[42ch] text-p text-pretty text-text-inverse/80"
+    {/* Copy block: headline + the description/CTA row, spaced by `gap-8`. */}
+    <div class="flex flex-col gap-8">
+      <h1
+        class="max-w-[18ch] text-h1 text-balance text-text-inverse"
         data-reveal
       >
-        Diseñamos sistemas visuales que aportan dirección, fortalecen el
-        posicionamiento y potencian el valor percibido de tu marca.
-      </p>
+        El diseño como herramienta de negocio
+      </h1>
 
-      {
-        /* The reveal goes on the wrapper, not the Button: the pill owns its own
-          hover choreography on transform/padding and must not share a transform
-          with an entrance tween. */
-      }
-      <div class="shrink-0" data-reveal>
-        <Button href="#cta" variant="pill">Hablemos de tu marca</Button>
+      <div
+        class="flex flex-col gap-6 tablet:flex-row tablet:items-end tablet:justify-between"
+      >
+        <p class="max-w-[42ch] text-p text-pretty text-text-inverse" data-reveal>
+          Diseñamos sistemas visuales que aportan dirección, fortalecen el
+          posicionamiento y potencian el valor percibido de tu marca.
+        </p>
+
+        {
+          /* The reveal goes on the wrapper, not the Button: the pill owns its own
+            hover choreography on transform/padding and must not share a transform
+            with an entrance tween. */
+        }
+        <div class="shrink-0" data-reveal>
+          <Button href="#cta" variant="pill">Hablemos de tu marca</Button>
+        </div>
       </div>
+    </div>
+
+    {
+      /* Client trust strip, container-width (not full-bleed). `light` tone
+        flattens the dark marks to white for the photo behind them. The reveal
+        goes on this server-rendered wrapper, never inside the Embla island; the
+        wrapper also masks both edges so logos fade out rather than clip. Its top
+        margin mirrors the section's bottom padding so the strip sits with equal
+        breathing room above and below. */
+    }
+    <div
+      class="hero-logos-fade mt-12 tablet:mt-16 desktop:mt-20"
+      data-reveal
+    >
+      <ClientsMarquee client:load logos={marqueeLogos} tone="light" />
     </div>
   </div>
 </section>
+
+<style>
+  /* Soften the marquee's left/right edges: logos ease out into the photo instead
+    of ending on a hard cut at the container edge. */
+  .hero-logos-fade {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 8%,
+      #000 92%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 8%,
+      #000 92%,
+      transparent 100%
+    );
+  }
+</style>

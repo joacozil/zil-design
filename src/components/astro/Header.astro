@@ -79,8 +79,14 @@ import logo from "../../assets/logo.svg";
   }
 
   .header-intro {
-    /* Matches the hide-on-scroll transition exactly (duration-300 ease-out). */
-    animation: header-slide-in 0.3s ease-out both;
+    /* Matches the hide-on-scroll transition exactly (duration-300 ease-out).
+      `backwards` (not `both`/`forwards`) is deliberate: a retained end transform
+      would leave `transform: translateY(0)` on the header forever, and a
+      transformed ancestor becomes the containing block for its `position: fixed`
+      descendants — which would trap the mobile menu overlay inside the header
+      instead of the viewport. `backwards` only pre-applies the start frame, then
+      releases the transform once the entrance finishes. */
+    animation: header-slide-in 0.3s ease-out backwards;
   }
 
   @media (prefers-reduced-motion: reduce) {
