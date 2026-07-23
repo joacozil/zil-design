@@ -128,18 +128,17 @@ const {
         // When Lenis is driving the scroll it owns the scroll position on its own
         // rAF loop; a native `scrollIntoView` races that loop and the jump
         // intermittently stalls (the "click twice to go up" bug). So route through
-        // lenis.scrollTo when it exists. Lenis ignores CSS scroll-padding /
-        // scroll-margin, so reproduce the header clearance those gave us as an
-        // explicit offset: scroll-padding-top (on <html>) plus the target's own
-        // scroll-margin-top (the `.scroll-anchor` inset).
+        // lenis.scrollTo when it exists.
+        //
+        // Lenis already honours the CSS insets that give the header clearance —
+        // `scroll-padding-top` on <html> plus the target's own `scroll-margin-top`
+        // (the `.scroll-anchor` / `-scroll-mt-*` inset). Do NOT also pass them as
+        // an explicit offset: that double-counts the clearance and drops every
+        // section ~1 header-height too low. (An earlier Lenis version ignored the
+        // insets, which the removed manual offset compensated for.)
         const lenis = window.lenis;
         if (lenis) {
-          const spt =
-            parseFloat(
-              getComputedStyle(document.documentElement).scrollPaddingTop,
-            ) || 0;
-          const smt = parseFloat(getComputedStyle(dest).scrollMarginTop) || 0;
-          lenis.scrollTo(dest as HTMLElement, { offset: -(spt + smt) });
+          lenis.scrollTo(dest as HTMLElement);
         } else {
           // No Lenis (reduced motion): native scroll honours the CSS offsets.
           dest.scrollIntoView({
