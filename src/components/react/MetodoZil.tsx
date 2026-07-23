@@ -50,43 +50,33 @@ const STROKES = [
   LETTERS[2],
 ];
 
-// The violet "primary blocks" that overlay each glyph in the final state, each
-// with the SVG-space origin it grows from (so it reads as sliding into place).
-const ACCENTS = [
-  // z wedge — wipes in from the right point; clipped to the Z so the scaling
-  // triangle never spills past the diagonal into the white.
-  {
-    d: "M68 34 L122 34 L68 102 Z",
-    axis: "x",
-    origin: "122 68",
-    clip: "z-clip",
-  },
-  { d: "M138 102 H206 V170 H138 Z", axis: "y", origin: "172 170", clip: null }, // i lower half — rises from the base
-  { d: "M234 0 H302 V34 H234 Z", axis: "y", origin: "268 0", clip: null }, // l cap — drops from the top
+// The fill colour — primary violet, shared by the outline and every fill so the
+// whole mark reads as ONE tone progressing.
+const FILL = "var(--color-primary)";
+
+// Z remainder — the whole z MINUS the top-right wedge (its top bar stops at x68,
+// then the shape drops down the diagonal to the bottom bar). This is what pours
+// in during state 3 to complete the z; kept as its own clip so the completion
+// fills cleanly inside the letter with no distortion.
+const Z_REST = "M8 34 L68 34 L68 102 L114 102 L114 170 L0 170 L54 102 L8 102 Z";
+
+// The progressive fill, letter by letter. Each glyph is filled by a shape that
+// GROWS along one axis, so the mark reads as physically filling up rather than a
+// wash sweeping over it. `s1` is how full it sits in state 2 (the block), `s2` in
+// state 3 (complete); the element scales from 0 → s1 → s2 along `axis`, anchored
+// at `origin` so it grows the right way:
+//   · z wedge — grows in from the right point to seed the z (state 2), holds.
+//   · z rest  — pours DOWN from the top edge to complete the z (state 3).
+//   · i       — ONE fill rising from the base: half-full block, then to the top.
+//   · l       — ONE fill dropping from the top: the cap, then down to the base.
+// z rest is clipped to Z_REST; the wedge to the whole z; i / l need no clip
+// because their fill shape is the letter itself.
+const FILLS = [
+  { key: "z-wedge", d: "M68 34 L122 34 L68 102 Z", clip: "z-clip", axis: "x", origin: "122 68", s1: 1, s2: 1 }, // prettier-ignore
+  { key: "z-rest", rect: { x: 0, y: 34, width: 122, height: 136 }, clip: "z-rest-clip", axis: "y", origin: "61 34", s1: 0, s2: 1 }, // prettier-ignore
+  { key: "i", rect: { x: 138, y: 34, width: 68, height: 136 }, clip: null, axis: "y", origin: "172 170", s1: 0.5, s2: 1 }, // prettier-ignore
+  { key: "l", rect: { x: 234, y: 0, width: 68, height: 170 }, clip: null, axis: "y", origin: "268 0", s1: 0.2, s2: 1 }, // prettier-ignore
 ] as const;
-
-// Solid square nodes for the vectoring look — placed on the outer corners only.
-// The z's two diagonal-junction points (54,102)/(68,102) are deliberately left
-// bare so the diagonal reads as one clean line through the midline.
-const ANCHORS = [
-  [8, 34],
-  [122, 34],
-  [114, 102],
-  [114, 170],
-  [0, 170],
-  [8, 102], // z
-  [138, 34],
-  [206, 34],
-  [206, 170],
-  [138, 170], // i
-  [234, 0],
-  [302, 0],
-  [302, 170],
-  [234, 170], // l
-];
-
-// Node square size (user units); half-extent used to centre each node on its vertex.
-const NODE = 9;
 
 interface Step {
   title: string;
@@ -116,10 +106,7 @@ export default function MetodoZil() {
       const q = gsap.utils.selector(root);
 
       const letters = q("[data-stroke]");
-      const gradient = q("[data-gradient]");
-      const solid = q("[data-solid]");
-      const accents = q("[data-accent]");
-      const anchors = q("[data-anchor]");
+      const fills = q("[data-fill]");
       const texts = q("[data-text]");
       const bars = q("[data-bar-fill]");
       const header = root.current!.querySelector(
@@ -130,28 +117,20 @@ export default function MetodoZil() {
       ) as HTMLElement;
       const stage = root.current!.querySelector("[data-stage]") as HTMLElement;
 
-      const wipe = root.current!.querySelector("#zil-wipe-grad");
+      const axisProp = (i: number) =>
+        FILLS[i].axis === "x" ? "scaleX" : "scaleY";
 
       // Pre-entrance state: each outline hides behind its own full dash length
       // so it can trace itself out (the vector draw-on) as the section
-      // approaches; the nodes wait to pop onto the corners it draws.
+      // approaches. Every progressive fill starts empty (scale 0) at its own
+      // growth anchor, so nothing is filled in state 1.
       letters.forEach((p) => {
         const len = (p as unknown as SVGPathElement).getTotalLength();
         gsap.set(p, { strokeDasharray: len, strokeDashoffset: len });
       });
       gsap.set(letters, { opacity: 1 });
-      gsap.set(anchors, { opacity: 0, scale: 0.4, transformOrigin: "center" });
-      // The fill layer stays at full opacity — its entrance is the wipe mask,
-      // rewound here from its authored end to just past the top-left corner so
-      // the layer starts fully masked out. The solid layer waits underneath.
-      gsap.set(gradient, { opacity: 1 });
-      gsap.set(wipe, { attr: { x1: -190, y1: -130, x2: -100, y2: -70 } });
-      gsap.set(solid, { opacity: 0 });
-      accents.forEach((el, i) =>
-        gsap.set(el, {
-          [ACCENTS[i].axis === "x" ? "scaleX" : "scaleY"]: 0,
-          svgOrigin: ACCENTS[i].origin,
-        }),
+      fills.forEach((el, i) =>
+        gsap.set(el, { [axisProp(i)]: 0, svgOrigin: FILLS[i].origin }),
       );
       gsap.set(texts, { opacity: 0, y: 24 });
       gsap.set(texts[0], { opacity: 1, y: 0 });
@@ -165,9 +144,9 @@ export default function MetodoZil() {
       // Reduced motion / no-JS friendly: skip the choreography, drop the reader
       // straight into the finished composition with every step's copy stacked.
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        gsap.set(letters, { opacity: 0 });
-        gsap.set(solid, { opacity: 1 });
-        gsap.set(accents, { scaleX: 1, scaleY: 1 });
+        // outline fully drawn (it stays visible under the completed fill)
+        gsap.set(letters, { strokeDashoffset: 0 });
+        fills.forEach((el, i) => gsap.set(el, { [axisProp(i)]: FILLS[i].s2 }));
         gsap.set(texts, {
           opacity: 1,
           y: 0,
@@ -188,11 +167,12 @@ export default function MetodoZil() {
         defaults: { ease: "power2.out" },
       });
 
-      // ── Entrance → S0 · Análisis: the outline draws itself letter by letter,
-      // then the nodes pop onto the corners it just traced. This lives INSIDE
-      // the master timeline, before the s0 label, so a reader who blasts past
-      // the entrance simply has it fast-forwarded by the same tweenTo that
-      // carries them to their zone — one playhead, no competing writers.
+      // ── Entrance → S0 · Análisis: the outline draws itself letter by letter.
+      // A bare wireframe — no corner nodes, no fill — so the mark reads as a
+      // technical construction still being set out. This lives INSIDE the master
+      // timeline, before the s0 label, so a reader who blasts past the entrance
+      // simply has it fast-forwarded by the same tweenTo that carries them to
+      // their zone — one playhead, no competing writers.
       tl.to(header, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 0)
         .to(
           letters,
@@ -204,82 +184,99 @@ export default function MetodoZil() {
           },
           0,
         )
-        .to(
-          anchors,
-          { opacity: 1, scale: 1, duration: 0.35, stagger: 0.02 },
-          0.55,
-        )
         .addLabel("s0");
 
-      // ── S0 → S1 · Desarrollo: the fill sweeps over the outline on a soft
-      // diagonal front, top-left → bottom-right ──────────────────────────────
-      tl.to(anchors, { opacity: 0, scale: 0.4, duration: 0.35 }, "s0")
-        .to(letters, { opacity: 0, duration: 0.4 }, "s0+=0.1")
-        .to(
-          wipe,
-          {
-            attr: { x1: 310, y1: 178, x2: 400, y2: 238 },
-            duration: 0.6,
-            ease: "power2.inOut",
-          },
-          "s0",
-        )
-        .to(texts[0], { opacity: 0, y: -24, duration: 0.35 }, "s0")
-        .to(texts[1], { opacity: 1, y: 0, duration: 0.45 }, "s0+=0.2")
-        .to(bars[1], { scaleX: 1, duration: 0.6 }, "s0")
-        .addLabel("s1");
-
-      // ── S1 → S2 · Aliado: the light gradient hardens to the solid dark fill
-      // and the accent blocks slide in. The two layers are different colours, so
-      // the crossfade reads as the fill deepening, not a flicker. ──────────────
-      tl.to(solid, { opacity: 1, duration: 0.5, ease: "power2.inOut" }, "s1")
-        .to(gradient, { opacity: 0, duration: 0.5, ease: "power2.inOut" }, "s1")
-        .to(texts[1], { opacity: 0, y: -24, duration: 0.35 }, "s1")
-        .to(texts[2], { opacity: 1, y: 0, duration: 0.45 }, "s1+=0.2")
-        .to(bars[2], { scaleX: 1, duration: 0.6 }, "s1");
-
-      // Each accent reveals along its own axis (z wipes in from the right, the
-      // i/l blocks grow vertically), staggered for a cascade.
-      accents.forEach((el, i) =>
+      // ── S0 → S1 · Desarrollo: each letter starts filling into the still-present
+      // outline, but only PART-WAY — the z's wedge seeds it, the i fills to half,
+      // the l fills its cap. These are the "blocks inside"; the fill grows along
+      // each letter's own axis, staggered for a cascade. The z-rest holds at 0
+      // (s1: 0) so it isn't tweened here — it waits for the completion. ─────────
+      fills.forEach((el, i) => {
+        if (FILLS[i].s1 === 0) return;
         tl.to(
           el,
           {
-            [ACCENTS[i].axis === "x" ? "scaleX" : "scaleY"]: 1,
+            [axisProp(i)]: FILLS[i].s1,
             duration: 0.55,
             // smooth decel, no overshoot — an overshoot would push the clipped
             // wedge past the Z diagonal and read as a momentary misalignment.
             ease: "power3.out",
           },
-          `s1+=${0.1 + i * 0.12}`,
-        ),
-      );
+          `s0+=${i * 0.12}`,
+        );
+      });
+      tl.to(texts[0], { opacity: 0, y: -24, duration: 0.35 }, "s0")
+        .to(texts[1], { opacity: 1, y: 0, duration: 0.45 }, "s0+=0.2")
+        .to(bars[1], { scaleX: 1, duration: 0.6 }, "s0")
+        .addLabel("s1");
 
-      tl.addLabel("s2");
+      // ── S1 → S2 · Aliado: each letter's fill COMPLETES from its block, growing
+      // the rest of the way along the same axis — the z pours down from the wedge
+      // through the diagonal to the base, the i rises to the top, the l drops to
+      // the base — so the mark reads as physically finishing filling. The outline
+      // stays put the whole time (it shares the fill colour, so it simply merges
+      // into the completed shape rather than vanishing). Staggered per letter. ───
+      fills.forEach((el, i) => {
+        if (FILLS[i].s2 === FILLS[i].s1) return; // z-wedge already full — holds
+        tl.to(
+          el,
+          {
+            [axisProp(i)]: FILLS[i].s2,
+            // the completion is the section's climax — a symmetric sine ease so
+            // it glides the rest of the way in and settles without a snap.
+            duration: 0.7,
+            ease: "sine.inOut",
+          },
+          `s1+=${i * 0.1}`,
+        );
+      });
+      tl.to(texts[1], { opacity: 0, y: -24, duration: 0.35 }, "s1")
+        .to(texts[2], { opacity: 1, y: 0, duration: 0.45 }, "s1+=0.2")
+        .to(bars[2], { scaleX: 1, duration: 0.6 }, "s1")
+        .addLabel("s2");
 
       const LABELS = ["s0", "s1", "s2"] as const;
-      // One fixed transition length for every switch, regardless of scroll
-      // distance: `tweenTo` scrubs the paused timeline to the label over exactly
-      // this many seconds, so no switch inherits its authored duration.
+      // Fixed transition lengths, independent of scroll distance: `tweenTo` scrubs
+      // the paused timeline to the label over exactly this many seconds, so no
+      // switch inherits its authored duration. The step-to-step switch is snappy;
+      // the state-3 fill is the section's widest visual change — the whole mark
+      // floods with colour — so it gets a noticeably longer, softer scrub. At
+      // 0.5s it still landed a touch abrupt; this lets it glide in and settle.
       const DUR = 0.5;
+      const FILL_DUR = 1.1;
       // The playhead starts BEFORE s0 (the un-drawn mark); the entrance trigger
       // below carries it to s0. `active` still starts at 0 because state-wise
       // the section is in análisis — only the drawing hasn't happened yet.
       let active = 0;
       let trans: gsap.core.Tween | undefined;
-      const zone = (p: number) => (p < 0.25 ? 0 : p < 0.75 ? 1 : 2);
+      // Zone thresholds as fractions of the stuck distance (runway − stage =
+      // 300svh). s0 and s1 keep their original ~50svh / ~100svh of scroll, but s2
+      // now claims the whole second half — ~150svh of tail AFTER the fill fires —
+      // so the completion (the slow ~1.1s FILL_DUR beat) always has room to finish
+      // playing while the stage is still pinned, no matter how fast the reader
+      // scrolls, before the section releases into normal flow.
+      const zone = (p: number) => (p < 0.167 ? 0 : p < 0.5 ? 1 : 2);
 
       // The ONLY thing that moves the timeline. Recording `active` first means no
       // two callers ever drive the playhead at once (that was the entry flicker).
       // Runs both ways: scrolling back up walks the states back down.
       const goTo = (i: number) => {
         if (i === active) return;
+        const prev = active;
         active = i;
         trans?.kill();
-        trans = tl.tweenTo(LABELS[i], { duration: DUR, ease: "power2.inOut" });
+        // Any switch that crosses into the fill (or rewinds back out of it) is
+        // the slow, soft one; the rest stay snappy. sine.inOut eases both ends,
+        // so the flood starts gently instead of snapping on.
+        const fill = i === 2 || prev === 2;
+        trans = tl.tweenTo(LABELS[i], {
+          duration: fill ? FILL_DUR : DUR,
+          ease: fill ? "sine.inOut" : "power2.inOut",
+        });
       };
 
       // Entrance: the draw-on plays at its authored pace as the stage settles
-      // into place. The stage sits at the TOP of the 300svh runway and pins when
+      // into place. The stage sits at the TOP of the 400svh runway and pins when
       // the runway's top reaches the viewport top, so the mark is only near the
       // centre of the viewport once the runway top is near 0 — an earlier start
       // (e.g. "top 85%") drew the whole logo while it was still below the fold,
@@ -342,12 +339,13 @@ export default function MetodoZil() {
     <div ref={root}>
       {/* Scroll runway. Its only job is to be tall: the stage sticks to the top
           of the viewport until the runway has scrolled past, so the extra 300svh
-          IS the length of the choreography. Same total height the pin-spacer used
-          to add (stage + 300%), so the page measures identically — it's just the
-          browser holding the stage now instead of GSAP.
+          of stuck distance (400svh runway − 100svh stage) IS the length of the
+          choreography. The final ~150svh of that is a deliberate tail after the
+          state-3 fill fires, giving the slow completion room to finish playing
+          while still pinned before the section releases into normal scroll.
           Under reduced motion nothing animates, so the runway collapses to the
           stage and the section scrolls like any other block. */}
-      <div data-runway className="relative h-[300svh] motion-reduce:h-auto">
+      <div data-runway className="relative h-[400svh] motion-reduce:h-auto">
         <div
           data-stage
           // Mobile AND tablet: stacked, and centred in the band the chrome leaves
@@ -378,7 +376,7 @@ export default function MetodoZil() {
               the section top-loaded with an empty lower half.) */}
           <header
             data-section-head
-            className="flex flex-col items-center text-center"
+            className="flex w-full flex-col items-start text-left desktop:w-auto desktop:items-center desktop:text-center"
           >
             <span className="inline-flex items-center rounded-md bg-primary-light px-4 py-2 text-p-sm font-bold tracking-wide text-primary-dark uppercase">
               Método Zil
@@ -406,75 +404,46 @@ export default function MetodoZil() {
                   className="w-full max-w-[160px] tablet:max-w-[300px] desktop:max-w-[440px]"
                 >
                   <defs>
-                    <linearGradient
-                      id="zil-grad"
-                      x1="8"
-                      y1="34"
-                      x2="302"
-                      y2="170"
-                      gradientUnits="userSpaceOnUse"
-                    >
-                      <stop stopColor="#9747FF" />
-                      <stop offset="1" stopColor="#E7D5FF" />
-                    </linearGradient>
-                    {/* clips the z accent to the letter so its slide-in never spills
-                  outside the diagonal */}
+                    {/* clips the z wedge to the letter so its grow-in never spills
+                  past the diagonal */}
                     <clipPath id="z-clip">
                       <path d={LETTERS[0]} />
                     </clipPath>
-                    {/* Diagonal-wipe mask for the fill state. AUTHORED at its
-                  end position — everything white, fill fully shown — so a no-JS
-                  render shows the finished layer stack; the init below rewinds
-                  it before anything plays. */}
-                    <linearGradient
-                      id="zil-wipe-grad"
-                      x1="310"
-                      y1="178"
-                      x2="400"
-                      y2="238"
-                      gradientUnits="userSpaceOnUse"
-                    >
-                      <stop stopColor="#fff" />
-                      <stop offset="1" stopColor="#000" />
-                    </linearGradient>
-                    <mask id="zil-wipe" maskUnits="userSpaceOnUse">
-                      <rect
-                        x="-8"
-                        y="-8"
-                        width="318"
-                        height="186"
-                        fill="url(#zil-wipe-grad)"
-                      />
-                    </mask>
+                    {/* clips the z-completion fill to the z-minus-wedge shape, so
+                  it pours down cleanly inside the letter with no distortion */}
+                    <clipPath id="z-rest-clip">
+                      <path d={Z_REST} />
+                    </clipPath>
                   </defs>
 
-                  {/* gradient fill layer (state 2) — enters via the diagonal
-                    wipe, not a fade. */}
-                  <g data-gradient mask="url(#zil-wipe)">
-                    {LETTERS.map((d, i) => (
-                      <path key={i} d={d} fill="url(#zil-grad)" />
-                    ))}
-                  </g>
-
-                  {/* solid dark fill layer */}
-                  <g data-solid>
-                    {LETTERS.map((d, i) => (
-                      <path key={i} d={d} fill="#4B256E" />
-                    ))}
-                  </g>
-
-                  {/* violet accent blocks that slide into the letters (state 3).
-                    The clip lives on a static wrapper so the accent's own scale
-                    doesn't drag it along. */}
+                  {/* Progressive fill layer — one growing shape per letter (the z
+                    in two parts: wedge + completion). Each scales along its own
+                    axis from an anchored origin (driven by GSAP), so the letters
+                    physically fill up rather than being washed over. The clip
+                    lives on a static wrapper so the shape's own scale doesn't drag
+                    it along. Rendered UNDER the outline so the wireframe reads on
+                    top through the whole fill. */}
                   <g>
-                    {ACCENTS.map((a, i) => {
-                      const block = <path data-accent d={a.d} fill="#9747FF" />;
-                      return a.clip ? (
-                        <g key={i} clipPath={`url(#${a.clip})`}>
-                          {block}
+                    {FILLS.map((f) => {
+                      const shape =
+                        "d" in f ? (
+                          <path data-fill d={f.d} fill={FILL} />
+                        ) : (
+                          <rect
+                            data-fill
+                            x={f.rect.x}
+                            y={f.rect.y}
+                            width={f.rect.width}
+                            height={f.rect.height}
+                            fill={FILL}
+                          />
+                        );
+                      return f.clip ? (
+                        <g key={f.key} clipPath={`url(#${f.clip})`}>
+                          {shape}
                         </g>
                       ) : (
-                        <g key={i}>{block}</g>
+                        <g key={f.key}>{shape}</g>
                       );
                     })}
                   </g>
@@ -488,25 +457,10 @@ export default function MetodoZil() {
                         data-stroke
                         d={d}
                         fill="none"
-                        stroke="#4b256e"
+                        stroke="var(--color-primary)"
                         strokeWidth={2}
                         strokeLinejoin="miter"
                         strokeMiterlimit={8}
-                      />
-                    ))}
-                  </g>
-
-                  {/* solid square nodes on every vertex, centred exactly */}
-                  <g>
-                    {ANCHORS.map(([x, y], i) => (
-                      <rect
-                        key={i}
-                        data-anchor
-                        x={x - NODE / 2}
-                        y={y - NODE / 2}
-                        width={NODE}
-                        height={NODE}
-                        fill="#4b256e"
                       />
                     ))}
                   </g>
