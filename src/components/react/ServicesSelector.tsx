@@ -170,7 +170,7 @@ function ServicesCarousel({ services }: { services: Service[] }) {
               className="min-w-0 shrink-0 grow-0 basis-full"
             >
               <div
-                className={`flex h-full flex-col justify-between gap-10 rounded-2xl p-8 ${VARIANTS[service.variant].card}`}
+                className={`flex h-full flex-col justify-between gap-10 p-8 ${VARIANTS[service.variant].card}`}
               >
                 <CardBody service={service} />
               </div>
@@ -251,7 +251,7 @@ export default function ServicesSelector({
             stacked in the same grid cell — inactive ones are invisible but still
             take up space, so the card is always as tall as the tallest content
             and never resizes (no layout shift / hover flicker) when switching. */}
-        <div className={`grid rounded-2xl p-8 desktop:p-10 ${v.card}`}>
+        <div className={`grid p-8 desktop:p-10 ${v.card}`}>
           {services.map((service, i) => {
             const isActive = i === active;
             return (

@@ -143,7 +143,7 @@ export default function ProjectsSlider({ projects }: { projects: Project[] }) {
               className={`min-w-0 shrink-0 grow-0 basis-[76%] tablet:basis-[48%] desktop:basis-[34%] ${i === 0 ? "ml-[var(--gutter)]" : ""} ${i === projects.length - 1 ? "mr-[var(--gutter)]" : ""}`}
             >
               <div data-reveal="rail">
-                <div className="aspect-[3/2] overflow-hidden rounded-lg bg-surface-inverse">
+                <div className="aspect-[3/2] overflow-hidden bg-surface-inverse">
                   <img
                     src={project.src}
                     alt={project.name}

@@ -393,7 +393,7 @@ export default function MetodoZil() {
               don't float in whitespace. Same treatment as the contact/CTA card
               (rounded-3xl + p-8/12/16), on the muted surface token instead of the
               lilac, so the two sections read as one system. */}
-          <div className="w-full rounded-3xl bg-surface-muted p-6 tablet:p-12 desktop:p-16">
+          <div className="w-full p-6 tablet:p-12 desktop:p-16">
             <div className="flex w-full flex-col items-center gap-6 tablet:gap-10 desktop:grid desktop:grid-cols-[1fr_1fr] desktop:items-center desktop:gap-24">
               {/* ---- Logo stage --------------------------------------------------- */}
               <div className="flex w-full items-center">
