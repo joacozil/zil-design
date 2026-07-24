@@ -1,0 +1,126 @@
+---
+/**
+ * Work — the applied deliverables, one row per discipline (Diseño Web, Email
+ * Marketing, Redes Sociales…). Shared by every project; the rows are passed in.
+ *
+ * Every row is laid out INSIDE the standard container, so the text and the
+ * dividers line up with the rest of the page. A row may opt its mockup into
+ * `bleed`, which lets that one image grow past the container and run off the
+ * viewport edge it sits against (the laptop). Non-bleed mockups stay contained
+ * (the phones). The section clips horizontal overflow so a bleed never adds a
+ * scrollbar. Rows stack (text over mockup) below tablet.
+ *
+ * `image` is optional — a row with none renders as text only (e.g. a discipline
+ * whose mockup isn't ready yet).
+ */
+import type { ImageMetadata } from "astro";
+
+interface Row {
+  label: string;
+  body: string;
+  image?: ImageMetadata;
+  imageAlt?: string;
+  /** Which side the mockup sits on (text takes the other). */
+  side: "left" | "right";
+  /** Let the mockup grow past the container and off the viewport edge. */
+  bleed?: boolean;
+  /** Tailwind width classes for the bleed. Defaults to
+      `tablet:w-[135%] desktop:w-[64vw]` — a column-relative width at tablet and a
+      VIEWPORT-relative one at desktop, so the mockup bleeds off the edge by the
+      same proportion on any monitor size (a fixed % of the capped container only
+      peeks out on wide screens). Pass a larger pair to run further off. */
+  bleedWidth?: string;
+}
+interface Props {
+  rows: Row[];
+  /** Section landmark label. */
+  ariaLabel?: string;
+  /** Full-bleed rule at the top of the section. */
+  topBorder?: boolean;
+}
+const {
+  rows,
+  ariaLabel = "Trabajo realizado",
+  topBorder = false,
+} = Astro.props;
+
+const container = "mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12";
+---
+
+<section
+  class:list={[
+    "overflow-x-clip py-section",
+    topBorder && "border-t border-border",
+  ]}
+  aria-label={ariaLabel}
+>
+  {
+    rows.map((row, i) => (
+      <>
+        {i > 0 && (
+          <hr class="my-section border-0 border-t border-border" />
+        )}
+        <div class={container}>
+          <div class="grid items-center gap-10 tablet:grid-cols-2 tablet:gap-12">
+            {/* Text — always inside the container */}
+            <div
+              class:list={[
+                "min-w-0",
+                row.side === "right" ? "tablet:order-1" : "tablet:order-2",
+              ]}
+            >
+              <h3 class="text-p-sm font-bold tracking-wider text-text uppercase">
+                {row.label}
+              </h3>
+              <p class="mt-4 max-w-md text-p text-muted">{row.body}</p>
+            </div>
+
+            {/* Mockup — contained, or bled off its edge over a warm glow */}
+            {row.image && (
+              <div
+                class:list={[
+                  "relative min-w-0",
+                  row.side === "right" ? "tablet:order-2" : "tablet:order-1",
+                ]}
+              >
+                <div class="work-glow" aria-hidden="true" />
+                <img
+                  src={row.image.src}
+                  width={row.image.width}
+                  height={row.image.height}
+                  alt={row.imageAlt ?? ""}
+                  loading="lazy"
+                  class:list={[
+                    "relative block h-auto w-full",
+                    row.bleed && [
+                      row.bleedWidth ?? "tablet:w-[135%] desktop:w-[64vw]",
+                      "tablet:max-w-none tablet:min-w-[52vw]",
+                      row.side === "left" && "tablet:-ml-[35%]",
+                    ],
+                  ]}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </>
+    ))
+  }
+</section>
+
+<style>
+  /* Soft warm-yellow glow sitting behind the mockup, larger than it and fading to
+     nothing so it reads as light, not a shape. */
+  .work-glow {
+    position: absolute;
+    inset: -30% -22%;
+    z-index: 0;
+    background: radial-gradient(
+      50% 50% at 50% 48%,
+      rgb(244 228 150 / 0.5),
+      rgb(244 228 150 / 0.18) 48%,
+      transparent 76%
+    );
+    pointer-events: none;
+  }
+</style>

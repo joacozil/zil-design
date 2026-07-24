@@ -1,7 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { NAV_LINKS } from "../../config/nav";
 
-export default function MobileMenu({ logoSrc }: { logoSrc: string }) {
+export default function MobileMenu({
+  logoSrc,
+  home = true,
+}: {
+  logoSrc: string;
+  // On the homepage the nav targets are in-page anchors we smooth-scroll to.
+  // Off-home (project pages) they become `/#work` links that navigate back to
+  // the homepage section — no interception, just a plain navigation.
+  home?: boolean;
+}) {
+  const base = home ? "" : "/";
   const [open, setOpen] = useState(false);
   const [visible, setVisible] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -99,8 +109,14 @@ export default function MobileMenu({ logoSrc }: { logoSrc: string }) {
           {NAV_LINKS.map((link, i) => (
             <a
               key={link.href}
-              href={link.href}
+              href={`${base}${link.href}`}
               onClick={(e) => {
+                // Off-home: let the browser follow `/#work` to the homepage
+                // section. Only close the overlay first.
+                if (!home) {
+                  doClose();
+                  return;
+                }
                 e.preventDefault();
                 doClose();
                 const href = link.href;

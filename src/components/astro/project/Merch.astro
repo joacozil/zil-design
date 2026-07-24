@@ -1,0 +1,84 @@
+---
+/**
+ * Merch — the institutional merch, shown over a soft green glow and framed by
+ * full-bleed top/bottom rules, with a decorative line-and-nodes connector.
+ * Shared by every project; content + art are passed in.
+ *
+ * The connector is a full-bleed sibling of the content, so its node cluster lands
+ * at the right gutter while its line reaches the LEFT edge:
+ *  · desktop — it sits BEHIND the shirts (the content column is raised above it),
+ *    so the line appears to run out from under them toward the nodes;
+ *  · mobile  — it flows beneath the stack, starting hard at the screen edge.
+ */
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  label: string;
+  body: string;
+  shirts: ImageMetadata;
+  shirtsAlt: string;
+  /** Decorative line-and-nodes SVG. */
+  lineDots: ImageMetadata;
+}
+const { label, body, shirts, shirtsAlt, lineDots } = Astro.props;
+---
+
+<section
+  class="relative overflow-hidden border-y border-border py-section"
+  aria-label="Merchandising"
+>
+  {/* Content sits above the connector so the line runs under the shirts. */}
+  <div
+    class="relative z-10 mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12"
+  >
+    <div class="grid gap-10 tablet:grid-cols-[1.35fr_1fr] tablet:items-center tablet:gap-16">
+      {/* Shirts over a green glow */}
+      <div class="relative order-2 tablet:order-1">
+        <div class="merch-glow" aria-hidden="true"></div>
+        <img
+          class="relative mx-auto block h-auto w-full max-w-xl desktop:max-w-none"
+          src={shirts.src}
+          width={shirts.width}
+          height={shirts.height}
+          alt={shirtsAlt}
+          loading="lazy"
+        />
+      </div>
+
+      {/* Text */}
+      <div class="order-1 tablet:order-2">
+        <h3 class="text-p-sm font-bold tracking-wider text-text uppercase">
+          {label}
+        </h3>
+        <p class="mt-4 max-w-md text-p text-muted">{body}</p>
+      </div>
+    </div>
+  </div>
+
+  {/* Line-and-nodes connector — decorative. Full-bleed to the left edge; nodes
+      end at the right gutter. Behind the shirts on desktop, in flow on mobile. */}
+  <img
+    class="mt-10 block h-auto w-full pr-[var(--gutter)] desktop:absolute desktop:bottom-[30%] desktop:left-[40%] desktop:z-0 desktop:mt-0 desktop:w-[34%] desktop:pr-0"
+    src={lineDots.src}
+    width={lineDots.width}
+    height={lineDots.height}
+    alt=""
+    loading="lazy"
+  />
+</section>
+
+<style>
+  /* Soft green glow behind the shirts. */
+  .merch-glow {
+    position: absolute;
+    inset: -18%;
+    z-index: 0;
+    background: radial-gradient(
+      50% 50% at 50% 52%,
+      rgb(150 205 105 / 0.3),
+      rgb(150 205 105 / 0.1) 46%,
+      transparent 74%
+    );
+    pointer-events: none;
+  }
+</style>

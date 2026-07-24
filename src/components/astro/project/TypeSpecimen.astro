@@ -1,0 +1,138 @@
+---
+/**
+ * TypeSpecimen — the project's typeface shown big and brutalist. Shared by every
+ * project; the font itself is passed in (each project ships its own).
+ *
+ * Two parts on the navy field:
+ *   1. Regular / Bold specimens (alphabet, numerals, symbols) top-right.
+ *   2. The typeface name set ENORMOUS, one word per line, bleeding to the edges,
+ *      split by a full-width rule — the brutalist device.
+ *
+ * The font is loaded via a per-project @font-face injected from the passed URLs.
+ * Only this section (and its specimens) use the family, so it never touches the
+ * site's Circular. The giant display is aria-hidden; an sr-only heading carries
+ * the name so assistive tech isn't read the wordmark twice or the glyph rows.
+ */
+interface Props {
+  /** Typeface name, e.g. "Acumin Pro". Shown huge (one word per line) and in the specimen labels. */
+  name: string;
+  /** CSS family name to register + apply. Usually the same as `name`. */
+  fontFamily: string;
+  /** Built-time URLs of the two weights (import with `?url` in the page). */
+  regularUrl: string;
+  boldUrl: string;
+  /** font `format()` hint. OTF = "opentype". */
+  format?: string;
+  /** Optional SVG image to replace the generated wordmark. */
+  wordmarkImage?: ImageMetadata;
+}
+const {
+  name,
+  fontFamily,
+  regularUrl,
+  boldUrl,
+  format = "opentype",
+  wordmarkImage,
+} = Astro.props;
+
+const words = name.split(" ");
+
+const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const lower = "abcdefghijklmnopqrstuvwxyz";
+const digits = "1234567890";
+const symbols = "¡@#$%^&*()[]";
+
+const specimens = [
+  { label: `${name} - Regular`, weight: 400 },
+  { label: `${name} - Bold`, weight: 700 },
+];
+
+// Register the passed font under `fontFamily`. @font-face can't read CSS vars for
+// its src, so the resolved URLs are interpolated here and injected globally.
+const fontFaceCss = `
+@font-face{font-family:"${fontFamily}";src:url("${regularUrl}") format("${format}");font-weight:400;font-style:normal;font-display:swap;}
+@font-face{font-family:"${fontFamily}";src:url("${boldUrl}") format("${format}");font-weight:700;font-style:normal;font-display:swap;}
+`;
+const fontStack = `"${fontFamily}", var(--font-sans)`;
+---
+
+<style is:global set:html={fontFaceCss}></style>
+
+<section class="border-t border-border py-section" aria-label="Tipografía">
+  <h2 class="sr-only">Tipografía: {name}</h2>
+
+  {/* Specimens — Regular / Bold. Stacked on mobile, a right-aligned row at tablet+. */}
+  <div
+    class="mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12"
+    style={`font-family:${fontStack}`}
+  >
+    <div
+      class="flex flex-col gap-8 tablet:flex-row tablet:justify-end tablet:gap-16"
+    >
+      {
+        specimens.map((s) => (
+          <div class="text-p-sm text-text" style={`font-weight:${s.weight}`}>
+            <p class="mb-4 font-bold">{s.label}</p>
+            <p class="leading-relaxed">
+              {upper}
+              <br />
+              {lower}
+            </p>
+            <p class="mt-4 leading-relaxed">
+              {digits}
+              <br />
+              {symbols}
+            </p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+
+  {/* Giant wordmark — full-bleed display of the typeface name. When the project
+      supplies a pre-made SVG (`wordmarkImage`), it renders as a full-width image.
+      Otherwise falls back to the generated one-word-per-line layout. */}
+  {wordmarkImage ? (
+    <img
+      src={wordmarkImage.src}
+      width={wordmarkImage.width}
+      height={wordmarkImage.height}
+      alt=""
+      aria-hidden="true"
+      class="mt-16 w-full tablet:mt-24"
+    />
+  ) : (
+    <div
+      class="type-box mt-16 border-t border-border tablet:mt-24"
+      aria-hidden="true"
+    >
+      {
+        words.map((word) => (
+          <div class="border-b border-border pl-[var(--gutter)]">
+            <span
+              class="type-display block text-text"
+              style={`font-family:${fontStack}`}
+            >
+              {word}
+            </span>
+          </div>
+        ))
+      }
+    </div>
+  )}
+</section>
+
+<style>
+  .type-display {
+    font-size: clamp(4rem, 26vw, 26rem);
+    font-weight: 400;
+    line-height: 0.82;
+    letter-spacing: -0.03em;
+    /* Each word hugs its own bottom rule: a small breathing gap above the caps and
+       a tight gap from the baseline to the rule below. In `em` of the display, so
+       they scale cleanly through the whole clamp. Tuned for Acumin Pro's metrics —
+       a different project font may want a small retune. */
+    padding-top: 0.17em;
+    padding-bottom: 0.05em;
+  }
+</style>

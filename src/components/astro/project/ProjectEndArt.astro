@@ -1,0 +1,26 @@
+---
+/**
+ * ProjectEndArt — the project's own closing flourish: a full-bleed decorative
+ * band (per-project artwork) that ends the case study on ITS branding, right
+ * before the site's Zil-branded "Otros proyectos" closer (`ProjectEnd`) takes
+ * over. It renders inside the project's themed wrapper, so the transparent art
+ * sits on the project surface. Hidden on mobile — it's a wide graphic that
+ * doesn't crop down.
+ */
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  /** Full-width closing artwork, supplied per project. */
+  art: ImageMetadata;
+}
+const { art } = Astro.props;
+---
+
+<img
+  src={art.src}
+  width={art.width}
+  height={art.height}
+  alt=""
+  loading="lazy"
+  class="hidden w-full border-t border-border tablet:block"
+/>

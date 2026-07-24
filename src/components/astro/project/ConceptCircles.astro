@@ -1,0 +1,79 @@
+---
+/**
+ * ConceptCircles — the words that stand for a project, set in a chain of
+ * interconnected rings. Shared by every project; only the words vary.
+ *
+ * The rings overlap so adjacent outlines cross (a Venn-style chain). They carry
+ * no fill, so the overlaps never hide a neighbour's label. The chain runs
+ * vertically on mobile (where five side-by-side rings would crush the text) and
+ * horizontally at tablet+. Overlap is a negative margin on every ring but the
+ * first, flipped from block-start to inline-start at the breakpoint.
+ *
+ * The diameter is FLUID at every size, but for a different reason at each:
+ *
+ * - Mobile (vertical chain): the diameter is derived from the VIEWPORT HEIGHT so
+ *   all five rings sit on one screen without scrolling — as big as they can be
+ *   while still all fitting. The rings overlap by `d/8` (shallow, so they stay
+ *   interconnected but a little apart): the chain's height is `5·d − 4·(d/8)` =
+ *   `4.5·d` (five rings minus four d/8 overlaps), so the ring that fits the
+ *   viewport is `(100svh − section padding) / 4.5`, capped so it never balloons
+ *   on a tall phone. A shallower overlap shrinks every ring to keep the five on
+ *   screen — this is the trade against ring size.
+ * - Tablet+ (horizontal chain): the diameter is `clamp(8rem, 20vw, 19rem)` so the
+ *   chain grows with the viewport (big on wide desktops, per the design) yet five
+ *   rings always fit the row down to 640px without overflow.
+ *
+ * Overlap is `d/8` on the leading edge on mobile and a gentler fixed inset at
+ * tablet+ where width, not height, is the budget.
+ */
+interface Props {
+  words: string[];
+}
+const { words } = Astro.props;
+---
+
+<section class="concept-circles py-section">
+  <div
+    class="mx-auto flex w-full max-w-8xl flex-col items-center px-6 tablet:flex-row tablet:justify-center tablet:px-8 desktop:px-12"
+  >
+    {
+      words.map((word) => (
+        <div class="ring flex aspect-square shrink-0 items-center justify-center rounded-full border border-white/30">
+          <span class="text-p-sm font-medium tracking-wider text-text uppercase">
+            {word}
+          </span>
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  /* Mobile: size the ring to the viewport height so the whole five-ring chain
+     fits on one screen. `11rem` is the section's own top+bottom padding
+     (py-section = 5rem each) plus ~1rem of breathing room; `4.5` is the chain's
+     height in ring-diameters — `5·d − 4·(d/8)` for the shallow `d/8` overlap
+     below. `svh` (not `vh`) so the fit holds even while the mobile browser chrome
+     is expanded. */
+  .concept-circles {
+    --ring-d: clamp(6rem, calc((100svh - 11rem) / 4.5), 18rem);
+  }
+  .ring {
+    width: var(--ring-d);
+  }
+  /* Every ring but the first pulls back onto its predecessor — a shallow lens so
+     they stay interconnected but sit a little apart. */
+  .ring + .ring {
+    margin-top: calc(var(--ring-d) / -8);
+  }
+
+  @media (width >= 640px) {
+    .concept-circles {
+      --ring-d: clamp(8rem, 20vw, 19rem);
+    }
+    .ring + .ring {
+      margin-top: 0;
+      margin-left: -1.4vw;
+    }
+  }
+</style>

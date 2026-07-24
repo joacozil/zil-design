@@ -1,0 +1,99 @@
+---
+/**
+ * Mosaic — a full-bleed bento of images laid out as weighted ROWS, each row a
+ * weighted set of images. Shared by every project; the rows are passed in.
+ *
+ * Desktop: the whole mosaic carries an aspect-ratio, rows split its height by
+ * their `weight`, and images split each row's width by theirs — so every image
+ * `object-cover`s a cell sized to its share. Weights are applied via a CSS custom
+ * property (not inline `flex`) so the mobile layout can ignore them and stack
+ * each image at its natural ratio instead of collapsing to a zero-basis flex box.
+ *
+ * The gap between images and the side inset are driven by one token, so the
+ * spacing reads uniform all around (matching the sibling collage).
+ */
+import type { ImageMetadata } from "astro";
+
+interface Item {
+  src: ImageMetadata;
+  alt: string;
+  /** Share of the row's width on desktop. */
+  weight?: number;
+}
+interface RowDef {
+  items: Item[];
+  /** Share of the mosaic's height on desktop. */
+  weight?: number;
+}
+interface Props {
+  rows: RowDef[];
+  /** Desktop aspect-ratio of the whole mosaic, e.g. "1600 / 850". */
+  aspect?: string;
+}
+const { rows, aspect = "1600 / 850" } = Astro.props;
+---
+
+<section aria-label="Piezas del evento" class="py-section">
+  <div class="mosaic" style={`--aspect:${aspect}`}>
+    {
+      rows.map((row) => (
+        <div class="mosaic-row" style={`--w:${row.weight ?? 1}`}>
+          {row.items.map((it) => (
+            <img
+              class="mosaic-img"
+              style={`--w:${it.weight ?? 1}`}
+              src={it.src.src}
+              width={it.src.width}
+              height={it.src.height}
+              alt={it.alt}
+              loading="lazy"
+            />
+          ))}
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .mosaic {
+    --gap: clamp(0.5rem, 1.1vw, 1rem);
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+    padding-inline: var(--gap);
+  }
+
+  .mosaic-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+  }
+
+  /* Mobile: each image full width at its natural ratio (weights ignored). */
+  .mosaic-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border: 1px solid var(--color-border);
+  }
+
+  @media (width >= 1024px) {
+    .mosaic {
+      aspect-ratio: var(--aspect);
+    }
+    .mosaic-row {
+      flex-direction: row;
+      flex: var(--w);
+      min-height: 0;
+    }
+    .mosaic-img {
+      flex: var(--w);
+      width: auto;
+      height: 100%;
+      min-width: 0;
+      min-height: 0;
+    }
+  }
+</style>

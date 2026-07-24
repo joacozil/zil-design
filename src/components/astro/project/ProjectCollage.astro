@@ -1,0 +1,132 @@
+---
+/**
+ * ProjectCollage — a full-bleed bento of the project's applied pieces. Shared by
+ * every project; the five images are passed in.
+ *
+ * Desktop is a CSS-grid bento with named areas (laptops tall top-left, texture
+ * strip top-right, phone tall on the right, shirts + sign bottom-left). The whole
+ * grid carries an aspect-ratio so its row/column fractions resolve to real
+ * heights and the images can `object-cover` their cells. Below desktop it reflows
+ * to a single stacked column at each image's natural ratio, so nothing is crushed
+ * or over-cropped on a phone.
+ */
+import type { ImageMetadata } from "astro";
+
+interface Img {
+  src: ImageMetadata;
+  alt: string;
+}
+interface Props {
+  laptops: Img;
+  texture: Img;
+  phone: Img;
+  shirts: Img;
+  sign: Img;
+}
+const { laptops, texture, phone, shirts, sign } = Astro.props;
+
+// Shared image classes: natural height when stacked (mobile), fill the cell on
+// the desktop bento.
+const fill = "block w-full h-auto desktop:h-full desktop:object-cover";
+---
+
+<section aria-label="Piezas del proyecto" class="py-section">
+  <div class="collage">
+    <img
+      class:list={["area-laptops", fill]}
+      src={laptops.src.src}
+      width={laptops.src.width}
+      height={laptops.src.height}
+      alt={laptops.alt}
+      loading="lazy"
+    />
+    <img
+      class:list={["area-texture", fill]}
+      src={texture.src.src}
+      width={texture.src.width}
+      height={texture.src.height}
+      alt={texture.alt}
+      loading="lazy"
+    />
+    <img
+      class:list={["area-phone", fill]}
+      src={phone.src.src}
+      width={phone.src.width}
+      height={phone.src.height}
+      alt={phone.alt}
+      loading="lazy"
+    />
+    <div class="area-extras flex gap-[inherit]">
+      <img
+        class:list={["w-1/2", fill]}
+        src={shirts.src.src}
+        width={shirts.src.width}
+        height={shirts.src.height}
+        alt={shirts.alt}
+        loading="lazy"
+      />
+      <img
+        class:list={["w-1/2", fill]}
+        src={sign.src.src}
+        width={sign.src.width}
+        height={sign.src.height}
+        alt={sign.alt}
+        loading="lazy"
+      />
+    </div>
+  </div>
+</section>
+
+<style>
+  .collage {
+    /* One token drives BOTH the gaps between images and the side inset, so the
+       spacing reads uniform all around. */
+    --collage-gap: clamp(0.5rem, 1.1vw, 1rem);
+    display: grid;
+    gap: var(--collage-gap);
+    padding-inline: var(--collage-gap);
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "laptops"
+      "texture"
+      "phone"
+      "extras";
+  }
+
+  .area-laptops {
+    grid-area: laptops;
+  }
+  .area-texture {
+    grid-area: texture;
+  }
+  .area-phone {
+    grid-area: phone;
+  }
+  .area-extras {
+    grid-area: extras;
+  }
+
+  /* The bottom-left pair must fill its cell height on the bento. */
+  .area-extras > img {
+    min-width: 0;
+  }
+
+  @media (width >= 1024px) {
+    .collage {
+      grid-template-columns: 46fr 54fr;
+      grid-template-rows: 240fr 205fr 255fr;
+      grid-template-areas:
+        "laptops texture"
+        "laptops phone"
+        "extras  phone";
+      aspect-ratio: 1650 / 860;
+    }
+
+    /* Let grid children shrink below content size so object-cover can crop. */
+    .collage > *,
+    .area-extras > img {
+      min-width: 0;
+      min-height: 0;
+    }
+  }
+</style>

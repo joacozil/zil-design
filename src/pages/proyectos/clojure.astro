@@ -1,0 +1,231 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/astro/Header.astro";
+import Footer from "../../components/astro/Footer.astro";
+import ProjectEnd from "../../components/astro/project/ProjectEnd.astro";
+import ProjectEndArt from "../../components/astro/project/ProjectEndArt.astro";
+import clojureEndImg from "../../assets/clojure/clojure-end.svg";
+import ProjectHero from "../../components/astro/project/ProjectHero.astro";
+import ProjectBrief from "../../components/astro/project/ProjectBrief.astro";
+import ConceptCircles from "../../components/astro/project/ConceptCircles.astro";
+import LogoGrid from "../../components/astro/project/LogoGrid.astro";
+import ColorPalette from "../../components/astro/project/ColorPalette.astro";
+import TypeSpecimen from "../../components/astro/project/TypeSpecimen.astro";
+import acuminRegular from "../../assets/clojure/acumin-pro/Acumin-RPro.otf?url";
+import acuminBold from "../../assets/clojure/acumin-pro/Acumin-BdPro.otf?url";
+import clojureFontImg from "../../assets/clojure/clojure-font.svg";
+import ProjectCollage from "../../components/astro/project/ProjectCollage.astro";
+import laptopsImg from "../../assets/clojure/laptops.avif";
+import textureImg from "../../assets/clojure/texture.svg";
+import phoneImg from "../../assets/clojure/phone.avif";
+import shirtsImg from "../../assets/clojure/shirts.avif";
+import signImg from "../../assets/clojure/sign.avif";
+import Work from "../../components/astro/project/Work.astro";
+import laptopImg from "../../assets/clojure/laptop.avif";
+import phonesImg from "../../assets/clojure/phones.avif";
+import Mosaic from "../../components/astro/project/Mosaic.astro";
+import Merch from "../../components/astro/project/Merch.astro";
+import lineDotsImg from "../../assets/clojure/line-dots.svg";
+import signNoBgImg from "../../assets/clojure/sign-no-bg.avif";
+
+// Banner reuses the Work row layout (text + mockup bleeding off the edge, warm
+// glow) as a single-row section.
+const banner = [
+  {
+    label: "Banner",
+    body: "Diseñamos un banner institucional para comunicar la identidad del evento de forma clara y reconocible dentro del espacio. La propuesta prioriza la visibilidad, la coherencia visual y el impacto de marca, contribuyendo a fortalecer la presencia del evento y mejorar la experiencia de los asistentes en cada punto de contacto.",
+    image: signNoBgImg,
+    imageAlt: "Banner institucional de Clojure/Conj 2026 en un backdrop",
+    side: "right" as const,
+    bleed: true,
+    bleedWidth: "tablet:w-[165%] desktop:w-[82vw]",
+  },
+];
+import conferenceImg from "../../assets/clojure/conference.avif";
+import documentaryImg from "../../assets/clojure/documentary.avif";
+import registerImg from "../../assets/clojure/register.avif";
+import workshopsImg from "../../assets/clojure/workshops.avif";
+import speakerImg from "../../assets/clojure/speaker.avif";
+
+const mosaic = [
+  {
+    weight: 62,
+    items: [
+      { src: conferenceImg, alt: "Invitación al evento Clojure/Conj 2026", weight: 43 },
+      { src: documentaryImg, alt: "Clojure Documentary Q&A", weight: 57 },
+    ],
+  },
+  {
+    weight: 38,
+    items: [
+      { src: registerImg, alt: "Registro al livestream gratuito de Clojure/Conj 2026", weight: 38 },
+      { src: workshopsImg, alt: "Workshop Day Pass de Clojure/Conj 2026", weight: 26 },
+      { src: speakerImg, alt: "Workshop con Adrian Smith: Fast, Lean, Native Clojure", weight: 36 },
+    ],
+  },
+];
+
+const work = [
+  {
+    label: "Diseño Web",
+    body: "Diseñamos una plataforma digital que organiza la información del evento de forma clara e intuitiva, integrando agenda, speakers, ponentes y venta de entradas en una experiencia visual coherente. Su arquitectura optimiza la navegación, fortalece la credibilidad del evento y potencia su posicionamiento.",
+    image: laptopImg,
+    imageAlt: "Sitio web de Clojure/Conj 2026 en una laptop",
+    side: "right" as const,
+    bleed: true,
+  },
+  {
+    label: "Email Marketing",
+    body: "Diseñamos piezas de comunicación digital con una estructura clara e identidad visual consistente para difundir novedades y llamadas a la acción. Cada envío fortalece la presencia del evento, mejora la comunicación y potencia la convocatoria.",
+    image: phonesImg,
+    imageAlt: "Campañas de email marketing de Clojure/Conj 2026 en dos teléfonos",
+    side: "left" as const,
+  },
+  {
+    label: "Redes Sociales",
+    body: "Desarrollamos un sistema de contenido para redes sociales orientado a comunicar con claridad, fortalecer la identidad de la marca y mantener una presencia consistente. Cada pieza fue diseñada para captar la atención, transmitir el mensaje de forma inmediata y generar una comunicación más efectiva.",
+    side: "right" as const,
+  },
+];
+import heroImage from "../../assets/clojure/clojure-hero.avif";
+import heroImageMobile from "../../assets/clojure/clojure-hero-mobile.avif";
+import heroLogo from "../../assets/clojure/clojure-logo.svg";
+import gridImage from "../../assets/clojure/clojure-grid.svg";
+
+// Case-study content lives with the page (per-project composition). Body copy
+// may carry <strong> to lift key phrases to full white against the muted base.
+const meta = [
+  { label: "Cliente", value: "Nubank - Clojure" },
+  {
+    label: "Servicio",
+    value: "Web, UX/UI, Merchandising, Event Branding, Material POP, Email Marketing",
+  },
+];
+
+const brief = [
+  {
+    title: "Proyecto",
+    body: "<strong>Clojure/Conj es la conferencia anual de networking de la comunidad Clojure, impulsada por Nubank.</strong> Es el punto de encuentro global donde se reúnen desarrolladores, empresas y líderes de la industria tecnológica.",
+  },
+  {
+    title: "Desafío",
+    body: "Para su edición 2026, el evento necesitaba una estrategia visual para promocionar la conferencia en múltiples canales. <strong>El desafío era comunicar información técnica y comercial a públicos diversos sin perder coherencia visual ni la complejidad propia de Clojure.</strong>",
+  },
+  {
+    title: "Propuesta",
+    body: "<strong>Desde Zil Design diseñamos e implementamos un sistema visual flexible y escalable</strong> a través del desarrollo de su sitio web, campañas de email marketing, merchandising institucional, contenidos para redes sociales y cartelería/banners para el evento. Logramos una marca dinámica capaz de adaptarse a cualquier formato y responder a las exigencias de cada plataforma.",
+  },
+];
+
+const concepts = ["Poder", "Seriedad", "Confianza", "Solidez", "Conexión"];
+
+// Brand palette. RGB is derived from the hex in the component. `dark` marks the
+// swatches that carry white text. NOTE: a couple of values in the source mock
+// were inconsistent (see message) — hex is treated as source of truth here.
+const palette = [
+  {
+    name: "Azul",
+    main: { hex: "#132B53", dark: true },
+    variant: { hex: "#6F7E93", dark: true },
+    weight: 1.6,
+  },
+  {
+    name: "Verde",
+    main: { hex: "#ADDD52" },
+    variant: { hex: "#D7EFA0" },
+    weight: 1.4,
+  },
+  {
+    name: "Magenta",
+    main: { hex: "#9D00ED" },
+    variant: { hex: "#CD78FF" },
+    weight: 1.1,
+  },
+  {
+    name: "Blanco",
+    main: { hex: "#FFFFFF" },
+    variant: { hex: "#FFFFFF" },
+    weight: 0.7,
+  },
+  {
+    name: "Gris",
+    main: { hex: "#E6E6E6" },
+    variant: { hex: "#EDEDED" },
+    weight: 0.7,
+  },
+];
+---
+
+<Layout
+  title="Clojure Conj 2026 — Zil Design"
+  description="Caso de estudio: identidad y sitio web para Clojure Conj 2026, Charlotte, NC."
+>
+  <Header />
+  <main class="project-clojure">
+    <ProjectHero
+      image={heroImage}
+      mobileImage={heroImageMobile}
+      imageAlt="Sitio web de Clojure Conj 2026 mostrado en una laptop"
+      logo={heroLogo}
+      title="Clojure Conj 2026 — Charlotte, NC"
+    />
+    <ProjectBrief meta={meta} blocks={brief} />
+    <ConceptCircles words={concepts} />
+    <LogoGrid
+      image={gridImage}
+      alt="Logo de Clojure/Conj 2026 dentro de su grilla de composición"
+    />
+    <ColorPalette colors={palette} />
+    <TypeSpecimen
+      name="Acumin Pro"
+      fontFamily="Acumin Pro"
+      regularUrl={acuminRegular}
+      boldUrl={acuminBold}
+      wordmarkImage={clojureFontImg}
+    />
+    <ProjectCollage
+      laptops={{ src: laptopsImg, alt: "Programa y ponentes de Clojure/Conj 2026 en dos laptops" }}
+      texture={{ src: textureImg, alt: "Textura gráfica de la identidad de Clojure/Conj" }}
+      phone={{ src: phoneImg, alt: "Sitio web de Clojure/Conj 2026 en un teléfono" }}
+      shirts={{ src: shirtsImg, alt: "Remeras del merchandising de Clojure/Conj 2026" }}
+      sign={{ src: signImg, alt: "Banner de Clojure/Conj 2026 en un backdrop" }}
+    />
+    <Work rows={work} topBorder />
+    <Mosaic rows={mosaic} />
+    <Merch
+      label="Merch Institucional"
+      body="Diseñamos las remeras institucionales del evento como una extensión de su identidad visual, reforzando el reconocimiento de la marca y unificando la imagen del equipo durante toda la jornada."
+      shirts={shirtsImg}
+      shirtsAlt="Remeras institucionales de Clojure/Conj 2026, frente y dorso"
+      lineDots={lineDotsImg}
+    />
+    <Work rows={banner} ariaLabel="Banner" />
+    <ProjectEndArt art={clojureEndImg} />
+  </main>
+  <ProjectEnd current="clojure" />
+  <Footer />
+</Layout>
+
+<style>
+  /* Scoped project theme — remaps ONLY the semantic colour aliases within this
+     page's subtree, so Clojure's branding can never leak into global scope.
+     Everything structural (type scale, spacing rhythm, breakpoints) stays on the
+     global tokens.
+
+     The case-study body is a dark navy field with light text, so the surface /
+     text / muted / border aliases are remapped to their dark-theme values here.
+     The hero opts back out with its own `bg-surface-muted` (the light mockup),
+     and consumes none of these. */
+  .project-clojure {
+    --color-primary: #132b53; /* Clojure navy (brand) */
+    --color-accent: #addd52; /* Clojure lime (brand) */
+
+    --color-surface: #132b53; /* navy case-study field */
+    --color-text: #ffffff; /* light body text */
+    --color-muted: #9fb0c9; /* muted blue-grey — secondary copy */
+    --color-border: #ffffff; /* white hairline divider */
+
+    background-color: var(--color-surface);
+    color: var(--color-text);
+  }
+</style>

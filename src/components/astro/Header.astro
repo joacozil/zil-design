@@ -2,6 +2,14 @@
 import { NAV_LINKS } from "../../config/nav";
 import MobileMenu from "../react/MobileMenu.tsx";
 import logo from "../../assets/logo.svg";
+
+// The nav targets are in-page section anchors (`#work`), which only resolve on
+// the homepage. On any other route (the project case-studies) they must be
+// root-relative (`/#work`) so a click leaves the sub-page and lands on the
+// matching homepage section. Deriving the prefix from the current path keeps
+// one <Header> working everywhere without a per-page flag.
+const isHome = Astro.url.pathname === "/";
+const base = isHome ? "" : "/";
 ---
 
 {
@@ -22,7 +30,7 @@ import logo from "../../assets/logo.svg";
       class="flex w-full items-center justify-between gap-6 border border-border/60 bg-surface px-6 py-2 shadow-lg tablet:px-8 desktop:py-4"
     >
       {/* Left: logo (recolored Zil Design violet) */}
-      <a href="#hero" class="shrink-0" aria-label="Zil Design — inicio">
+      <a href={`${base}#hero`} class="shrink-0" aria-label="Zil Design — inicio">
         <img
           src={logo.src}
           alt="Zil Design"
@@ -41,7 +49,7 @@ import logo from "../../assets/logo.svg";
           {
             NAV_LINKS.map((link) => (
               <a
-                href={link.href}
+                href={`${base}${link.href}`}
                 class="text-p-sm font-medium text-text/70 transition-colors duration-200 hover:text-text"
               >
                 {link.label}
@@ -55,7 +63,7 @@ import logo from "../../assets/logo.svg";
           viewport is one too many. The inline nav above still carries Contacto
           on desktop, where the drawer is hidden. */
         }
-        <MobileMenu client:load logoSrc={logo.src} />
+        <MobileMenu client:load logoSrc={logo.src} home={isHome} />
       </div>
     </div>
   </div>

@@ -1,0 +1,91 @@
+---
+/**
+ * ProjectHero — the opening banner of a project case-study page.
+ *
+ * Deliberately simple and REUSABLE across every project: a full-bleed background
+ * image (the client's site shown in a mockup) with the project's brand lockup
+ * overlaid on it. The lockup is positioned PROPORTIONALLY to the image (percent
+ * offsets, not the page gutter) so it stays welded to the artwork as the image
+ * scales at our breakpoints — a gutter-aligned logo would drift across the
+ * mockup as the viewport changes.
+ *
+ * The lockup is the page's <h1>: its `alt` carries the project name, so the
+ * document exposes a real primary heading to assistive tech and search without a
+ * second, competing title.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  /** Full-bleed background artwork (e.g. the site shown on a laptop). */
+  image: ImageMetadata;
+  /** Describes the background artwork for readers who can't see it. */
+  imageAlt: string;
+  /**
+   * Optional PORTRAIT artwork for the mobile / tablet stack. The desktop hero is
+   * a full-bleed 16:9 field, but that landscape shot reads as a thin strip under
+   * the lockup on a phone; a purpose-made vertical composition fills the stack.
+   * When omitted, the landscape `image` is used at every size.
+   */
+  mobileImage?: ImageMetadata;
+  /** The project's brand lockup, overlaid top-left. SVG for crisp scaling. */
+  logo: ImageMetadata;
+  /** Project name — becomes the <h1> text via the lockup's alt. */
+  title: string;
+}
+
+const { image, imageAlt, mobileImage, logo, title } = Astro.props;
+// The stacked (mobile/tablet) image is the portrait one when supplied, else the
+// landscape fallback.
+const stackImage = mobileImage ?? image;
+---
+
+<section
+  class="relative min-h-svh w-full overflow-hidden bg-surface-muted"
+>
+  {
+    /* The brand lockup IS the page heading, an absolute overlay welded to the
+      artwork at EVERY size — the hero fills the viewport and the image
+      object-covers it, so the lockup sits on the mockup's own field.
+      · top: `max(6rem, 14%)` clears the floating header (6rem ≈ its height + gap)
+        while tracking the field proportionally as the image scales.
+      · left: the page gutter, so it lines up with the rest of the content.
+      An absolutely-positioned element paints above its static sibling, so the
+      lockup sits on top of the image regardless of DOM order. */
+  }
+  <h1
+    class="absolute top-[max(8rem,18%)] left-6 z-10 m-0 w-[62%] max-w-[18rem] tablet:left-8 desktop:top-[max(6rem,14%)] desktop:left-[var(--gutter)] desktop:w-[16%] desktop:max-w-[20rem]"
+  >
+    <img
+      src={logo.src}
+      alt={title}
+      class="block h-auto w-full desktop:max-w-none"
+    />
+  </h1>
+
+  {
+    /* Mobile / tablet: the PORTRAIT field fills the pinned viewport
+      (object-cover). Hidden on desktop, where the landscape field takes over. */
+  }
+  <Image
+    src={stackImage}
+    alt={imageAlt}
+    loading="eager"
+    fetchpriority="high"
+    sizes="100vw"
+    class="absolute inset-0 h-full w-full object-cover desktop:hidden"
+  />
+
+  {
+    /* Desktop: the LANDSCAPE field fills the pinned viewport (object-cover), so
+      the hero reads full-bleed. Hidden below desktop. */
+  }
+  <Image
+    src={image}
+    alt={imageAlt}
+    loading="eager"
+    fetchpriority="high"
+    sizes="100vw"
+    class="absolute inset-0 hidden h-full w-full object-cover desktop:block"
+  />
+</section>

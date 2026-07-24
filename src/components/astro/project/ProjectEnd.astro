@@ -1,0 +1,60 @@
+---
+/**
+ * ProjectEnd — the site's closer for every project page: an invitation to keep
+ * exploring, with the other projects shown as cards in the same slider the
+ * homepage uses. Rendered OUTSIDE the project's themed wrapper, so it carries the
+ * Zil Design branding (default light surface, violet accents) — the case study
+ * signs off in the studio's own voice, not the client's.
+ *
+ * The roster comes from the shared `data/projects` source of truth; the current
+ * project is filtered out by its `slug`, so a page never links to itself. Images
+ * are optimized here (same as the homepage) and the plain srcs handed to the
+ * `ProjectsSlider` island, which owns the carousel + its scroll entrance.
+ */
+import { getImage } from "astro:assets";
+import Badge from "../Badge.astro";
+import ProjectsSlider from "../../react/ProjectsSlider.tsx";
+import { projects } from "../../../data/projects";
+
+interface Props {
+  /** Slug of the current project — excluded from the "Otros proyectos" list. */
+  current: string;
+}
+const { current } = Astro.props;
+
+const others = projects.filter((p) => p.slug !== current);
+const optimized = await Promise.all(
+  others.map(async ({ img, name, category, slug }) => {
+    const image = await getImage({ src: img, width: 1200, format: "webp" });
+    return {
+      src: image.src,
+      name,
+      category,
+      href: slug ? `/proyectos/${slug}` : undefined,
+    };
+  }),
+);
+---
+
+<section class="py-section" aria-label="Otros proyectos">
+  <div
+    class="mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12"
+    data-reveal-group
+  >
+    <Badge data-reveal>Seguí explorando</Badge>
+    <h2
+      class="mt-6 max-w-7xl text-h2 tracking-[-0.03em] text-balance"
+      data-reveal
+    >
+      Otros proyectos
+    </h2>
+    <p class="mt-4 max-w-190 text-p text-pretty text-muted" data-reveal>
+      Cada punto de contacto es una decisión de diseño. Descubrí cómo ayudamos a
+      otras marcas a comunicar con dirección.
+    </p>
+  </div>
+
+  <div class="mt-12 tablet:mt-16">
+    <ProjectsSlider client:visible projects={optimized} />
+  </div>
+</section>
