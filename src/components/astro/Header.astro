@@ -92,11 +92,8 @@ import logo from "../../assets/logo.svg";
     animation: header-slide-in 0.7s cubic-bezier(0.33, 1, 0.68, 1) backwards;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .header-intro {
-      animation: none;
-    }
-  }
+  /* No reduced-motion opt-out: this site animates regardless, by the motion
+     policy at the top of global.css. A raw @media here would survive it. */
 </style>
 
 <script>

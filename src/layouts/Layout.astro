@@ -38,6 +38,39 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     {
+      /* MOTION POLICY, JS half — see the matching block at the top of global.css.
+        Nine components ask matchMedia whether the reader wants reduced motion, and
+        this site's answer is now always "no". Reporting it once here keeps every
+        one of those guards written the standard way instead of deleting them.
+
+        It MUST run before any module: the guards read the query at import time.
+        Only this one query is overridden — every other media query passes through
+        untouched. */
+    }
+    <script is:inline>
+      (function () {
+        var real = window.matchMedia.bind(window);
+        var noop = function () {};
+        window.matchMedia = function (q) {
+          if (!/prefers-reduced-motion/.test(q)) return real(q);
+          // A plain stand-in, not the real MediaQueryList: `matches` is a
+          // prototype getter with no setter, so assigning to it silently fails.
+          return {
+            matches: false,
+            media: q,
+            onchange: null,
+            addEventListener: noop,
+            removeEventListener: noop,
+            addListener: noop,
+            removeListener: noop,
+            dispatchEvent: function () {
+              return false;
+            },
+          };
+        };
+      })();
+    </script>
+    {
       /* Arms the scroll entrances. This is the ONE place that decides whether any
         element is allowed to start hidden; global.css hides only from
         `html.reveal-armed`, and scripts/reveal.ts animates only if this class is

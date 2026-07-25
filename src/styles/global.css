@@ -1,5 +1,18 @@
 @import "tailwindcss";
 
+/* MOTION POLICY — this site animates regardless of the OS "reduce motion" setting.
+   Product decision, made deliberately and against the accessibility default.
+
+   `motion-reduce:` normally compiles to @media (prefers-reduced-motion: reduce).
+   Redefining the variant to a selector that matches nothing neutralises all 18
+   call sites at once, so the guards stay readable where they are written and this
+   stays the ONE place the policy lives. Its JS half is the matchMedia shim at the
+   top of Layout.astro's <head> — flip both or neither.
+
+   To restore standard behaviour: delete this block and that shim. Nothing else
+   needs to change. */
+@custom-variant motion-reduce (&:where(.__motion-reduce-disabled__ *));
+
 /* Deliberately NO `scroll-behavior` rule here — anchor smoothing is done in JS,
    in Layout.astro. Do not reintroduce one.
    ----------------------------------------------------------------------------

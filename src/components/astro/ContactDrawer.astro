@@ -271,14 +271,8 @@ const fieldBase =
     pointer-events: auto;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .contact-drawer,
-    .drawer-sheet,
-    .drawer-chevron,
-    .drawer-backdrop {
-      transition: none;
-    }
-  }
+  /* No reduced-motion opt-out: this site animates regardless, by the motion
+     policy at the top of global.css. A raw @media here would survive it. */
 </style>
 
 <script>
