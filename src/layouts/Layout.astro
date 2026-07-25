@@ -10,6 +10,12 @@ const {
   title = "Zil Design",
   description = "Zil Design — a strategic design agency.",
 } = Astro.props;
+
+// Vite rewrites url() inside CSS against `base`, but a literal href in markup is
+// just a string it never touches — so /fonts and /favicon would resolve against
+// zil.global's root, where the Next app answers 404. Anything in public/ that is
+// referenced from HTML has to carry this prefix explicitly.
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 ---
 
 <!doctype html>
@@ -20,13 +26,13 @@ const {
     <link
       rel="icon"
       type="image/svg+xml"
-      href="/favicon.svg"
+      href={`${base}/favicon.svg`}
       media="(prefers-color-scheme: light)"
     />
     <link
       rel="icon"
       type="image/svg+xml"
-      href="/favicon-darkmode.svg"
+      href={`${base}/favicon-darkmode.svg`}
       media="(prefers-color-scheme: dark)"
     />
     <meta name="generator" content={Astro.generator} />
@@ -64,14 +70,14 @@ const {
     {/* Preload the two most-used weights to avoid a flash of fallback text. */}
     <link
       rel="preload"
-      href="/fonts/CircularStd-Book.woff2"
+      href={`${base}/fonts/CircularStd-Book.woff2`}
       as="font"
       type="font/woff2"
       crossorigin
     />
     <link
       rel="preload"
-      href="/fonts/CircularStd-Bold.woff2"
+      href={`${base}/fonts/CircularStd-Bold.woff2`}
       as="font"
       type="font/woff2"
       crossorigin

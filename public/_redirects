@@ -1,0 +1,9 @@
+# Astro builds with base "/design", so the HTML asks for /design/_astro/… while the
+# files sit at this project's root. Behind zil.global the Pages Function strips the
+# prefix and never needs this rule; on *.pages.dev nothing does, so every asset used
+# to fall through to the SPA fallback and come back as text/html — a stylesheet-shaped
+# 404 that nosniff rejects, leaving the deploy unstyled and unscripted.
+#
+# This rewrite makes the standalone deploy serve itself, so preview builds are
+# reviewable instead of looking catastrophically broken.
+/design/* /:splat 200
