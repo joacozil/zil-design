@@ -26,8 +26,13 @@
  *
  * The form intentionally MIRRORS sections/CTA.astro (same fields, same names,
  * same voseo copy). Keep the two in sync — if you add a field there, add it here.
+ * Submission is NOT handled here: both forms declare `data-lead-*` markup and
+ * scripts/lead-form.ts drives them, so a new field also needs its API name in
+ * that file's FIELD_MAP.
  */
 import Button from "./Button.astro";
+import LeadHoneypot from "./LeadHoneypot.astro";
+import LeadSuccess from "./LeadSuccess.astro";
 
 // Same field treatment as the CTA card, but on `surface` rather than the lilac
 // card — hence the border and the surface ring-offset.
@@ -84,51 +89,70 @@ const fieldBase =
         /* No intro line here: the peek's sub-line is visible in this state too
           and already serves as one. */
       }
-      <form class="flex flex-col gap-3">
-        <input
-          type="text"
-          name="nombre"
-          required
-          placeholder="Tu nombre"
-          autocomplete="name"
-          class={fieldBase}
-        />
-        <input
-          type="text"
-          name="empresa"
-          placeholder="¿De qué empresa venís?"
-          autocomplete="organization"
-          class={fieldBase}
-        />
-        <input
-          type="email"
-          name="email"
-          required
-          placeholder="Email"
-          autocomplete="email"
-          class={fieldBase}
-        />
-        <input
-          type="tel"
-          name="celular"
-          placeholder="Celular"
-          autocomplete="tel"
-          class={fieldBase}
-        />
-        <textarea
-          name="mensaje"
-          rows="3"
-          placeholder="Contanos brevemente qué necesitas"
-          class={`${fieldBase} resize-none`}></textarea>
+      <div data-lead-root>
+        <form
+          class="flex flex-col gap-3"
+          data-lead-form
+          data-lead-placement="drawer"
+        >
+          <input
+            type="text"
+            name="nombre"
+            required
+            placeholder="Tu nombre"
+            autocomplete="name"
+            class={fieldBase}
+          />
+          <input
+            type="text"
+            name="empresa"
+            placeholder="¿De qué empresa venís?"
+            autocomplete="organization"
+            class={fieldBase}
+          />
+          <input
+            type="email"
+            name="email"
+            required
+            placeholder="Email"
+            autocomplete="email"
+            class={fieldBase}
+          />
+          <input
+            type="tel"
+            name="celular"
+            placeholder="Celular"
+            autocomplete="tel"
+            class={fieldBase}
+          />
+          <textarea
+            name="mensaje"
+            rows="3"
+            placeholder="Contanos brevemente qué necesitas"
+            class={`${fieldBase} resize-none`}></textarea>
 
-        <div class="mt-2">
-          <Button
-            type="submit"
-            variant="pill-dark"
-            class="w-full justify-center">Descubre Zil Design</Button
+          <LeadHoneypot />
+
+          <p
+            data-lead-error
+            hidden
+            role="alert"
+            class="text-p-sm text-primary-dark"
           >
-        </div>
-      </form>
+            No pudimos enviar tu mensaje. Probá de nuevo en unos segundos.
+          </p>
+
+          <div class="mt-2">
+            <Button
+              type="submit"
+              variant="pill-dark"
+              class="w-full justify-center">Descubre Zil Design</Button
+            >
+          </div>
+        </form>
+
+        <LeadSuccess class="py-6" />
+      </div>
     </div>
   </div>
 </div>

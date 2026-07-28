@@ -1,5 +1,7 @@
 ---
 import Button from "../components/astro/Button.astro";
+import LeadHoneypot from "../components/astro/LeadHoneypot.astro";
+import LeadSuccess from "../components/astro/LeadSuccess.astro";
 
 // Shared classes for the white fields so every input/textarea matches.
 const fieldBase =
@@ -40,55 +42,79 @@ const fieldBase =
           </p>
         </div>
 
-        {/* Right — contact form */}
-        <form class="flex flex-col gap-4">
-          <input
-            type="text"
-            name="nombre"
-            required
-            placeholder="Tu nombre"
-            autocomplete="name"
-            class={fieldBase}
-            data-reveal
-          />
-          <input
-            type="text"
-            name="empresa"
-            placeholder="¿De qué empresa venís?"
-            autocomplete="organization"
-            class={fieldBase}
-            data-reveal
-          />
-          <input
-            type="email"
-            name="email"
-            required
-            placeholder="Email"
-            autocomplete="email"
-            class={fieldBase}
-            data-reveal
-          />
-          <input
-            type="tel"
-            name="celular"
-            placeholder="Celular"
-            autocomplete="tel"
-            class={fieldBase}
-            data-reveal
-          />
-          <textarea
-            name="mensaje"
-            rows="4"
-            placeholder="Contanos brevemente qué necesitas"
-            class={`${fieldBase} resize-none`}
-            data-reveal></textarea>
+        {
+          /* Right — contact form. The lead goes to workspace and the reader is
+            handed off to the booking calendar; scripts/lead-form.ts owns all of
+            that, this only declares the markup it drives. Keep in sync with the
+            mobile ContactDrawer, which mirrors this form field for field. */
+        }
+        <div data-lead-root>
+          <form
+            class="flex flex-col gap-4"
+            data-lead-form
+            data-lead-placement="cta"
+          >
+            <input
+              type="text"
+              name="nombre"
+              required
+              placeholder="Tu nombre"
+              autocomplete="name"
+              class={fieldBase}
+              data-reveal
+            />
+            <input
+              type="text"
+              name="empresa"
+              placeholder="¿De qué empresa venís?"
+              autocomplete="organization"
+              class={fieldBase}
+              data-reveal
+            />
+            <input
+              type="email"
+              name="email"
+              required
+              placeholder="Email"
+              autocomplete="email"
+              class={fieldBase}
+              data-reveal
+            />
+            <input
+              type="tel"
+              name="celular"
+              placeholder="Celular"
+              autocomplete="tel"
+              class={fieldBase}
+              data-reveal
+            />
+            <textarea
+              name="mensaje"
+              rows="4"
+              placeholder="Contanos brevemente qué necesitas"
+              class={`${fieldBase} resize-none`}
+              data-reveal></textarea>
 
-          <div class="mt-2" data-reveal>
-            <Button type="submit" variant="pill-dark"
-              >Descubre Zil Design</Button
+            <LeadHoneypot />
+
+            <p
+              data-lead-error
+              hidden
+              role="alert"
+              class="text-p-sm text-primary-dark"
             >
-          </div>
-        </form>
+              No pudimos enviar tu mensaje. Probá de nuevo en unos segundos.
+            </p>
+
+            <div class="mt-2" data-reveal>
+              <Button type="submit" variant="pill-dark"
+                >Descubre Zil Design</Button
+              >
+            </div>
+          </form>
+
+          <LeadSuccess class="py-10" />
+        </div>
       </div>
     </div>
   </div>

@@ -38,6 +38,86 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     {
+      /* Meta Pixel — the SAME pixel as zil-landing (id 2107258050021163), because
+        this site is a section of zil.global, not a separate property: one pixel
+        means one audience and one attribution window across both.
+        `scripts/lead-form.ts` fires the `Lead` event on submit.
+
+        Split in two on purpose. zil-landing defers the WHOLE snippet behind
+        requestIdleCallback, which also defers the `fbq` stub — anything tracked
+        before that runs hits an undefined `fbq` and is lost. Here the stub is
+        installed synchronously (it only queues calls, costing nothing) and only
+        the network request for fbevents.js is deferred, so an early `Lead` is
+        queued and flushed when the library lands. */
+    }
+    <script is:inline>
+      !(function (f, b, e, v, n, t, s) {
+        if (f.fbq) return;
+        n = f.fbq = function () {
+          n.callMethod
+            ? n.callMethod.apply(n, arguments)
+            : n.queue.push(arguments);
+        };
+        if (!f._fbq) f._fbq = n;
+        n.push = n;
+        n.loaded = !0;
+        n.version = "2.0";
+        n.queue = [];
+      })(window, document, "script");
+      fbq("init", "2107258050021163");
+      fbq("track", "PageView");
+      (function () {
+        var load = function () {
+          var t = document.createElement("script");
+          t.async = !0;
+          t.src = "https://connect.facebook.net/en_US/fbevents.js";
+          document.head.appendChild(t);
+        };
+        if (typeof requestIdleCallback === "function") requestIdleCallback(load);
+        else setTimeout(load, 3500);
+      })();
+    </script>
+    <noscript
+      ><img
+        height="1"
+        width="1"
+        style="display:none"
+        src="https://www.facebook.com/tr?id=2107258050021163&ev=PageView&noscript=1"
+        alt=""
+      /></noscript
+    >
+    {
+      /* GA4 — the SAME property as zil-landing (G-BGMH92ZFKE), for the same reason
+        as the pixel: this site is served from zil.global/design, so a second
+        property would start a new session the moment a visitor crossed over and
+        split the funnel across two reports. `/design` is a path filter, not a
+        property. `scripts/lead-form.ts` fires `generate_lead` on submit.
+
+        Same split as the pixel: `gtag` and its dataLayer are defined synchronously
+        so an early event is queued rather than dropped, and only gtag/js is
+        deferred to idle. This is also what the official snippet does — the inline
+        half is never the expensive part. */
+    }
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        window.dataLayer.push(arguments);
+      }
+      window.gtag = gtag;
+      gtag("js", new Date());
+      gtag("config", "G-BGMH92ZFKE");
+      (function () {
+        var load = function () {
+          var s = document.createElement("script");
+          s.async = !0;
+          s.src = "https://www.googletagmanager.com/gtag/js?id=G-BGMH92ZFKE";
+          document.head.appendChild(s);
+        };
+        if (typeof requestIdleCallback === "function") requestIdleCallback(load);
+        else setTimeout(load, 3500);
+      })();
+    </script>
+    {
       /* MOTION POLICY, JS half — see the matching block at the top of global.css.
         Nine components ask matchMedia whether the reader wants reduced motion, and
         this site's answer is now always "no". Reporting it once here keeps every
@@ -130,6 +210,15 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
     }
     <script>
       import "../scripts/reveal";
+    </script>
+
+    {
+      /* Contact forms. Both placements (sections/CTA.astro and ContactDrawer)
+        declare `data-lead-*` markup and this engine posts the lead to workspace
+        and hands the reader off to the booking calendar. See scripts/lead-form.ts. */
+    }
+    <script>
+      import "../scripts/lead-form";
     </script>
 
     <script>

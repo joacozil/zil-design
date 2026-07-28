@@ -1,0 +1,74 @@
+---
+/**
+ * The state after a lead is accepted, shared by both contact forms.
+ *
+ * Two beats, driven by scripts/lead-form.ts: the submission is confirmed, then
+ * the page says where it is taking them, then it goes. The pause exists so the
+ * redirect to the booking calendar reads as a handoff rather than as the page
+ * being yanked away — and the manual link is there for the case where the
+ * automatic redirect never lands.
+ *
+ * Parked at `hidden` plus the classes it animates FROM; the engine only removes
+ * classes, so all of the look lives here with the rest of the design system.
+ */
+interface Props {
+  class?: string;
+}
+
+const { class: className = "" } = Astro.props;
+---
+
+<div
+  data-lead-success
+  hidden
+  class:list={[
+    "flex translate-y-2 flex-col items-center text-center opacity-0 transition-[opacity,translate] duration-500 ease-out",
+    className,
+  ]}
+>
+  <span
+    class="grid size-20 shrink-0 place-items-center rounded-full bg-primary/10 ring-1 ring-primary/30"
+  >
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="size-9 text-primary"
+      aria-hidden="true"
+    >
+      <path d="M4 12.5L10 18.5L20 6.5"></path>
+    </svg>
+  </span>
+
+  <div data-lead-phase="confirmed" class="mt-6">
+    <h3 class="text-h4 tracking-[-0.02em]">Recibimos tu mensaje</h3>
+    <p class="mt-2 max-w-[32ch] text-p text-muted text-pretty">
+      Gracias por escribirnos. Ya lo tenemos.
+    </p>
+  </div>
+
+  <div
+    data-lead-phase="redirecting"
+    hidden
+    class="mt-6 opacity-0 transition-opacity duration-300 ease-out"
+  >
+    <h3 class="text-h4 tracking-[-0.02em]">Preparando tu agenda</h3>
+    <p class="mt-2 max-w-[32ch] text-p text-muted text-pretty">
+      Te llevamos a elegir un horario…
+    </p>
+    {
+      /* href is rewritten with ?leadId= once the lead exists, so the booking is
+        tied back to it. The bare URL is the correct fallback, not a placeholder. */
+    }
+    <a
+      data-lead-booking
+      href="https://workspace.zil.global/book/zil"
+      class="mt-4 inline-block text-p-sm text-muted underline underline-offset-4 transition-colors hover:text-text"
+    >
+      Agendar llamada
+    </a>
+  </div>
+</div>

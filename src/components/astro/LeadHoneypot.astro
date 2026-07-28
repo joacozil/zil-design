@@ -1,0 +1,22 @@
+---
+/**
+ * Anti-bot honeypot. A field no human can see or tab into, so anything that
+ * arrives filled was filled by a script — workspace drops those submissions
+ * (see the `_gotcha` check in leadWebhookController).
+ *
+ * It is a component rather than a line copied into each form because a honeypot
+ * that drifts between placements silently stops matching what the server checks.
+ *
+ * `hidden` the attribute, not a class: it survives any stylesheet failing to load,
+ * which is exactly the state a scraper renders in.
+ */
+---
+
+<input
+  type="text"
+  name="_gotcha"
+  hidden
+  tabindex="-1"
+  autocomplete="off"
+  aria-hidden="true"
+/>
