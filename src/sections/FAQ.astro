@@ -1,11 +1,27 @@
 ---
 import Badge from "../components/astro/Badge.astro";
 
+// Las preguntas están escritas como las escribe alguien en Google, no como las
+// haría un cliente ya sentado en la mesa. Es el único lugar de la página donde
+// entra lenguaje de búsqueda sin forzar el diseño: el resto son títulos cortos
+// y de marca. Sin esto el cuerpo no decía "agencia de branding" ni una vez, y
+// el <title> prometía algo que el texto no respaldaba.
 const faqs = [
   {
-    question: "¿Qué es Zil Design?",
+    question: "¿Qué es Zil Design y qué hace una agencia de branding?",
     answer:
-      "Somos un estudio de diseño estratégico y consultoría visual para clientes corporativos e institucionales, que opera como la división especializada de Zil Global. Funcionamos como un aliado independiente enfocado en resolver problemas complejos de comunicación, identidad y experiencia de marca. Transformamos la estrategia de tu negocio en una presencia visual clara, sólida y determinante que transmite confianza y criterio en el mercado.",
+      "Somos una agencia de branding y diseño estratégico para clientes corporativos e institucionales, la división de diseño de Zil Global, con base en Argentina y proyectos dentro y fuera de la región. Una agencia de branding no dibuja un logo: resuelve problemas de identidad de marca, comunicación y experiencia. Funcionamos como un aliado independiente que transforma la estrategia de tu negocio en una presencia visual clara, sólida y determinante, que transmite confianza y criterio en el mercado.",
+  },
+  {
+    question:
+      "¿Cuál es la diferencia entre una agencia de branding y un estudio de diseño gráfico?",
+    answer:
+      "Un estudio de diseño gráfico ejecuta piezas; una agencia de branding decide antes qué tiene que comunicar cada una y por qué. La diferencia se nota en el punto de partida: nosotros arrancamos por un diagnóstico de tu negocio, tu mercado y tu competencia, y recién después definimos el sistema visual. Por eso el trabajo no termina en el logo, sino que cubre identidad de marca, diseño web, UX/UI y contenido para redes, con un criterio único atrás.",
+  },
+  {
+    question: "¿Cuándo conviene hacer un rebranding?",
+    answer:
+      "Cuando la marca dejó de representar lo que la empresa es hoy. Los casos más comunes: creciste o cambiaste de rubro y la identidad quedó chica, te confunden con un competidor, cada pieza parece de una empresa distinta porque nunca hubo un sistema, o vas a entrar a un mercado donde la marca actual no sostiene el precio que querés cobrar. Un rebranding se justifica por un problema comercial concreto, no porque el logo tenga años.",
   },
   {
     question:
@@ -21,9 +37,9 @@ const faqs = [
   },
   {
     question:
-      "¿Cómo se presupuestan los proyectos y qué facilidades de pago internacionales ofrecen?",
+      "¿Cuánto cuesta un proyecto de branding y cómo se presupuesta?",
     answer:
-      "Cotizamos a medida según el alcance y los objetivos de tu empresa. Para tu comodidad y transparencia, trabajamos con contratos claros por hitos y ofrecemos diversas plataformas de pago internacionales (como Stripe, PayPal o transferencias bancarias directas) para que operar con nosotros sea simple desde cualquier parte del mundo.",
+      "No hay lista de precios: cotizamos a medida según el alcance y los objetivos de tu empresa. No cuesta lo mismo ordenar una identidad de marca que ya existe que construir una desde cero, ni una empresa de un solo producto que una con varias líneas. Para tu comodidad y transparencia, trabajamos con contratos claros por hitos y ofrecemos diversas plataformas de pago internacionales (como Stripe, PayPal o transferencias bancarias directas) para que operar con nosotros sea simple desde cualquier parte del mundo.",
   },
   {
     question:
@@ -63,9 +79,9 @@ const faqs = [
   },
   {
     question:
-      "Al finalizar el proyecto, ¿qué activos de marca recibo y cómo garantizan que pueda usarlos fácilmente?",
+      "¿Qué incluye un proyecto de identidad de marca y qué archivos recibo al final?",
     answer:
-      "Te entregamos un ecosistema completo de marca listo para usar. Esto incluye los archivos originales en alta resolución, guías visuales de aplicación y formatos optimizados para entornos digitales e impresos. Todo organizado de forma intuitiva para que cualquier persona de tu equipo pueda utilizarlos sin complicaciones en el día a día.",
+      "Te entregamos un ecosistema completo de marca listo para usar. Esto incluye los archivos originales en alta resolución, el manual con las guías visuales de aplicación y formatos optimizados para entornos digitales e impresos. Todo organizado de forma intuitiva para que cualquier persona de tu equipo pueda utilizarlos sin complicaciones en el día a día.",
   },
   {
     question:
