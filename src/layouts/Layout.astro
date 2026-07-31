@@ -7,9 +7,18 @@ interface Props {
 }
 
 const {
-  title = "Zil Design",
-  description = "Zil Design — a strategic design agency.",
+  title = "Agencia de branding y diseño en Argentina | Zil Design",
+  description = "Agencia de branding y diseño de identidad de marca en Argentina. Estrategia, sistema visual y cada punto de contacto, sostenidos por un equipo.",
 } = Astro.props;
+
+// La URL pública, que NO es la de este proyecto: Astro sirve bajo `base`, pero
+// para el mundo la página vive en zil.global/design/ detrás del proxy de
+// zil-landing. Canonical y og:url tienen que declarar esa, o Google indexa (o
+// descarta) una dirección que nadie visita.
+const PUBLIC_URL = "https://zil.global/design/";
+// El banner vive en el sitio principal. Es el mismo dominio, así que resuelve
+// igual, y es preferible a compartir un link sin imagen.
+const OG_IMAGE = "https://zil.global/zil-banner.webp";
 
 // Vite rewrites url() inside CSS against `base`, but a literal href in markup is
 // just a string it never touches — so /fonts and /favicon would resolve against
@@ -19,10 +28,27 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 ---
 
 <!doctype html>
-<html lang="en">
+<!-- lang="es": toda la página está escrita en castellano rioplatense ("¿Tenés
+     alguna duda?"). Declararla en inglés le decía a Google que el contenido no
+     era relevante para las búsquedas en español, que son las que buscamos. -->
+<html lang="es">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="canonical" href={PUBLIC_URL} />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={PUBLIC_URL} />
+    <meta property="og:site_name" content="Zil Design" />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:image" content={OG_IMAGE} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={OG_IMAGE} />
     <link
       rel="icon"
       type="image/svg+xml"
@@ -196,6 +222,36 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
       crossorigin
     />
     <title>{title}</title>
+
+    {
+      /* Le dice a Google QUÉ es esto: una agencia, no una página cualquiera que
+        menciona branding. Sin dirección postal no califica para resultados
+        locales —no perseguimos eso—; sirve para que la entidad "Zil Design"
+        quede ligada a Zil Global y al servicio que presta. */
+    }
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "ProfessionalService",
+        "@id": `${PUBLIC_URL}#organization`,
+        name: "Zil Design",
+        url: PUBLIC_URL,
+        image: OG_IMAGE,
+        description,
+        areaServed: { "@type": "Country", name: "Argentina" },
+        parentOrganization: {
+          "@type": "Organization",
+          name: "Zil Global",
+          url: "https://zil.global",
+        },
+        serviceType: [
+          "Branding",
+          "Diseño de identidad de marca",
+          "Diseño estratégico",
+        ],
+      })}
+    />
   </head>
   <body>
     <slot />
