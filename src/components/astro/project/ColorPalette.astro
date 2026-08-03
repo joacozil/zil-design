@@ -1,12 +1,14 @@
 ---
 /**
  * ColorPalette — the project's colours as full-bleed horizontal bands, shared by
- * every project. Each row is a main colour (wide) paired with a lighter tint
- * (narrow), side by side at EVERY breakpoint — including mobile, where the pair
- * still reads as one row rather than stacking. The bands run edge-to-edge; only
- * the LABELS are inset — to the content gutter on the left (var(--gutter), the
- * design-system full-bleed rule) and a plain inset on the tint — so the swatches
- * read as full width while the text still lines up with the rest of the page.
+ * every project. Each row is a main colour (wide), OPTIONALLY paired with a lighter
+ * tint (narrow) side by side at EVERY breakpoint — including mobile, where the pair
+ * still reads as one row rather than stacking. Omit `variant` and the main fills the
+ * whole band (Gelato's palette is single swatches; Clojure's is main+tint pairs).
+ * The bands run edge-to-edge; only the LABELS are inset — to the content gutter on
+ * the left (var(--gutter), the design-system full-bleed rule) and a plain inset on
+ * the tint — so the swatches read as full width while the text still lines up with
+ * the rest of the page.
  *
  * Labels are absolutely positioned (pinned to the bottom, sized to content)
  * rather than a `h-full flex justify-end` column: with only `min-height` on an
@@ -29,7 +31,8 @@ interface Swatch {
 interface ColorRow {
   name: string;
   main: Swatch;
-  variant: Swatch;
+  /** Optional lighter tint shown as a narrow column. Omit for a single band. */
+  variant?: Swatch;
   /** Relative height weight — higher = taller band. Defaults to 1. */
   weight?: number;
 }
@@ -74,19 +77,21 @@ const ink = (dark?: boolean) => (dark ? "#ffffff" : "#000000");
           </div>
         </div>
 
-        {/* Tint variant — narrow. */}
-        <div
-          class="relative w-[38%] tablet:w-[22%]"
-          style={`background-color:${row.variant.hex}`}
-        >
+        {/* Tint variant — narrow. Omitted for single-swatch palettes. */}
+        {row.variant && (
           <div
-            class="absolute inset-x-0 bottom-0 flex flex-col px-3 pb-5 tablet:px-8 tablet:pb-7"
-            style={`color:${ink(row.variant.dark)}`}
+            class="relative w-[38%] tablet:w-[22%]"
+            style={`background-color:${row.variant.hex}`}
           >
-            <span class="text-p-sm">{row.variant.hex.toUpperCase()}</span>
-            <span class="text-p-sm">{rgb(row.variant.hex)}</span>
+            <div
+              class="absolute inset-x-0 bottom-0 flex flex-col px-3 pb-5 tablet:px-8 tablet:pb-7"
+              style={`color:${ink(row.variant.dark)}`}
+            >
+              <span class="text-p-sm">{row.variant.hex.toUpperCase()}</span>
+              <span class="text-p-sm">{rgb(row.variant.hex)}</span>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     )})
   }

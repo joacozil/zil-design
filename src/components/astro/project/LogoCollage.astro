@@ -1,0 +1,107 @@
+---
+/**
+ * LogoCollage — a collage pairing the isologotipo shown on several brand fields
+ * (cream / green / chocolate panels, each with the transparent "GM" mark centred
+ * and coloured for its field) with one tall feature image (the full "Gelato
+ * Madrid" lockup on its striped field).
+ *
+ * The layout REFLOWS via grid-template-areas:
+ *   · desktop — feature is a tall right column; the three tiles stack on the left,
+ *     the tiles' 5/2 ratio making them add up to the feature's height.
+ *   · mobile  — feature on top (full width), the cream tile full width below it,
+ *     then green + brown side by side.
+ */
+import type { ImageMetadata } from "astro";
+
+interface Tile {
+  src: ImageMetadata;
+  alt: string;
+  /** Panel background colour behind the (transparent) logo. */
+  bg: string;
+}
+interface Props {
+  /** Exactly three tiles, in order: cream, green, brown. */
+  tiles: Tile[];
+  /** The tall feature image. */
+  feature: { src: ImageMetadata; alt: string };
+}
+const { tiles, feature } = Astro.props;
+
+// Per-tile placement: grid area + the mobile aspect (all share 5/2 at tablet+).
+const layout = [
+  { area: "cream", aspect: "aspect-[8/3]" },
+  { area: "green", aspect: "aspect-[4/3]" },
+  { area: "brown", aspect: "aspect-[4/3]" },
+];
+---
+
+<section class="py-section" aria-label="Aplicaciones del isologotipo">
+  <div class="mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12">
+    <div class="collage grid">
+      {/* Feature — full width on mobile, tall right column at tablet+. */}
+      <div class="collage-feat aspect-[864/1080] w-full tablet:aspect-auto">
+        <img
+          src={feature.src.src}
+          alt={feature.alt}
+          loading="lazy"
+          class="h-full w-full object-cover"
+        />
+      </div>
+
+      {/* Tiles — coloured panels with the mark centred. */}
+      {
+        tiles.map((t, i) => (
+          <div
+            class:list={[
+              `collage-${layout[i].area}`,
+              layout[i].aspect,
+              "flex w-full items-center justify-center tablet:aspect-[5/2]",
+            ]}
+            style={`background-color:${t.bg}`}
+          >
+            <img
+              src={t.src.src}
+              width={t.src.width}
+              height={t.src.height}
+              alt={t.alt}
+              loading="lazy"
+              class="h-[72%] w-auto"
+            />
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .collage {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "feat feat"
+      "cream cream"
+      "green brown";
+  }
+  .collage-feat {
+    grid-area: feat;
+  }
+  .collage-cream {
+    grid-area: cream;
+  }
+  .collage-green {
+    grid-area: green;
+  }
+  .collage-brown {
+    grid-area: brown;
+  }
+
+  @media (width >= 640px) {
+    /* Feature becomes the tall right column; tiles stack down the left. */
+    .collage {
+      grid-template-areas:
+        "cream feat"
+        "green feat"
+        "brown feat";
+    }
+  }
+</style>

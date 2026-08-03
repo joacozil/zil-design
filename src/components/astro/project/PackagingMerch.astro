@@ -1,0 +1,164 @@
+---
+/**
+ * PackagingMerch — the "Packaging & Etiquetas — Merch" section, still on the
+ * CHOCOLATE field below Material POP. A white rule frames the top; the section runs
+ * flush into the next one (no bottom rule, no bottom padding).
+ *
+ *   desktop                 mobile
+ *   [ text   | bolsa   ]     [ text + stickers ]
+ *   [ +stkr  | tarjeta ]     [ bolsa | tarjeta ]
+ *
+ * The RIGHT column (`pm-right`) holds bolsa + tarjeta as a fixed-ratio cover pair
+ * (same treatment as Material POP's images) with a white rule between them:
+ *   · mobile  — a ROW, the two side by side (two columns).
+ *   · desktop — a COLUMN, stacked beside the text/stickers block.
+ */
+import { getImage } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Img {
+  src: ImageMetadata;
+  alt: string;
+}
+interface Props {
+  label: string;
+  body: string;
+  stickers: Img;
+  bolsa: Img;
+  tarjeta: Img;
+}
+const { label, body, stickers, bolsa, tarjeta } = Astro.props;
+
+const opt = async (im: Img, w: number) => {
+  const image = await getImage({ src: im.src, width: w, format: "webp" });
+  return { src: image.src, alt: im.alt };
+};
+const stickersO = await opt(stickers, 900);
+const bolsaO = await opt(bolsa, 800);
+const tarjetaO = await opt(tarjeta, 800);
+
+const container = "mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12";
+---
+
+<section class="packaging-merch" aria-label={label}>
+  {
+    /* Top rule — desktop only; on mobile the padded brown edge frames the block. */
+  }
+  <div class="pm-line hidden desktop:block" aria-hidden="true"></div>
+
+  <div class={container}>
+    <div class="pm-grid">
+      {/* Left column — text at the top, stickers floating centred below. */}
+      <div class="pm-left flex flex-col">
+        <div class="pm-text">
+          <h3 class="pm-label text-p-sm font-bold tracking-wider uppercase">
+            {label}
+          </h3>
+          <p class="pm-body mt-4 max-w-sm text-p text-pretty">{body}</p>
+        </div>
+        <div class="flex flex-1 items-center justify-center py-8">
+          <img
+            class="pm-stickers w-3/4 max-w-md object-contain"
+            src={stickersO.src}
+            alt={stickersO.alt}
+            loading="lazy"
+          />
+        </div>
+      </div>
+
+      {
+        /* Right column — bolsa + tarjeta: a row on mobile, a column on desktop. */
+      }
+      <div class="pm-right">
+        <img
+          class="pm-img pm-bolsa"
+          src={bolsaO.src}
+          alt={bolsaO.alt}
+          loading="lazy"
+        />
+        <img
+          class="pm-img"
+          src={tarjetaO.src}
+          alt={tarjetaO.alt}
+          loading="lazy"
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .packaging-merch {
+    background-color: #896451; /* Chocolate field */
+    padding-top: clamp(3rem, 9vw, 7rem);
+    overflow-x: clip;
+  }
+  .pm-line {
+    height: 1px;
+    width: 100%;
+    background-color: rgb(255 255 255 / 0.7); /* White rule on chocolate */
+  }
+  .pm-label {
+    color: #fffaee;
+  }
+  .pm-body {
+    color: rgb(255 250 238 / 0.72);
+  }
+
+  .pm-grid {
+    display: grid;
+    gap: 0;
+    grid-template-columns: 1fr; /* mobile: text block, then the image row */
+  }
+
+  /* Mobile: two columns (bolsa | tarjeta), each a fixed-ratio cover image. */
+  .pm-right {
+    display: flex;
+    flex-direction: row;
+  }
+  .pm-img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+  }
+  .pm-right > .pm-img {
+    flex: 1;
+    min-width: 0;
+  }
+  /* Divider between the two side-by-side images. */
+  .pm-bolsa {
+    border-right: 1px solid rgb(255 255 255 / 0.7);
+  }
+
+  @media (width >= 1024px) {
+    .pm-grid {
+      grid-template-columns: 2fr 1fr;
+      align-items: start;
+    }
+    /* Drop the title below the top rule so it has room to breathe. */
+    .pm-text {
+      padding-top: clamp(3rem, 7vw, 6rem);
+    }
+    /* The left column is as tall as the stacked image pair, so let the stickers
+       shot grow to fill it — nearly the full column width — instead of floating
+       small in a sea of brown. It stays centred so the slack splits evenly. */
+    .pm-stickers {
+      width: 72%;
+      max-width: none;
+    }
+    /* Stack the pair beside the text; vertical rule divides the columns. */
+    .pm-right {
+      flex-direction: column;
+      border-left: 1px solid rgb(255 255 255 / 0.7);
+    }
+    .pm-right > .pm-img {
+      flex: initial;
+    }
+    /* The divider between the pair is now horizontal. */
+    .pm-bolsa {
+      border-right: 0;
+      border-bottom: 1px solid rgb(255 255 255 / 0.7);
+    }
+  }
+</style>

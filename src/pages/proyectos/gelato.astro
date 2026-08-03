@@ -1,0 +1,237 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/astro/Header.astro";
+import Footer from "../../components/astro/Footer.astro";
+import ProjectEnd from "../../components/astro/project/ProjectEnd.astro";
+import ProjectHeroCover from "../../components/astro/project/ProjectHeroCover.astro";
+import ProjectBrief from "../../components/astro/project/ProjectBrief.astro";
+import ConceptCircles from "../../components/astro/project/ConceptCircles.astro";
+import LogoGrid from "../../components/astro/project/LogoGrid.astro";
+import ColorPalette from "../../components/astro/project/ColorPalette.astro";
+import TypeSpecimen from "../../components/astro/project/TypeSpecimen.astro";
+import LogoCollage from "../../components/astro/project/LogoCollage.astro";
+import SocialCarousel from "../../components/astro/project/SocialCarousel.astro";
+import PhotoCollage from "../../components/astro/project/PhotoCollage.astro";
+import WideShowcase from "../../components/astro/project/WideShowcase.astro";
+import MaterialPop from "../../components/astro/project/MaterialPop.astro";
+import PackagingMerch from "../../components/astro/project/PackagingMerch.astro";
+import heroBg from "../../assets/gelato/hero-bg.avif";
+import heroLogo from "../../assets/gelato/gelato-logo.svg";
+import gridImage from "../../assets/gelato/gelato-grid.svg";
+import gelatoFontImg from "../../assets/gelato/gelato-font.svg";
+import isoCream from "../../assets/gelato/iso-cream-bg.svg";
+import isoGreen from "../../assets/gelato/iso-green-bg.svg";
+import isoBrown from "../../assets/gelato/iso-brown-bg.svg";
+import logoLinesBg from "../../assets/gelato/logo-lines-bg.avif";
+import post1 from "../../assets/gelato/post1.avif";
+import post2 from "../../assets/gelato/post2.avif";
+import post3 from "../../assets/gelato/post3.avif";
+import collage1 from "../../assets/gelato/collage1.avif";
+import collage2 from "../../assets/gelato/collage2.avif";
+import collage3 from "../../assets/gelato/collage3.avif";
+import collage4 from "../../assets/gelato/collage4.avif";
+import collage5 from "../../assets/gelato/collage5.avif";
+import collage6 from "../../assets/gelato/collage6.avif";
+import billboardImg from "../../assets/gelato/billboard.avif";
+import cartelImg from "../../assets/gelato/cartel.avif";
+import tradicionItalianaImg from "../../assets/gelato/tradicion-italiana.avif";
+import helado1Img from "../../assets/gelato/helado1.avif";
+import helado2Img from "../../assets/gelato/helado2.avif";
+import mostradorImg from "../../assets/gelato/mostrador.avif";
+import rollupImg from "../../assets/gelato/rollup.avif";
+import carritoImg from "../../assets/gelato/carrito.avif";
+import stickersImg from "../../assets/gelato/stickers.avif";
+import bolsaImg from "../../assets/gelato/bolsa.avif";
+import tarjetaImg from "../../assets/gelato/tarjeta.avif";
+// Acumin is Gelato's secondary (text) face. "Acumin Variable Concept" isn't in the
+// assets; Acumin Pro Regular (shared from Clojure) is the same typeface family and
+// stands in for the specimen.
+import acuminRegular from "../../assets/clojure/acumin-pro/Acumin-RPro.otf?url";
+// Job Clarendon — the brand display face. The static cuts shipped are all width-
+// variants (Compressed / Condensed / Skyline …), none of them the normal width the
+// design uses; the VARIABLE font carries the normal-width axis, so we register that
+// one file and drive weight through it. Only Light and Regular are ever asked for.
+import clarendonVar from "../../assets/gelato/job-clarendon/JobClarendonVariablewdthwght-Testing.ttf?url";
+
+// Register Job Clarendon once as a variable family (the wght axis covers both the
+// Light concept words and a Regular held for later sections). @font-face can't read
+// CSS vars for its src, so the resolved URL is interpolated and injected here.
+const fontFaceCss = `
+@font-face{font-family:"Job Clarendon";src:url("${clarendonVar}") format("truetype");font-weight:100 900;font-style:normal;font-display:swap;}
+@font-face{font-family:"Acumin Pro";src:url("${acuminRegular}") format("opentype");font-weight:400;font-style:normal;font-display:swap;}
+`;
+
+// Case-study content lives with the page (per-project composition).
+const meta = [
+  { label: "Cliente", value: "Gelato Madrid" },
+  { label: "Servicio", value: "Branding, Packaging & Etiquetas, Material POP" },
+];
+
+const brief = [
+  {
+    title: "Proyecto",
+    body: "Gelato Madrid nace para llevar el auténtico gelato artesanal italiano al corazón de la escena madrileña. Con una propuesta de valor enfocada en ingredientes premium, cremosidad y recetas tradicionales, la marca se concibió para operar en un modelo híbrido: abastecer a comercios y recibir al público en su propia tienda, lo que exigía una identidad versátil y cercana para todo tipo de clientes.",
+  },
+  {
+    title: "Desafío",
+    body: "Ante la apertura de su primer local físico, el reto fue construir una marca desde cero que equilibrara herencia y modernidad. Necesitábamos homenajear su origen italiano mediante una estética sobria y clásica, pero con un lenguaje fresco y contemporáneo capaz de destacar en el entorno urbano y adaptarse con solvencia tanto a envases de distribución como al punto de venta.",
+  },
+  {
+    title: "Propuesta",
+    body: "Nos inspiramos en la propia sensorialidad del helado —sus colores, su textura y su carácter artesanal— para crear un sistema de identidad integral. Diseñamos el logotipo, la paleta cromática, la selección tipográfica, el packaging, las etiquetas, el material POP para el local y las guías de aplicación para sus distintos formatos. El resultado fue un posicionamiento premium e inmediato, que impulsó un desembarco exitoso en el mercado minorista manteniendo intacta su solidez comercial.",
+  },
+];
+
+const concepts = [
+  "Elegancia",
+  "Exclusividad",
+  "Confianza",
+  "Solidez",
+  "Sobriedad",
+];
+
+// Brand palette — single full-bleed swatches (no tint pairs). RGB is derived from
+// the hex in the component, so updating a hex updates its R/G/B label too. `dark`
+// marks the swatches that carry white text.
+const palette = [
+  { name: "Chocolate Gelato", main: { hex: "#896451" }, weight: 2 },
+  { name: "Crema Gelato", main: { hex: "#FFFAEE" }, weight: 1.9 },
+  { name: "Celeste Gelato", main: { hex: "#DCE1F4" }, weight: 1 },
+  { name: "Verde Gelato", main: { hex: "#B8BA99" }, weight: 1 },
+  { name: "Blanco", main: { hex: "#FFFFFF" }, weight: 0.95 },
+  { name: "Negro", main: { hex: "#000000", dark: true }, weight: 0.95 },
+];
+---
+
+<style is:global set:html={fontFaceCss}></style>
+
+<Layout
+  title="Gelato Madrid — Zil Design"
+  description="Caso de estudio: identidad de marca para Gelato Madrid — sabor italiano, aires españoles."
+>
+  <Header />
+  <main class="project-gelato">
+    <ProjectHeroCover
+      image={heroBg}
+      imageAlt="Textura de gelato de chocolate — fondo de la identidad de Gelato Madrid"
+      logo={heroLogo}
+      title="Gelato Madrid — sabor italiano, aires españoles"
+    />
+    <ProjectBrief meta={meta} blocks={brief} />
+    <ConceptCircles
+      words={concepts}
+      stroke="#b6a189"
+      ink="#8a6a50"
+      fontFamily={'"Job Clarendon", serif'}
+      fontWeight={300}
+      fontScale={0.12}
+    />
+    <LogoGrid
+      image={gridImage}
+      alt="Logotipo de Gelato Madrid dentro de su grilla de composición"
+    />
+    <ColorPalette colors={palette} />
+    <TypeSpecimen
+      name="Job Clarendon"
+      fontFamily="Job Clarendon"
+      wordmarkImage={gelatoFontImg}
+      specimens={[
+        {
+          label: "Job Clarendon",
+          fontFamily: '"Job Clarendon", serif',
+          fontWeight: 400,
+          fontSize: "1.5rem",
+        },
+        {
+          label: "Acumin Variable Concept - Regular",
+          fontFamily: '"Acumin Pro", sans-serif',
+          fontWeight: 400,
+          fontSize: "1.15rem",
+        },
+      ]}
+    />
+    <LogoCollage
+      tiles={[
+        { src: isoCream, bg: "#FFFAEE", alt: "Isologotipo GM de Gelato Madrid sobre fondo crema" },
+        { src: isoGreen, bg: "#B8BA99", alt: "Isologotipo GM de Gelato Madrid sobre fondo verde" },
+        { src: isoBrown, bg: "#896451", alt: "Isologotipo GM de Gelato Madrid sobre fondo chocolate" },
+      ]}
+      feature={{
+        src: logoLinesBg,
+        alt: "Logotipo Gelato Madrid sobre un fondo de líneas",
+      }}
+    />
+    <SocialCarousel
+      label="Redes Sociales"
+      body="Desarrollamos un sistema de contenido para redes sociales orientado a comunicar con claridad, fortalecer la identidad de la marca y mantener una presencia consistente. Cada pieza fue diseñada para captar la atención, transmitir el mensaje de forma inmediata y generar una comunicación más efectiva."
+      posts={[
+        { src: post1, alt: "Publicación: nuevo sabor Pistacho de Gelato Madrid" },
+        { src: post2, alt: "Publicación: el sabor auténtico de Italia" },
+        { src: post3, alt: "Publicación: niño disfrutando un helado de Gelato Madrid" },
+      ]}
+    />
+    <PhotoCollage
+      images={[
+        { src: collage1, alt: "Textura de chocolate: una herencia artesanal que se siente en su cremosidad" },
+        { src: collage2, alt: "Helado de frutilla: tradición italiana en cada bocado" },
+        { src: collage3, alt: "Palito de helado, nuevo sabor Chocolate de Gelato Madrid" },
+        { src: collage4, alt: "Cubetas de gelato artesanal en la vitrina de la tienda" },
+        { src: collage5, alt: "Logotipo Gelato Madrid sobre un fondo de líneas" },
+        { src: collage6, alt: "Mano sosteniendo un vaso de gelato de pistacho de Gelato Madrid" },
+      ]}
+    />
+    <WideShowcase
+      hero={{
+        src: billboardImg,
+        alt: "Cartel de Gelato Madrid sobre un muro de hiedra en la fachada del local",
+      }}
+      pair={[
+        { src: cartelImg, alt: "Cartel volado de Gelato Madrid sobre la pared de ladrillo del local" },
+        { src: tradicionItalianaImg, alt: "Textura de chocolate: tradición italiana en cada bocado" },
+      ]}
+      pair2={[
+        { src: helado1Img, alt: "Mano sosteniendo un vaso de gelato de pistacho de Gelato Madrid" },
+        { src: helado2Img, alt: "Envase de gelato de Gelato Madrid" },
+      ]}
+    />
+    <MaterialPop
+      label="Material POP"
+      body="Llevamos la identidad visual al espacio físico para captar la atención en el punto de contacto. Diseñamos piezas promocionales y exhibidores estratégicos que refuerzan la presencia de marca, destacan el producto en el entorno comercial y mejoran la experiencia visual."
+      mostrador={{ src: mostradorImg, alt: "Mostrador de Gelato Madrid en la tienda" }}
+      rollup={{ src: rollupImg, alt: "Roll-up promocional de Gelato Madrid" }}
+      carrito={{ src: carritoImg, alt: "Carrito de Gelato Madrid en la calle" }}
+    />
+    <PackagingMerch
+      label="Packaging & Etiquetas - Merch"
+      body="Aplicación de la identidad visual en soporte físico y corporativo. Piezas proyectadas para generar valor percibido, fortalecer la comunidad alrededor de la marca y potenciar la memorabilidad a través del diseño."
+      stickers={{ src: stickersImg, alt: "Rollo de stickers GM de Gelato Madrid" }}
+      bolsa={{ src: bolsaImg, alt: "Bolsa de papel de Gelato Madrid" }}
+      tarjeta={{ src: tarjetaImg, alt: "Tarjeta de presentación de Gelato Madrid sostenida en la mano" }}
+    />
+  </main>
+  <ProjectEnd current="gelato" />
+  <Footer />
+</Layout>
+
+<style>
+  /* Scoped project theme — remaps ONLY the semantic colour aliases within this
+     page's subtree, so Gelato's branding can never leak into global scope.
+     Everything structural (type scale, spacing rhythm, breakpoints) stays on the
+     global tokens.
+
+     Gelato's case-study body is a warm, near-white field with dark warm text and
+     chocolate accents — the opposite of Clojure's dark navy. The hero opts out
+     with its own full-bleed image and consumes none of these. */
+  .project-gelato {
+    --color-primary: #6f4a2f; /* chocolate brown (brand) */
+    --color-accent: #9a7053; /* caramel accent */
+
+    --color-surface: #ffffff; /* near-white case-study field */
+    --color-text: #241a12; /* warm near-black body text */
+    --color-muted: #6f685f; /* warm grey — secondary copy */
+    --color-border: #e7e1d8; /* warm hairline divider */
+
+    background-color: var(--color-surface);
+    color: var(--color-text);
+  }
+</style>

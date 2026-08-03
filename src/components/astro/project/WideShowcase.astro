@@ -1,0 +1,163 @@
+---
+/**
+ * WideShowcase — a feature block on the cream field: one big hero image, then a
+ * pair of images side by side below it. Full-width brown rules top and bottom.
+ *
+ * The IMAGES sit in the standard content container; only the RULES run full-bleed
+ * to the viewport edges. Four rules: the billboard is framed top and bottom, and
+ * the pair is framed top and bottom — every image edge meets a rule with no gap —
+ * while a blank band separates the billboard's bottom rule from the pair's top one.
+ *
+ * The pair shares a height: each image's flex-grow is its aspect ratio, so their
+ * widths come out proportional and the row fills the container with no cropping
+ * (the wide cartel ends up wider than the tall tradición piece). Below desktop the
+ * hero and the pair all stack full width within the container.
+ */
+import { getImage } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Img {
+  src: ImageMetadata;
+  alt: string;
+}
+interface Props {
+  /** The big hero image. */
+  hero: Img;
+  /** The two images shown side by side below the hero. */
+  pair: [Img, Img];
+  /** Optional second pair, framed by its own rules below the first. */
+  pair2?: [Img, Img];
+}
+const { hero, pair, pair2 } = Astro.props;
+
+const heroO = await getImage({ src: hero.src, width: 1600, format: "webp" });
+// grow = aspect ratio → equal heights, widths proportional within the pair.
+const optimizePair = (p: [Img, Img]) =>
+  Promise.all(
+    p.map(async (im) => {
+      const image = await getImage({ src: im.src, width: 1000, format: "webp" });
+      return { src: image.src, alt: im.alt, grow: im.src.width / im.src.height };
+    }),
+  );
+const pairO = await optimizePair(pair);
+const pair2O = pair2 ? await optimizePair(pair2) : null;
+
+const container = "mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12";
+---
+
+<section class="wide-showcase pt-section" aria-label="Aplicación en el local">
+  {/* Billboard, framed top and bottom by full-bleed rules. */}
+  <div class="ws-line" aria-hidden="true"></div>
+  <div class={container}>
+    <img class="ws-hero" src={heroO.src} alt={hero.alt} loading="lazy" />
+  </div>
+  <div class="ws-line" aria-hidden="true"></div>
+
+  {
+    /* Pair, framed top and bottom; its top rule carries the blank band above it. */
+  }
+  <div class="ws-line ws-line-band" aria-hidden="true"></div>
+  <div class={container}>
+    <div class="ws-pair">
+      {
+        pairO.map((im) => (
+          <img
+            src={im.src}
+            alt={im.alt}
+            loading="lazy"
+            style={`flex-grow:${im.grow}`}
+          />
+        ))
+      }
+    </div>
+  </div>
+  <div class="ws-line" aria-hidden="true"></div>
+
+  {/* Optional second pair, framed the same way below the first. */}
+  {
+    pair2O && (
+      <>
+        <div
+          class="ws-line ws-line-band ws-line-band-2"
+          aria-hidden="true"
+        />
+        <div class={container}>
+          <div class="ws-pair ws-pair-ruled">
+            {pair2O.map((im) => (
+              <img
+                src={im.src}
+                alt={im.alt}
+                loading="lazy"
+                style={`flex-grow:${im.grow}`}
+              />
+            ))}
+          </div>
+        </div>
+        <div class="ws-line" aria-hidden="true" />
+      </>
+    )
+  }
+</section>
+
+<style>
+  .wide-showcase {
+    background-color: #fffaee; /* Crema field */
+  }
+  .ws-line {
+    height: 1px;
+    width: 100%;
+    background-color: #896451; /* Chocolate rule */
+  }
+
+  .ws-hero {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* Blank band above the pair's top rule — the only vertical space in the block. */
+  .ws-line-band {
+    margin-top: clamp(1.5rem, 6vw, 3rem);
+  }
+  /* The helados pair has no top rule on mobile — keep the band spacing, drop the
+     visible line (the row above already closes with its own rule). */
+  .ws-line-band-2 {
+    background-color: transparent;
+  }
+  @media (width >= 1024px) {
+    .ws-line-band-2 {
+      background-color: #896451;
+    }
+  }
+
+  .ws-pair {
+    display: flex;
+    flex-direction: column;
+  }
+  .ws-pair img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  @media (width >= 1024px) {
+    .ws-line-band {
+      margin-top: clamp(2.5rem, 6vw, 6rem);
+    }
+    .ws-pair {
+      flex-direction: row;
+    }
+    .ws-pair img {
+      flex-basis: 0;
+      min-width: 0;
+    }
+    /* Helados pair — vertical rules on the two outer sides and a divider between
+       the images, closing the frame the top/bottom horizontal rules open. */
+    .ws-pair-ruled {
+      border-inline: 1px solid #896451;
+    }
+    .ws-pair-ruled img + img {
+      border-left: 1px solid #896451;
+    }
+  }
+</style>

@@ -1,7 +1,9 @@
 ---
 /**
  * ConceptCircles — the words that stand for a project, set in a chain of
- * interconnected rings. Shared by every project; only the words vary.
+ * interconnected rings. Shared by every project; the words and their look (ring
+ * stroke, word colour, font, weight) are passed in, so the SAME chain reads as
+ * white sans on Clojure's navy and light Job Clarendon on Gelato's cream.
  *
  * The rings overlap so adjacent outlines cross (a Venn-style chain). They carry
  * no fill, so the overlaps never hide a neighbour's label. The chain runs
@@ -28,8 +30,43 @@
  */
 interface Props {
   words: string[];
+  /** Ring outline colour (any CSS colour). Default: white 30% (Clojure on navy). */
+  stroke?: string;
+  /** Word colour. Default: inherit the section's text colour. */
+  ink?: string;
+  /** CSS font-family for the words. Default: the site sans. */
+  fontFamily?: string;
+  /** Word font-weight. Default: 500 (medium). */
+  fontWeight?: number;
+  /**
+   * Word size as a fraction of the ring diameter, so it fills the circle the same
+   * at every breakpoint (mobile rings shrink, desktop grow). Omit → the fixed
+   * `text-p-sm` (Clojure's restrained label); a display face that should fill the
+   * ring (Gelato) passes e.g. 0.12.
+   */
+  fontScale?: number;
 }
-const { words } = Astro.props;
+const {
+  words,
+  stroke = "rgb(255 255 255 / 0.3)",
+  ink,
+  fontFamily,
+  fontWeight = 500,
+  fontScale,
+} = Astro.props;
+
+// The word's look is per-project (a display face for Gelato, the site sans for
+// Clojure), so it's authored inline from the props rather than baked into a class.
+// A given fontScale sizes the word off the ring diameter (--ring-d), overriding
+// the text-p-sm class below.
+const labelStyle = [
+  ink && `color:${ink}`,
+  fontFamily && `font-family:${fontFamily}`,
+  `font-weight:${fontWeight}`,
+  fontScale && `font-size:calc(var(--ring-d) * ${fontScale})`,
+]
+  .filter(Boolean)
+  .join(";");
 ---
 
 <section class="concept-circles py-section">
@@ -38,8 +75,11 @@ const { words } = Astro.props;
   >
     {
       words.map((word) => (
-        <div class="ring flex aspect-square shrink-0 items-center justify-center rounded-full border border-white/30">
-          <span class="text-p-sm font-medium tracking-wider text-text uppercase">
+        <div
+          class="ring flex aspect-square shrink-0 items-center justify-center rounded-full border"
+          style={`border-color:${stroke}`}
+        >
+          <span class="text-p-sm tracking-wider uppercase" style={labelStyle}>
             {word}
           </span>
         </div>

@@ -1,0 +1,128 @@
+---
+/**
+ * PhotoCollage — a gallery of campaign pieces on a warm cream field, ruled off by
+ * brown horizontal lines top, middle and bottom.
+ *
+ * The images sit in the standard content container; only the RULES run full-bleed
+ * to the viewport edges (the middle one breaks out of the container). The rules sit
+ * flush against the image rows — no vertical gap.
+ *
+ * The center column is the accent: its piece takes 70% of the cell at full height,
+ * pinned LEFT on the top row and RIGHT on the bottom row, so the remaining 30% reads
+ * as cream negative space that flips side between the rows. Photos fill their cells
+ * and meet the rules. Columns are flush (no gaps) so the only negative space is that
+ * deliberate 30%. Below desktop it is a plain 2-column grid.
+ */
+import { getImage } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Item {
+  src: ImageMetadata;
+  alt: string;
+}
+interface Props {
+  /** Six pieces, row-major: top row (3) then bottom row (3). */
+  images: Item[];
+}
+const { images } = Astro.props;
+
+const optimized = await Promise.all(
+  images.map(async (im) => {
+    const image = await getImage({ src: im.src, width: 900, format: "webp" });
+    return { src: image.src, alt: im.alt };
+  }),
+);
+
+// Center piece: SAME size as every other card. Its column is 4fr while the sides
+// are 3fr, so at 3/4 width (= 3fr) the card matches the others and the leftover 1fr
+// becomes the gap it's pinned away from.
+const centerBase =
+  "block w-full desktop:aspect-[4/5] desktop:w-3/4 desktop:object-cover";
+---
+
+<section class="photo-collage" aria-label="Piezas gráficas">
+  <div class="collage-line" aria-hidden="true"></div>
+
+  <div class="mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12">
+    <div class="collage-grid">
+      {
+        optimized.slice(0, 3).map((im, j) => (
+          <img
+            src={im.src}
+            alt={im.alt}
+            loading="lazy"
+            class:list={[
+              j === 1
+                ? `${centerBase} collage-center-l desktop:justify-self-start`
+                : "block w-full desktop:aspect-[4/5] desktop:object-cover",
+            ]}
+          />
+        ))
+      }
+
+      {/* Middle rule — full-bleed, flush to the rows; only on the 3×2 grid. */}
+      <div
+        class="collage-line collage-line-center hidden desktop:block"
+        aria-hidden="true"
+      >
+      </div>
+
+      {
+        optimized.slice(3).map((im, j) => (
+          <img
+            src={im.src}
+            alt={im.alt}
+            loading="lazy"
+            class:list={[
+              j === 1
+                ? `${centerBase} collage-center-r desktop:justify-self-end`
+                : "block w-full desktop:aspect-[4/5] desktop:object-cover",
+            ]}
+          />
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="collage-line" aria-hidden="true"></div>
+</section>
+
+<style>
+  .photo-collage {
+    background-color: #fffaee; /* Crema — the field the pieces float on */
+    overflow-x: clip; /* contain the full-bleed middle rule */
+  }
+
+  .collage-line {
+    height: 1px;
+    width: 100%;
+    background-color: #896451; /* Chocolate rule */
+  }
+
+  .collage-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+  @media (width >= 1024px) {
+    .collage-grid {
+      /* Sides 3fr, center 4fr — the center card is 3/4 of its column (= 3fr), so
+         all six cards are the same size and the spare 1fr is the pinned-away gap. */
+      grid-template-columns: 3fr 4fr 3fr;
+    }
+    /* Vertical rule on the 70% piece's cream-facing edge — completes the frame. */
+    .collage-center-l {
+      border-right: 1px solid #896451;
+    }
+    .collage-center-r {
+      border-left: 1px solid #896451;
+    }
+  }
+
+  /* Middle rule breaks out of the container to run edge-to-edge. */
+  .collage-line-center {
+    grid-column: 1 / -1;
+    width: 100vw;
+    margin-inline: calc(50% - 50vw);
+  }
+</style>

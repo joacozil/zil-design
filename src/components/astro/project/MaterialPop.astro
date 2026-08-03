@@ -1,0 +1,170 @@
+---
+/**
+ * MaterialPop — the "Material POP" section on the CHOCOLATE field (the page turns
+ * brown here, right under the wide-showcase's last rule). Light rules top and
+ * bottom frame a bento of the applied pieces:
+ *
+ *   [ mostrador ] [   ·    ] [ text ]
+ *   [ rollup    ] [ carrito (spans) ]
+ *
+ * The text block (label + copy) borrows Clojure's Work styling — small uppercase
+ * label, a max-w-md paragraph — recoloured light for the brown field. Below desktop
+ * the copy leads and the three pieces stack full width.
+ */
+import { getImage } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Img {
+  src: ImageMetadata;
+  alt: string;
+}
+interface Props {
+  label: string;
+  body: string;
+  mostrador: Img;
+  rollup: Img;
+  carrito: Img;
+}
+const { label, body, mostrador, rollup, carrito } = Astro.props;
+
+const opt = async (im: Img, w: number) => {
+  const image = await getImage({ src: im.src, width: w, format: "webp" });
+  return { src: image.src, alt: im.alt };
+};
+const mostradorO = await opt(mostrador, 700);
+const rollupO = await opt(rollup, 700);
+const carritoO = await opt(carrito, 1400);
+
+const container = "mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12";
+---
+
+<section class="material-pop" aria-label={label}>
+  {/* Top rule — desktop only; the padded brown edge is enough on mobile. */}
+  <div class="mp-line hidden desktop:block" aria-hidden="true"></div>
+
+  <div class={container}>
+    <div class="mp-grid">
+      <img
+        class="mp-mostrador aspect-[4/5] w-full object-cover"
+        src={mostradorO.src}
+        alt={mostradorO.alt}
+        loading="lazy"
+      />
+
+      <div class="mp-text flex flex-col justify-center">
+        <h3 class="mp-label text-p-sm font-bold tracking-wider uppercase">
+          {label}
+        </h3>
+        <p class="mp-body mt-4 max-w-md text-p text-pretty">{body}</p>
+      </div>
+
+      {/* Middle rule dividing the two rows — full-bleed. */}
+      <div class="mp-midline hidden desktop:block" aria-hidden="true"></div>
+
+      <img
+        class="mp-rollup aspect-[4/5] w-full object-cover"
+        src={rollupO.src}
+        alt={rollupO.alt}
+        loading="lazy"
+      />
+
+      {/* Wrapper so the wide image can't inflate the row — the col-1 pieces set the
+          row height and this fills it via an absolutely-positioned cover image. */}
+      <div class="mp-carrito relative overflow-hidden">
+        <img
+          class="absolute inset-0 h-full w-full object-cover"
+          src={carritoO.src}
+          alt={carritoO.alt}
+          loading="lazy"
+        />
+      </div>
+    </div>
+  </div>
+
+  <div class="mp-line" aria-hidden="true"></div>
+</section>
+
+<style>
+  .material-pop {
+    background-color: #896451; /* Chocolate field */
+    padding-block: clamp(3rem, 9vw, 7rem);
+    overflow-x: clip; /* contain the full-bleed middle rule */
+  }
+  .mp-line {
+    height: 1px;
+    width: 100%;
+    background-color: rgb(255 255 255 / 0.7); /* White rule on chocolate */
+  }
+  .mp-label {
+    color: #fffaee;
+  }
+  .mp-body {
+    color: rgb(255 250 238 / 0.72);
+  }
+
+  .mp-grid {
+    display: grid;
+    gap: 0; /* images sit flush */
+    /* Mobile: text spans the top, then mostrador | rollup in two columns.
+       Carrito is dropped below desktop. */
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "text      text"
+      "mostrador rollup";
+  }
+  .mp-mostrador {
+    grid-area: mostrador;
+  }
+  .mp-text {
+    grid-area: text;
+    /* Mobile: the grid gap is 0 (so mostrador|rollup sit flush), so the space
+       before the images comes from the text's own bottom margin. */
+    margin-bottom: clamp(1.5rem, 6vw, 2.5rem);
+  }
+  .mp-rollup {
+    grid-area: rollup;
+  }
+  .mp-carrito {
+    grid-area: carrito;
+    display: none; /* mobile: only mostrador + rollup */
+  }
+  .mp-midline {
+    grid-area: midline;
+  }
+  /* Mobile divider between the two columns. */
+  .mp-rollup {
+    border-left: 1px solid rgb(255 255 255 / 0.7);
+  }
+
+  @media (width >= 1024px) {
+    .mp-grid {
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-areas:
+        "mostrador .       text"
+        "midline   midline midline"
+        "rollup    carrito carrito";
+    }
+    .mp-carrito {
+      display: block;
+    }
+    /* Rollup returns to its own row on desktop — no divider on its left. */
+    .mp-rollup {
+      border-left: 0;
+    }
+    /* Desktop: text is centred against the mostrador row, no extra margin. */
+    .mp-text {
+      margin-bottom: 0;
+    }
+    /* Middle rule dividing the two rows — breaks out to full width. */
+    .mp-midline {
+      height: 1px;
+      width: 100vw;
+      margin-inline: calc(50% - 50vw);
+      background-color: rgb(255 255 255 / 0.7);
+    }
+    /* Vertical rule dividing the second row (rollup | carrito). */
+    .mp-carrito {
+      border-left: 1px solid rgb(255 255 255 / 0.7);
+    }
+  }
+</style>
