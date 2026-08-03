@@ -1,0 +1,125 @@
+---
+/**
+ * BackToTop — a floating "return to top" control for project pages. It sits inside
+ * the themed `<main>` wrapper, so it inherits that project's scoped colour tokens
+ * (accent fill, surface-coloured arrow) and reads as branded on every project.
+ *
+ * It stays hidden until the reader has scrolled the hero fully out of view, then
+ * fades in bottom-right. An IntersectionObserver on the hero (the first child of
+ * <main>) drives visibility; clicking scrolls to the top through Lenis when it owns
+ * the scroll, else natively (mirroring the anchor handling in Layout.astro).
+ */
+---
+
+<button
+  class="back-to-top"
+  type="button"
+  aria-label="Volver arriba"
+  data-back-to-top
+>
+  <svg
+    class="back-to-top__icon"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M12 19V5" />
+    <path d="M5 12l7-7 7 7" />
+  </svg>
+</button>
+
+<style>
+  .back-to-top {
+    position: fixed;
+    right: clamp(1rem, 3vw, 2rem);
+    bottom: clamp(1rem, 3vw, 2rem);
+    z-index: 40;
+
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 9999px;
+
+    background-color: var(--color-accent);
+    color: var(--color-surface);
+    box-shadow: 0 6px 20px rgb(0 0 0 / 0.18);
+    cursor: pointer;
+
+    /* Hidden until the hero scrolls away. Reveal is opacity + a small rise; hover
+       feedback is colour/shadow only, so the two never fight over `transform`. */
+    opacity: 0;
+    transform: translateY(0.75rem);
+    pointer-events: none;
+    transition:
+      opacity 0.3s ease,
+      transform 0.3s ease,
+      box-shadow 0.2s ease,
+      filter 0.2s ease;
+  }
+
+  .back-to-top.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .back-to-top:hover {
+    filter: brightness(0.93);
+    box-shadow: 0 8px 26px rgb(0 0 0 / 0.26);
+  }
+  .back-to-top:active {
+    filter: brightness(0.88);
+  }
+  .back-to-top:focus-visible {
+    outline: 2px solid var(--color-surface);
+    outline-offset: 2px;
+  }
+
+  .back-to-top__icon {
+    width: 1.375rem;
+    height: 1.375rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .back-to-top {
+      transition: opacity 0.2s ease;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>("[data-back-to-top]");
+  if (btn) {
+    const hero = btn.closest("main")?.firstElementChild;
+
+    // Show once the hero is fully out of view; fall back to a viewport-height
+    // threshold if there's no hero to observe.
+    if (hero) {
+      const io = new IntersectionObserver(
+        ([entry]) => btn.classList.toggle("is-visible", !entry.isIntersecting),
+        { threshold: 0 },
+      );
+      io.observe(hero);
+    } else {
+      const onScroll = () =>
+        btn.classList.toggle(
+          "is-visible",
+          window.scrollY > window.innerHeight * 0.85,
+        );
+      window.addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+    }
+
+    btn.addEventListener("click", () => {
+      const lenis = window.lenis;
+      if (lenis) lenis.scrollTo(0);
+      else window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }
+</script>

@@ -4,6 +4,7 @@ import Header from "../../components/astro/Header.astro";
 import Footer from "../../components/astro/Footer.astro";
 import ProjectEnd from "../../components/astro/project/ProjectEnd.astro";
 import ProjectEndArt from "../../components/astro/project/ProjectEndArt.astro";
+import BackToTop from "../../components/astro/project/BackToTop.astro";
 import clojureEndImg from "../../assets/clojure/clojure-end.svg";
 import ProjectHero from "../../components/astro/project/ProjectHero.astro";
 import ProjectBrief from "../../components/astro/project/ProjectBrief.astro";
@@ -201,6 +202,7 @@ const palette = [
     />
     <Work rows={banner} ariaLabel="Banner" />
     <ProjectEndArt art={clojureEndImg} />
+    <BackToTop />
   </main>
   <ProjectEnd current="clojure" />
   <Footer />
