@@ -1,7 +1,13 @@
 ---
 import { NAV_LINKS } from "../../config/nav";
 import Button from "./Button.astro";
-import logo from "../../assets/logo.svg";
+// The monochrome cut of the wordmark, inlined as a component so its fill comes
+// from `currentColor` and the colour is set by the token class below. Same
+// violet as the Header today, but this one sits on `primary-dark` rather than
+// `surface`, so it is the one likely to be retuned: recolouring is a one-word
+// change to that class instead of a new SVG file per shade, which is what the
+// colour rule in CLAUDE.md asks for.
+import Logo from "../../assets/img/zil-design-logo-mono.svg";
 
 // Same path-awareness as the Header, deriving the prefix the same way: the
 // section anchors only resolve on the homepage, so off-home (project pages) the
@@ -23,15 +29,12 @@ const prefix = isHome ? "" : `${base}/`;
     >
       {/* Left — brand block */}
       <div class="max-w-xs">
-        <img
-          src={logo.src}
-          alt="Zil Design"
-          width="50"
-          height="28"
-          class="h-10 w-auto"
+        <Logo
+          class="h-10 w-auto text-primary"
+          role="img"
+          aria-label="Zil Design"
         />
-        <p class="mt-5 text-h4 font-medium">Zil Design</p>
-        <p class="mt-3 text-p-sm text-text-inverse/70">
+        <p class="mt-5 text-p-sm text-text-inverse/70">
           Hablemos, contáctanos mediante nuestro formulario de contacto o
           info@zil.global
         </p>
