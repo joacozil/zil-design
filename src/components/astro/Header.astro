@@ -1,7 +1,7 @@
 ---
 import { NAV_LINKS } from "../../config/nav";
 import MobileMenu from "../react/MobileMenu.tsx";
-import logo from "../../assets/logo.svg";
+import logo from "../../assets/img/zil-design-logo.svg";
 ---
 
 {
@@ -21,13 +21,18 @@ import logo from "../../assets/logo.svg";
     <div
       class="flex w-full items-center justify-between gap-6 border border-border/60 bg-surface px-6 py-2 shadow-lg tablet:px-8 desktop:py-4"
     >
-      {/* Left: logo (recolored Zil Design violet) */}
+      {
+        /* Left: logo — the full Zil Design wordmark (recolored violet). The
+        width/height are the SVG's own intrinsic dimensions, so the browser
+        reserves the right box before the file loads; `h-6 w-auto` is what
+        actually sizes it. Keep them in sync with the asset's viewBox. */
+      }
       <a href="#hero" class="shrink-0" aria-label="Zil Design — inicio">
         <img
           src={logo.src}
           alt="Zil Design"
-          width="50"
-          height="28"
+          width="394"
+          height="81"
           class="h-6 w-auto"
         />
       </a>
