@@ -21,10 +21,20 @@ const PUBLIC_URL = "https://zil.global/design/";
 const OG_IMAGE = "https://zil.global/zil-banner.webp";
 
 // Vite rewrites url() inside CSS against `base`, but a literal href in markup is
-// just a string it never touches — so /fonts and /favicon would resolve against
+// just a string it never touches — so /favicon would resolve against
 // zil.global's root, where the Next app answers 404. Anything in public/ that is
 // referenced from HTML has to carry this prefix explicitly.
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+// The fonts live in src/assets, not public/, so Vite owns their URLs and emits
+// them base-correct in BOTH dev and build. They used to sit in public/ and be
+// referenced as `/fonts/...`, which Vite silently rewrote at build time but not
+// in dev — so `astro dev` served the whole site in the fallback system font
+// while production was fine. Importing with `?url` gives the same emitted URL
+// the @font-face rules resolve to, so these preloads actually get used instead
+// of fetching a second copy.
+import bookWoff2 from "../assets/fonts/CircularStd-Book.woff2?url";
+import boldWoff2 from "../assets/fonts/CircularStd-Bold.woff2?url";
 ---
 
 <!doctype html>
@@ -36,7 +46,10 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="canonical" href={PUBLIC_URL} />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1"
+    />
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
@@ -99,7 +112,8 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
           t.src = "https://connect.facebook.net/en_US/fbevents.js";
           document.head.appendChild(t);
         };
-        if (typeof requestIdleCallback === "function") requestIdleCallback(load);
+        if (typeof requestIdleCallback === "function")
+          requestIdleCallback(load);
         else setTimeout(load, 3500);
       })();
     </script>
@@ -139,7 +153,8 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
           s.src = "https://www.googletagmanager.com/gtag/js?id=G-BGMH92ZFKE";
           document.head.appendChild(s);
         };
-        if (typeof requestIdleCallback === "function") requestIdleCallback(load);
+        if (typeof requestIdleCallback === "function")
+          requestIdleCallback(load);
         else setTimeout(load, 3500);
       })();
     </script>
@@ -209,14 +224,14 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
     {/* Preload the two most-used weights to avoid a flash of fallback text. */}
     <link
       rel="preload"
-      href={`${base}/fonts/CircularStd-Book.woff2`}
+      href={bookWoff2}
       as="font"
       type="font/woff2"
       crossorigin
     />
     <link
       rel="preload"
-      href={`${base}/fonts/CircularStd-Bold.woff2`}
+      href={boldWoff2}
       as="font"
       type="font/woff2"
       crossorigin

@@ -241,8 +241,8 @@ html.reveal-armed [data-reveal]:not([data-revealed]) {
 @font-face {
   font-family: "Circular";
   src:
-    url("/fonts/CircularStd-Book.woff2") format("woff2"),
-    url("/fonts/CircularStd-Book.woff") format("woff");
+    url("../assets/fonts/CircularStd-Book.woff2") format("woff2"),
+    url("../assets/fonts/CircularStd-Book.woff") format("woff");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -251,8 +251,8 @@ html.reveal-armed [data-reveal]:not([data-revealed]) {
 @font-face {
   font-family: "Circular";
   src:
-    url("/fonts/CircularStd-Medium.woff2") format("woff2"),
-    url("/fonts/CircularStd-Medium.woff") format("woff");
+    url("../assets/fonts/CircularStd-Medium.woff2") format("woff2"),
+    url("../assets/fonts/CircularStd-Medium.woff") format("woff");
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -261,8 +261,8 @@ html.reveal-armed [data-reveal]:not([data-revealed]) {
 @font-face {
   font-family: "Circular";
   src:
-    url("/fonts/CircularStd-Bold.woff2") format("woff2"),
-    url("/fonts/CircularStd-Bold.woff") format("woff");
+    url("../assets/fonts/CircularStd-Bold.woff2") format("woff2"),
+    url("../assets/fonts/CircularStd-Bold.woff") format("woff");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -271,8 +271,8 @@ html.reveal-armed [data-reveal]:not([data-revealed]) {
 @font-face {
   font-family: "Circular";
   src:
-    url("/fonts/CircularStd-Black.woff2") format("woff2"),
-    url("/fonts/CircularStd-Black.woff") format("woff");
+    url("../assets/fonts/CircularStd-Black.woff2") format("woff2"),
+    url("../assets/fonts/CircularStd-Black.woff") format("woff");
   font-weight: 900;
   font-style: normal;
   font-display: swap;
