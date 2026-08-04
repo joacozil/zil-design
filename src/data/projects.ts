@@ -24,7 +24,7 @@ export interface ProjectEntry {
 // TODO: confirm final categories from Figma.
 export const projects: ProjectEntry[] = [
   { img: clojure, name: "Clojure", category: "Branding", slug: "clojure" },
-  { img: quantia, name: "Quantia", category: "Producto Digital" },
+  { img: quantia, name: "Quantia", category: "Producto Digital", slug: "quantia" },
   { img: mmg, name: "MMG Bank", category: "Institucional" },
   { img: advantia, name: "Advantia", category: "Institucional" },
   { img: netValue, name: "Net Value", category: "Branding" },

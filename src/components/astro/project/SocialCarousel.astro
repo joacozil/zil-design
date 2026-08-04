@@ -21,8 +21,26 @@ interface Props {
   label: string;
   body: string;
   posts: Post[];
+  /** Section field colour. Default: Gelato's cream. */
+  fieldBg?: string;
+  /** Full-bleed rule opening the field. Pass `false` for no rule. Default: Gelato's brown. */
+  rule?: string | false;
+  /** Avatar dot in the card's top bar. Default: Gelato's brown. */
+  avatarColor?: string;
+  /** Like / comment / share / save icons. Default: Gelato's muted brown. */
+  iconColor?: string;
 }
-const { label, body, posts } = Astro.props;
+const {
+  label,
+  body,
+  posts,
+  // Defaults ARE Gelato's values, so that page renders unchanged without passing
+  // anything; a project with its own palette overrides them.
+  fieldBg = "#fffaee",
+  rule = "#896451",
+  avatarColor = "#896451",
+  iconColor = "#a98d7d",
+} = Astro.props;
 
 const optimized = await Promise.all(
   posts.map(async (p) => {
@@ -34,9 +52,17 @@ const optimized = await Promise.all(
 const container = "mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12";
 ---
 
-<section class="social-cream" aria-label="Redes sociales" data-social>
-  {/* Full-width rule under the isologos collage — the cream field starts here. */}
-  <div class="social-line" aria-hidden="true"></div>
+<section
+  class="social-cream"
+  aria-label="Redes sociales"
+  data-social
+  style={`background-color:${fieldBg}`}
+>
+  {/* Full-width rule under the isologos collage — the field starts here. Projects
+      whose section needs no opening rule pass `rule={false}`. */}
+  {rule && (
+    <div class="social-line" style={`background-color:${rule}`} aria-hidden="true" />
+  )}
 
   <div class="py-section">
     {/* Header */}
@@ -58,7 +84,7 @@ const container = "mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12";
               <div class="flex items-center px-3 py-2.5">
                 <span
                   class="block h-8 w-8 rounded-full"
-                  style="background-color:#896451"
+                  style={`background-color:${avatarColor}`}
                   aria-hidden="true"
                 />
               </div>
@@ -72,7 +98,10 @@ const container = "mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12";
               />
 
               {/* Action row */}
-              <div class="flex items-center justify-between px-3 py-3 text-[#a98d7d]">
+              <div
+                class="flex items-center justify-between px-3 py-3"
+                style={`color:${iconColor}`}
+              >
                 <div class="flex items-center gap-4">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" />
@@ -117,15 +146,12 @@ const container = "mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12";
 </section>
 
 <style>
-  /* Cream field begins here (continues through the collages below), opened by a
-     full-bleed brown rule directly under the isologos collage above. */
-  .social-cream {
-    background-color: #fffaee;
-  }
+  /* The field colour and its opening rule are per-project (see `fieldBg` / `rule`),
+     so only the geometry lives here. On Gelato the cream field begins at this rule
+     and continues through the collages below. */
   .social-line {
     height: 1px;
     width: 100%;
-    background-color: #896451;
   }
 
   /* Carousel: a horizontal scroll-snap rail. Full-bleed so cards can peek past the

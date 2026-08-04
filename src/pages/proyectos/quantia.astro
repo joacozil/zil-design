@@ -1,0 +1,342 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/astro/Header.astro";
+import Footer from "../../components/astro/Footer.astro";
+import ProjectHero from "../../components/astro/project/ProjectHero.astro";
+import ProjectBrief from "../../components/astro/project/ProjectBrief.astro";
+import ConceptCircles from "../../components/astro/project/ConceptCircles.astro";
+import LogoGrid from "../../components/astro/project/LogoGrid.astro";
+import ColorPalette from "../../components/astro/project/ColorPalette.astro";
+import TypeSpecimen from "../../components/astro/project/TypeSpecimen.astro";
+import CampaignCollage from "../../components/astro/project/CampaignCollage.astro";
+import SocialCarousel from "../../components/astro/project/SocialCarousel.astro";
+import StoriesCarousel from "../../components/astro/project/StoriesCarousel.astro";
+import CarouselShowcase from "../../components/astro/project/CarouselShowcase.astro";
+import ProjectEnd from "../../components/astro/project/ProjectEnd.astro";
+import BackToTop from "../../components/astro/project/BackToTop.astro";
+import heroImage from "../../assets/quantia/quantia-hero.avif";
+import heroImageMobile from "../../assets/quantia/quantia-hero-mobile.avif";
+import heroLogo from "../../assets/quantia/quantia-logo-dot.svg";
+import gridImage from "../../assets/quantia/quantia-grid.svg";
+import quantiaFontImg from "../../assets/quantia/quantia-font.svg";
+import phoneImg from "../../assets/quantia/phone.avif";
+import tuDineroImg from "../../assets/quantia/tu-dinero.avif";
+import chicasImg from "../../assets/quantia/chicas.avif";
+import post1 from "../../assets/quantia/post1.avif";
+import post2 from "../../assets/quantia/post2.avif";
+import post3 from "../../assets/quantia/post3.avif";
+import historia1 from "../../assets/quantia/historia1.avif";
+import historia2 from "../../assets/quantia/historia2.avif";
+import historia3 from "../../assets/quantia/historia3.avif";
+import carruselVerde1 from "../../assets/quantia/carrusel-verde-1.avif";
+import carruselVerde2 from "../../assets/quantia/carrusel-verde-2.avif";
+import carruselVerde3 from "../../assets/quantia/carrusel-verde-3.avif";
+import carruselBlanco1 from "../../assets/quantia/carrusel-blanco-1.avif";
+import carruselBlanco2 from "../../assets/quantia/carrusel-blanco-2.avif";
+import carruselBlanco3 from "../../assets/quantia/carrusel-blanco-3.avif";
+import carruselBlanco4 from "../../assets/quantia/carrusel-blanco-4.avif";
+import carruselBlanco5 from "../../assets/quantia/carrusel-blanco-5.avif";
+import heartImg from "../../assets/quantia/heart.avif";
+import moneyImg from "../../assets/quantia/money.avif";
+import likeImg from "../../assets/quantia/like.avif";
+// Ubuntu is Quantia's brand face. Self-hosted (Google Fonts' `latin` subset,
+// which covers Spanish in full — Ñ is U+00D1) rather than loaded from
+// fonts.gstatic.com, so the page keeps its own asset graph and costs no
+// third-party connection. Only the three weights the design asks for.
+import ubuntuRegular from "../../assets/quantia/ubuntu/Ubuntu-Regular.woff2?url";
+import ubuntuMedium from "../../assets/quantia/ubuntu/Ubuntu-Medium.woff2?url";
+import ubuntuBold from "../../assets/quantia/ubuntu/Ubuntu-Bold.woff2?url";
+
+// @font-face can't read CSS vars for its src, so the resolved URLs are
+// interpolated and injected globally (same approach as the Gelato page).
+const fontFaceCss = `
+@font-face{font-family:"Ubuntu";src:url("${ubuntuRegular}") format("woff2");font-weight:400;font-style:normal;font-display:swap;}
+@font-face{font-family:"Ubuntu";src:url("${ubuntuMedium}") format("woff2");font-weight:500;font-style:normal;font-display:swap;}
+@font-face{font-family:"Ubuntu";src:url("${ubuntuBold}") format("woff2");font-weight:700;font-style:normal;font-display:swap;}
+`;
+
+// Case-study content lives with the page (per-project composition).
+const meta = [
+  { label: "Cliente", value: "Quantia" },
+  { label: "Servicio", value: "Social Media" },
+];
+
+const brief = [
+  {
+    title: "Proyecto",
+    body: "Quantia Hub es una plataforma financiera panameña que facilita el acceso al ahorro, las inversiones y la planificación financiera. Con el respaldo de más de 25 años de experiencia, combina educación financiera y herramientas digitales para ayudar a las personas a construir un futuro económico más sólido de forma simple, segura y accesible.",
+  },
+  {
+    title: "Desafío",
+    body: "Quantia Hub necesitaba una estrategia de contenidos para redes sociales que impulsara el conocimiento de la plataforma y reforzara su presencia digital. El reto era comunicar conceptos financieros de manera simple y mantener una identidad visual consistente en cada formato y canal.",
+  },
+  {
+    title: "Propuesta",
+    body: "Desde Zil Design desarrollamos un sistema de contenidos para redes sociales compuesto por posteos, historias y carruseles informativos. La propuesta permitió comunicar las funcionalidades y el valor de Quantia Hub de forma clara, consistente y adaptable a los distintos formatos de Instagram.",
+  },
+];
+
+const concepts = ["Educar", "Crecer", "Apoyar", "Cuidar", "Acompañar"];
+
+// Brand palette — single full-bleed swatches (no tint pairs), as in the Gelato
+// page. RGB is derived from the hex in the component, so a label can never drift
+// from its swatch. NOTE: the source mock lists Verde claro as R237/G237/B237,
+// which is #EDEDED, not #90D5AC — a stray value from another palette. Hex is
+// treated as source of truth, so the component renders the correct R144/G213/B172.
+// `dark` marks the three fields deep enough to carry white text.
+const palette = [
+  { name: "Verde", main: { hex: "#00AC69", dark: true }, weight: 1.55 },
+  { name: "Verde oscuro", main: { hex: "#124734", dark: true }, weight: 1.4 },
+  { name: "Violeta", main: { hex: "#644B92", dark: true }, weight: 1.4 },
+  { name: "Violeta claro", main: { hex: "#BEA8DD" }, weight: 1.05 },
+  { name: "Verde claro", main: { hex: "#90D5AC" }, weight: 1.2 },
+  { name: "Amarillo", main: { hex: "#DAE343" }, weight: 1.1 },
+  { name: "Gris", main: { hex: "#D5D1C6" }, weight: 1 },
+];
+---
+
+<style is:global set:html={fontFaceCss}></style>
+
+<Layout
+  title="Quantia — Zil Design"
+  description="Caso de estudio: producto digital y comunicación para Quantia — decisiones financieras con dirección clara."
+>
+  <Header />
+  <main class="project-quantia">
+    <ProjectHero
+      image={heroImage}
+      mobileImage={heroImageMobile}
+      imageAlt="Publicaciones de Quantia mostradas en dos teléfonos sobre un fondo lavanda"
+      logo={heroLogo}
+      title="Quantia — producto digital"
+    />
+    <ProjectBrief meta={meta} blocks={brief} />
+    <ConceptCircles
+      words={concepts}
+      stroke="rgb(18 71 52 / 0.35)"
+      ink="#124734"
+      fontFamily={'"Ubuntu", sans-serif'}
+      fontWeight={400}
+    />
+    <LogoGrid
+      image={gridImage}
+      alt="Logotipo de Quantia dentro de su grilla de composición"
+    />
+    <ColorPalette colors={palette} />
+    {
+      /* `specimens` (rather than regularUrl/boldUrl) because this page already
+        registers Ubuntu for the concept rings — the default path would emit a
+        second @font-face for the same family, and hard-code format("opentype")
+        against files that are woff2. */
+    }
+    <TypeSpecimen
+      name="Ubuntu"
+      fontFamily="Ubuntu"
+      wordmarkImage={quantiaFontImg}
+      specimens={[
+        {
+          label: "Ubuntu - Regular",
+          fontFamily: '"Ubuntu", sans-serif',
+          fontWeight: 400,
+        },
+        {
+          label: "Ubuntu - Bold",
+          fontFamily: '"Ubuntu", sans-serif',
+          fontWeight: 700,
+        },
+      ]}
+    />
+    {
+      /* Panel/graphic fills are Violeta claro and Verde claro straight from the
+        palette above — the artwork ships cut out on transparency, so the blocks
+        are CSS rather than baked into the images. */
+    }
+    <CampaignCollage
+      panel={{
+        src: phoneImg,
+        alt: "App de Quantia Hub en un teléfono sostenido en la mano",
+      }}
+      panelBg="#BEA8DD"
+      graphic={{
+        src: tuDineroImg,
+        alt: "Pieza de campaña: tu dinero merece más que improvisar",
+      }}
+      graphicBg="#90D5AC"
+      photo={{
+        src: chicasImg,
+        alt: "Dos jóvenes conversando en unas escaleras, una de ellas con el teléfono en la mano",
+      }}
+    />
+    {
+      /* Card chrome recoloured to the palette: Verde for the avatar dot, Verde
+        claro for the action icons (the lighter tone of the same green, mirroring
+        how Gelato tints its brown). No opening rule and a white field — unlike
+        Gelato, this section doesn't start a coloured band. */
+    }
+    <SocialCarousel
+      label="Redes Sociales"
+      body="Desarrollamos un sistema de contenido para redes sociales orientado a comunicar con claridad, fortalecer la identidad de la marca y mantener una presencia consistente. Cada pieza fue diseñada para captar la atención, transmitir el mensaje de forma inmediata y generar una comunicación más efectiva."
+      fieldBg="var(--color-surface)"
+      rule={false}
+      avatarColor="#00AC69"
+      iconColor="#90D5AC"
+      posts={[
+        {
+          src: post1,
+          alt: "Publicación: por qué construir tu estrategia financiera con Quantia Hub",
+        },
+        {
+          src: post2,
+          alt: "Publicación: todo lo que necesitas para organizar tu dinero, desde una sola app",
+        },
+        {
+          src: post3,
+          alt: "Publicación: Quantia Hub se suma a la fiesta del fútbol",
+        },
+      ]}
+    />
+    {
+      /* No heading: the mockup shows the stories continuing straight on from the
+        posts above. Same green pairing as the posts — Verde claro on the reply
+        bar, and a white avatar since it sits ON the artwork rather than on a
+        white card. */
+    }
+    <StoriesCarousel
+      iconColor="#90D5AC"
+      stories={[
+        {
+          src: historia1,
+          alt: "Historia: hoy Panamá sale a la cancha, desde Quantia Hub acompañamos a nuestra selección",
+        },
+        {
+          src: historia2,
+          alt: "Historia: vamos Panamá, desde Quantia Hub apoyamos a los nuestros",
+        },
+        {
+          src: historia3,
+          alt: "Historia: hoy Panamá vuelve a la cancha, desde Quantia Hub seguimos alentando a nuestra selección",
+        },
+      ]}
+    />
+    {
+      /* Violeta claro field with Violeta chrome — the palette's purple pair.
+
+        ORNAMENT PLACEMENT — tweak the three values on each line below.
+        `top` / `left` are % of the open area between the page container's left
+        edge and the phone, so `left: "0%"` is flush with the container and
+        `100%` is the phone's edge.
+
+        `width` is any CSS length, and height follows the artwork's own ratio.
+        It's a clamp rather than a % because that area is `34vw` wide: a straight
+        percentage shrank the ornaments in lockstep with the viewport (~30%
+        smaller by 1024px). The clamp's MAX is what you see on a wide screen —
+        raise that to make them bigger overall — and the MIN is the floor they
+        stop shrinking at, so they now lose only ~10–20% down to 1024px.
+        Heart's floor is the one real constraint: the area narrows faster than
+        the ornaments do, and at 1024px a floor above ~9.5rem runs it into money.
+        Current layout is a loose triangle: heart top-left, like tucked below it,
+        money out to the right. */
+    }
+    <CarouselShowcase
+      icons={[
+        { src: heartImg, alt: "", top: "4%", left: "2%", width: "clamp(11rem, 16.7vw, 15rem)" },
+        { src: moneyImg, alt: "", top: "34%", left: "56%", width: "clamp(4.4rem, 5.5vw, 4.9rem)" },
+        { src: likeImg, alt: "", top: "60%", left: "15%", width: "clamp(6rem, 7.6vw, 6.74rem)" },
+      ]}
+      carousels={[
+        {
+          indent: true,
+          slides: [
+            {
+              src: carruselVerde1,
+              alt: "Carrusel: ¿qué quieres lograr con tu dinero?",
+            },
+            {
+              src: carruselVerde2,
+              alt: "Carrusel: ¿cuál es tu punto de partida hoy? Quantia Hub te acompaña en cada etapa",
+            },
+            {
+              src: carruselVerde3,
+              alt: "Carrusel: construye tu bienestar financiero paso a paso",
+            },
+          ],
+        },
+        {
+          slides: [
+            {
+              src: carruselBlanco1,
+              alt: "Carrusel: todo lo que debes saber sobre AFP",
+            },
+            {
+              src: carruselBlanco2,
+              alt: "Carrusel: una AFP te ayuda a construir un fondo de jubilación a largo plazo",
+            },
+            {
+              src: carruselBlanco3,
+              alt: "Carrusel: cada aporte que realizas se acumula en tu fondo de jubilación",
+            },
+            {
+              src: carruselBlanco4,
+              alt: "Carrusel: en Quantia AFP puedes comenzar con aportes desde $30 mensuales",
+            },
+            {
+              src: carruselBlanco5,
+              alt: "Carrusel: construir tu jubilación también es construir tranquilidad para tu futuro",
+            },
+          ],
+        },
+      ]}
+    />
+    <BackToTop />
+  </main>
+  <ProjectEnd current="quantia" />
+  <Footer />
+</Layout>
+
+<style>
+  /* Scoped project theme — remaps ONLY the semantic colour aliases within this
+     page's subtree, so Quantia's branding can never leak into global scope.
+     Everything structural (type scale, spacing rhythm, breakpoints) stays on the
+     global tokens.
+
+     Quantia's palette comes from the brand assets: the lavender field the hero
+     artwork is built on (#bfa8de), the green of the logo's dot (#00ac69) and the
+     deep green of the wordmark (#124734). The case-study body is a light field
+     with deep-green text; the hero opts out with its own full-bleed artwork. */
+  .project-quantia {
+    --color-primary: #124734; /* Verde oscuro (brand palette) */
+    --color-accent: #00ac69; /* Verde — the logo's dot */
+
+    --color-surface: #ffffff; /* light case-study field */
+    --color-text: #124734; /* the brand green doubles as the ink */
+    --color-muted: #5f6b65; /* muted green-grey — secondary copy */
+    --color-border: #dfe5e2; /* cool hairline divider */
+
+    background-color: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  /* Hero lockup placement — Quantia only. The shared ProjectHero pins the lockup
+     high and hard against the gutter, which suits Clojure's and Gelato's artwork
+     but leaves Quantia's looking top-heavy: its phones sit centre-right and low,
+     so the default position strands the wordmark in the empty upper-left corner.
+     Nudging it down and inward balances it against the phones instead.
+     `:global` is required because the <h1> is rendered by the component, not by
+     this file — the `.project-quantia` parent still carries this page's scope
+     hash, so nothing here can leak to another project. */
+  .project-quantia :global(h1) {
+    top: max(9rem, 22%);
+  }
+
+  @media (width >= 1024px) {
+    .project-quantia :global(h1) {
+      top: max(8rem, 24%);
+      /* Indented FROM the container edge, never from the raw viewport: past
+         ~1400px the container stops growing and centres, so a percentage left
+         offset keeps sliding outward and the wordmark escapes the grid the
+         header and every section below it align to. `--gutter` is that content
+         edge, so this stays a fixed step inside it at any width. */
+      left: calc(var(--gutter) + 4rem);
+    }
+  }
+</style>
