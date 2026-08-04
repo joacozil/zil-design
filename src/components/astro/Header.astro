@@ -2,6 +2,19 @@
 import { NAV_LINKS } from "../../config/nav";
 import MobileMenu from "../react/MobileMenu.tsx";
 import logo from "../../assets/img/zil-design-logo.svg";
+
+// The nav targets are in-page section anchors (`#work`), which only resolve on
+// the homepage. On any other route (the project case-studies) they must point
+// back at the homepage so a click leaves the sub-page and lands on the matching
+// section. Deriving the prefix from the current path keeps one <Header> working
+// everywhere without a per-page flag.
+//
+// The prefix MUST carry the `/design` base (same derivation as Layout.astro): a
+// bare `/#work` resolves against zil.global's root, where the Next app answers
+// 404 — the exact failure the base comment in astro.config.mjs describes.
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const isHome = Astro.url.pathname.replace(/\/$/, "") === base;
+const prefix = isHome ? "" : `${base}/`;
 ---
 
 {
@@ -27,7 +40,11 @@ import logo from "../../assets/img/zil-design-logo.svg";
         reserves the right box before the file loads; `h-6 w-auto` is what
         actually sizes it. Keep them in sync with the asset's viewBox. */
       }
-      <a href="#hero" class="shrink-0" aria-label="Zil Design — inicio">
+      <a
+        href={`${prefix}#hero`}
+        class="shrink-0"
+        aria-label="Zil Design — inicio"
+      >
         <img
           src={logo.src}
           alt="Zil Design"
@@ -46,7 +63,7 @@ import logo from "../../assets/img/zil-design-logo.svg";
           {
             NAV_LINKS.map((link) => (
               <a
-                href={link.href}
+                href={`${prefix}${link.href}`}
                 class="text-p-sm font-medium text-text/70 transition-colors duration-200 hover:text-text"
               >
                 {link.label}
@@ -60,7 +77,7 @@ import logo from "../../assets/img/zil-design-logo.svg";
           viewport is one too many. The inline nav above still carries Contacto
           on desktop, where the drawer is hidden. */
         }
-        <MobileMenu client:load logoSrc={logo.src} />
+        <MobileMenu client:load logoSrc={logo.src} prefix={prefix} />
       </div>
     </div>
   </div>

@@ -2,29 +2,19 @@
 import { getImage } from "astro:assets";
 import Badge from "../components/astro/Badge.astro";
 import ProjectsSlider from "../components/react/ProjectsSlider.tsx";
-import mmg from "../assets/img/mmg.jpg";
-import quantia from "../assets/img/quantia.jpg";
-import clojure from "../assets/img/clojure.jpg";
-import gelato from "../assets/img/gelato.jpg";
-import advantia from "../assets/img/advantia.jpg";
-import netValue from "../assets/img/net-value.jpg";
-
-// TODO: confirm final categories from Figma.
-const projects = [
-  { img: clojure, name: "Clojure", category: "Branding" },
-  { img: quantia, name: "Quantia", category: "Producto Digital" },
-  { img: mmg, name: "MMG Bank", category: "Institucional" },
-  { img: advantia, name: "Advantia", category: "Institucional" },
-  { img: netValue, name: "Net Value", category: "Branding" },
-  { img: gelato, name: "Gelato", category: "Branding" },
-];
+import { projects, projectHref } from "../data/projects";
 
 // Optimize once at build time (some sources are >2MB); pass plain srcs to the
 // island. Keep the source (landscape) aspect; the 3:2 card crops via object-cover.
 const optimized = await Promise.all(
-  projects.map(async ({ img, name, category }) => {
+  projects.map(async ({ img, name, category, slug }) => {
     const image = await getImage({ src: img, width: 1200, format: "webp" });
-    return { src: image.src, name, category };
+    return {
+      src: image.src,
+      name,
+      category,
+      href: projectHref(slug),
+    };
   }),
 );
 ---

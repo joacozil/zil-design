@@ -1,0 +1,286 @@
+---
+/**
+ * StoriesCarousel — the "Historias" section: the project's Instagram Stories
+ * rendered as phone-story cards.
+ *
+ * Behaves exactly like `SocialCarousel` (swipeable scroll-snap rail with a dot
+ * indicator below desktop, static three-column grid at desktop); only the CHROME
+ * differs, which is why it's a separate component rather than a variant flag:
+ *
+ * · A story is full-bleed. The progress segments, avatar and ···/✕ are OVERLAID on
+ *   the artwork, not stacked above it — so they sit inside the media box.
+ * · The reply bar (input pill + heart + send) is a solid strip BELOW the media.
+ *
+ * Its hooks are named `data-stories-*` rather than reusing `data-social-*`: each
+ * component ships its own copy of the script, and shared attribute names would
+ * make every copy bind every carousel on the page (duplicate click handlers).
+ */
+import { getImage } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Story {
+  src: ImageMetadata;
+  alt: string;
+}
+interface Props {
+  /** Optional section heading. Omit for a section that continues the one above. */
+  label?: string;
+  /** Optional body copy under the heading. */
+  body?: string;
+  stories: Story[];
+  /** Section field colour. Default: the page surface. */
+  fieldBg?: string;
+  /** Reply-bar icons and the input pill's outline. */
+  iconColor?: string;
+  /** The story author's avatar dot, overlaid on the artwork. */
+  avatarColor?: string;
+}
+const {
+  label,
+  body,
+  stories,
+  fieldBg = "var(--color-surface)",
+  iconColor = "#90D5AC",
+  avatarColor = "#ffffff",
+} = Astro.props;
+
+const optimized = await Promise.all(
+  stories.map(async (s) => {
+    const image = await getImage({ src: s.src, width: 920, format: "webp" });
+    return { src: image.src, alt: s.alt };
+  }),
+);
+
+const container = "mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12";
+---
+
+<section
+  aria-label="Historias"
+  data-stories
+  style={`background-color:${fieldBg}`}
+>
+  <div class="py-section">
+    {
+      (label || body) && (
+        <div class={container}>
+          {label && (
+            <h3 class="text-p-sm font-bold tracking-wider text-text uppercase">
+              {label}
+            </h3>
+          )}
+          {body && (
+            <p class="mt-4 max-w-md text-p text-pretty text-muted">{body}</p>
+          )}
+        </div>
+      )
+    }
+
+    {/* Cards — scroll-snap carousel below desktop, 3-col grid at desktop. */}
+    <div class:list={[(label || body) && "mt-12 tablet:mt-16"]}>
+      <ul class="stories-track" data-stories-track>
+        {
+          optimized.map((story, storyIndex) => (
+            <li class="stories-item" data-stories-item>
+              <article class="overflow-hidden rounded-lg border border-border bg-white">
+                {/* Media — chrome is overlaid on the artwork. */}
+                <div class="stories-media">
+                  <img src={story.src} alt={story.alt} loading="lazy" />
+
+                  <div class="stories-chrome" aria-hidden="true">
+                    {/* Progress segments — one per story, filled up to and
+                        including this card's own position, so the three cards
+                        read left to right as progress through the set. */}
+                    <div class="flex gap-1">
+                      {optimized.map((_, i) => (
+                        <span
+                          class="stories-seg"
+                          style={i <= storyIndex ? "opacity:1" : "opacity:0.45"}
+                        />
+                      ))}
+                    </div>
+
+                    <div class="mt-2.5 flex items-center justify-between">
+                      <span
+                        class="block h-6 w-6 rounded-full"
+                        style={`background-color:${avatarColor}`}
+                      />
+                      <div class="flex items-center gap-2.5 text-white">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                          <circle cx="5" cy="12" r="1.7" />
+                          <circle cx="12" cy="12" r="1.7" />
+                          <circle cx="19" cy="12" r="1.7" />
+                        </svg>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                          <line x1="5" y1="5" x2="19" y2="19" />
+                          <line x1="19" y1="5" x2="5" y2="19" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Reply bar */}
+                <div
+                  class="flex items-center gap-3 px-3 py-3"
+                  style={`color:${iconColor}`}
+                >
+                  <span class="stories-input" aria-hidden="true"></span>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" />
+                  </svg>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="22" y1="2" x2="11" y2="13" />
+                    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                  </svg>
+                </div>
+              </article>
+            </li>
+          ))
+        }
+      </ul>
+
+      {/* Slide indicator — carousel only (hidden once it's a grid). */}
+      <div
+        class="mt-6 flex justify-center gap-2 desktop:hidden"
+        data-stories-dots
+        aria-hidden="true"
+      >
+        {
+          optimized.map((_, i) => (
+            <button
+              type="button"
+              class="stories-dot"
+              data-index={i}
+              aria-label={`Ir a la historia ${i + 1}`}
+            />
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Carousel: a horizontal scroll-snap rail, full-bleed so cards can peek past the
+     content edge, inset to the content gutter so the first card lines up. */
+  .stories-track {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-inline: var(--gutter);
+    scrollbar-width: none;
+  }
+  .stories-track::-webkit-scrollbar {
+    display: none;
+  }
+  .stories-item {
+    flex: 0 0 72%;
+    max-width: 20rem;
+    scroll-snap-align: center;
+  }
+
+  .stories-media {
+    position: relative;
+    aspect-ratio: 920 / 1664;
+  }
+  /* Absolute, so the artwork contributes no intrinsic height and the ratio above
+     is what sizes the box. */
+  .stories-media img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .stories-chrome {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    padding: 0.625rem 0.75rem 0;
+  }
+  .stories-seg {
+    flex: 1;
+    height: 2px;
+    border-radius: 9999px;
+    background-color: #ffffff;
+  }
+
+  /* Empty reply field — outlined in the icon colour it sits beside. */
+  .stories-input {
+    flex: 1;
+    height: 1.75rem;
+    border: 1px solid currentColor;
+    border-radius: 9999px;
+  }
+
+  .stories-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background-color: var(--color-border);
+    transition:
+      width 0.25s ease,
+      background-color 0.25s ease;
+    cursor: pointer;
+  }
+  .stories-dot.is-active {
+    width: 1.25rem;
+    background-color: var(--color-primary);
+  }
+
+  /* Desktop: the rail becomes a static three-column grid. */
+  @media (width >= 1024px) {
+    .stories-track {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      overflow: visible;
+      max-width: 88rem;
+      margin-inline: auto;
+      padding-inline: 3rem;
+    }
+    .stories-item {
+      flex: initial;
+      max-width: none;
+    }
+  }
+</style>
+
+<script>
+  // Progressive enhancement: light the dot for the centred card, and let dots
+  // scroll the rail. Scoped per carousel so multiple can coexist.
+  document.querySelectorAll<HTMLElement>("[data-stories]").forEach((root) => {
+    const track = root.querySelector<HTMLElement>("[data-stories-track]");
+    const dotsWrap = root.querySelector<HTMLElement>("[data-stories-dots]");
+    if (!track || !dotsWrap) return;
+    const items = [...track.querySelectorAll<HTMLElement>("[data-stories-item]")];
+    const dots = [...dotsWrap.querySelectorAll<HTMLButtonElement>(".stories-dot")];
+
+    const setActive = (i: number) =>
+      dots.forEach((d, di) => d.classList.toggle("is-active", di === i));
+    setActive(0);
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting && e.intersectionRatio >= 0.6) {
+            setActive(items.indexOf(e.target as HTMLElement));
+          }
+        });
+      },
+      { root: track, threshold: 0.6 },
+    );
+    items.forEach((p) => io.observe(p));
+
+    dots.forEach((dot, i) =>
+      dot.addEventListener("click", () =>
+        items[i].scrollIntoView({
+          behavior: "smooth",
+          inline: "center",
+          block: "nearest",
+        }),
+      ),
+    );
+  });
+</script>

@@ -6,6 +6,22 @@ export interface Project {
   src: string;
   name: string;
   category: string;
+  href?: string;
+}
+
+function CardWrapper({
+  href,
+  children,
+}: {
+  href?: string;
+  children: React.ReactNode;
+}) {
+  if (!href) return <>{children}</>;
+  return (
+    <a href={href} className="block">
+      {children}
+    </a>
+  );
 }
 
 function Arrow({
@@ -143,23 +159,25 @@ export default function ProjectsSlider({ projects }: { projects: Project[] }) {
               className={`min-w-0 shrink-0 grow-0 basis-[76%] tablet:basis-[48%] desktop:basis-[34%] ${i === 0 ? "ml-[var(--gutter)]" : ""} ${i === projects.length - 1 ? "mr-[var(--gutter)]" : ""}`}
             >
               <div data-reveal="rail">
-                <div className="aspect-[3/2] overflow-hidden bg-surface-inverse">
-                  <img
-                    src={project.src}
-                    alt={project.name}
-                    loading="lazy"
-                    className="h-full w-full object-cover"
-                    draggable={false}
-                  />
-                </div>
-                <div className="mt-4 flex items-baseline justify-between gap-4">
-                  <span className="text-p font-medium text-text">
-                    {project.name}
-                  </span>
-                  <span className="text-p-sm text-muted">
-                    {project.category}
-                  </span>
-                </div>
+                <CardWrapper href={project.href}>
+                  <div className="aspect-[3/2] overflow-hidden bg-surface-inverse">
+                    <img
+                      src={project.src}
+                      alt={project.name}
+                      loading="lazy"
+                      className="h-full w-full object-cover"
+                      draggable={false}
+                    />
+                  </div>
+                  <div className="mt-4 flex items-baseline justify-between gap-4">
+                    <span className="text-p font-medium text-text">
+                      {project.name}
+                    </span>
+                    <span className="text-p-sm text-muted">
+                      {project.category}
+                    </span>
+                  </div>
+                </CardWrapper>
               </div>
             </li>
           ))}

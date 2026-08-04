@@ -1,0 +1,109 @@
+---
+/**
+ * ColorPalette — the project's colours as full-bleed horizontal bands, shared by
+ * every project. Each row is a main colour (wide), OPTIONALLY paired with a lighter
+ * tint (narrow) side by side at EVERY breakpoint — including mobile, where the pair
+ * still reads as one row rather than stacking. Omit `variant` and the main fills the
+ * whole band (Gelato's palette is single swatches; Clojure's is main+tint pairs).
+ * The bands run edge-to-edge; only the LABELS are inset — to the content gutter on
+ * the left (var(--gutter), the design-system full-bleed rule) and a plain inset on
+ * the tint — so the swatches read as full width while the text still lines up with
+ * the rest of the page.
+ *
+ * Labels are absolutely positioned (pinned to the bottom, sized to content)
+ * rather than a `h-full flex justify-end` column: with only `min-height` on an
+ * auto-height flex row, a percentage `h-full` on the label never resolves to a
+ * definite value, so `justify-end` has no slack to push against and the label
+ * sits flush at the TOP with the gap collapsing below it instead of above.
+ * Absolute positioning sidesteps that — the label's own height is content-driven
+ * and whatever remains above becomes the colour gap.
+ *
+ * RGB is derived from the hex here, so a value can never drift from its swatch.
+ * `dark` marks a swatch whose field is dark enough to need light text; it's set
+ * per swatch (the brand's own choice) rather than computed, because the mock's
+ * pairing isn't a clean luminance function.
+ */
+interface Swatch {
+  hex: string;
+  /** true → the field is dark, so label text is white. */
+  dark?: boolean;
+}
+interface ColorRow {
+  name: string;
+  main: Swatch;
+  /** Optional lighter tint shown as a narrow column. Omit for a single band. */
+  variant?: Swatch;
+  /** Relative height weight — higher = taller band. Defaults to 1. */
+  weight?: number;
+}
+interface Props {
+  colors: ColorRow[];
+}
+const { colors } = Astro.props;
+
+const rgb = (hex: string) => {
+  const h = hex.replace("#", "");
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return `R${r}/G${g}/B${b}`;
+};
+const ink = (dark?: boolean) => (dark ? "#ffffff" : "#000000");
+---
+
+<section
+  aria-label="Paleta de color"
+  class="border-t border-border"
+>
+  {
+    colors.map((row) => {
+      const w = row.weight ?? 1;
+      const mobileH = Math.round(144 * w);
+      const tabletH = Math.round(176 * w);
+      return (
+      <div class="palette-row flex flex-row" style={`--h-mobile:${mobileH}px;--h-tablet:${tabletH}px`}>
+        {/* Main colour — wide; label aligned to the content gutter. */}
+        <div
+          class="relative flex-1"
+          style={`background-color:${row.main.hex}`}
+        >
+          <div
+            class="absolute inset-x-0 bottom-0 flex flex-col pr-3 pb-4 pl-[var(--gutter)] tablet:pr-6 tablet:pb-7"
+            style={`color:${ink(row.main.dark)}`}
+          >
+            <span class="text-p font-bold">{row.name}</span>
+            <span class="text-p-sm">{row.main.hex.toUpperCase()}</span>
+            <span class="text-p-sm hidden tablet:block">{rgb(row.main.hex)}</span>
+          </div>
+        </div>
+
+        {/* Tint variant — narrow. Omitted for single-swatch palettes. */}
+        {row.variant && (
+          <div
+            class="relative w-[38%] tablet:w-[22%]"
+            style={`background-color:${row.variant.hex}`}
+          >
+            <div
+              class="absolute inset-x-0 bottom-0 flex flex-col px-3 pb-5 tablet:px-8 tablet:pb-7"
+              style={`color:${ink(row.variant.dark)}`}
+            >
+              <span class="text-p-sm">{row.variant.hex.toUpperCase()}</span>
+              <span class="text-p-sm">{rgb(row.variant.hex)}</span>
+            </div>
+          </div>
+        )}
+      </div>
+    )})
+  }
+</section>
+
+<style>
+  .palette-row > div {
+    min-height: var(--h-mobile);
+  }
+  @media (width >= 640px) {
+    .palette-row > div {
+      min-height: var(--h-tablet);
+    }
+  }
+</style>

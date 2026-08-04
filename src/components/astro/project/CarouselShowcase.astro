@@ -1,0 +1,637 @@
+---
+/**
+ * CarouselShowcase — Instagram CARRUSELES shown running out of a phone.
+ *
+ * The effect: each carousel's rail starts exactly at the phone's screen edge and
+ * runs off to the right, past the phone's own frame and off the viewport, so the
+ * slides read as one continuous strip the phone is a window onto.
+ *
+ * How the clipping works — this is the whole trick, so don't "tidy" it:
+ * the rail is an absolutely-positioned scroll container whose LEFT edge sits on
+ * the phone's screen edge and whose width runs to 100vw. Because a scroll
+ * container clips to its own box, slides scrolled leftwards disappear exactly at
+ * the phone's screen edge (they go INTO the phone, never past its left frame),
+ * while the right side is clipped so far away it is off-screen and reads as
+ * "continues onward". A symmetric `overflow: hidden` on the phone would kill the
+ * bleed; no clipping at all would let slides slide out over the phone's left
+ * frame. One-sided clipping is what the design asks for, and this is how CSS
+ * gives it to you.
+ *
+ * The section carries `overflow-x: clip` because those 100vw rails otherwise
+ * extend past the viewport and give the whole PAGE a horizontal scrollbar.
+ *
+ * Slide width is driven off `--phone-w` rather than the rail's own width, since
+ * the rail is far wider than a slide — see `--slide-w`.
+ *
+ * The frame's height is a DEVICE proportion (9:19), not the height of what it
+ * shows — see `.cs-phone`. The post sits at the top and the screen continues
+ * below it.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Tile {
+  src: ImageMetadata;
+  alt: string;
+}
+interface Deco extends Tile {
+  /** Placement within the row's left-hand area (desktop only). */
+  top: string;
+  left: string;
+  width: string;
+}
+interface Carousel {
+  slides: Tile[];
+  /** Push the phone towards the middle of the row at desktop. */
+  indent?: boolean;
+}
+interface Props {
+  carousels: Carousel[];
+  /** Floating brand ornaments, placed left of the first phone. Desktop only. */
+  icons?: Deco[];
+  /** Section field colour. */
+  fieldBg?: string;
+  /** Phone frame / chrome colour. */
+  frameColor?: string;
+}
+const {
+  carousels,
+  icons = [],
+  fieldBg = "#BEA8DD",
+  frameColor = "#644B92",
+} = Astro.props;
+---
+
+<section
+  class="cs-section py-section"
+  aria-label="Carruseles"
+  style={`background-color:${fieldBg};--frame:${frameColor}`}
+>
+  {
+    carousels.map((carousel) => (
+      <div class:list={["cs-row", carousel.indent && "cs-row--indent"]} data-cs-row>
+        {/* Ornaments ride along with the first row only, inside a box that spans
+            exactly the open area between the container edge and the phone — so
+            their coordinates are relative to THAT, not to the full-bleed row. */}
+        {carousel.indent && icons.length > 0 && (
+          <div class="cs-deco-area" aria-hidden="true">
+            {icons.map((icon) => (
+              <Image
+                src={icon.src}
+                alt={icon.alt}
+                class="cs-deco"
+                style={`top:${icon.top};left:${icon.left};width:${icon.width}`}
+              />
+            ))}
+          </div>
+        )}
+
+        <div class="cs-phone">
+          <span class="cs-notch" aria-hidden="true" />
+          <span class="cs-divider" aria-hidden="true" />
+          <div class="cs-head" aria-hidden="true">
+            <span class="cs-avatar" />
+            <span class="cs-id">
+              <span class="cs-bar" />
+              <span class="cs-bar" />
+            </span>
+          </div>
+
+          {/* Screen — the rail is anchored to this box and overflows rightwards. */}
+          <div class="cs-media">
+            <ul class="cs-track" data-cs-track>
+              {carousel.slides.map((slide) => (
+                <li class="cs-slide" data-cs-slide>
+                  <Image
+                    src={slide.src}
+                    alt={slide.alt}
+                    sizes="(min-width: 640px) 20vw, 80vw"
+                    class="cs-slide-img"
+                  />
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Real buttons, not decoration: a touch device can swipe the rail, but
+              a desktop pointer has no horizontal wheel, so without these the
+              overflowing slides are unreachable on exactly the screens where the
+              strip overflows most. Not aria-hidden, since they're now controls. */}
+          <div class="cs-dots" data-cs-dots>
+            {carousel.slides.map((_, i) => (
+              <button
+                type="button"
+                class:list={["cs-dot", i === 0 && "is-active"]}
+                aria-label={`Ir a la diapositiva ${i + 1}`}
+              />
+            ))}
+          </div>
+
+          {/* Action row */}
+          <div class="cs-actions" aria-hidden="true">
+            <div class="cs-actions-left">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z" />
+              </svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13" />
+                <polygon points="22 2 15 22 11 13 2 9 22 2" />
+              </svg>
+            </div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+            </svg>
+          </div>
+
+          {/* The post's text, as bars: likes, three caption lines, the comments
+              link, the timestamp. This is what fills the height the device
+              proportion opens up — an empty lower half read as a hollow frame
+              rather than a screen. Same wireframe vocabulary as the notch and the
+              avatar, so nothing here invents copy the project didn't write. */}
+          <div class="cs-caption" aria-hidden="true">
+            <span class="cs-bar" />
+            <span class="cs-bar" />
+            <span class="cs-bar" />
+            <span class="cs-bar" />
+            <span class="cs-bar" />
+            <span class="cs-bar" />
+          </div>
+
+          {/* Anchors the bottom edge, and takes the remaining slack as the margin
+              above it — the screen space every phone leaves below a post. */}
+          <span class="cs-home" aria-hidden="true" />
+        </div>
+      </div>
+    ))
+  }
+</section>
+
+<style>
+  /* Without this the 100vw rails hang past the viewport and the whole page gets a
+     horizontal scrollbar. `clip` (not `hidden`) so no scroll container is made. */
+  .cs-section {
+    overflow-x: clip;
+  }
+
+  .cs-row {
+    /* Kept close to the 1px hairline the post and story cards use, so the three
+       mockups read as one family. The notch, avatar and icons stay solid — the
+       weight to lose was the outline's, not the chrome's. */
+    --frame-b: 1.5px;
+    --frame-p: 0.5rem;
+    --phone-w: 80vw;
+    --indent: 0px;
+    /* The rail is 100vw wide, so a slide can't be sized off it. It matches the
+       SCREEN, which spans the phone's inner edge to inner edge — the frame border
+       only, since `.cs-media` cancels the phone's padding with negative margins. */
+    --slide-w: calc(var(--phone-w) - 2 * var(--frame-b));
+    /* Distance from the viewport's left edge to the rail's left edge. Needed to
+       work out how much of the rail is actually on screen — see the rail's
+       padding-inline-end. */
+    --rail-left: calc(var(--gutter) + var(--indent) + var(--frame-b));
+
+    position: relative;
+    padding-inline-start: calc(var(--gutter) + var(--indent));
+  }
+  .cs-row + .cs-row {
+    margin-top: clamp(1.5rem, 4vw, 3rem);
+  }
+
+  /* The phone is proportioned like a DEVICE, not shrink-wrapped to the post it
+     happens to show. A 4:5 Instagram image plus this much chrome comes out at
+     0.60 w/h — far squatter than any iPhone (~0.46) — and the mockup read as a
+     flat card rather than a phone. The post therefore sits at the top of a 9:19
+     body and the screen carries on below it, closed by `.cs-home`.
+
+     `min-height`, not `aspect-ratio`: this frame may only ever GROW. The chrome
+     around the post is fixed in rem while the post scales with the phone, so at a
+     small enough width the content is taller than the device proportion — an
+     aspect-ratio box would keep its ratio and let the actions spill out of the
+     frame, where a min-height simply gives way. */
+  .cs-phone {
+    width: var(--phone-w);
+    min-height: calc(var(--phone-w) * 19 / 9);
+    display: flex;
+    flex-direction: column;
+    border: var(--frame-b) solid var(--frame);
+    border-radius: 2rem;
+    padding: var(--frame-p);
+    padding-top: 0.5rem;
+  }
+
+  .cs-notch {
+    display: block;
+    width: 34%;
+    height: 0.75rem;
+    margin: 0 auto 0.5rem;
+    border-radius: 9999px;
+    background-color: var(--frame);
+  }
+  .cs-divider {
+    display: block;
+    height: 1px;
+    margin: 0 calc(-1 * var(--frame-p));
+    background-color: var(--frame);
+  }
+  .cs-head {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.125rem;
+  }
+  .cs-avatar {
+    display: block;
+    flex: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 9999px;
+    background-color: var(--frame);
+  }
+
+  /* Wireframe text. One bar shape, sized and weighted per role below — a specific
+     bar is a specific piece of UI (a name, a caption line, a timestamp), and the
+     opacity is what says which is heading and which is body. */
+  .cs-bar {
+    display: block;
+    height: 0.4rem;
+    border-radius: 9999px;
+    background-color: var(--frame);
+    opacity: 0.35;
+  }
+
+  /* Account name over handle, beside the avatar. */
+  .cs-id {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    flex: 1;
+  }
+  .cs-id .cs-bar:first-child {
+    width: 42%;
+    opacity: 0.55;
+  }
+  .cs-id .cs-bar:last-child {
+    width: 26%;
+    height: 0.3rem;
+    opacity: 0.3;
+  }
+
+  /* Screen box. Full inner width; the rail is pinned to it. `flex: none` so the
+     column can never take height off the artwork to fit itself — the slack in the
+     phone belongs below the post, not squeezed out of it. */
+  .cs-media {
+    position: relative;
+    flex: none;
+    margin-inline: calc(-1 * var(--frame-p));
+    aspect-ratio: 696 / 870;
+  }
+  .cs-track {
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    /* Runs from the phone's screen edge to the VIEWPORT's right edge. Sizing it to
+       the visible region (rather than a flat 100vw, which would overhang by
+       `--rail-left`) is what keeps "is scrollable" in step with "is actually
+       clipped" — overhang means the browser withholds scrolling until content
+       exceeds the full 100vw, leaving the last slides visibly cut but unreachable.
+       The strip still reads as continuing offscreen, because content past this
+       edge is clipped exactly where the viewport ends. */
+    width: calc(100vw - var(--rail-left));
+    /* Trailing room of exactly (rail − one slide), which makes the maximum scroll
+       land at (n − 1) × slide. So scrolling to the end parks the LAST slide flush
+       in the phone's screen, framed the same as the first — instead of stopping
+       wherever the rail happens to run out and leaving it out past the frame.
+       Every slide snaps to this same edge on the way there (`scroll-snap-align:
+       start` below), so the rail always comes to rest aligned to the phone. */
+    padding-inline-end: max(
+      0px,
+      calc(100vw - var(--rail-left) - var(--slide-w))
+    );
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .cs-track::-webkit-scrollbar {
+    display: none;
+  }
+  .cs-slide {
+    flex: 0 0 var(--slide-w);
+    scroll-snap-align: start;
+    /* Trims a hairline off every slide edge (see the scale below). */
+    overflow: hidden;
+  }
+  .cs-slide-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* `carrusel-verde-1` was exported one pixel oversized (697x871 next to its
+       siblings' 696x870) with a pure-white right column and bottom row baked in,
+       which read as a white seam against the next slide. Re-cropping the asset
+       means re-encoding it, and the only encoder to hand degrades it to ~25dB
+       PSNR — plainly visible. Scaling a shade past the box and letting the slide
+       clip it costs nothing and removes the edge: 0.6% of a ~217px slide is under
+       a pixel on screen, but about 2 source pixels off each side. */
+    transform: scale(1.006);
+    /* Otherwise a mouse drag picks the image up as a ghost instead of panning. */
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  /* Drag affordance for pointers only — a touch device pans natively and should
+     never show a grab cursor. */
+  @media (hover: hover) and (pointer: fine) {
+    .cs-track {
+      cursor: grab;
+    }
+    .cs-track.is-dragging {
+      cursor: grabbing;
+    }
+  }
+  /* Snapping has to stand down mid-drag: it fights every scrollLeft we write and
+     the strip judders. It also stays down through `is-settling`, while the script
+     glides to the nearest slide — re-arming it any earlier is what made the
+     landing snap instantly instead of easing. `scroll-behavior: auto` keeps the
+     drag itself 1:1; the settle passes `behavior: "smooth"` explicitly, which
+     takes precedence over it. */
+  .cs-track.is-dragging,
+  .cs-track.is-settling {
+    scroll-snap-type: none;
+    scroll-behavior: auto;
+  }
+
+  .cs-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.3rem;
+    padding: 0.5rem 0 0.125rem;
+  }
+  .cs-dot {
+    appearance: none;
+    border: 0;
+    padding: 0;
+    width: 0.3rem;
+    height: 0.3rem;
+    border-radius: 9999px;
+    background-color: var(--frame);
+    opacity: 0.35;
+    transition: opacity 0.2s ease;
+    cursor: pointer;
+    position: relative;
+  }
+  /* The dot is 5px of ink — far too small to hit. This enlarges the CLICK target
+     without touching the layout box, so the design's dot size and spacing are
+     unchanged. Horizontal growth is capped at half the gap so neighbouring
+     targets meet but never overlap (which would make clicks ambiguous). */
+  .cs-dot::after {
+    content: "";
+    position: absolute;
+    inset: -0.5rem -0.15rem;
+  }
+  .cs-dot:hover {
+    opacity: 0.65;
+  }
+  .cs-dot:focus-visible {
+    outline: 2px solid var(--frame);
+    outline-offset: 3px;
+  }
+  .cs-dot.is-active {
+    opacity: 1;
+  }
+
+  .cs-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.125rem 0.25rem;
+    color: var(--frame);
+  }
+  .cs-actions-left {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  /* Post text. Widths are ragged on purpose: three equal caption lines read as a
+     placeholder, three uneven ones read as a paragraph. */
+  .cs-caption {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    padding: 0.4rem 0.125rem 0;
+  }
+  /* likes */
+  .cs-caption .cs-bar:nth-child(1) {
+    width: 34%;
+    height: 0.45rem;
+    opacity: 0.5;
+  }
+  /* caption */
+  .cs-caption .cs-bar:nth-child(2) {
+    width: 96%;
+  }
+  .cs-caption .cs-bar:nth-child(3) {
+    width: 87%;
+  }
+  .cs-caption .cs-bar:nth-child(4) {
+    width: 54%;
+  }
+  /* comments link */
+  .cs-caption .cs-bar:nth-child(5) {
+    width: 42%;
+    height: 0.35rem;
+    opacity: 0.28;
+  }
+  /* timestamp */
+  .cs-caption .cs-bar:nth-child(6) {
+    width: 24%;
+    height: 0.3rem;
+    opacity: 0.24;
+  }
+
+  /* Home indicator. `margin-top: auto` is what parks it at the bottom of the
+     frame and hands all the leftover height to the gap above it — the open screen
+     below the post. Lighter than the notch: it sits at the edge of the device
+     where a heavy bar would out-shout the post. */
+  .cs-home {
+    display: block;
+    width: 30%;
+    height: 0.25rem;
+    border-radius: 9999px;
+    background-color: var(--frame);
+    opacity: 0.55;
+    margin: auto auto 0.25rem;
+  }
+  .cs-actions svg {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+
+  /* Ornaments — decorative, so they're desktop-only rather than crowding a phone
+     that already fills the small screen. */
+  .cs-deco-area {
+    display: none;
+  }
+
+  @media (width >= 640px) {
+    .cs-row {
+      --phone-w: clamp(14rem, 22vw, 18rem);
+      --frame-b: 2px;
+    }
+    .cs-phone {
+      border-radius: 2.25rem;
+    }
+  }
+
+
+  @media (width >= 1024px) {
+    /* A LENGTH, not a percentage: `--indent` also feeds `--rail-left`, which is
+       consumed inside the rail — where a percentage would resolve against the
+       rail's own 100vw rather than the row. */
+    .cs-row--indent {
+      --indent: 34vw;
+    }
+    /* Spans the container's left edge to the phone's — so an ornament at `left: 0`
+       sits on the same grid line as every other section on the page, and the
+       percentages below distribute across the open area rather than the viewport. */
+    .cs-deco-area {
+      display: block;
+      position: absolute;
+      inset-block: 0;
+      left: var(--gutter);
+      width: var(--indent);
+    }
+    .cs-deco {
+      position: absolute;
+      height: auto;
+    }
+  }
+</style>
+
+<script>
+  // Progressive enhancement: the rails are swipeable, so the dot indicator has to
+  // follow the slide currently parked in the phone rather than sitting on the
+  // first one forever. The rail IS the observer root, and its box is exactly the
+  // phone's screen, so "intersecting the root" already means "in the phone".
+  document.querySelectorAll<HTMLElement>("[data-cs-row]").forEach((row) => {
+    const track = row.querySelector<HTMLElement>("[data-cs-track]");
+    const dotsWrap = row.querySelector<HTMLElement>("[data-cs-dots]");
+    if (!track || !dotsWrap) return;
+    const slides = [...row.querySelectorAll<HTMLElement>("[data-cs-slide]")];
+    const dots = [...dotsWrap.querySelectorAll<HTMLElement>(".cs-dot")];
+
+    const setActive = (i: number) =>
+      dots.forEach((d, di) => d.classList.toggle("is-active", di === i));
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting && e.intersectionRatio >= 0.6) {
+            setActive(slides.indexOf(e.target as HTMLElement));
+          }
+        });
+      },
+      { root: track, threshold: 0.6 },
+    );
+    slides.forEach((s) => io.observe(s));
+
+    // Clicking a dot drives the rail. `scrollTo` on the rail rather than
+    // `scrollIntoView` on the slide: the rail runs off past the viewport, and
+    // scrollIntoView would also scroll the PAGE to bring that offscreen region
+    // into view, yanking the reader away from the section they're looking at.
+    dots.forEach((dot, i) =>
+      dot.addEventListener("click", () => {
+        track.scrollTo({ left: i * slides[0].offsetWidth, behavior: "smooth" });
+        setActive(i);
+      }),
+    );
+
+    // Drag-to-scroll. MOUSE ONLY: a touch pointer already pans the rail natively,
+    // and hijacking it here would fight that and break the swipe. Pointer capture
+    // keeps the drag alive when the cursor leaves the rail — easy to do, since the
+    // rail is only as tall as the phone's screen.
+    let dragging = false;
+    let startX = 0;
+    let startLeft = 0;
+
+    track.addEventListener("pointerdown", (e) => {
+      if (e.pointerType !== "mouse" || e.button !== 0) return;
+      dragging = true;
+      startX = e.clientX;
+      startLeft = track.scrollLeft;
+      // Class BEFORE capture, and capture guarded: setPointerCapture throws for a
+      // pointer the element doesn't own, and if that throw skips the class then
+      // snapping stays armed for the whole drag and fights every move.
+      track.classList.add("is-dragging");
+      try {
+        track.setPointerCapture(e.pointerId);
+      } catch {
+        /* capture is a nicety — the drag works without it */
+      }
+    });
+
+    track.addEventListener("pointermove", (e) => {
+      if (!dragging) return;
+      e.preventDefault();
+      track.scrollLeft = startLeft - (e.clientX - startX);
+    });
+
+    // Glide to the nearest slide on release rather than letting CSS snap yank it
+    // there. Snapping stays disabled until we've actually arrived — re-arming it
+    // mid-animation reintroduces the very jump this replaces.
+    // `from` is captured BEFORE `is-dragging` comes off. Reading scrollLeft after
+    // that point returns the position snapping has ALREADY resolved to, so this
+    // would measure zero distance and skip the animation entirely.
+    const settle = (from: number) => {
+      const w = slides[0].offsetWidth;
+      const max = track.scrollWidth - track.clientWidth;
+      const target = Math.max(0, Math.min(Math.round(from / w) * w, max));
+      if (Math.abs(from - target) < 1) {
+        track.classList.remove("is-settling");
+        return;
+      }
+
+      let timer = 0;
+      let done = false;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        track.removeEventListener("scrollend", finish);
+        clearTimeout(timer);
+        track.classList.remove("is-settling");
+      };
+      // `scrollend` fires when the smooth scroll actually lands and is what
+      // normally ends the settle. The timeout is only a safety net for browsers
+      // without it — generous on purpose, since firing it EARLY would re-arm
+      // snapping mid-glide and cause the exact jump this code removes.
+      track.addEventListener("scrollend", finish);
+      timer = window.setTimeout(finish, 1000);
+
+      track.scrollTo({ left: target, behavior: "smooth" });
+    };
+
+    const endDrag = (e: PointerEvent) => {
+      if (!dragging) return;
+      dragging = false;
+      const from = track.scrollLeft;
+      // Overlap the two classes so snapping is never armed for even one frame
+      // between them — that gap is what let it jump before the glide could start.
+      track.classList.add("is-settling");
+      track.classList.remove("is-dragging");
+      try {
+        if (track.hasPointerCapture(e.pointerId)) {
+          track.releasePointerCapture(e.pointerId);
+        }
+      } catch {
+        /* nothing to release */
+      }
+      settle(from);
+    };
+    track.addEventListener("pointerup", endDrag);
+    track.addEventListener("pointercancel", endDrag);
+  });
+</script>

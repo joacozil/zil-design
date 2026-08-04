@@ -1,0 +1,48 @@
+---
+/**
+ * ProjectHeroCover — an opening banner that reads as a poster: a full-bleed
+ * background image (a brand texture or photo) with the project's brand lockup set
+ * LARGE and centred over it. This is the alternative to ProjectHero's mockup-with-
+ * a-corner-logo composition, for projects whose identity leads with the wordmark
+ * itself (e.g. Gelato Madrid on its chocolate field).
+ *
+ * The lockup is the page's <h1>: its `alt` carries the brand name (and tagline),
+ * so the document exposes a real primary heading to assistive tech and search
+ * without a second, competing text title.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  /** Full-bleed background artwork (texture / photo). */
+  image: ImageMetadata;
+  /** Describes the background artwork for readers who can't see it. */
+  imageAlt: string;
+  /** The brand lockup, centred and large. SVG for crisp scaling. */
+  logo: ImageMetadata;
+  /** Brand name (+ optional tagline) — becomes the <h1> via the lockup's alt. */
+  title: string;
+}
+const { image, imageAlt, logo, title } = Astro.props;
+---
+
+<section
+  class="relative flex min-h-svh w-full items-center justify-center overflow-hidden"
+>
+  {/* Full-bleed field: the texture object-covers the pinned viewport. */}
+  <Image
+    src={image}
+    alt={imageAlt}
+    loading="eager"
+    fetchpriority="high"
+    sizes="100vw"
+    class="absolute inset-0 h-full w-full object-cover"
+  />
+
+  {/* Brand lockup — the page heading, centred over the field. Wider on small
+      screens so the wordmark and its tagline stay readable; capped so it never
+      balloons on a large monitor. */}
+  <h1 class="relative z-10 m-0 w-[88%] max-w-[64rem] min-w-0 px-6 desktop:w-[64%]">
+    <img src={logo.src} alt={title} class="block h-auto w-full" />
+  </h1>
+</section>

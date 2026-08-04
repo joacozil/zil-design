@@ -1,0 +1,80 @@
+---
+/**
+ * ProjectBrief — the opening intro of a case study, shared by every project.
+ * Two stacked beats on one navy field:
+ *   1. a Cliente / Servicio meta list, ruled off with a hairline divider;
+ *   2. a Proyecto / Desafío / Propuesta triad.
+ *
+ * Content is per-project (passed in); only the STRUCTURE lives here. Body copy
+ * may carry <strong> to lift key phrases to full white against the muted base —
+ * so the emphasis is authored in the content, not hard-coded per project.
+ *
+ * The three blocks are all the same size — a uniform triad, not a lead + support.
+ */
+interface MetaRow {
+  label: string;
+  value: string;
+}
+interface Block {
+  title: string;
+  /** May contain <strong> for emphasis. Rendered as HTML. */
+  body: string;
+}
+interface Props {
+  meta: MetaRow[];
+  blocks: Block[];
+}
+const { meta, blocks } = Astro.props;
+---
+
+<section class="py-section">
+  {/* Meta — Cliente / Servicio. `contents` dissolves each row into the grid at
+      every size: label in column 1, value alongside. On mobile that's a narrow
+      label + fluid value; at tablet+ it widens to the shared 3-col grid so the
+      value aligns with the Desafío column below. */}
+  <div class="mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12">
+    <dl class="grid grid-cols-[auto_1fr] gap-x-8 gap-y-5 tablet:grid-cols-3">
+      {
+        meta.map((row) => (
+          <div class="contents">
+            <dt class="text-p font-medium text-muted">{row.label}</dt>
+            <dd class="text-p font-medium text-text tablet:col-span-2">
+              {row.value}
+            </dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+
+  {/* Full-bleed rule between the two beats. */}
+  <hr class="my-10 border-0 border-t border-border tablet:my-12" />
+
+  {/* Triad — Proyecto / Desafío / Propuesta */}
+  <div class="mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12">
+    <div class="grid grid-cols-1 gap-x-8 gap-y-10 tablet:grid-cols-3">
+      {
+        blocks.map((block) => (
+          <div>
+            <h3 class="text-p-sm font-bold tracking-wider text-text uppercase">
+              {block.title}
+            </h3>
+            <div
+              class="brief-body mt-4 text-p-sm text-muted"
+              set:html={block.body}
+            />
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Emphasis inside body copy lifts to full white; the base stays muted. Scoped
+     to this component, so it can't affect <strong> anywhere else. */
+  .brief-body :global(strong) {
+    color: var(--color-text);
+    font-weight: 500;
+  }
+</style>
