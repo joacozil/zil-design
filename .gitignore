@@ -29,3 +29,6 @@ meraki-frontend/
 
 # impeccable generated cache
 .impeccable/hook.cache.json
+
+# hero background candidates being trialled locally (raw camera JPGs)
+src/assets/hero-test/

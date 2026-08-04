@@ -1,6 +1,9 @@
 ---
+import type { ImageMetadata } from "astro";
+import { getImage } from "astro:assets";
 import Button from "../components/astro/Button.astro";
 import ClientsMarquee from "../components/react/ClientsMarquee.tsx";
+import HeroBgSwitcher from "../components/astro/dev/HeroBgSwitcher.astro";
 import heroImage from "../assets/img/hero.avif";
 import mmg from "../assets/img/mmg.svg";
 import quantia from "../assets/img/quantia.svg";
@@ -27,6 +30,48 @@ const logos = [
 
 // Plain, serializable data for the marquee island.
 const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
+
+// TEMPORARY — background candidates for the dev-only <HeroBgSwitcher>. Anything
+// dropped into assets/hero-test is picked up automatically, so testing another
+// shot is a file copy, not a code change. The glob is empty when the folder is,
+// which is what makes this safe to leave until a pick is made.
+//
+// Candidates go through getImage at the same width the real hero uses, so what
+// you compare is the compressed result rather than the raw file — a 10MB JPG can
+// look better in the browser than the asset it would actually ship as.
+//
+// The glob is lazy on purpose. With `eager: true` these become static imports,
+// and Astro's image pipeline then processes every candidate into dist even
+// though the switcher itself is stripped from the build, leaving orphan files
+// nobody links to. Lazy keeps them behind a dynamic import only DEV awaits.
+//
+// Delete this block, the two imports and the <HeroBgSwitcher> call once a
+// background is chosen and moved into assets/img.
+const testFiles = import.meta.glob<{ default: ImageMetadata }>(
+  "../assets/hero-test/*.{jpg,JPG,jpeg,JPEG,png,PNG,avif,webp}",
+);
+
+const candidates = import.meta.env.DEV
+  ? await Promise.all(
+      Object.entries(testFiles)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(async ([path, load]) => ({
+          label: path.split("/").pop() ?? path,
+          src: (
+            await getImage({
+              src: (await load()).default,
+              width: 2400,
+              format: "webp",
+            })
+          ).src,
+        })),
+    )
+  : [];
+
+const bgOptions = [
+  { label: "hero.avif (actual)", src: heroImage.src },
+  ...candidates,
+];
 ---
 
 {
@@ -53,6 +98,16 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
     data-hero-image
     class="absolute inset-0 -z-10 h-full w-full object-cover"
   />
+  {
+    /* TEMPORARY — dev-only background picker. It swaps the src on the <img>
+      above, so the scrims, the crop and the reveal intro all stay real. Never
+      rendered in a build. */
+  }
+  {
+    import.meta.env.DEV && bgOptions.length > 1 && (
+      <HeroBgSwitcher options={bgOptions} />
+    )
+  }
   {
     /* Legibility scrims, both decorative: an even darkening so the white copy
       holds over any part of the image, plus a faint brand wash so the photo reads
