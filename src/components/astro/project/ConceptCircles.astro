@@ -39,10 +39,20 @@ interface Props {
   /** Word font-weight. Default: 500 (medium). */
   fontWeight?: number;
   /**
-   * Word size as a fraction of the ring diameter, so it fills the circle the same
-   * at every breakpoint (mobile rings shrink, desktop grow). Omit → the fixed
-   * `text-p-sm` (Clojure's restrained label); a display face that should fill the
-   * ring (Gelato) passes e.g. 0.12.
+   * Word size as a fraction of the ring diameter. A FRACTION, never a length: the
+   * ring is fluid at every breakpoint, and only a ratio keeps the word sitting in
+   * the circle the same way on a phone and on a wide desktop.
+   *
+   * The default is calibrated so the longest word of a normal-width sans fills a
+   * little over half the diameter — measured against Gelato, whose longest word
+   * (EXCLUSIVIDAD) sits at 0.52·d and is the look every project wants. Override it
+   * only for a face whose width per character is unusual: Gelato passes 0.12
+   * because Job Clarendon is condensed, so it needs a much bigger size to reach
+   * the same width.
+   *
+   * Raising this is bounded by the OVERLAP, not by the ring: adjacent rings cross
+   * 1.4vw into each other at tablet+, so a word wider than ~0.8·d would run into a
+   * neighbour's outline before it ever touched its own.
    */
   fontScale?: number;
 }
@@ -52,18 +62,25 @@ const {
   ink,
   fontFamily,
   fontWeight = 500,
-  fontScale,
+  fontScale = 0.085,
 } = Astro.props;
 
 // The word's look is per-project (a display face for Gelato, the site sans for
 // Clojure), so it's authored inline from the props rather than baked into a class.
-// A given fontScale sizes the word off the ring diameter (--ring-d), overriding
-// the text-p-sm class below.
+// The size is always derived from the ring diameter (--ring-d) — there is no
+// fixed-size path, because a fixed size in a fluid ring means a word that fills
+// the circle at one width and rattles around in it at another.
+//
+// The `max()` is a legibility floor, and it is the reason this is not a plain
+// ratio: at the tablet breakpoint the ring bottoms out around 128px, where the
+// ratio alone would set the word at ~11px. 0.875rem is the size these labels have
+// always been, so the floor changes nothing below ~825px viewport and simply lets
+// the word grow with the ring above it — which is the whole point.
 const labelStyle = [
   ink && `color:${ink}`,
   fontFamily && `font-family:${fontFamily}`,
   `font-weight:${fontWeight}`,
-  fontScale && `font-size:calc(var(--ring-d) * ${fontScale})`,
+  `font-size:max(0.875rem, calc(var(--ring-d) * ${fontScale}))`,
 ]
   .filter(Boolean)
   .join(";");
@@ -79,7 +96,7 @@ const labelStyle = [
           class="ring flex aspect-square shrink-0 items-center justify-center rounded-full border"
           style={`border-color:${stroke}`}
         >
-          <span class="text-p-sm tracking-wider uppercase" style={labelStyle}>
+          <span class="tracking-wider uppercase" style={labelStyle}>
             {word}
           </span>
         </div>
@@ -100,6 +117,15 @@ const labelStyle = [
   }
   .ring {
     width: var(--ring-d);
+  }
+  /* The outline is a hairline: ONE device pixel, not one CSS pixel. On a 2x
+     screen a `border` (1px) paints two physical pixels and reads as a drawn
+     line rather than a drafting one, so halve it where the density can render
+     it. Sub-pixel borders are not sub-pixel here — 0.5px x 2dppx = 1px. */
+  @media (resolution >= 2dppx) {
+    .ring {
+      border-width: 0.5px;
+    }
   }
   /* Every ring but the first pulls back onto its predecessor — a shallow lens so
      they stay interconnected but sit a little apart. */

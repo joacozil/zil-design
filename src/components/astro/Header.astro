@@ -1,7 +1,7 @@
 ---
 import { NAV_LINKS } from "../../config/nav";
 import MobileMenu from "../react/MobileMenu.tsx";
-import logo from "../../assets/logo.svg";
+import logo from "../../assets/img/zil-design-logo.svg";
 
 // The nav targets are in-page section anchors (`#work`), which only resolve on
 // the homepage. On any other route (the project case-studies) they must be
@@ -30,7 +30,11 @@ const base = isHome ? "" : "/";
       class="flex w-full items-center justify-between gap-6 border border-border/60 bg-surface px-6 py-2 shadow-lg tablet:px-8 desktop:py-4"
     >
       {/* Left: logo (recolored Zil Design violet) */}
-      <a href={`${base}#hero`} class="shrink-0" aria-label="Zil Design — inicio">
+      <a
+        href={`${base}#hero`}
+        class="shrink-0"
+        aria-label="Zil Design — inicio"
+      >
         <img
           src={logo.src}
           alt="Zil Design"

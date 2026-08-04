@@ -22,6 +22,10 @@
  *
  * Slide width is driven off `--phone-w` rather than the rail's own width, since
  * the rail is far wider than a slide — see `--slide-w`.
+ *
+ * The frame's height is a DEVICE proportion (9:19), not the height of what it
+ * shows — see `.cs-phone`. The post sits at the top and the screen continues
+ * below it.
  */
 import { Image } from "astro:assets";
 import type { ImageMetadata } from "astro";
@@ -87,6 +91,10 @@ const {
           <span class="cs-divider" aria-hidden="true" />
           <div class="cs-head" aria-hidden="true">
             <span class="cs-avatar" />
+            <span class="cs-id">
+              <span class="cs-bar" />
+              <span class="cs-bar" />
+            </span>
           </div>
 
           {/* Screen — the rail is anchored to this box and overflows rightwards. */}
@@ -137,6 +145,24 @@ const {
               <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
             </svg>
           </div>
+
+          {/* The post's text, as bars: likes, three caption lines, the comments
+              link, the timestamp. This is what fills the height the device
+              proportion opens up — an empty lower half read as a hollow frame
+              rather than a screen. Same wireframe vocabulary as the notch and the
+              avatar, so nothing here invents copy the project didn't write. */}
+          <div class="cs-caption" aria-hidden="true">
+            <span class="cs-bar" />
+            <span class="cs-bar" />
+            <span class="cs-bar" />
+            <span class="cs-bar" />
+            <span class="cs-bar" />
+            <span class="cs-bar" />
+          </div>
+
+          {/* Anchors the bottom edge, and takes the remaining slack as the margin
+              above it — the screen space every phone leaves below a post. */}
+          <span class="cs-home" aria-hidden="true" />
         </div>
       </div>
     ))
@@ -174,8 +200,22 @@ const {
     margin-top: clamp(1.5rem, 4vw, 3rem);
   }
 
+  /* The phone is proportioned like a DEVICE, not shrink-wrapped to the post it
+     happens to show. A 4:5 Instagram image plus this much chrome comes out at
+     0.60 w/h — far squatter than any iPhone (~0.46) — and the mockup read as a
+     flat card rather than a phone. The post therefore sits at the top of a 9:19
+     body and the screen carries on below it, closed by `.cs-home`.
+
+     `min-height`, not `aspect-ratio`: this frame may only ever GROW. The chrome
+     around the post is fixed in rem while the post scales with the phone, so at a
+     small enough width the content is taller than the device proportion — an
+     aspect-ratio box would keep its ratio and let the actions spill out of the
+     frame, where a min-height simply gives way. */
   .cs-phone {
     width: var(--phone-w);
+    min-height: calc(var(--phone-w) * 19 / 9);
+    display: flex;
+    flex-direction: column;
     border: var(--frame-b) solid var(--frame);
     border-radius: 2rem;
     padding: var(--frame-p);
@@ -197,19 +237,54 @@ const {
     background-color: var(--frame);
   }
   .cs-head {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     padding: 0.5rem 0.125rem;
   }
   .cs-avatar {
     display: block;
+    flex: none;
     width: 1.25rem;
     height: 1.25rem;
     border-radius: 9999px;
     background-color: var(--frame);
   }
 
-  /* Screen box. Full inner width; the rail is pinned to it. */
+  /* Wireframe text. One bar shape, sized and weighted per role below — a specific
+     bar is a specific piece of UI (a name, a caption line, a timestamp), and the
+     opacity is what says which is heading and which is body. */
+  .cs-bar {
+    display: block;
+    height: 0.4rem;
+    border-radius: 9999px;
+    background-color: var(--frame);
+    opacity: 0.35;
+  }
+
+  /* Account name over handle, beside the avatar. */
+  .cs-id {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    flex: 1;
+  }
+  .cs-id .cs-bar:first-child {
+    width: 42%;
+    opacity: 0.55;
+  }
+  .cs-id .cs-bar:last-child {
+    width: 26%;
+    height: 0.3rem;
+    opacity: 0.3;
+  }
+
+  /* Screen box. Full inner width; the rail is pinned to it. `flex: none` so the
+     column can never take height off the artwork to fit itself — the slack in the
+     phone belongs below the post, not squeezed out of it. */
   .cs-media {
     position: relative;
+    flex: none;
     margin-inline: calc(-1 * var(--frame-p));
     aspect-ratio: 696 / 870;
   }
@@ -339,6 +414,57 @@ const {
     display: flex;
     align-items: center;
     gap: 0.6rem;
+  }
+
+  /* Post text. Widths are ragged on purpose: three equal caption lines read as a
+     placeholder, three uneven ones read as a paragraph. */
+  .cs-caption {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    padding: 0.4rem 0.125rem 0;
+  }
+  /* likes */
+  .cs-caption .cs-bar:nth-child(1) {
+    width: 34%;
+    height: 0.45rem;
+    opacity: 0.5;
+  }
+  /* caption */
+  .cs-caption .cs-bar:nth-child(2) {
+    width: 96%;
+  }
+  .cs-caption .cs-bar:nth-child(3) {
+    width: 87%;
+  }
+  .cs-caption .cs-bar:nth-child(4) {
+    width: 54%;
+  }
+  /* comments link */
+  .cs-caption .cs-bar:nth-child(5) {
+    width: 42%;
+    height: 0.35rem;
+    opacity: 0.28;
+  }
+  /* timestamp */
+  .cs-caption .cs-bar:nth-child(6) {
+    width: 24%;
+    height: 0.3rem;
+    opacity: 0.24;
+  }
+
+  /* Home indicator. `margin-top: auto` is what parks it at the bottom of the
+     frame and hands all the leftover height to the gap above it — the open screen
+     below the post. Lighter than the notch: it sits at the edge of the device
+     where a heavy bar would out-shout the post. */
+  .cs-home {
+    display: block;
+    width: 30%;
+    height: 0.25rem;
+    border-radius: 9999px;
+    background-color: var(--frame);
+    opacity: 0.55;
+    margin: auto auto 0.25rem;
   }
   .cs-actions svg {
     width: 1.15rem;

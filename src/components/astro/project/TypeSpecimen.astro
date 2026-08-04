@@ -23,8 +23,11 @@ interface SpecimenSpec {
   fontFamily: string;
   /** Weight. Default 400. */
   fontWeight?: number;
-  /** Optional CSS font-size override (default: text-p-sm). A condensed display face
-      needs a size bump to stay legible next to a normal-width text face. */
+  /** Optional CSS font-size override. Purely an OPTICAL correction: the shared
+      `--specimen-size` below is the size for a normal-width text face, and a
+      condensed display face (Job Clarendon) needs a bump to read at the same
+      weight beside one. Never set this to re-tune the specimen size in general —
+      that number lives once, in the component. */
   fontSize?: string;
 }
 interface Props {
@@ -88,26 +91,38 @@ const fontFaceCss =
   <h2 class="sr-only">Tipografía: {name}</h2>
 
   {/* Specimens — one block per weight (Clojure) or per typeface (Gelato's two-font
-      system). Stacked on mobile, a right-aligned row at tablet+. Each block sets its
+      system). Stacked until DESKTOP, then a right-aligned row. Each block sets its
       own family + weight; an unlabelled block (the display face, named by the giant
-      wordmark below) starts straight at the glyph rows. */}
+      wordmark below) starts straight at the glyph rows.
+
+      The row waits for desktop because two alphabets side by side need ~715px plus
+      gutters and simply do not fit a 640px tablet: with `justify-end` the surplus
+      runs off the LEFT edge, which produces no scrollbar, so the first specimen was
+      silently clipped rather than visibly broken. Stacking is what fits.
+
+      The spacing inside a block is deliberately much tighter than the gap between
+      blocks (12px vs 64px): a specimen is a SET of rows that belong to one face, and
+      when the two spacings were close the stacked layout read as eight loose lines
+      rather than two specimens. Snug leading serves the same end — glyph rows are
+      reference material to scan, not prose to read, so generous leading only pulled
+      the set apart. */}
   <div class="mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12">
     <div
-      class="flex flex-col gap-8 tablet:flex-row tablet:justify-end tablet:gap-16"
+      class="flex flex-col gap-16 desktop:flex-row desktop:justify-end"
     >
       {
         specimenList.map((s) => (
           <div
-            class="text-p-sm text-text"
+            class="specimen text-text"
             style={`font-family:${s.fontFamily};font-weight:${s.fontWeight ?? 400}${s.fontSize ? `;font-size:${s.fontSize}` : ""}`}
           >
-            {s.label && <p class="mb-4">{s.label}</p>}
-            <p class="leading-relaxed">
+            {s.label && <p class="mb-3">{s.label}</p>}
+            <p class="leading-snug">
               {upper}
               <br />
               {lower}
             </p>
-            <p class="mt-4 leading-relaxed">
+            <p class="mt-3 leading-snug">
               {digits}
               <br />
               {symbols}
@@ -152,6 +167,24 @@ const fontFaceCss =
 </section>
 
 <style>
+  /* THE specimen size, for every project. A specimen is a sample of a typeface —
+     it has to be big enough to read the shapes, which is a different job from
+     body copy, so it is NOT on the `text-p-*` scale and does not step at the
+     breakpoints. Tuned on Gelato and adopted by the rest; set it here, never at
+     a call site.
+
+     The cap: a glyph row is ONE unbreakable-in-spirit string (a wrapped alphabet
+     stops being a specimen), so the size is also bounded by the width available
+     to it. 26 uppercase letters measure 17.64em in the widest face any project
+     ships (Ubuntu Bold; Acumin Bold is 17.43), so `/18` is that worst case with a
+     little margin, and `100vw - 3rem` is the mobile gutter. The cap only bites
+     below ~380px — every phone from an iPhone 14 up gets the full 1.15rem. A
+     project adding a wider face than Ubuntu Bold is the one thing that would need
+     this number re-measured. */
+  .specimen {
+    font-size: min(1.15rem, calc((100vw - 3rem) / 18));
+  }
+
   .type-display {
     font-size: clamp(4rem, 26vw, 26rem);
     font-weight: 400;
