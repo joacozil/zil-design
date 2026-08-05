@@ -15,7 +15,13 @@ const {
 // para el mundo la página vive en zil.global/design/ detrás del proxy de
 // zil-landing. Canonical y og:url tienen que declarar esa, o Google indexa (o
 // descarta) una dirección que nadie visita.
-const PUBLIC_URL = "https://zil.global/design/";
+//
+// Se arma por página, no fija. Cuando era una constante, las cuatro páginas de
+// proyecto declaraban como canónica la home: le estábamos diciendo a Google que
+// cada caso de estudio era una copia de la portada, que es la forma exacta de
+// pedir que no los indexe. `Astro.url.pathname` ya incluye el `base`, y `site`
+// (astro.config.mjs) aporta el host.
+const PUBLIC_URL = new URL(Astro.url.pathname, Astro.site).href;
 // El banner vive en el sitio principal. Es el mismo dominio, así que resuelve
 // igual, y es preferible a compartir un link sin imagen.
 const OG_IMAGE = "https://zil.global/zil-banner.webp";

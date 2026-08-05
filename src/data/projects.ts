@@ -28,10 +28,14 @@ export interface ProjectEntry {
  * resolves against zil.global's root, where the Next app answers 404. Returns
  * `undefined` for a project with no page yet, which is what makes its card
  * render unlinked.
+ *
+ * The TRAILING SLASH is required, not tidiness — see `trailingSlash` in
+ * astro.config.mjs. Without it the upstream 308s to a path that has lost the
+ * /design prefix, and the proxy hands that redirect straight to the browser.
  */
 export function projectHref(slug?: string): string | undefined {
   if (!slug) return undefined;
-  return `${import.meta.env.BASE_URL.replace(/\/$/, "")}/proyectos/${slug}`;
+  return `${import.meta.env.BASE_URL.replace(/\/$/, "")}/proyectos/${slug}/`;
 }
 
 // TODO: confirm final categories from Figma.
