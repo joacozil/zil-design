@@ -1,0 +1,217 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/astro/Header.astro";
+import Footer from "../../components/astro/Footer.astro";
+import ProjectHeroImage from "../../components/astro/project/ProjectHeroImage.astro";
+import ProjectBrief from "../../components/astro/project/ProjectBrief.astro";
+import ConceptCircles from "../../components/astro/project/ConceptCircles.astro";
+import ColorPalette from "../../components/astro/project/ColorPalette.astro";
+import LogoGrid from "../../components/astro/project/LogoGrid.astro";
+import TypeSpecimen from "../../components/astro/project/TypeSpecimen.astro";
+import CoverCollage from "../../components/astro/project/CoverCollage.astro";
+import StillsCollage from "../../components/astro/project/StillsCollage.astro";
+import ProjectEnd from "../../components/astro/project/ProjectEnd.astro";
+import BackToTop from "../../components/astro/project/BackToTop.astro";
+import heroImage from "../../assets/net-value/net-hero.avif";
+import heroImageMobile from "../../assets/net-value/net-hero-mobile.avif";
+import gridImage from "../../assets/net-value/net-grid.svg";
+import netFontImg from "../../assets/net-value/net-font.svg";
+import netLogo from "../../assets/net-value/net-logo.svg";
+import netLogoFilled from "../../assets/net-value/net-logo-filled.svg";
+import ahorrarImg from "../../assets/net-value/ahorrar.avif";
+import ahorrar2Img from "../../assets/net-value/ahorrar2.avif";
+import comoImg from "../../assets/net-value/como.avif";
+import mujerImg from "../../assets/net-value/mujer.avif";
+import hombreImg from "../../assets/net-value/hombre.avif";
+import socaloImg from "../../assets/net-value/socalo.avif";
+// Onest is Net Value's brand face. Self-hosted (Google Fonts' `latin` subset,
+// which covers Spanish in full) rather than loaded from fonts.gstatic.com, so the
+// page keeps its own asset graph and costs no third-party connection. ONE file:
+// Google ships Onest as a variable font, so Regular and Bold are the same
+// download driven along the wght axis — registering two static faces would just
+// fetch the same bytes twice.
+import onestVariable from "../../assets/net-value/onest/Onest-Variable.woff2?url";
+
+// @font-face can't read CSS vars for its src, so the resolved URL is interpolated
+// and injected globally (same approach as the Gelato and Quantia pages).
+const fontFaceCss = `
+@font-face{font-family:"Onest";src:url("${onestVariable}") format("woff2");font-weight:100 900;font-style:normal;font-display:swap;}
+`;
+
+// Case-study content lives with the page (per-project composition).
+const meta = [
+  { label: "Cliente", value: "Net Value" },
+  { label: "Servicio", value: "Branding" },
+];
+
+const brief = [
+  {
+    title: "Proyecto",
+    body: "Net Value es un podcast de negocios que entrevista a empresarios y emprendedores. En cada episodio, los invitados cuentan cómo construyeron sus empresas, qué decisiones marcaron el camino y qué aprendieron en el proceso, con consejos aplicables para quien está empezando o haciendo crecer su propio proyecto.",
+  },
+  {
+    title: "Desafío",
+    body: "El podcast nacía sin identidad y en una categoría saturada. El reto era construir una marca desde cero que transmitiera solidez y credibilidad sin caer en la solemnidad corporativa, y que funcionara en entornos digitales exigentes: portadas, miniaturas, clips verticales y redes.",
+  },
+  {
+    title: "Propuesta",
+    body: "Desde Zil Design creamos la identidad completa de Net Value: logotipo, paleta cromática, sistema tipográfico y manual de marca. Diseñamos un sistema modular que resiste la reducción y se adapta a cada formato, dándole al podcast una imagen consistente y profesional desde su lanzamiento.",
+  },
+];
+
+const concepts = [
+  "Inspiración",
+  "Autoridad",
+  "Cercanía",
+  "Impulso",
+  "Experiencia",
+];
+
+// Brand palette — single full-bleed swatches (no tint pairs). RGB is derived from
+// the hex in the component, so a label can never drift from its swatch. NOTE: the
+// source mock's RGB is wrong on three rows — Gris Net reads R75/G37/B10, Gris
+// Oscuro R23/G213/B255 and Blanco R225/G225/B225, none of which match their hex.
+// Hex is treated as source of truth, so the component renders the correct values.
+// `dark` marks the fields deep enough to carry white text.
+const palette = [
+  { name: "Negro", main: { hex: "#000000", dark: true }, weight: 3.9 },
+  { name: "Violeta Net", main: { hex: "#C000FF" }, weight: 2.3 },
+  { name: "Gris Net", main: { hex: "#8A8299", dark: true }, weight: 1.4 },
+  { name: "Gris Oscuro Net", main: { hex: "#26292C", dark: true }, weight: 1 },
+  { name: "Blanco", main: { hex: "#FFFFFF" }, weight: 1.05 },
+];
+---
+
+<style is:global set:html={fontFaceCss}></style>
+
+<Layout
+  title="Net Value — Zil Design"
+  description="Caso de estudio: identidad y comunicación para Net Value."
+>
+  <Header />
+  <main class="project-net-value">
+    <ProjectHeroImage
+      image={heroImage}
+      mobileImage={heroImageMobile}
+      imageAlt="Los fundadores de Net Value, sonriendo sobre un fondo negro, con el isotipo de la marca entre ambos"
+      title="Net Value"
+    />
+    <ProjectBrief meta={meta} blocks={brief} />
+    {
+      /* `stroke` and `gridWidth` both point at the grid artwork on purpose: the
+        rings are drawn in the colour it strokes its rules in (#C000FF) and at the
+        weight derived from its intrinsic width, so the two sections render the
+        literal same hairline. */
+    }
+    <ConceptCircles
+      words={concepts}
+      gridWidth={gridImage.width}
+      stroke="#C000FF"
+      ink="#ffffff"
+      fontFamily={'"Onest", sans-serif'}
+    />
+    <LogoGrid
+      image={gridImage}
+      alt="Isotipo de Net Value dentro de su grilla de composición"
+    />
+    <ColorPalette colors={palette} />
+    {
+      /* `specimens` (rather than regularUrl/boldUrl) because this page already
+        registers Onest for the concept rings — the default path would emit a
+        second @font-face for the same family, and hard-code format("opentype")
+        against a file that is woff2. Both rows come off the one variable file,
+        driven along its wght axis. */
+    }
+    <TypeSpecimen
+      name="Onest"
+      fontFamily="Onest"
+      wordmarkImage={netFontImg}
+      specimens={[
+        {
+          label: "Onest - Regular",
+          fontFamily: '"Onest", sans-serif',
+          fontWeight: 400,
+        },
+        {
+          label: "Onest - Bold",
+          fontFamily: '"Onest", sans-serif',
+          fontWeight: 700,
+        },
+      ]}
+    />
+    {
+      /* The card's marks are painted white by masking — the source SVGs are filled
+        in the same violet as the card, so drawn as images they'd vanish into it. */
+    }
+    <CoverCollage
+      topLeft={{
+        src: ahorrarImg,
+        alt: "Portada del episodio 21: ahorrar en pesos o dólares",
+      }}
+      topRight={{
+        src: comoImg,
+        alt: "Portada de Señal de Mercado EP 15: cómo empezar a invertir",
+      }}
+      bottomRight={{
+        src: ahorrar2Img,
+        alt: "Portada del EP 21: ahorrar en pesos o dólares",
+      }}
+      cardMarks={[netLogoFilled, netLogo]}
+    />
+    {
+      /* `rule` draws the hairline separating this block from the covers above.
+        The two stills share an aspect ratio, so the top row lands as equal
+        halves; the proportional row would handle differing crops too. */
+    }
+    <StillsCollage
+      rule
+      top={[
+        {
+          src: mujerImg,
+          alt: "Los conductores de Net Value durante la grabación de un episodio",
+        },
+        {
+          src: hombreImg,
+          alt: "Los conductores de Net Value conversando en el set",
+        },
+      ]}
+      bottom={{
+        src: socaloImg,
+        alt: "Placa de zócalo en pantalla: Inversiones de alto riesgo",
+      }}
+    />
+    {
+      /* White arrow, not the page surface: this project's field is black, so the
+        default would draw a near-black arrow on the violet disc and hide the
+        focus ring against the page. */
+    }
+    <BackToTop ink="#ffffff" />
+  </main>
+  <ProjectEnd current="net-value" />
+  <Footer />
+</Layout>
+
+<style>
+  /* Scoped project theme — remaps ONLY the semantic colour aliases within this
+     page's subtree, so Net Value's branding can never leak into global scope.
+     Everything structural (type scale, spacing rhythm, breakpoints) stays on the
+     global tokens.
+
+     Taken from the key art: a black field with the brand's magenta-violet
+     (#C000FF, sampled from net-logo.svg). A dark case-study body like Clojure's,
+     so the surface / text / muted / border aliases carry their dark-theme values.
+     PROVISIONAL past the hero — only the hero exists so far, so the body values
+     are a sensible default to retune once the later sections land. */
+  .project-net-value {
+    --color-primary: #c000ff; /* brand magenta-violet */
+    --color-accent: #c000ff;
+
+    --color-surface: #000000; /* black case-study field */
+    --color-text: #ffffff; /* light body text */
+    --color-muted: #a3a3a8; /* neutral grey — secondary copy */
+    --color-border: #c000ff; /* brand-violet hairline divider */
+
+    background-color: var(--color-surface);
+    color: var(--color-text);
+  }
+</style>

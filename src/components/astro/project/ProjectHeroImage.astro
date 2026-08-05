@@ -1,0 +1,72 @@
+---
+/**
+ * ProjectHeroImage — an opening banner that is JUST the artwork: an image PAIR
+ * (landscape from tablet up, a portrait cut on mobile) pinned to the viewport,
+ * with nothing composited on top.
+ *
+ * The pair swaps at TABLET, not desktop. The portrait cut exists for the one case
+ * a landscape frame can't serve — a tall, narrow phone screen. A tablet is
+ * already wide enough for the landscape frame, and feeding it the portrait cut
+ * instead means `cover` has to throw away most of that cut's height, which crops
+ * into the composition.
+ *
+ * The third hero shape. `ProjectHero` pins a small lockup into the corner of a
+ * mockup and `ProjectHeroCover` centres a large one; both take a separate `logo`
+ * asset and composite it. This one is for key art that needs a different crop per
+ * breakpoint — a landscape portrait-of-two reads as a thin strip on a phone — and
+ * that already carries the brand mark in the frame, so compositing a second one
+ * would double it.
+ *
+ * Because there is no logo element to hang the heading off, the <h1> is
+ * `sr-only`: the page still exposes a real primary heading to assistive tech and
+ * search, while the image's `alt` describes the picture rather than repeating the
+ * name.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  /** Landscape key art, used from tablet up. */
+  image: ImageMetadata;
+  /** Optional PORTRAIT cut, used on mobile only. Falls back to `image`. */
+  mobileImage?: ImageMetadata;
+  /** Describes the artwork for readers who can't see it. */
+  imageAlt: string;
+  /** Project name — the page's <h1>, carried visually by the artwork itself. */
+  title: string;
+}
+const { image, mobileImage, imageAlt, title } = Astro.props;
+const stackImage = mobileImage ?? image;
+---
+
+<section class="relative min-h-svh w-full overflow-hidden">
+  <h1 class="sr-only">{title}</h1>
+
+  {
+    /* Mobile: the portrait cut fills the pinned viewport, anchored to its BOTTOM
+      so any crop is spent on empty ground above the subjects rather than cutting
+      into them.
+
+      Only this one carries the descriptive alt — both are in the DOM at all
+      times, so giving the pair the same text would have assistive tech announce
+      it twice. */
+  }
+  <Image
+    src={stackImage}
+    alt={imageAlt}
+    loading="eager"
+    fetchpriority="high"
+    sizes="100vw"
+    class="absolute inset-0 h-full w-full object-cover object-bottom tablet:hidden"
+  />
+
+  {/* Tablet and up: the landscape cut takes over. Decorative — see above. */}
+  <Image
+    src={image}
+    alt=""
+    loading="eager"
+    fetchpriority="high"
+    sizes="100vw"
+    class="absolute inset-0 hidden h-full w-full object-cover tablet:block"
+  />
+</section>

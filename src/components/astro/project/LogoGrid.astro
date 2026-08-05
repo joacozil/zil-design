@@ -17,6 +17,18 @@ const { image, alt } = Astro.props;
   <div
     class="mx-auto flex w-full max-w-8xl justify-center px-6 tablet:px-8 desktop:px-12"
   >
-    <img src={image.src} alt={alt} class="h-auto w-full max-w-3xl" />
+    {/* Natural width, capped — NOT `w-full`. Every project's grid artwork is drawn
+      about 450 units tall, so letting each one render at its own width keeps them
+      all landing at a consistent HEIGHT on the page (Clojure 449, Gelato 404,
+      Quantia 399, Net Value 450). `w-full` instead forced every drawing to 768
+      wide, which is fine for the wide ones but blew the near-square Net Value
+      grid up to 746 tall — half again the size of the others. The cap is
+      `min(48rem, 100%)`: 48rem is the old max-w-3xl, and the 100% keeps it inside
+      the gutter on a phone. */}
+  <img
+    src={image.src}
+    alt={alt}
+    class="h-auto w-auto max-w-[min(48rem,100%)]"
+  />
   </div>
 </section>

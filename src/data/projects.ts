@@ -4,7 +4,7 @@ import quantia from "../assets/img/quantia.jpg";
 import clojure from "../assets/img/clojure.jpg";
 import gelato from "../assets/img/gelato.jpg";
 import advantia from "../assets/img/advantia.jpg";
-import netValue from "../assets/img/net-value.jpg";
+import netValue from "../assets/img/net-value.avif";
 
 /**
  * The project roster — the single source of truth shared by the homepage slider
@@ -43,7 +43,7 @@ export const projects: ProjectEntry[] = [
     category: "Producto Digital",
     slug: "quantia",
   },
-  { img: netValue, name: "Net Value", category: "Branding" },
+  { img: netValue, name: "Net Value", category: "Branding", slug: "net-value" },
   { img: gelato, name: "Gelato", category: "Branding", slug: "gelato" },
   { img: mmg, name: "MMG Bank", category: "Institucional" },
   { img: advantia, name: "Advantia", category: "Institucional" },

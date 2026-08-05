@@ -1,0 +1,157 @@
+---
+/**
+ * CoverCollage — the project's episode covers laid out as two flush rows, with a
+ * brand card standing in for one of the tiles.
+ *
+ * Rows keep a CONSTANT HEIGHT without anyone declaring one: each tile's
+ * `flex-grow` is its own aspect ratio and its `flex-basis` is 0, so widths come
+ * out proportional to the ratios and every tile in a row resolves to the same
+ * height. Add a wider cover and the row re-proportions itself — no magic numbers,
+ * no per-tile heights to keep in sync.
+ *
+ * The card recolours its two marks with `mask-image` rather than <img>. The
+ * source SVGs are filled in the brand violet, which is exactly the card's own
+ * background — drawn normally they would be invisible against it. A mask throws
+ * the artwork's colour away and keeps only its silhouette, which `background`
+ * then paints in whatever the card needs, so one asset serves any field.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Tile {
+  src: ImageMetadata;
+  alt: string;
+}
+interface Props {
+  /** Top row: a square-ish cover, then a wide one. */
+  topLeft: Tile;
+  topRight: Tile;
+  /** Bottom row: the brand card, then a wide cover. */
+  bottomRight: Tile;
+  /** The two marks on the card — typically the filled cut and the outline cut. */
+  cardMarks: [ImageMetadata, ImageMetadata];
+  /** Card field colour. */
+  cardBg?: string;
+  /** Colour the marks are painted in (they're masked, so their own fill is discarded). */
+  cardInk?: string;
+}
+const {
+  topLeft,
+  topRight,
+  bottomRight,
+  cardMarks,
+  cardBg = "#C000FF",
+  cardInk = "#FFFFFF",
+} = Astro.props;
+
+const ratio = (i: ImageMetadata) => i.width / i.height;
+// The card fills the half of the bottom row the cover doesn't, so it simply
+// borrows that cover's proportion.
+const cardRatio = ratio(bottomRight.src);
+---
+
+<section class="py-section" aria-label="Portadas de episodios">
+  <div class="mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12">
+    <div class="cv-rows">
+      <div class="cv-row">
+        <div class="cv-tile" style={`flex-grow:${ratio(topLeft.src)}`}>
+          <Image src={topLeft.src} alt={topLeft.alt} sizes="(min-width: 640px) 30vw, 90vw" class="cv-img" />
+        </div>
+        <div class="cv-tile" style={`flex-grow:${ratio(topRight.src)}`}>
+          <Image src={topRight.src} alt={topRight.alt} sizes="(min-width: 640px) 65vw, 90vw" class="cv-img" />
+        </div>
+      </div>
+
+      <div class="cv-row">
+        <div
+          class="cv-tile cv-card"
+          style={`flex-grow:${cardRatio};aspect-ratio:${cardRatio};background-color:${cardBg}`}
+        >
+          {
+            cardMarks.map((mark) => (
+              <span
+                class="cv-mark"
+                style={`--mark:url("${mark.src}");--mark-ratio:${mark.width / mark.height};background-color:${cardInk}`}
+                aria-hidden="true"
+              />
+            ))
+          }
+        </div>
+        <div class="cv-tile" style={`flex-grow:${ratio(bottomRight.src)}`}>
+          <Image src={bottomRight.src} alt={bottomRight.alt} sizes="(min-width: 640px) 48vw, 90vw" class="cv-img" />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cv-rows {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.5rem, 1vw, 0.75rem);
+  }
+
+  /* Mobile: one tile per line — two covers side by side would be unreadable at
+     phone width, and these carry episode titles. */
+  .cv-row {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.5rem, 1vw, 0.75rem);
+  }
+
+  .cv-tile {
+    /* Grid/flex items floor at their content's intrinsic width; left alone that
+       overrides the ratios below and the row stops being proportional. */
+    min-width: 0;
+    overflow: hidden;
+  }
+  .cv-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Trims the 1px light fringe Figma leaves on the RIGHT and BOTTOM of these
+       exports (measured: final row/column ~226 luminance against a ~24 interior).
+       Scaling from the top-left pushes only those two edges past the tile, which
+       clips them, and leaves the top and left exactly where they were. Cropping
+       the assets instead would mean re-encoding them, and the encoder to hand
+       degrades AVIF badly. 0.4% is well under a pixel on screen. */
+    transform: scale(1.004);
+    transform-origin: top left;
+  }
+
+  .cv-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12%;
+  }
+  /* Masked, not <img>: see the header note. `contain` keeps the silhouette whole,
+     and the ratio comes from the source's own dimensions since a mask carries no
+     intrinsic size. */
+  .cv-mark {
+    display: block;
+    width: 21%;
+    aspect-ratio: var(--mark-ratio);
+    mask-image: var(--mark);
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-image: var(--mark);
+    -webkit-mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+  }
+
+  @media (width >= 640px) {
+    .cv-row {
+      flex-direction: row;
+    }
+    /* flex-grow carries the aspect ratio (set inline) and basis is 0, so widths
+       land proportional to the ratios and the row self-levels to one height. */
+    .cv-tile {
+      flex-basis: 0;
+    }
+  }
+</style>

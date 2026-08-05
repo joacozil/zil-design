@@ -9,12 +9,24 @@
  * <main>) drives visibility; clicking scrolls to the top through Lenis when it owns
  * the scroll, else natively (mirroring the anchor handling in Layout.astro).
  */
+interface Props {
+  /**
+   * Colour of the arrow and the focus ring. Defaults to the page surface, which
+   * reads as the arrow being cut OUT of the accent disc — right on a project whose
+   * field is light. A project on a DARK field has to pass something else, or the
+   * arrow comes out near-black on its own accent colour and the focus ring
+   * disappears into the page.
+   */
+  ink?: string;
+}
+const { ink = "var(--color-surface)" } = Astro.props;
 ---
 
 <button
   class="back-to-top"
   type="button"
   aria-label="Volver arriba"
+  style={`--btt-ink:${ink}`}
   data-back-to-top
 >
   <svg
@@ -46,7 +58,7 @@
     border-radius: 9999px;
 
     background-color: var(--color-accent);
-    color: var(--color-surface);
+    color: var(--btt-ink);
     box-shadow: 0 6px 20px rgb(0 0 0 / 0.18);
     cursor: pointer;
 
@@ -76,7 +88,7 @@
     filter: brightness(0.88);
   }
   .back-to-top:focus-visible {
-    outline: 2px solid var(--color-surface);
+    outline: 2px solid var(--btt-ink);
     outline-offset: 2px;
   }
 

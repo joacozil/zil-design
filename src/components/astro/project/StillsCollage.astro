@@ -1,0 +1,110 @@
+---
+/**
+ * StillsCollage — production stills: a pair on top, one wide frame beneath.
+ *
+ * Uses the same self-levelling row as `CoverCollage` — each tile's `flex-grow` is
+ * its own aspect ratio against a `flex-basis` of 0, so the pair's widths come out
+ * proportional and the row resolves to a single height without anyone declaring
+ * one. Two stills shot at slightly different crops still line up.
+ *
+ * `rule` draws the hairline that separates this block from the collage above it.
+ * It's a border on the section rather than a spacer element so it lands on the
+ * section boundary the rhythm already defines.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Tile {
+  src: ImageMetadata;
+  alt: string;
+}
+interface Props {
+  /** The two stills on the top row. */
+  top: [Tile, Tile];
+  /** The wide frame beneath them. */
+  bottom: Tile;
+  /** Draw a hairline above the section, separating it from what precedes it. */
+  rule?: boolean;
+}
+const { top, bottom, rule = true } = Astro.props;
+
+const ratio = (i: ImageMetadata) => i.width / i.height;
+---
+
+<section
+  class:list={["py-section", rule && "border-t border-border"]}
+  aria-label="Producción"
+>
+  <div class="mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12">
+    <div class="st-rows">
+      <div class="st-row">
+        {
+          top.map((tile) => (
+            <div class="st-tile" style={`flex-grow:${ratio(tile.src)}`}>
+              <Image
+                src={tile.src}
+                alt={tile.alt}
+                sizes="(min-width: 640px) 46vw, 90vw"
+                class="st-img"
+              />
+            </div>
+          ))
+        }
+      </div>
+
+      <div class="st-tile st-wide">
+        <Image
+          src={bottom.src}
+          alt={bottom.alt}
+          sizes="(min-width: 640px) 92vw, 90vw"
+          class="st-img"
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .st-rows {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.5rem, 1vw, 0.75rem);
+  }
+
+  /* Mobile: the pair stacks — side by side they'd be too small to read. */
+  .st-row {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.5rem, 1vw, 0.75rem);
+  }
+
+  .st-tile {
+    /* Flex items floor at their content's intrinsic width; left alone that beats
+       the ratios below and the row stops being proportional. */
+    min-width: 0;
+    overflow: hidden;
+  }
+  .st-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Trims the 1px light fringe Figma leaves on the RIGHT and BOTTOM of these
+       exports. Scaling from the top-left pushes only those two edges past the
+       tile, which clips them, and leaves the top and left where they were. See
+       the matching note in CoverCollage. */
+    transform: scale(1.004);
+    transform-origin: top left;
+  }
+
+  @media (width >= 640px) {
+    .st-row {
+      flex-direction: row;
+    }
+    /* flex-grow carries the aspect ratio (set inline), basis 0 — widths land
+       proportional to the ratios and the row self-levels to one height. */
+    .st-row > .st-tile {
+      flex-basis: 0;
+    }
+  }
+</style>
