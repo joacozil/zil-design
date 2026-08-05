@@ -9,7 +9,7 @@
  * height. Add a wider cover and the row re-proportions itself — no magic numbers,
  * no per-tile heights to keep in sync.
  *
- * The card recolours its two marks with `mask-image` rather than <img>. The
+ * The card recolours its two marks with `mask-image` rather than an image tag. The
  * source SVGs are filled in the brand violet, which is exactly the card's own
  * background — drawn normally they would be invisible against it. A mask throws
  * the artwork's colour away and keeps only its silhouette, which `background`
@@ -111,14 +111,6 @@ const cardRatio = ratio(bottomRight.src);
     width: 100%;
     height: 100%;
     object-fit: cover;
-    /* Trims the 1px light fringe Figma leaves on the RIGHT and BOTTOM of these
-       exports (measured: final row/column ~226 luminance against a ~24 interior).
-       Scaling from the top-left pushes only those two edges past the tile, which
-       clips them, and leaves the top and left exactly where they were. Cropping
-       the assets instead would mean re-encoding them, and the encoder to hand
-       degrades AVIF badly. 0.4% is well under a pixel on screen. */
-    transform: scale(1.004);
-    transform-origin: top left;
   }
 
   .cv-card {
@@ -127,7 +119,7 @@ const cardRatio = ratio(bottomRight.src);
     justify-content: center;
     gap: 12%;
   }
-  /* Masked, not <img>: see the header note. `contain` keeps the silhouette whole,
+  /* Masked, not an image element: see the header note. `contain` keeps the silhouette whole,
      and the ratio comes from the source's own dimensions since a mask carries no
      intrinsic size. */
   .cv-mark {

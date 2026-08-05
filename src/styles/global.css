@@ -297,6 +297,20 @@ html.reveal-armed [data-reveal]:not([data-revealed]) {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+
+  /* No drag ghosts. Pressing on artwork and moving should scroll the page or pan
+     a carousel — never tear off a translucent copy of the picture, which is what
+     the browser does by default and it reads as a bug on a portfolio.
+
+     `-webkit-user-drag` covers Chrome and Safari but does not exist in Firefox,
+     so `Layout.astro` also cancels `dragstart` for images. Both are needed: the
+     property alone leaves Firefox dragging, and the listener alone still shows a
+     drag cursor mid-gesture in WebKit. */
+  img,
+  svg {
+    -webkit-user-drag: none;
+    user-select: none;
+  }
 }
 
 /* ============================================================================

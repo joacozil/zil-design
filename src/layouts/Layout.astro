@@ -292,6 +292,19 @@ import boldWoff2 from "../assets/fonts/CircularStd-Bold.woff2?url";
       import "../scripts/lead-form";
     </script>
 
+    {
+      /* Firefox half of the no-drag-ghost rule. `-webkit-user-drag: none` in
+        global.css handles Chrome and Safari but does not exist in Firefox, so the
+        gesture is cancelled here instead. Delegated from the document, so it also
+        covers images that arrive later (hydrated islands, carousels). */
+    }
+    <script is:inline>
+      document.addEventListener("dragstart", (e) => {
+        const t = e.target;
+        if (t instanceof Element && t.closest("img, svg")) e.preventDefault();
+      });
+    </script>
+
     <script>
       /**
        * Smooth in-page anchor scrolling.

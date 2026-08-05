@@ -89,10 +89,13 @@ const ratio = (i: ImageMetadata) => i.width / i.height;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    /* Trims the 1px light fringe Figma leaves on the RIGHT and BOTTOM of these
-       exports. Scaling from the top-left pushes only those two edges past the
-       tile, which clips them, and leaves the top and left where they were. See
-       the matching note in CoverCollage. */
+    /* Trims the 1px light fringe Figma leaves on the RIGHT and BOTTOM of an
+       export. Scaling from the top-left pushes only those two edges past the
+       tile, which clips them, and leaves the top and left where they were.
+       STILL NEEDED here: `mujer` and `hombre` carry it (final row measures 170
+       and 254 luminance against interiors of 87 and 97). The cover exports were
+       redone without it and dropped this rule — delete it here too once these
+       two are re-exported. */
     transform: scale(1.004);
     transform-origin: top left;
   }
