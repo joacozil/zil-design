@@ -171,7 +171,11 @@ const palette = [
       title="Clojure Conj 2026 — Charlotte, NC"
     />
     <ProjectBrief meta={meta} blocks={brief} />
-    <ConceptCircles words={concepts} />
+    <ConceptCircles
+      words={concepts}
+      gridWidth={gridImage.width}
+      stroke="#ADDD52"
+    />
     <LogoGrid
       image={gridImage}
       alt="Logo de Clojure/Conj 2026 dentro de su grilla de composición"

@@ -1,0 +1,82 @@
+---
+/**
+ * AboutUs — who is behind the work, stated once and shown once. Deliberately
+ * the simplest beat on the page: one centred claim, one photograph, nothing
+ * else. It sits between Projects (the proof) and Método Zil (the process), so
+ * its job is to put people between the two, not to add another argument.
+ *
+ * SPACING — plain `py-section`, both halves, like any other flow section.
+ *
+ * The rhythm note in global.css says a section bordering a pinned one should
+ * drop its padding on that side and let the pinned stage own the space, and
+ * this was built that way first (`pt-section` only). It measured WRONG: the
+ * gap below came out at 122px against the 160px every other seam on the page
+ * uses, because Método Zil's stage is centred within `100svh` MINUS its own
+ * `pb-28`, which leaves less headroom above its mark than the rule assumes.
+ *
+ * The rule's own example, Statement.astro, is not rendered on this page. The
+ * section that actually bordered Método Zil before this one was Projects,
+ * carrying a full `py-section` — so a half-gap here is what that seam has
+ * always had, and dropping it is what made this one read tight. Match the
+ * neighbour that is really there, not the one the note describes.
+ *
+ * THE CROP LIVES IN THE FILE, not in CSS. team.jpg is already cut to its
+ * banner ratio (2439×1288, ~1.89:1), so there is no aspect box here and
+ * nothing for CSS to trim: `w-full` plus the intrinsic dimensions Astro writes
+ * render the file whole and reserve its space, so nothing shifts as it
+ * decodes. That matters for this particular photo — its two groups of faces
+ * sit near the left and right edges, so a CSS crop would eat people first.
+ * Re-crop the asset rather than adding an aspect class.
+ *
+ * THE SOURCE IS THE MASTER THE DERIVATIVES COME FROM, so it is kept generous:
+ * re-encoded at q92 with 4:4:4 chroma (~44dB PSNR, visually lossless) and NOT
+ * resized, since 2439px is already near 2× the 1312px slot the photo fills on
+ * a wide desktop. Astro re-encodes its webp derivatives FROM this file, so a
+ * lossier master would compound its artifacts into every size the browser
+ * actually downloads — that is why this is not squeezed harder.
+ *
+ * `widths` tops out at the source's own 2439px on purpose: Astro will not
+ * upscale past it, so a larger entry only yields a duplicate candidate. If the
+ * asset is ever replaced, re-check that number against the new file's width.
+ */
+import { Image } from "astro:assets";
+import teamPhoto from "../assets/img/team.jpg";
+---
+
+<section class="py-section">
+  <div class="mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12">
+    <div id="equipo" class="scroll-anchor"></div>
+
+    <h2
+      class="mx-auto max-w-[26ch] text-center text-h2 tracking-[-0.03em] text-balance"
+      data-reveal
+    >
+      {
+        /* The two words the section is actually about, lifted in `primary`.
+          Plain <span>s inside the heading, so they stay part of one sentence
+          for screen readers and for `text-balance`, which needs the whole
+          string to measure. `visión estratégica` is deliberately NOT wrapped
+          in nowrap — at 32px on a 375px screen it cannot fit one line, and
+          forcing it would push the heading past the viewport. */
+      }
+      Un equipo comprometido que transforma marcas a través del <span
+        class="text-primary">diseño</span
+      > y la <span class="text-primary">visión estratégica</span>.
+    </h2>
+
+    {
+      /* Its own `data-reveal` rather than a shared group with the heading: the
+        photo is tall enough that a single trigger at the heading would run its
+        entrance while the image was still well below the fold. */
+    }
+    <div class="mt-12 tablet:mt-16" data-reveal>
+      <Image
+        src={teamPhoto}
+        alt="El equipo de Zil Design trabajando en el estudio."
+        widths={[640, 960, 1312, 1920, 2439]}
+        sizes="(min-width: 1408px) 1312px, 100vw"
+        class="w-full object-cover"
+      />
+    </div>
+  </div>
+</section>

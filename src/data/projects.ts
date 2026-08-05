@@ -43,8 +43,8 @@ export const projects: ProjectEntry[] = [
     category: "Producto Digital",
     slug: "quantia",
   },
-  { img: mmg, name: "MMG Bank", category: "Institucional" },
-  { img: advantia, name: "Advantia", category: "Institucional" },
   { img: netValue, name: "Net Value", category: "Branding" },
   { img: gelato, name: "Gelato", category: "Branding", slug: "gelato" },
+  { img: mmg, name: "MMG Bank", category: "Institucional" },
+  { img: advantia, name: "Advantia", category: "Institucional" },
 ];

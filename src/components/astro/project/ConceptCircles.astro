@@ -27,11 +27,24 @@
  *
  * Overlap is `d/8` on the leading edge on mobile and a gentler fixed inset at
  * tablet+ where width, not height, is the budget.
+ *
+ * The ring OUTLINE is neither sized nor coloured here: both come from the
+ * project's LogoGrid artwork, so the two sections draw the literal same line —
+ * its weight from `gridWidth`, its colour from `stroke`.
  */
 interface Props {
   words: string[];
-  /** Ring outline colour (any CSS colour). Default: white 30% (Clojure on navy). */
-  stroke?: string;
+  /**
+   * Ring outline colour (any CSS colour). Required, and it should be the colour
+   * the project's LogoGrid artwork strokes ITS rules in — `#ADDD52` for Clojure,
+   * `#896451` for Gelato, `#124734` for Quantia. Together with the weight derived
+   * from `gridWidth`, that makes the two sections draw the literal same line.
+   *
+   * Not a faded tint of the brand colour: the rings used to be strokes like
+   * `rgb(18 71 52 / 0.35)`, which read lighter than the grid they sit beside.
+   * The hairline is already faint from its sub-pixel WIDTH — see --ring-bw.
+   */
+  stroke: string;
   /** Word colour. Default: inherit the section's text colour. */
   ink?: string;
   /** CSS font-family for the words. Default: the site sans. */
@@ -55,15 +68,37 @@ interface Props {
    * neighbour's outline before it ever touched its own.
    */
   fontScale?: number;
+  /**
+   * Intrinsic width, in its own units, of the project's LogoGrid artwork —
+   * i.e. `gridImage.width`. It exists so the ring outline can be drawn at the
+   * SAME weight as that artwork's rules; see `--ring-bw` in the style block.
+   */
+  gridWidth: number;
 }
 const {
   words,
-  stroke = "rgb(255 255 255 / 0.3)",
+  stroke,
   ink,
   fontFamily,
   fontWeight = 500,
   fontScale = 0.085,
+  gridWidth,
 } = Astro.props;
+
+// Ring outline weight, expressed as a fraction of the LogoGrid's DISPLAY width.
+//
+// Every project's grid artwork draws its rules at `stroke-width="0.5"` in the
+// SVG's own units, and the <img> scales the whole drawing to fit, so the weight
+// the reader actually sees is `0.5 · displayWidth / intrinsicWidth` — a value
+// that shrinks with the viewport. The rings sat at a flat 1px (0.5px at 2dppx),
+// so the two matched only at the width where the grid stops growing: below that,
+// the rings read as the heavier line. Multiplying the grid's display width by
+// this factor reproduces its stroke exactly, at every size.
+//
+// It is a FACTOR rather than a length because the display width is a CSS `min()`
+// that only the browser can resolve (see --grid-w) — the division is done here,
+// in numbers, so the stylesheet is left with a plain multiplication.
+const ringBorderFactor = 0.5 / gridWidth;
 
 // The word's look is per-project (a display face for Gelato, the site sans for
 // Clojure), so it's authored inline from the props rather than baked into a class.
@@ -86,17 +121,20 @@ const labelStyle = [
   .join(";");
 ---
 
-<section class="concept-circles py-section">
+<section
+  class="concept-circles py-section"
+  style={`--ring-bw-factor:${ringBorderFactor}`}
+>
   <div
     class="mx-auto flex w-full max-w-8xl flex-col items-center px-6 tablet:flex-row tablet:justify-center tablet:px-8 desktop:px-12"
   >
     {
       words.map((word) => (
-        <div
-          class="ring flex aspect-square shrink-0 items-center justify-center rounded-full border"
-          style={`border-color:${stroke}`}
-        >
-          <span class="tracking-wider uppercase" style={labelStyle}>
+        <div class="concept-ring relative flex aspect-square shrink-0 items-center justify-center">
+          <svg class="concept-ring-outline" aria-hidden="true" focusable="false">
+            <circle fill="none" stroke={stroke} />
+          </svg>
+          <span class="relative tracking-wider uppercase" style={labelStyle}>
             {word}
           </span>
         </div>
@@ -115,29 +153,86 @@ const labelStyle = [
   .concept-circles {
     --ring-d: clamp(6rem, calc((100svh - 11rem) / 4.5), 18rem);
   }
-  .ring {
+
+  /* --grid-w mirrors, in CSS, the width the LogoGrid <img> resolves to on this
+     same page: `w-full max-w-3xl` (48rem) inside the standard container, whose
+     side padding steps 1.5rem → 2rem → 3rem. That makes the image
+     `min(48rem, 100cqw − 2 × padding)`.
+
+     Only the first two steps are written out, because the desktop one would be
+     dead code: 100cqw − 4rem already exceeds 48rem from 832px up, so the tablet
+     expression is pinned at 48rem long before the 1024px breakpoint — where the
+     desktop padding would first apply. Both branches therefore agree above
+     832px, and the ring stops changing exactly where the grid does.
+
+     `cqw` — hence `container-type` on this section — and NOT `vw`, which is off
+     by the scrollbar: `vw` includes it, the container's own `%` width does not.
+     That put the ring 2% heavy than the grid at 768px on a classic scrollbar.
+     The obvious `--gutter` token is no use here either: it is `%`-based, and a
+     percentage survives var() substitution unresolved, so `stroke-width` would
+     resolve it against the SVG viewport DIAGONAL rather than a width.
+
+     The section is full-width, so `100cqw` is exactly the basis the container's
+     `%` padding resolves against — the two agree with or without a scrollbar.
+     Note this makes --grid-w usable only in DESCENDANTS: an element never
+     queries itself, and .concept-circles is the container. */
+  .concept-circles {
+    container-type: inline-size;
+    --grid-w: min(48rem, calc(100cqw - 3rem));
+    /* The grid artwork's own stroke, reproduced. Deliberately sub-pixel at small
+       sizes, because so is the line it is matching. */
+    --ring-bw: calc(var(--grid-w) * var(--ring-bw-factor));
+  }
+
+  /* `concept-ring`, never `ring`: `ring` is a Tailwind utility that paints a
+     box-shadow outline in currentColor. The old markup collided with it and got
+     away with it only because `rounded-full` bent that shadow into a circle
+     sitting under the real border. Drop the rounding — as the SVG outline does —
+     and it reappears as a hard black RECTANGLE around every word. */
+  .concept-ring {
     width: var(--ring-d);
   }
-  /* The outline is a hairline: ONE device pixel, not one CSS pixel. On a 2x
-     screen a `border` (1px) paints two physical pixels and reads as a drawn
-     line rather than a drafting one, so halve it where the density can render
-     it. Sub-pixel borders are not sub-pixel here — 0.5px x 2dppx = 1px. */
-  @media (resolution >= 2dppx) {
-    .ring {
-      border-width: 0.5px;
-    }
+
+  /* The outline is an SVG stroke and NOT a CSS border, which is the whole reason
+     this markup carries an <svg> at all. A border snaps to whole device pixels:
+     Chrome floors it at one, so on a 2x screen it can never render finer than
+     0.5px — while the grid's own rules sit near 0.22px on a phone. The ring would
+     read as the heavier line at exactly the sizes this is meant to fix. An SVG
+     stroke is anti-aliased instead, so it thins out below a pixel the same way
+     the grid <img> does, and the two match by construction.
+
+     No viewBox, deliberately: without one, an SVG user unit IS a CSS pixel, so
+     `stroke-width` can be handed --ring-bw directly. Give it a viewBox and the
+     value would be rescaled by the ring's diameter — which grows on a different
+     curve from the grid — and the match would hold at exactly one size. */
+  .concept-ring-outline {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .concept-ring-outline circle {
+    cx: 50%;
+    cy: 50%;
+    /* Pulled in by half the stroke so its OUTER edge lands on the box edge, which
+       is where the old border painted. Keeps the chain's overlap geometry — set
+       in ring diameters below — measuring the same circle it always did. */
+    r: calc(50% - var(--ring-bw) / 2);
+    stroke-width: var(--ring-bw);
   }
   /* Every ring but the first pulls back onto its predecessor — a shallow lens so
      they stay interconnected but sit a little apart. */
-  .ring + .ring {
+  .concept-ring + .concept-ring {
     margin-top: calc(var(--ring-d) / -8);
   }
 
   @media (width >= 640px) {
     .concept-circles {
       --ring-d: clamp(8rem, 20vw, 19rem);
+      /* The container's padding steps to 2rem here; --grid-w follows it. */
+      --grid-w: min(48rem, calc(100cqw - 4rem));
     }
-    .ring + .ring {
+    .concept-ring + .concept-ring {
       margin-top: 0;
       margin-left: -1.4vw;
     }

@@ -250,12 +250,23 @@ export default function MetodoZil() {
       let active = 0;
       let trans: gsap.core.Tween | undefined;
       // Zone thresholds as fractions of the stuck distance (runway − stage =
-      // 300svh). s0 and s1 keep their original ~50svh / ~100svh of scroll, but s2
-      // now claims the whole second half — ~150svh of tail AFTER the fill fires —
-      // so the completion (the slow ~1.1s FILL_DUR beat) always has room to finish
-      // playing while the stage is still pinned, no matter how fast the reader
-      // scrolls, before the section releases into normal flow.
-      const zone = (p: number) => (p < 0.167 ? 0 : p < 0.5 ? 1 : 2);
+      // 250svh). s0 gets ~50svh, s1 and s2 ~100svh each — s2 is the SAME dwell as
+      // s1, not a longer one.
+      //
+      // s2 used to claim the whole second half (~150svh) as a tail, so the slow
+      // ~1.1s FILL_DUR completion always had room to finish while pinned. That
+      // read as the section refusing to let go: after the last state settled the
+      // reader still had 50svh of nothing before normal scroll resumed. 100svh
+      // is still ample for the fill at any sane scroll speed, and on a fast flick
+      // the tween simply finishes as the section leaves — it is a timed tween,
+      // not a scrubbed one, so it never truncates.
+      //
+      // s0 stays deliberately shorter than the other two: it is the only state
+      // that is also on screen BEFORE the pin starts (the entrance draw fires at
+      // "top 40%", while the runway is still approaching), so it already reads
+      // longer than its stuck distance suggests. Equal thirds made the opening
+      // drag.
+      const zone = (p: number) => (p < 0.2 ? 0 : p < 0.6 ? 1 : 2);
 
       // The ONLY thing that moves the timeline. Recording `active` first means no
       // two callers ever drive the playhead at once (that was the entry flicker).
@@ -276,7 +287,7 @@ export default function MetodoZil() {
       };
 
       // Entrance: the draw-on plays at its authored pace as the stage settles
-      // into place. The stage sits at the TOP of the 400svh runway and pins when
+      // into place. The stage sits at the TOP of the 350svh runway and pins when
       // the runway's top reaches the viewport top, so the mark is only near the
       // centre of the viewport once the runway top is near 0 — an earlier start
       // (e.g. "top 85%") drew the whole logo while it was still below the fold,
@@ -338,19 +349,26 @@ export default function MetodoZil() {
   return (
     <div ref={root}>
       {/* Scroll runway. Its only job is to be tall: the stage sticks to the top
-          of the viewport until the runway has scrolled past, so the extra 300svh
-          of stuck distance (400svh runway − 100svh stage) IS the length of the
-          choreography. The final ~150svh of that is a deliberate tail after the
-          state-3 fill fires, giving the slow completion room to finish playing
-          while still pinned before the section releases into normal scroll.
+          of the viewport until the runway has scrolled past, so the extra 250svh
+          of stuck distance (350svh runway − 100svh stage) IS the length of the
+          choreography — split ~50 / ~100 / ~100svh across the three states by
+          `zone()` above. Change this height and those thresholds together: they
+          are fractions of the stuck distance, so moving one without the other
+          silently re-times every state.
+
+          It was 400svh, which handed the last state a ~150svh tail and made the
+          section feel like it would not release. See the note on `zone()`.
           Under reduced motion nothing animates, so the runway collapses to the
           stage and the section scrolls like any other block. */}
-      <div data-runway className="relative h-[400svh] motion-reduce:h-auto">
+      <div data-runway className="relative h-[350svh] motion-reduce:h-auto">
         <div
           data-stage
           // Mobile AND tablet: stacked, and centred in the band the chrome leaves
           // visible — pt-20 clears the 80px header (it hides on scroll-down but
-          // returns on any scroll-up, so its slot must stay reserved) and pb-28
+          // returns on any scroll-up, so its slot must stay reserved; the stage
+          // is pinned for 250svh, so the reader WILL scroll up inside it and
+          // bring the header back over this content — that is why the slot is
+          // reserved rather than reclaimed) and pb-28
           // clears the ContactDrawer's 7rem peek pinned to the bottom at these
           // sizes; justify-center splits the leftover evenly so the composition
           // sits centred between the two. That band is only ~svh−192 on a phone,
@@ -359,7 +377,7 @@ export default function MetodoZil() {
           // card clear of the drawer. Desktop is the two-column grid: the drawer
           // is gone there, so symmetric py-24 recentres against the raw viewport
           // (it clears the header on its own).
-          className="sticky top-0 mx-auto flex min-h-[100svh] w-full max-w-8xl flex-col items-center justify-center gap-6 px-6 pb-28 motion-reduce:static tablet:gap-16 tablet:px-8 desktop:gap-20 desktop:px-12 desktop:pt-10 desktop:pb-24"
+          className="sticky top-0 mx-auto flex min-h-[100svh] w-full max-w-8xl flex-col items-center justify-center gap-6 px-6 pt-20 pb-28 motion-reduce:static tablet:gap-16 tablet:px-8 desktop:gap-20 desktop:px-12 desktop:pt-10 desktop:pb-24"
         >
           {/* ---- Section header ------------------------------------------------
               Sits above the animated exhibit and stays put while the runway
