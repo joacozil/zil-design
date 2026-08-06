@@ -210,6 +210,21 @@ const labelStyle = [
     inset: 0;
     width: 100%;
     height: 100%;
+    /* An <svg> clips to its viewport by default (UA `overflow: hidden`), and the
+       circle below is drawn FLUSH with it — outer edge exactly on 100%. At the
+       3 and 9 o'clock tangents the stroke therefore runs PARALLEL to the clip
+       edge, so that whole arc lives inside the last fraction of a pixel column;
+       the stroke is deliberately sub-pixel, and the clip rect snaps to the
+       device-pixel grid, so rounding it inward erases the arc over a long
+       stretch. That is why the ring faded out at its right side on some rings
+       and not others: `justify-center` plus the -1.4vw overlap lands each one on
+       a different subpixel offset, and the rounding goes the other way.
+
+       Nothing actually paints outside the box, so lifting the clip changes no
+       geometry — it only lets the anti-aliased tangent survive. Do NOT fix this
+       by shrinking `r` instead: that pulls the outline off the box edge and
+       silently changes the chain's overlap, which is measured in ring diameters. */
+    overflow: visible;
   }
   .concept-ring-outline circle {
     cx: 50%;
