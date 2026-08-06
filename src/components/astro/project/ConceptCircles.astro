@@ -18,9 +18,11 @@
  *   while still all fitting. The rings overlap by `d/8` (shallow, so they stay
  *   interconnected but a little apart): the chain's height is `5·d − 4·(d/8)` =
  *   `4.5·d` (five rings minus four d/8 overlaps), so the ring that fits the
- *   viewport is `(100svh − section padding) / 4.5`, capped so it never balloons
- *   on a tall phone. A shallower overlap shrinks every ring to keep the five on
- *   screen — this is the trade against ring size.
+ *   viewport is `100svh / 4.5`, capped so it never balloons on a tall phone.
+ *   What must fit is the CHAIN, not the section: the section's py-section
+ *   padding scrolls like any other section's does, and reserving it here only
+ *   shrank the rings for no gain. A shallower overlap shrinks every ring to keep
+ *   the five on screen — this is the trade against ring size.
  * - Tablet+ (horizontal chain): the diameter is `clamp(8rem, 20vw, 19rem)` so the
  *   chain grows with the viewport (big on wide desktops, per the design) yet five
  *   rings always fit the row down to 640px without overflow.
@@ -145,13 +147,19 @@ const labelStyle = [
 
 <style>
   /* Mobile: size the ring to the viewport height so the whole five-ring chain
-     fits on one screen. `11rem` is the section's own top+bottom padding
-     (py-section = 5rem each) plus ~1rem of breathing room; `4.5` is the chain's
-     height in ring-diameters — `5·d − 4·(d/8)` for the shallow `d/8` overlap
-     below. `svh` (not `vh`) so the fit holds even while the mobile browser chrome
-     is expanded. */
+     fits on one screen. `4.5` is the chain's height in ring-diameters —
+     `5·d − 4·(d/8)` for the shallow `d/8` overlap below. `svh` (not `vh`) so the
+     fit holds even while the mobile browser chrome is expanded.
+
+     The budget is the FULL viewport, not the viewport minus this section's
+     padding. It used to subtract 11rem (py-section top + bottom, plus a rem of
+     slack), which sized the rings so the section AND its padding fit one screen
+     — but the padding is ordinary section rhythm and is meant to scroll, exactly
+     like every other section's. Reserving it just cost ~25% of the diameter and
+     left the rings floating in a third of the screen width. What has to fit at
+     once is the chain. */
   .concept-circles {
-    --ring-d: clamp(6rem, calc((100svh - 11rem) / 4.5), 18rem);
+    --ring-d: clamp(6rem, calc(100svh / 4.5), 18rem);
   }
 
   /* --grid-w mirrors, in CSS, the width the LogoGrid <img> resolves to on this
