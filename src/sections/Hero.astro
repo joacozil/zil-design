@@ -81,7 +81,7 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
     /* `pt-24` is header clearance for the floating pill (~75px), NOT rhythm —
       measured, not negotiable, and the SAME at every size: on tablet+ the
       title band (see .hero-grid below) subtracts exactly this 6rem from its
-      43svh height, so the headline centres between the header and the horizon.
+      50svh height, so the headline centres between the header and the horizon.
       Change one without the other and that symmetry silently breaks. */
   }
   <div
@@ -203,7 +203,7 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
     .hero-grid {
       grid-template-columns: 1fr 1fr;
       /* The title band is EXACTLY the violet zone above the shapes' horizon
-         line: 43svh (where both panels' horizontal edges sit) minus the 6rem
+         line: 50svh (where both panels' horizontal edges sit) minus the 6rem
          header clearance the container already spent as pt-24. Centring the
          headline in that band gives it equal air above (to the header) and
          below (to the horizon) at ANY viewport size — a plain 1fr band ran to
@@ -211,7 +211,7 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
          minmax lets the band grow rather than clip if the headline ever gets
          taller than the zone. The bare 1fr row is the open stage the diagonal
          crosses; desc + cta anchor bottom-right, the logos close the foot. */
-      grid-template-rows: minmax(min-content, calc(43svh - 6rem)) 1fr auto auto auto;
+      grid-template-rows: minmax(min-content, calc(50svh - 6rem)) 1fr auto auto auto;
       grid-template-areas:
         "title title"
         ". ."
@@ -274,7 +274,16 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
        keeps it clear down to 360×640 (the shortest phone worth supporting)
        with ~15px to spare. Widening the arms again re-opens that collision;
        re-measure at 360×640 before touching this pair, and recompute each apex
-       to hold the 1.22 slope (apex y = 42% ∓ Δx / 1.22). */
+       to hold the 1.22 slope (apex y = 42% ∓ Δx / 1.22).
+
+       MOBILE DOES NOT GET THE MIRRORED 50% HORIZON the tablet+ block below
+       uses, and that is not an oversight. Dropping the horizon to 50% here
+       moves the dark arm's WIDEST part down into the description: measured at
+       360×640, the description's first line crossed the diagonal by 2px.
+       Holding the mirror would mean shrinking both arms to ~20% to buy that
+       clearance back, which guts the Z at the size where it is already
+       smallest. The mobile stage balances differently anyway — the 17.4% above
+       the lime arm is the header pill, not bare violet. */
     clip-path: polygon(100% 17.4%, 100% 42%, 70% 42%);
   }
 
@@ -290,7 +299,7 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
   @media (width >= 640px) {
     /* ONE number drives both arms from here up, which is what guarantees the
        two cut edges stay parallel: each arm steps the same --z-dx across and
-       the same 43% down, just anchored to opposite corners. Change the arms by
+       the same 50% down, just anchored to opposite corners. Change the arms by
        changing this, never by editing a polygon vertex on its own. Tablet runs
        the arms at full width: its headline is three narrow lines and never
        reaches them. Only desktop, where the headline goes wide on two lines,
@@ -299,22 +308,39 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
       --z-dx: 36%;
     }
 
+    /* THE HORIZON IS AT 50% AND THE ARMS ARE MIRRORED ACROSS IT. Each arm is
+       exactly half the stage tall and lands ON its own edge — the lime arm
+       runs from the top edge down to the horizon, the dark arm from the horizon
+       down to the bottom edge — so the air above the composition and the air
+       below it are both zero and the Z reads centred.
+
+       This replaces a 43% horizon with arms that were only 43% tall: the lime
+       one still reached the top edge, but the dark one died at 86% and left a
+       14% band of bare violet under it. That band is exactly where the logo
+       strip sits, and it is what made the whole lower half read as stretched.
+       Whatever you do here, keep the two arms the SAME height and keep the
+       horizon at their shared midpoint, or the dead band comes back. */
     .hero-shape-light {
       background: linear-gradient(
         190deg,
         color-mix(in srgb, var(--color-primary) 65%, var(--color-accent)) 0%,
         var(--color-accent) 41%
       );
-      clip-path: polygon(100% 0, 100% 43%, calc(100% - var(--z-dx)) 43%);
+      clip-path: polygon(100% 0, 100% 50%, calc(100% - var(--z-dx)) 50%);
     }
 
     .hero-shape-dark {
+      /* The stops trail past the arm's own tip on purpose. The gradient is
+         measured over the full-height layer, not the clipped triangle, so a
+         fade ending at ~100% would land the transparent end exactly on the
+         bottom vertex and dissolve it — the arm has to hold its edge all the
+         way into the corner the way the lime one holds the top. */
       background: linear-gradient(
         188deg,
-        var(--color-primary-dark) 46%,
-        transparent 98%
+        var(--color-primary-dark) 50%,
+        transparent 118%
       );
-      clip-path: polygon(0 43%, var(--z-dx) 43%, 0 86%);
+      clip-path: polygon(0 50%, var(--z-dx) 50%, 0 100%);
     }
   }
 
