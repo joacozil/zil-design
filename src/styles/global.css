@@ -28,8 +28,30 @@
    win a race it does not reliably win: on iOS Safari, where a touch or momentum
    can cancel a programmatic smooth scroll, the reader is stranded at the top. */
 
+/* THE anchor-landing knob — the one place that decides where a `#section` jump
+   comes to rest, for every section and every route into it (nav click, mobile
+   menu, deep link with a hash).
+
+   The goal: a section lands FLUSH with the top of the viewport — its own
+   `py-section` breathing room visible above its badge, exactly as the section
+   reads mid-page. Do not "restore" a header offset on top of that; the header
+   hides on downward scroll (see Header.astro), so clearance reserved for it just
+   pushed every section down the screen with nothing occupying the gap.
+
+   Why this is `--spacing-section` and not 0: every anchor div sits INSIDE its
+   section's padded container, i.e. exactly `--spacing-section` below the
+   section's own top edge. Landing the ANCHOR at 0 therefore scrolls that padding
+   off-screen and jams the badge against the top of the viewport. Offsetting by
+   the very token that padding uses lands the section EDGE at 0, and because the
+   token already steps at both breakpoints, so does this — no media query here.
+
+   Tune landing position HERE and nowhere else. This used to be three values
+   fighting each other — `scroll-padding-top: 5rem` on <html>, this class at
+   2.25rem, and a `-scroll-mt-20` on HowWeWork cancelling the padding back out —
+   which netted 116px for most sections but 0 for HowWeWork, so no two sections
+   could be reasoned about together. */
 .scroll-anchor {
-  scroll-margin-top: 2.25rem;
+  scroll-margin-top: var(--spacing-section);
 }
 
 /* ============================================================================
@@ -286,8 +308,11 @@ html.reveal-armed [data-reveal]:not([data-revealed]) {
   html {
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
-    /* Offset anchor jumps by the fixed header height (h-20 = 5rem). */
-    scroll-padding-top: 5rem;
+    /* No `scroll-padding-top` on purpose. It used to reserve the fixed header's
+       height on every anchor jump, but the header slides away on downward
+       scroll, so the reserved band sat empty and every section landed that far
+       below the top of the screen. Anchor landing is owned by `.scroll-anchor`
+       — see the comment on it near the top of this file. */
   }
 
   body {

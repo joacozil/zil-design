@@ -9,15 +9,14 @@ import MetodoZil from "../components/react/MetodoZil.tsx";
       on the claim that precedes it. Empty and zero-height, so it sits exactly at
       the pinned stage's top without affecting its layout or pin start.
 
-      It deliberately does NOT use the shared `.scroll-anchor` class. That class
-      adds 2.25rem on top of the scroller's `scroll-padding-top: 5rem` (the fixed
-      header), landing its target 116px down — right for a normal section, wrong
-      for this one: the stage is viewport-pinned, so anything other than flush
-      leaves it mid-transition, with the claim's last line still peeking in above.
-      `-scroll-mt-20` cancels the 5rem padding to net zero, so the section lands
-      exactly on its pin start and reads as the composed, pinned frame. The stage
-      clears the header on its own via its own top padding. */
+      No `.scroll-anchor` here, and NOT an oversight. That class offsets by
+      `--spacing-section` because every other anchor sits inside its section's
+      padded container and has to cancel that padding to land the section edge at
+      the top. This stage is viewport-pinned and exempt from `py-section` (see
+      CLAUDE.md), so this div already sits ON the section's top edge — adding the
+      offset would push the landing a full section-padding PAST the pin start and
+      leave the stage mid-transition, which is the one thing it cannot afford. */
   }
-  <div id="how-we-work" class="-scroll-mt-20"></div>
+  <div id="how-we-work"></div>
   <MetodoZil client:load />
 </section>

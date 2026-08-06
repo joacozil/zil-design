@@ -348,12 +348,12 @@ import boldWoff2 from "../assets/fonts/CircularStd-Bold.woff2?url";
         // intermittently stalls (the "click twice to go up" bug). So route through
         // lenis.scrollTo when it exists.
         //
-        // Lenis already honours the CSS insets that give the header clearance —
-        // `scroll-padding-top` on <html> plus the target's own `scroll-margin-top`
-        // (the `.scroll-anchor` / `-scroll-mt-*` inset). Do NOT also pass them as
-        // an explicit offset: that double-counts the clearance and drops every
-        // section ~1 header-height too low. (An earlier Lenis version ignored the
-        // insets, which the removed manual offset compensated for.)
+        // Lenis already honours the target's `scroll-margin-top` — the
+        // `.scroll-anchor` knob in global.css, which is where landing position
+        // is decided. Do NOT also pass it as an explicit offset: that
+        // double-counts the inset and drops every section too low. (An earlier
+        // Lenis version ignored the insets, which the removed manual offset
+        // compensated for.)
         const lenis = window.lenis;
         if (lenis) {
           lenis.scrollTo(dest as HTMLElement);
