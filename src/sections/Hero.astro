@@ -66,7 +66,9 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
   id="hero"
   class="relative flex min-h-svh w-full flex-col overflow-hidden bg-primary"
 >
-  {/* The graphic layer. Decorative only — everything readable sits above it. */}
+  {
+    /* The graphic layer. Decorative only — everything readable sits above it. */
+  }
   <div aria-hidden="true" class="absolute inset-0" data-hero-image>
     <div class="hero-shape hero-shape-light"></div>
     <div class="hero-shape hero-shape-dark"></div>
@@ -111,10 +113,18 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
       /* Right-aligned at every size — the ragged edge tracks the diagonal it
         sits against, and on tablet+ the CTA closes the block on the same right
         edge. White at full opacity — this is primary copy on a saturated
-        ground, not a caption. */
+        ground, not a caption.
+
+        THE MOBILE CAP IS GEOMETRY, NOT TASTE. The dark arm is at its widest
+        exactly where this block sits, so the cap is what buys the paragraph its
+        left margin: at 32ch it ran to within 41px of the left gutter on a
+        360px-wide phone, which left no room for an arm that reaches the bottom
+        corner (~10% wide, i.e. no arm at all). 24ch clears it at every phone
+        down to 360×640. Widening this again re-opens that collision — see the
+        shape block below before touching it. */
     }
     <p
-      class="hero-desc max-w-[32ch] text-p text-pretty text-text-inverse tablet:max-w-[42ch]"
+      class="hero-desc max-w-[24ch] text-p text-pretty text-text-inverse tablet:max-w-[42ch]"
       data-reveal
     >
       Diseñamos sistemas visuales que aportan dirección, fortalecen el
@@ -211,7 +221,10 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
          minmax lets the band grow rather than clip if the headline ever gets
          taller than the zone. The bare 1fr row is the open stage the diagonal
          crosses; desc + cta anchor bottom-right, the logos close the foot. */
-      grid-template-rows: minmax(min-content, calc(50svh - 6rem)) 1fr auto auto auto;
+      grid-template-rows: minmax(
+          min-content,
+          calc(50svh - 6rem)
+        ) 1fr auto auto auto;
       grid-template-areas:
         "title title"
         ". ."
@@ -237,13 +250,31 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
      Both panels are full-bleed layers clipped to polygons, so their gradients
      and geometry are tuned in viewport percentages. THE COMPOSITION IS THE
      BRAND'S Z: the lime panel is the top arm, the dark panel the bottom arm,
-     and the open violet channel between them the diagonal stroke. For the
-     channel to read as one stroke, the two cut edges must stay PARALLEL —
-     their Δx/Δy slopes are matched per breakpoint (mobile ≈1.22, tablet+
-     ≈0.84). If you move one vertex, recompute the other shape's to keep the
-     slopes equal. The lime panel also starts well right of the dark one so
-     the headline sits on clear violet at every width — don't pull its lower
-     vertex back toward the center.
+     and the open violet channel between them the diagonal stroke.
+
+     ONE GEOMETRY AT EVERY SIZE, DRIVEN BY ONE NUMBER. The horizon is at 50%
+     and the arms are mirrored across it: each is exactly half the stage tall,
+     steps the same --z-dx across, and LANDS IN ITS OWN CORNER — the lime arm
+     from the top-right corner down to the horizon, the dark arm from the
+     horizon down to the bottom-left corner. Nothing floats: the air above the
+     composition and the air below it are both zero, so the Z reads centred,
+     and because both arms share --z-dx over the same 50% drop their cut edges
+     are parallel by construction. Change the arms by changing --z-dx, never by
+     editing a polygon vertex on its own — an edited vertex breaks the parallel
+     and the channel stops reading as one stroke.
+
+     Mobile used to run a separate, smaller composition: a 42% horizon with
+     arms 30% × 24.6%, so the lime one hung 17.4% below the top edge and the
+     dark one died at 66.6%. Both cuts stopped short of their corner and the Z
+     read as two loose shards. Mirroring it cost one thing — the description's
+     mobile max-width, which had to come down to 24ch to clear the dark arm's
+     widest part; that cap is documented at the markup and is load-bearing.
+
+     THE ARMS ARE THE STROKE WIDTH. 36% each leaves a 28% channel between them
+     at the horizon. Widening them past ~40% on mobile brings the lime cut into
+     the headline's first line (16px of clearance left at 360×640) and the dark
+     cut into the description. Re-measure at 360×640 — narrow AND short is the
+     worst case for both — before touching this number.
 
      Every edge of the lime panel is crisp: its gradient runs mauve (a
      violet/lime mix) at the top into full lime at the horizon, so the cut
@@ -253,94 +284,46 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
   .hero-shape {
     position: absolute;
     inset: 0;
+    --z-dx: 36%;
   }
 
   .hero-shape-light {
     background: linear-gradient(
-      195deg,
-      color-mix(in srgb, var(--color-primary) 65%, var(--color-accent)) 8%,
-      var(--color-accent) 42%
+      190deg,
+      color-mix(in srgb, var(--color-primary) 65%, var(--color-accent)) 0%,
+      var(--color-accent) 41%
     );
-    /* The 70% here and the 30% on the dark panel below are the Z's STROKE
-       WIDTH: the horizontal gap between the two arms at the horizon. They
-       started at 56% / 54%, which pinched the channel to 2% — the arms read as
-       two shapes touching rather than one stroke running between them.
-
-       Both arms are now the SAME size (30% wide × 24.6% tall), which is what
-       keeps the composition symmetric top-to-bottom. The dark one is the
-       binding constraint: the description is right-aligned at the foot of the
-       mobile stage, and on a SHORT phone it rides up into the wide part of the
-       dark triangle — at 375×667 it used to cross the diagonal by 27px. 30%
-       keeps it clear down to 360×640 (the shortest phone worth supporting)
-       with ~15px to spare. Widening the arms again re-opens that collision;
-       re-measure at 360×640 before touching this pair, and recompute each apex
-       to hold the 1.22 slope (apex y = 42% ∓ Δx / 1.22).
-
-       MOBILE DOES NOT GET THE MIRRORED 50% HORIZON the tablet+ block below
-       uses, and that is not an oversight. Dropping the horizon to 50% here
-       moves the dark arm's WIDEST part down into the description: measured at
-       360×640, the description's first line crossed the diagonal by 2px.
-       Holding the mirror would mean shrinking both arms to ~20% to buy that
-       clearance back, which guts the Z at the size where it is already
-       smallest. The mobile stage balances differently anyway — the 17.4% above
-       the lime arm is the header pill, not bare violet. */
-    clip-path: polygon(100% 17.4%, 100% 42%, 70% 42%);
+    clip-path: polygon(100% 0, 100% 50%, calc(100% - var(--z-dx)) 50%);
   }
 
   .hero-shape-dark {
+    /* The stops trail past the arm's own tip on purpose. The gradient is
+       measured over the full-height layer, not the clipped triangle, so a fade
+       ending at ~100% would land the transparent end exactly on the bottom
+       vertex and dissolve it — the arm has to hold its edge all the way into
+       the corner the way the lime one holds the top.
+
+       How far past depends on the aspect ratio, which is why this stop is the
+       one thing the tablet+ block below still overrides: at 188deg the gradient
+       line is `H·cos8° + W·sin8°` long, so on a wide viewport it runs well past
+       the layer's own height and a given percentage lands higher up the arm. A
+       phone's line is barely longer than its height, so the same 118% would
+       fade the tip out before the corner. 145% lands it. */
     background: linear-gradient(
-      192deg,
-      var(--color-primary-dark) 42%,
-      transparent 96%
+      188deg,
+      var(--color-primary-dark) 50%,
+      transparent 145%
     );
-    clip-path: polygon(0 42%, 30% 42%, 0 66.6%);
+    clip-path: polygon(0 50%, var(--z-dx) 50%, 0 100%);
   }
 
   @media (width >= 640px) {
-    /* ONE number drives both arms from here up, which is what guarantees the
-       two cut edges stay parallel: each arm steps the same --z-dx across and
-       the same 50% down, just anchored to opposite corners. Change the arms by
-       changing this, never by editing a polygon vertex on its own. Tablet runs
-       the arms at full width: its headline is three narrow lines and never
-       reaches them. Only desktop, where the headline goes wide on two lines,
-       has to negotiate — see the override in the 1024 block below. */
-    .hero-shape {
-      --z-dx: 36%;
-    }
-
-    /* THE HORIZON IS AT 50% AND THE ARMS ARE MIRRORED ACROSS IT. Each arm is
-       exactly half the stage tall and lands ON its own edge — the lime arm
-       runs from the top edge down to the horizon, the dark arm from the horizon
-       down to the bottom edge — so the air above the composition and the air
-       below it are both zero and the Z reads centred.
-
-       This replaces a 43% horizon with arms that were only 43% tall: the lime
-       one still reached the top edge, but the dark one died at 86% and left a
-       14% band of bare violet under it. That band is exactly where the logo
-       strip sits, and it is what made the whole lower half read as stretched.
-       Whatever you do here, keep the two arms the SAME height and keep the
-       horizon at their shared midpoint, or the dead band comes back. */
-    .hero-shape-light {
-      background: linear-gradient(
-        190deg,
-        color-mix(in srgb, var(--color-primary) 65%, var(--color-accent)) 0%,
-        var(--color-accent) 41%
-      );
-      clip-path: polygon(100% 0, 100% 50%, calc(100% - var(--z-dx)) 50%);
-    }
-
     .hero-shape-dark {
-      /* The stops trail past the arm's own tip on purpose. The gradient is
-         measured over the full-height layer, not the clipped triangle, so a
-         fade ending at ~100% would land the transparent end exactly on the
-         bottom vertex and dissolve it — the arm has to hold its edge all the
-         way into the corner the way the lime one holds the top. */
       background: linear-gradient(
         188deg,
         var(--color-primary-dark) 50%,
         transparent 118%
       );
-      clip-path: polygon(0 50%, var(--z-dx) 50%, 0 100%);
     }
   }
 
