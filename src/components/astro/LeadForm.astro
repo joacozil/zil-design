@@ -1,0 +1,150 @@
+---
+/**
+ * THE contact form. One markup definition, every placement.
+ *
+ * The site asks for a lead in three places — sections/CTA.astro, the mobile
+ * ContactDrawer and the hero's ContactModal — and they must stay identical:
+ * `scripts/lead-form.ts` maps every field name through its FIELD_MAP, so a field
+ * that exists in one placement and not another is a lead that reaches workspace
+ * missing data depending on which surface converted. That used to be a comment in
+ * two files asking to be kept in sync by hand; it is a component now, so it cannot
+ * drift.
+ *
+ * Submission is NOT handled here. This only declares the `data-lead-*` markup
+ * that scripts/lead-form.ts drives — read that file before adding a field, since
+ * a new field also needs its API name in FIELD_MAP or it is silently dropped.
+ *
+ * Two knobs, both describing the surface the form sits ON, never the layout:
+ *
+ *   tone="lilac"    the CTA card's `bg-primary-light` — fields are flat white,
+ *                   no border, and the focus ring offsets against the lilac.
+ *   tone="surface"  a plain `surface` panel (drawer, modal) — white on white, so
+ *                   the fields need a border to read as fields at all.
+ *
+ *   compact         a sheet or a dialog, where vertical room is the constraint:
+ *                   tighter rhythm, a shorter textarea, full-width submit.
+ */
+import Button from "./Button.astro";
+import LeadHoneypot from "./LeadHoneypot.astro";
+import LeadSuccess from "./LeadSuccess.astro";
+
+interface Props {
+  /** Sent to workspace as `formPlacement` — which surface converted. */
+  placement: string;
+  tone?: "lilac" | "surface";
+  compact?: boolean;
+  /**
+   * Opt into the entrance sequence. ONLY for a form that scrolls into view: a
+   * `data-reveal` inside a dialog or a parked sheet may never meet its trigger,
+   * and the armed hidden state would leave the fields invisible. See the reveal
+   * notes in CLAUDE.md.
+   */
+  reveal?: boolean;
+  submitLabel?: string;
+  class?: string;
+}
+
+const {
+  placement,
+  tone = "surface",
+  compact = false,
+  reveal = false,
+  submitLabel = "Descubre Zil Design",
+  class: className = "",
+} = Astro.props;
+
+// Only what actually differs between the two surfaces: the border, the field
+// padding, the placeholder tone and what the focus ring offsets against.
+const toneClasses = {
+  lilac:
+    "bg-surface px-6 py-4 placeholder:text-gray focus-visible:ring-offset-primary-light",
+  surface:
+    "border border-border bg-surface px-5 py-3.5 placeholder:text-muted focus-visible:ring-offset-surface",
+} as const;
+
+const fieldBase = `w-full rounded-2xl text-p text-text placeholder:text-p placeholder:font-normal focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${toneClasses[tone]}`;
+
+/** Spread, so the attribute is ABSENT rather than empty when not revealing. */
+const revealAttr = reveal ? { "data-reveal": "" } : {};
+
+// The field list is data, not markup, so the three placements cannot fall out of
+// step field by field. Names are the site's Spanish ones; lead-form.ts maps them.
+// `as const` so `type` stays the literal union <input> expects, not `string`.
+const fields = [
+  {
+    type: "text",
+    name: "nombre",
+    required: true,
+    placeholder: "Tu nombre",
+    autocomplete: "name",
+  },
+  {
+    type: "text",
+    name: "empresa",
+    required: false,
+    placeholder: "¿De qué empresa venís?",
+    autocomplete: "organization",
+  },
+  {
+    type: "email",
+    name: "email",
+    required: true,
+    placeholder: "Email",
+    autocomplete: "email",
+  },
+  {
+    type: "tel",
+    name: "celular",
+    required: false,
+    placeholder: "Celular",
+    autocomplete: "tel",
+  },
+] as const;
+---
+
+<div data-lead-root class={className}>
+  <form
+    class:list={["flex flex-col", compact ? "gap-3" : "gap-4"]}
+    data-lead-form
+    data-lead-placement={placement}
+  >
+    {
+      fields.map((field) => (
+        <input
+          type={field.type}
+          name={field.name}
+          required={field.required}
+          placeholder={field.placeholder}
+          autocomplete={field.autocomplete}
+          class={fieldBase}
+          {...revealAttr}
+        />
+      ))
+    }
+
+    <textarea
+      name="mensaje"
+      rows={compact ? 3 : 4}
+      placeholder="Contanos brevemente qué necesitas"
+      class={`${fieldBase} resize-none`}
+      {...revealAttr}></textarea>
+
+    <LeadHoneypot />
+
+    <p data-lead-error hidden role="alert" class="text-p-sm text-primary-dark">
+      No pudimos enviar tu mensaje. Probá de nuevo en unos segundos.
+    </p>
+
+    <div class="mt-2" {...revealAttr}>
+      <Button
+        type="submit"
+        variant="pill-dark"
+        class={compact ? "w-full justify-center" : ""}
+      >
+        {submitLabel}
+      </Button>
+    </div>
+  </form>
+
+  <LeadSuccess class={compact ? "py-6" : "py-10"} />
+</div>

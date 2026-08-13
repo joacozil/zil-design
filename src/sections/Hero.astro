@@ -161,11 +161,19 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({
         the arrow-reveal growth. Below 640px there is no hover, so nothing is
         lost. */
     }
+    {
+      /* `href="#cta"` STAYS, and is not vestigial: ContactModal intercepts the
+        click and opens the form right here, but with no JS the link still walks
+        the reader to the real CTA section. The modal is an enhancement over a
+        working link — see the header comment in ContactModal.astro. */
+    }
     <div class="mt-8 tablet:mt-10" data-reveal>
       <Button
         href="#cta"
         variant="pill"
         class="max-tablet:py-3! max-tablet:pr-7! max-tablet:pl-7! max-tablet:text-p!"
+        data-contact-modal-open
+        aria-haspopup="dialog"
       >
         Hablemos de tu marca
       </Button>

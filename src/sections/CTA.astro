@@ -1,11 +1,5 @@
 ---
-import Button from "../components/astro/Button.astro";
-import LeadHoneypot from "../components/astro/LeadHoneypot.astro";
-import LeadSuccess from "../components/astro/LeadSuccess.astro";
-
-// Shared classes for the white fields so every input/textarea matches.
-const fieldBase =
-  "w-full rounded-2xl bg-surface px-6 py-4 text-p text-text placeholder:text-p placeholder:font-normal placeholder:text-gray focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-primary-light";
+import LeadForm from "../components/astro/LeadForm.astro";
 ---
 
 <section>
@@ -43,78 +37,14 @@ const fieldBase =
         </div>
 
         {
-          /* Right — contact form. The lead goes to workspace and the reader is
-            handed off to the booking calendar; scripts/lead-form.ts owns all of
-            that, this only declares the markup it drives. Keep in sync with the
-            mobile ContactDrawer, which mirrors this form field for field. */
+          /* Right — contact form. The markup is LeadForm's, shared with the
+            mobile ContactDrawer and the hero's ContactModal so the three cannot
+            drift apart; the lead itself goes to workspace and the reader is
+            handed off to the booking calendar, all of which scripts/lead-form.ts
+            owns. `reveal` is on because this is the one placement that scrolls
+            into view — see LeadForm's note before turning it on elsewhere. */
         }
-        <div data-lead-root>
-          <form
-            class="flex flex-col gap-4"
-            data-lead-form
-            data-lead-placement="cta"
-          >
-            <input
-              type="text"
-              name="nombre"
-              required
-              placeholder="Tu nombre"
-              autocomplete="name"
-              class={fieldBase}
-              data-reveal
-            />
-            <input
-              type="text"
-              name="empresa"
-              placeholder="¿De qué empresa venís?"
-              autocomplete="organization"
-              class={fieldBase}
-              data-reveal
-            />
-            <input
-              type="email"
-              name="email"
-              required
-              placeholder="Email"
-              autocomplete="email"
-              class={fieldBase}
-              data-reveal
-            />
-            <input
-              type="tel"
-              name="celular"
-              placeholder="Celular"
-              autocomplete="tel"
-              class={fieldBase}
-              data-reveal
-            />
-            <textarea
-              name="mensaje"
-              rows="4"
-              placeholder="Contanos brevemente qué necesitas"
-              class={`${fieldBase} resize-none`}
-              data-reveal></textarea>
-
-            <LeadHoneypot />
-
-            <p
-              data-lead-error
-              hidden
-              role="alert"
-              class="text-p-sm text-primary-dark"
-            >
-              No pudimos enviar tu mensaje. Probá de nuevo en unos segundos.
-            </p>
-
-            <div class="mt-2" data-reveal>
-              <Button type="submit" variant="pill-dark"
-                >Descubre Zil Design</Button
-              >
-            </div>
-          </form>
-
-          <LeadSuccess class="py-10" />
-        </div>
+        <LeadForm placement="cta" tone="lilac" reveal />
       </div>
     </div>
   </div>

@@ -19,6 +19,13 @@ interface Props {
     "pill" | "pill-dark" | "pill-sm" | "outline" | "primary" | "secondary";
   class?: string;
   arrowDirection?: "right" | "up";
+  /**
+   * Anything else lands on the rendered tag: `data-*` hooks, `aria-*`, `target`.
+   * The pill is the site's only button, so a caller that needs an attribute must
+   * either get it through here or stop using the component — and a second
+   * hand-rolled pill is how the hover choreography starts drifting.
+   */
+  [key: string]: unknown;
 }
 
 const {
@@ -27,6 +34,7 @@ const {
   variant = "primary",
   class: className = "",
   arrowDirection = "right",
+  ...rest
 } = Astro.props;
 
 const hasPillArrow = variant === "pill" || variant === "pill-dark";
@@ -75,7 +83,7 @@ const cls = [base, variantClasses[variant], className]
   .join(" ");
 ---
 
-<Tag class={cls} {...href ? { href } : { type }}>
+<Tag class={cls} {...rest} {...href ? { href } : { type }}>
   {
     hasPillArrow ? (
       <>
