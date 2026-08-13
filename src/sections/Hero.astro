@@ -473,16 +473,40 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({
      stays pixel-coincident with the glow's clipped edge at any aspect ratio
      without knowing the viewport. Both boxes are --z-run wide over the stage's
      half height, anchored on their own junction. */
+  /* THE STOPS ARE FEATHERED, AND THAT FEATHER IS THE ANTIALIASING. This used
+     to be a hard stop — two colour stops at the same position on each side —
+     which browsers do NOT antialias: every pixel gets either the full colour
+     or nothing, so a near-diagonal edge comes out as visible stair-steps.
+
+     It hid on retina and showed up on external monitors, which is the tell.
+     At 2dppx the line is 3 device pixels and each step is half-size; at 1dppx
+     it is 1.5 device pixels, the steps are full-size, and 1.5 cannot sit on
+     the pixel grid either, so the line ALSO alternates between 1px and 2px
+     runs and reads as uneven.
+
+     --z-aa is the width of the ramp the rasterizer gets to blend across, and
+     it is quoted per density so it lands on ONE device pixel either way:
+     softer than that and the hairline goes blurry on retina, which is the
+     failure mode in the other direction. The ramp straddles each edge — half
+     inside, half outside — so the line keeps its drawn weight instead of
+     growing by twice the feather. */
   .hero-diag {
     position: absolute;
     width: var(--z-run);
+    --z-aa: 1px;
     background: linear-gradient(
       to bottom right,
-      transparent calc(50% - var(--z-line-w) / 2),
-      var(--z-line) calc(50% - var(--z-line-w) / 2),
-      var(--z-line) calc(50% + var(--z-line-w) / 2),
-      transparent calc(50% + var(--z-line-w) / 2)
+      transparent calc(50% - var(--z-line-w) / 2 - var(--z-aa) / 2),
+      var(--z-line) calc(50% - var(--z-line-w) / 2 + var(--z-aa) / 2),
+      var(--z-line) calc(50% + var(--z-line-w) / 2 - var(--z-aa) / 2),
+      transparent calc(50% + var(--z-line-w) / 2 + var(--z-aa) / 2)
     );
+  }
+
+  @media (resolution >= 2dppx) {
+    .hero-diag {
+      --z-aa: 0.5px;
+    }
   }
 
   /* Rises from the 56% junction (box's bottom-left) out the top edge. */
