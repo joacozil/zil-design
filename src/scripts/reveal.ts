@@ -4,8 +4,8 @@
  * CONCEPT · "dirección"
  * The page argues, in its own copy, that visual communication *con dirección
  * clara* impulsa el crecimiento and *sin dirección* dificulta el crecimiento.
- * The hero states that argument at load — its full-bleed photo SETTLES into
- * register while the copy rises over it (see `heroIntro`). So nothing on this
+ * The hero states that argument at load — the brand's Z DRAWS ITSELF and the
+ * copy rises out of the line it lays down (see `heroIntro`). So nothing on this
  * site is allowed to simply fade in. Elements ARRIVE: along an axis, in reading
  * order, settling into register — the same thing the agency claims to do for a
  * brand. That is the whole brief for this file.
@@ -29,7 +29,10 @@
  *   data-reveal-group                    sequence this element's own [data-reveal]
  *                                        descendants off one trigger, in DOM order
  *   data-reveal-delay="0.45"             extra seconds on top of the slot the
- *                                        sequence would otherwise give it
+ *                                        sequence would otherwise give it. On a
+ *                                        GROUP it holds the whole sequence back
+ *                                        instead, each item keeping its slot —
+ *                                        the hero waits on its Z that way
  *
  * Groups nest: an element belongs to its CLOSEST [data-reveal-group] ancestor, so
  * a section can sequence its header off the header and its body off the body
@@ -73,15 +76,34 @@ const BAND_INK = 0.3;
  *  fold, so the move is finished by the time the element is properly being read. */
 const START = "top 85%";
 
-/* --- Hero background settle (see heroIntro) ------------------------------- */
+/* --- Hero: the Z draws itself (see heroIntro) ----------------------------- */
 
-/** The photo starts a touch overscaled and eases back to 1. Small — the settle
- *  should read as the image coming to rest, not a zoom. */
-const HERO_SETTLE_FROM = 1.12;
-/** Long and slow, so it is still easing under the copy as the copy finishes
- *  rising — the whole hero arrives as one unhurried gesture. */
-const HERO_SETTLE_DURATION = 1.8;
-const HERO_SETTLE_EASE = "power2.out";
+/** The horizon, laid down as ONE stroke, left to right — the direction the
+ *  letter is written and the direction the page is read. This is the hero's
+ *  master clock: both arms and both fills are timed off it, so retiming the
+ *  whole intro means changing this one number. */
+const Z_STROKE = 0.95;
+/** Eased at BOTH ends, unlike the site's usual `power3.out`. The stroke is the
+ *  only move here that starts from rest rather than branching off something
+ *  already moving, and an ease-in is what makes it read as a drawn line
+ *  accelerating away from its start rather than a wipe that was already going. */
+const Z_STROKE_EASE = "power2.inOut";
+
+/** Each diagonal arm, drawn outward from the junction the stroke just passed. */
+const Z_ARM = 0.8;
+const Z_ARM_EASE = "power2.out";
+
+/** The counter-spaces flooding the drawn outline. Slowest of the three, so the
+ *  colour is still settling under the copy as the copy finishes rising and the
+ *  hero resolves as one gesture rather than a queue of finished animations. */
+const Z_FILL = 1;
+const Z_FILL_EASE = "power3.out";
+/** How far each panel travels along the Z's own diagonal before landing in
+ *  register. Small: this is a plane settling into place, not a slide-in. */
+const Z_FILL_SHIFT = 28;
+/** A fill trails ITS OWN arm, not the whole outline — the ink follows the pen
+ *  down each stroke rather than waiting for the drawing to finish. */
+const Z_FILL_LAG = 0.18;
 
 /** The logo strip closes the hero intro. It rises like any other element, but is
  *  driven from heroIntro rather than its own ScrollTrigger: pinned at the foot of
@@ -183,26 +205,138 @@ function variantOf(el: HTMLElement): Build {
 }
 
 /**
- * The one load-time move on the page. Everything else ARRIVES on scroll, but the
- * hero is already in view at load, so instead of rising it SETTLES: the
- * full-bleed photo starts slightly overscaled and eases back into register while
- * the copy rises over it — the "dirección" idea stated by the image itself.
+ * Invert an ease: the time at which it has covered `progress` of its distance.
  *
- * Deliberately NOT routed through the `[data-reveal]` opacity gate: that gate
- * hides its element until revealed, and the hero photo must never blink to
- * transparent (its scrims would sit over the bare white page for a frame). So
- * this animates transform ONLY, and leans on the same `reveal-armed` decision as
- * its guard — it is called from init(), after that check, so no-JS and
- * reduced-motion readers get the photo already at rest.
+ * GSAP eases map time → progress, and the hero needs the opposite — "when does
+ * the stroke reach x?" — so this binary-searches the curve. Eases are monotonic,
+ * which is what makes the search valid; 24 steps resolves well past a frame.
+ */
+function timeAtProgress(ease: (p: number) => number, progress: number): number {
+  let lo = 0;
+  let hi = 1;
+  for (let i = 0; i < 24; i++) {
+    const mid = (lo + hi) / 2;
+    if (ease(mid) < progress) lo = mid;
+    else hi = mid;
+  }
+  return (lo + hi) / 2;
+}
+
+/**
+ * The one load-time move on the page. Everything else ARRIVES on scroll, but the
+ * hero is already in view at load — so rather than arriving, THE BRAND'S Z DRAWS
+ * ITSELF, and the copy rises out of the line it just laid down.
+ *
+ * WHY THIS AND NOT A FADE. The page's own argument is "dirección": communication
+ * with a clear direction is what moves a brand. A hero whose elements fade in
+ * has no direction to state. Here the whole composition is one gesture with a
+ * single origin and a single reading order:
+ *
+ *   1. the HORIZON strokes left to right, the way a Z is written
+ *   2. each ARM springs from the horizon AT THE MOMENT THE STROKE PASSES ITS
+ *      OWN JUNCTION — the lower arm first, the upper one a beat later, because
+ *      that is the order the stroke reaches them
+ *   3. each COUNTER-SPACE floods in behind its own arm, arriving along the Z's
+ *      diagonal and landing in register
+ *   4. the copy rises last, out of the line (its lead lives in the markup, as
+ *      `data-reveal-delay` on the hero's reveal group)
+ *
+ * Outline before fill is not decoration either: it is the order the work itself
+ * happens in — structure drawn, then the surface it carries.
+ *
+ * THE JUNCTIONS ARE READ FROM THE DOM, NOT HARD-CODED. `--z-gap` in Hero.astro
+ * holds the Z's stroke at a constant drawn width, so the junctions sit at ~44%
+ * on a desktop but ~27% on a phone. Measuring them is what keeps each arm
+ * springing from the stroke instead of from a remembered position — hard-code
+ * 44% here and on mobile the arms would appear out of empty violet.
+ *
+ * Deliberately NOT routed through the `[data-reveal]` opacity gate, exactly as
+ * the settle it replaces was not: that gate hides its element until revealed,
+ * and it keys off attributes these decorative nodes do not carry. The start
+ * states below are written by `gsap.set` at init instead, which runs only after
+ * init()'s `reveal-armed` check — so no-JS and reduced-motion readers get the
+ * finished Z, never a half-drawn one.
  */
 function heroIntro() {
-  const img = document.querySelector<HTMLElement>("[data-hero-image]");
-  if (img) {
-    gsap.from(img, {
-      scale: HERO_SETTLE_FROM,
-      duration: HERO_SETTLE_DURATION,
-      ease: HERO_SETTLE_EASE,
-      clearProps: "transform",
+  const layer = document.querySelector<HTMLElement>("[data-hero-image]");
+  const line = layer?.querySelector<HTMLElement>(".hero-line");
+  const armUp = layer?.querySelector<HTMLElement>(".hero-diag-top");
+  const armDown = layer?.querySelector<HTMLElement>(".hero-diag-bottom");
+  const fillUp = layer?.querySelector<HTMLElement>(".hero-glow-top");
+  const fillDown = layer?.querySelector<HTMLElement>(".hero-glow-bottom");
+
+  if (layer && line && armUp && armDown && fillUp && fillDown) {
+    const stage = layer.getBoundingClientRect();
+    const up = armUp.getBoundingClientRect();
+    const down = armDown.getBoundingClientRect();
+
+    // Each arm's junction with the horizon, as a fraction of the stage width.
+    // The upper arm's box starts AT its junction; the lower arm's box ends at
+    // its own (it runs down-left), hence left vs right — see the geometry block
+    // in Hero.astro.
+    const upJoin = (up.left - stage.left) / stage.width;
+    const downJoin = (down.right - stage.left) / stage.width;
+
+    // Unit vector up the diagonal, taken from the arm's own box so the panels
+    // travel along the Z's actual angle at this viewport rather than a guess.
+    const len = Math.hypot(up.width, up.height) || 1;
+    const ux = up.width / len;
+    const uy = -up.height / len;
+
+    const curve = gsap.parseEase(Z_STROKE_EASE);
+    const strokeReaches = (x: number) => timeAtProgress(curve, x) * Z_STROKE;
+    const downAt = strokeReaches(downJoin);
+    const upAt = strokeReaches(upJoin);
+
+    // An arm is DRAWN, not scaled: scaling its box would swing the diagonal's
+    // angle through the tween and it would read as a hinge. Insetting the clip
+    // from the far end uncovers the line at a fixed angle, from the junction
+    // outward — the upper arm rises out of the horizon, the lower one falls
+    // away from it, so each is inset from the opposite edge.
+    gsap.set(line, { scaleX: 0, transformOrigin: "left center" });
+    gsap.set(armUp, { clipPath: "inset(100% 0% 0% 0%)" });
+    gsap.set(armDown, { clipPath: "inset(0% 0% 100% 0%)" });
+    gsap.set(fillUp, {
+      opacity: 0,
+      x: ux * Z_FILL_SHIFT,
+      y: uy * Z_FILL_SHIFT,
+    });
+    gsap.set(fillDown, {
+      opacity: 0,
+      x: -ux * Z_FILL_SHIFT,
+      y: -uy * Z_FILL_SHIFT,
+    });
+
+    const tl = gsap.timeline();
+    tl.to(line, { scaleX: 1, duration: Z_STROKE, ease: Z_STROKE_EASE }, 0)
+      .to(
+        armDown,
+        { clipPath: "inset(0% 0% 0% 0%)", duration: Z_ARM, ease: Z_ARM_EASE },
+        downAt,
+      )
+      .to(
+        armUp,
+        { clipPath: "inset(0% 0% 0% 0%)", duration: Z_ARM, ease: Z_ARM_EASE },
+        upAt,
+      )
+      .to(
+        fillDown,
+        { opacity: 1, x: 0, y: 0, duration: Z_FILL, ease: Z_FILL_EASE },
+        downAt + Z_FILL_LAG,
+      )
+      .to(
+        fillUp,
+        { opacity: 1, x: 0, y: 0, duration: Z_FILL, ease: Z_FILL_EASE },
+        upAt + Z_FILL_LAG,
+      );
+
+    // Hand the geometry back to CSS. Without this the panels keep an inline
+    // transform, which makes them a containing block for nothing and pins a
+    // compositor layer for the life of the page. `transformOrigin` is listed
+    // separately on purpose — `transform` does NOT clear it, and the strokes
+    // would keep a stray inline origin for the life of the page.
+    tl.set([line, armUp, armDown, fillUp, fillDown], {
+      clearProps: "transform,transformOrigin,clipPath,opacity",
     });
   }
 
@@ -237,7 +371,8 @@ function init() {
 
   heroIntro();
 
-  const batches: { trigger: HTMLElement; items: HTMLElement[] }[] = [];
+  const batches: { trigger: HTMLElement; items: HTMLElement[]; lead: number }[] =
+    [];
   const claimed = new Set<HTMLElement>();
 
   for (const group of document.querySelectorAll<HTMLElement>(
@@ -249,22 +384,29 @@ function init() {
       group.querySelectorAll<HTMLElement>("[data-reveal]:not([data-hero-logos])"),
     ).filter((el) => el.closest("[data-reveal-group]") === group);
 
+    // `data-reveal-delay` on the GROUP holds the whole sequence back without
+    // flattening it — every item keeps its own slot, the run just starts later.
+    // The hero uses it to let the Z finish drawing before the copy rises; per
+    // item it would have to be repeated on each one, and the moment anybody
+    // added a line the numbers would drift out of step.
+    const lead = parseFloat(group.dataset.revealDelay || "0") || 0;
+
     items.forEach((el) => claimed.add(el));
-    if (items.length) batches.push({ trigger: group, items });
+    if (items.length) batches.push({ trigger: group, items, lead });
   }
 
   for (const el of document.querySelectorAll<HTMLElement>(
     "[data-reveal]:not([data-hero-logos])",
   )) {
-    if (!claimed.has(el)) batches.push({ trigger: el, items: [el] });
+    if (!claimed.has(el)) batches.push({ trigger: el, items: [el], lead: 0 });
   }
 
-  for (const { trigger, items } of batches) {
+  for (const { trigger, items, lead } of batches) {
     const tl = gsap.timeline({ paused: true });
 
     items.forEach((el, i) => {
       const delay = parseFloat(el.dataset.revealDelay || "0") || 0;
-      variantOf(el)(tl, el, i * STAGGER + delay);
+      variantOf(el)(tl, el, lead + i * STAGGER + delay);
     });
 
     ScrollTrigger.create({

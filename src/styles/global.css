@@ -98,6 +98,30 @@
      The values here are the MOBILE base; line-height, letter-spacing and
      weight stay constant across breakpoints — only the size steps. */
 
+  /* Display — ONE role above h1, used only by the hero's brutalist headline.
+     Unlike the rest of the scale it is FLUID: the headline's job is to span
+     ~80% of the stage at every width, and a fixed size per breakpoint cannot
+     do that across the 1024→1408px container range. The three clamps are
+     CHAINED — each cap equals the next range's floor — so the size is
+     continuous across both breakpoints instead of stepping.
+
+     THE DESKTOP CAP IS SET BY ONE MEASURED LINE, AND IT IS TIGHT. The longest
+     pinned line is "herramienta de negocio", which the hero sets at 700 rather
+     than this role's 500 — and bold is ~1.7% wider. At the cap (7.75rem =
+     124px) that line renders 1291px against the 1312px the 1408px container
+     leaves after `desktop:px-12`, i.e. 21px spare. It fits, but only just, and
+     the margin was 42px before the headline went bold.
+
+     So: do NOT raise this cap, change the headline's weight again, or lengthen
+     that line without re-measuring the rendered line box at a viewport ≥1632px
+     (where the cap binds rather than the vw term). The break is pinned with
+     `<br>`, so an overflow does not wrap — it runs straight into the section's
+     `overflow-hidden` and the last word is simply cut off. */
+  --text-display: clamp(2.5rem, 12vw, 3.6rem);
+  --text-display--line-height: 1.04;
+  --text-display--letter-spacing: -0.03em;
+  --text-display--font-weight: 500;
+
   --text-h1: 2.5rem;
   /* 40px mobile → 52 → 68 */
   --text-h1--line-height: 1.05;
@@ -183,6 +207,19 @@
   --color-primary-dark: var(--color-violet-dark);
   --color-primary-light: var(--color-violet-light);
   --color-accent: var(--color-lime);
+
+  /* The hairline drawn wherever the brand violet meets a different ground: the
+     hero's Z outline, and the top edge of the system section once it turns
+     violet. Shared BECAUSE those two meet — the hero's foot is that section's
+     top — so a seam that differed by a shade would read as a mistake exactly
+     where the two touch. Saturated brand violet, lifted just enough to hold its
+     edge; mixing further toward primary-light turns it lavender and it stops
+     reading as the brand's own line. */
+  --color-seam: color-mix(
+    in srgb,
+    var(--color-primary-light) 20%,
+    var(--color-primary)
+  );
 
   --color-surface: var(--color-white);
   /* default page background */
@@ -354,6 +391,7 @@ html.reveal-armed [data-reveal]:not([data-revealed]) {
 /* Tablet — ≥ 640px */
 @media (width >=640px) {
   :root {
+    --text-display: clamp(3.6rem, 9vw, 4.85rem);
     --text-h1: 3.25rem;
     /* 52px */
     --text-h2: 2.5rem;
@@ -380,6 +418,7 @@ html.reveal-armed [data-reveal]:not([data-revealed]) {
 /* Desktop — ≥ 1024px */
 @media (width >=1024px) {
   :root {
+    --text-display: clamp(4.85rem, 7.6vw, 7.75rem);
     --text-h1: 4.25rem;
     /* 68px */
     --text-h2: 3.25rem;
@@ -418,6 +457,13 @@ html.reveal-armed [data-reveal]:not([data-revealed]) {
    ========================================================================== */
 :root {
   --gutter: max(1.5rem, calc((100% - 88rem) / 2 + 1.5rem));
+
+  /* Weight of the seam hairline (see --color-seam). Shared for the same reason
+     the colour is: the hero's Z outline and the system section's top edge meet
+     at the boundary between those two sections, and two different weights would
+     be visible exactly where they touch. Not responsive — a hairline is a
+     hairline at every size. */
+  --seam-w: 1.5px;
 }
 
 @media (width >=640px) {

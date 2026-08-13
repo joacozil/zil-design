@@ -7,6 +7,10 @@ export interface ClientLogo {
   /** Per-logo height class, e.g. "h-7". May be a breakpoint chain
    *  ("h-5 tablet:h-7") where the mark needs to step — see Hero's `logos`. */
   h: string;
+  /** Intrinsic width/height ratio. Required by the `violet` tone, which draws
+   *  the mark as a masked box instead of an <img> and so cannot read the
+   *  ratio from the file itself. */
+  ratio?: number;
 }
 
 /** How the (dark) source marks are rendered, named for the surface they sit on.
@@ -16,8 +20,14 @@ export interface ClientLogo {
 const TONES = {
   /** Muted grey, for light surfaces. */
   dark: "opacity-60",
-  /** Flattened to white, for dark surfaces (the Hero's violet stage). */
+  /** Flattened to white, for dark surfaces. */
   light: "opacity-75 brightness-0 invert",
+  /** Solid brand light-violet, for the Hero's deep violet stage. Not a filter:
+   *  no filter chain can target `--color-primary-light` without hard-coding the
+   *  colour, so this tone renders each mark as a mask-clipped box painted with
+   *  the token itself (see the render below) and stays themable from
+   *  global.css alone. Logos need `ratio` for this tone. */
+  violet: "bg-primary-light",
 } as const;
 
 export type ClientsMarqueeTone = keyof typeof TONES;
@@ -58,12 +68,31 @@ export default function ClientsMarquee({
             key={i}
             className="flex shrink-0 grow-0 basis-auto items-center px-6 tablet:px-8 desktop:px-12"
           >
-            <img
-              src={logo.src}
-              alt={logo.alt}
-              className={`${logo.h} w-auto ${TONES[tone]}`}
-              draggable={false}
-            />
+            {tone === "violet" ? (
+              <span
+                role="img"
+                aria-label={logo.alt}
+                className={`block ${logo.h} ${TONES[tone]}`}
+                style={{
+                  aspectRatio: `${logo.ratio ?? 1}`,
+                  WebkitMaskImage: `url(${logo.src})`,
+                  maskImage: `url(${logo.src})`,
+                  WebkitMaskSize: "contain",
+                  maskSize: "contain",
+                  WebkitMaskRepeat: "no-repeat",
+                  maskRepeat: "no-repeat",
+                  WebkitMaskPosition: "center",
+                  maskPosition: "center",
+                }}
+              />
+            ) : (
+              <img
+                src={logo.src}
+                alt={logo.alt}
+                className={`${logo.h} w-auto ${TONES[tone]}`}
+                draggable={false}
+              />
+            )}
           </li>
         ))}
       </ul>
