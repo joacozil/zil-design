@@ -326,6 +326,14 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({
        Re-measure those three if you retune — the number that matters is the
        ANGLE, not the percentage. */
     --z-run: min(70%, max(20%, 26svh));
+    /* HOW FAR EACH ARM OVERSHOOTS ITS OWN ENDS, as a fraction of its run. This
+       is not a stylistic number — it is what makes the seams close. See the
+       diagonal block below. */
+    --z-over: 0.04;
+    /* Where the horizon falls inside the overshot arm box, as a fraction of the
+       box's height: the arm is (1 + 2·over) runs long and starts one over
+       before its junction, so the cut sits at over / (1 + 2·over). */
+    --z-over-cut: calc(var(--z-over) / (1 + 2 * var(--z-over)) * 100%);
     /* Shared with the system section's top edge, which butts directly against
        this section's foot — see --color-seam in global.css. */
     --z-line: var(--color-seam);
@@ -498,9 +506,35 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({
      failure mode in the other direction. The ramp straddles each edge — half
      inside, half outside — so the line keeps its drawn weight instead of
      growing by twice the feather. */
+  /* EACH ARM OVERSHOOTS ITS OWN TWO ENDS, AND IS MASKED BACK AT THE HORIZON.
+     Without that, both ends TAPER TO A POINT, because the ideal line runs
+     through the box's CORNERS: at a corner the band is cut by the horizontal
+     edge AND the vertical one at once, so the half of it that falls outside the
+     corner is thrown away and the stroke arrives at half weight. That is the
+     notch where the arm meets the horizon, and the tip that fades out just
+     short of the stage edge at the bottom — both were visible at the drawn
+     1.5px and obvious at 14px.
+
+     The box is grown by --z-over on each end AND IN BOTH AXES AT ONCE. The
+     aspect ratio is the angle here — the to-corner gradient always draws the
+     box's own diagonal — so growing width without height would swing the arm
+     off the panel's clipped edge. Growing both keeps the line exactly where it
+     was and simply extends it past where it is wanted.
+
+     What is left is one cut per arm at the horizon, and a cut by a straight
+     HORIZONTAL edge butts the full band against the horizon rule instead of
+     pinching it. The far end needs no cut: it now leaves the stage entirely and
+     the section's overflow takes it.
+
+     The cut is a mask, NOT a clip-path, because reveal.ts owns these elements'
+     clip-path for the intro — it insets each arm to nothing and grows it out of
+     the horizon. A CSS clip-path here would be overwritten for the length of
+     that tween, and the overshoot above the horizon would draw as a spur. */
   .hero-diag {
     position: absolute;
-    width: var(--z-run);
+    width: calc(var(--z-run) * (1 + 2 * var(--z-over)));
+    -webkit-mask-image: var(--z-cut);
+    mask-image: var(--z-cut);
     --z-aa: 1px;
     background: linear-gradient(
       to bottom right,
@@ -517,18 +551,31 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({
     }
   }
 
-  /* Rises from the 56% junction (box's bottom-left) out the top edge. */
+  /* Rises from the upper junction (box's bottom-left) out the top edge. The
+     box hangs one --z-over BELOW the horizon and past the top of the stage;
+     the mask discards everything under the horizon. */
   .hero-diag-top {
-    top: 0;
-    bottom: 50%;
-    left: calc(100% - var(--z-j));
+    top: calc(0% - 50% * var(--z-over));
+    bottom: calc(50% - 50% * var(--z-over));
+    left: calc(100% - var(--z-j) - var(--z-run) * var(--z-over));
+    --z-cut: linear-gradient(
+      to bottom,
+      #000 calc(100% - var(--z-over-cut)),
+      transparent calc(100% - var(--z-over-cut))
+    );
   }
 
-  /* Falls from the lower junction (box's top-right) out the bottom edge. */
+  /* Falls from the lower junction (box's top-right) out the bottom edge, with
+     the mirrored overshoot: one --z-over above the horizon and past the foot. */
   .hero-diag-bottom {
-    top: 50%;
-    bottom: 0;
-    left: calc(var(--z-j) - var(--z-run));
+    top: calc(50% - 50% * var(--z-over));
+    bottom: calc(0% - 50% * var(--z-over));
+    left: calc(var(--z-j) - var(--z-run) * (1 + var(--z-over)));
+    --z-cut: linear-gradient(
+      to bottom,
+      transparent var(--z-over-cut),
+      #000 var(--z-over-cut)
+    );
   }
 
   /* --- Tablet and up: the stroke is a LENGTH, not a ratio ---------------------

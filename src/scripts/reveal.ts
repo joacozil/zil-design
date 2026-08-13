@@ -271,11 +271,17 @@ function heroIntro() {
     const down = armDown.getBoundingClientRect();
 
     // Each arm's junction with the horizon, as a fraction of the stage width.
-    // The upper arm's box starts AT its junction; the lower arm's box ends at
-    // its own (it runs down-left), hence left vs right — see the geometry block
-    // in Hero.astro.
-    const upJoin = (up.left - stage.left) / stage.width;
-    const downJoin = (down.right - stage.left) / stage.width;
+    // The upper arm's box runs up-RIGHT from its junction and the lower one
+    // down-LEFT from its own, hence left vs right — but neither box STOPS
+    // there: both overshoot every end by --z-over of their run so the stroke
+    // does not taper into the seam (see the diagonal block in Hero.astro). The
+    // junction is that overshoot back in from the box's inner edge, and taking
+    // the fraction from the CSS keeps this the same number the geometry uses.
+    const over =
+      parseFloat(getComputedStyle(layer).getPropertyValue("--z-over")) || 0;
+    const overX = (up.width * over) / (1 + 2 * over);
+    const upJoin = (up.left + overX - stage.left) / stage.width;
+    const downJoin = (down.right - overX - stage.left) / stage.width;
 
     // Unit vector up the diagonal, taken from the arm's own box so the panels
     // travel along the Z's actual angle at this viewport rather than a guess.
