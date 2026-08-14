@@ -105,13 +105,6 @@ const Z_FILL_SHIFT = 28;
  *  down each stroke rather than waiting for the drawing to finish. */
 const Z_FILL_LAG = 0.18;
 
-/** The logo strip closes the hero intro. It rises like any other element, but is
- *  driven from heroIntro rather than its own ScrollTrigger: pinned at the foot of
- *  the hero it sits below the `top 85%` fire line, so a per-element trigger would
- *  never fire at load and the strip would only appear once the reader scrolled.
- *  A short lead lets the copy land first without making the reader wait. */
-const HERO_LOGOS_DELAY = 0.3;
-
 type Build = (tl: gsap.core.Timeline, el: HTMLElement, at: number) => void;
 
 const VARIANTS: Record<string, Build> = {
@@ -313,6 +306,14 @@ function heroIntro() {
       y: -uy * Z_FILL_SHIFT,
     });
 
+    // Only NOW release the layer's own opacity gate — after the start states
+    // above, and in the same tick, so nothing paints in between. Until GSAP has
+    // written them the layer holds a fully DRAWN Z, and the module carrying GSAP
+    // is deferred: showing the layer before this point is what made the finished
+    // Z flash for a beat at load and then vanish to draw itself. The gate rule
+    // lives in global.css; this is the stamp that lifts it.
+    layer.dataset.revealed = "";
+
     const tl = gsap.timeline();
     tl.to(line, { scaleX: 1, duration: Z_STROKE, ease: Z_STROKE_EASE }, 0)
       .to(
@@ -345,22 +346,6 @@ function heroIntro() {
       clearProps: "transform,transformOrigin,clipPath,opacity",
     });
   }
-
-  // The logo strip: stamp `data-revealed` first (releasing the CSS opacity gate,
-  // exactly as the batch trigger does) then rise it in. Excluded from the batch
-  // system via `[data-hero-logos]` so this is its only driver — see init().
-  const logos = document.querySelector<HTMLElement>("[data-hero-logos]");
-  if (logos) {
-    logos.dataset.revealed = "";
-    gsap.from(logos, {
-      y: RISE_Y,
-      opacity: 0,
-      duration: DURATION,
-      ease: EASE,
-      delay: HERO_LOGOS_DELAY,
-      clearProps: "opacity,transform",
-    });
-  }
 }
 
 function init() {
@@ -387,7 +372,7 @@ function init() {
     // `closest` is what makes groups nestable: a descendant inside a nearer group
     // belongs to that one, not to this outer sweep.
     const items = Array.from(
-      group.querySelectorAll<HTMLElement>("[data-reveal]:not([data-hero-logos])"),
+      group.querySelectorAll<HTMLElement>("[data-reveal]"),
     ).filter((el) => el.closest("[data-reveal-group]") === group);
 
     // `data-reveal-delay` on the GROUP holds the whole sequence back without
@@ -401,9 +386,7 @@ function init() {
     if (items.length) batches.push({ trigger: group, items, lead });
   }
 
-  for (const el of document.querySelectorAll<HTMLElement>(
-    "[data-reveal]:not([data-hero-logos])",
-  )) {
+  for (const el of document.querySelectorAll<HTMLElement>("[data-reveal]")) {
     if (!claimed.has(el)) batches.push({ trigger: el, items: [el], lead: 0 });
   }
 
