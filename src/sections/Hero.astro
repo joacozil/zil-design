@@ -62,8 +62,10 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({
     element on its own.
 
     THE GRAPHIC IS ALSO THE PAGE'S ENTRANCE. The layer carries `data-hero-image`
-    and its four parts carry the class names reveal.ts looks for, because the Z
-    DRAWS ITSELF at load: the horizon strokes left to right, each arm springs
+    — which is both reveal.ts's handle on it AND the hook the pre-reveal opacity
+    gate in global.css keys off, so the finished Z is not painted in the window
+    before the deferred module writes its start states — and its four parts carry
+    the class names reveal.ts looks for, because the Z DRAWS ITSELF at load: the horizon strokes left to right, each arm springs
     from it as the stroke passes that arm's own junction, and the counter-spaces
     flood in behind. So the class names below are an interface, not just
     styling hooks — renaming one silently drops it out of the intro. The copy

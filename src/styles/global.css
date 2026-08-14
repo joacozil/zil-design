@@ -286,9 +286,20 @@
        animating, which is what lets its tweens `clearProps` at the end: without
        it, clearing the inline opacity would drop the element back to 0 here and
        it would vanish on completion.
+
+   THE HERO'S Z IS GATED HERE TOO, and for exactly the reason the block exists.
+   Its parts carry no `data-reveal` — heroIntro() drives them directly and writes
+   their start states with `gsap.set` — but those sets only run once the deferred
+   module has loaded GSAP, which is long after first paint. So the finished Z
+   painted for a beat and then vanished to draw itself: the blink this gate is
+   supposed to prevent, in the one composition that opens the page. Hiding the
+   whole layer (not each part) is deliberate — the parts' start states are
+   geometry, and geometry belongs to reveal.ts; all this rule owes them is not
+   being seen before those states are written. heroIntro() stamps `data-revealed`
+   on the layer in the same tick as the sets, so the Z appears already at t=0.
    ========================================================================== */
 
-html.reveal-armed [data-reveal]:not([data-revealed]) {
+html.reveal-armed :is([data-reveal], [data-hero-image]):not([data-revealed]) {
   opacity: 0;
 }
 
