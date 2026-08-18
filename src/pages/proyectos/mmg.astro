@@ -1,0 +1,351 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/astro/Header.astro";
+import Footer from "../../components/astro/Footer.astro";
+import ProjectHero from "../../components/astro/project/ProjectHero.astro";
+import ProjectBrief from "../../components/astro/project/ProjectBrief.astro";
+import ConceptCircles from "../../components/astro/project/ConceptCircles.astro";
+import LogoGrid from "../../components/astro/project/LogoGrid.astro";
+import ColorPalette from "../../components/astro/project/ColorPalette.astro";
+import TypeSpecimen from "../../components/astro/project/TypeSpecimen.astro";
+import Mosaic from "../../components/astro/project/Mosaic.astro";
+import WebShowcase from "../../components/astro/project/WebShowcase.astro";
+import IconSystem from "../../components/astro/project/IconSystem.astro";
+import ProjectEnd from "../../components/astro/project/ProjectEnd.astro";
+import BackToTop from "../../components/astro/project/BackToTop.astro";
+import heroImage from "../../assets/mmg/mmg-hero.avif";
+import heroImageMobile from "../../assets/mmg/mmg-hero-mobile.avif";
+import heroLogo from "../../assets/mmg/mmg-logo.svg";
+import gridImage from "../../assets/mmg/mmg-grid.svg";
+import mmgFontImg from "../../assets/mmg/mmg-font.svg";
+import macbook1 from "../../assets/mmg/macbook1.avif";
+import macbook2 from "../../assets/mmg/macbook2.avif";
+import paint1 from "../../assets/mmg/paint1.avif";
+import paint2 from "../../assets/mmg/paint2.avif";
+import phone1 from "../../assets/mmg/phone1.avif";
+import phone2 from "../../assets/mmg/phone2.avif";
+import phone3 from "../../assets/mmg/phone3.avif";
+import macbookCut from "../../assets/mmg/macbook-cut.avif";
+import phonesCut from "../../assets/mmg/phones-cut.avif";
+import coinLight from "../../assets/mmg/coin-light.avif";
+import coinDark from "../../assets/mmg/coin-dark.avif";
+import coinPrimary from "../../assets/mmg/coin-primary.avif";
+import macbookSoluciones from "../../assets/mmg/macbook-soluciones.avif";
+import macbookClients from "../../assets/mmg/macbook-clients.avif";
+import phonesSustentabilidad from "../../assets/mmg/phones-sustentabilidad.avif";
+import iconSolar from "../../assets/mmg/solar.svg";
+import iconTrade from "../../assets/mmg/trade.svg";
+import iconPeople from "../../assets/mmg/people.svg";
+import iconGive from "../../assets/mmg/give.svg";
+import iconWorld from "../../assets/mmg/world.svg";
+import iconConfig from "../../assets/mmg/config.svg";
+import buildingTexture from "../../assets/mmg/building-texture.avif";
+// Bornia is MMG's brand face. Self-hosted alongside the project's other assets, so
+// the page keeps its own asset graph. Regular and Bold are the two cuts the case
+// study asks for; the Black/BlackItalic OTFs ship in the folder but nothing uses
+// them yet.
+import borniaRegular from "../../assets/mmg/bornia/bornia-regular.ttf?url";
+import borniaBold from "../../assets/mmg/bornia/bornia-bold.ttf?url";
+
+// @font-face can't read CSS vars for its src, so the resolved URLs are
+// interpolated and injected globally (same approach as the Gelato, Quantia and
+// Net Value pages).
+const fontFaceCss = `
+@font-face{font-family:"Bornia";src:url("${borniaRegular}") format("truetype");font-weight:400;font-style:normal;font-display:swap;}
+@font-face{font-family:"Bornia";src:url("${borniaBold}") format("truetype");font-weight:700;font-style:normal;font-display:swap;}
+`;
+
+// Case-study content lives with the page (per-project composition). Body copy may
+// carry <strong> to lift key phrases against the muted base.
+const meta = [
+  { label: "Cliente", value: "MMG Bank" },
+  { label: "Servicio", value: "Branding, Web, UX/UI" },
+];
+
+const brief = [
+  {
+    title: "Proyecto",
+    body: "<strong>MMG Bank es un banco panameño de banca privada, corporativa e inversión, fundado en 1996.</strong> Con licencia bancaria general, de casa de valores y fiduciaria, y presencia en Panamá, Puerto Rico y Bahamas, asesora a clientes privados, corporativos e institucionales para proteger su patrimonio y alcanzar sus metas financieras.",
+  },
+  {
+    title: "Desafío",
+    body: "MMG llegaba con casi tres décadas de trayectoria, pero con una presencia digital que ya no reflejaba su posición en el mercado. <strong>El reto era ordenar una oferta amplia y técnica, dirigida a perfiles muy distintos entre sí, sin perder la solidez ni la confianza que exige una institución financiera.</strong>",
+  },
+  {
+    title: "Propuesta",
+    body: "<strong>Desde Zil Design construimos un sistema visual sobrio y consistente</strong>, y lo llevamos al desarrollo de un sitio institucional con una arquitectura ordenada por perfil de cliente. Cada sección traduce servicios complejos en información clara y navegable, reforzando la credibilidad del banco y su posicionamiento como referente en asesoría financiera en Panamá.",
+  },
+];
+
+const concepts = ["Confianza", "Experiencia", "Exclusivo", "Global", "Exclusivo"];
+
+// The applied-work bento. Every weight below is the asset's OWN pixel dimension,
+// not a hand-tuned number: the three rows are cut to a common width and each to
+// its own height (1153 / 576 / 898), so weighting the rows by height and the
+// images by width reproduces the artwork's proportions exactly — and `object-cover`
+// ends up cropping nothing. Re-cut an image and its weight is whatever `sips`
+// reports, so the row keeps levelling itself.
+const mosaic = [
+  {
+    weight: macbook1.height,
+    items: [
+      {
+        src: macbook1,
+        alt: "Home de MMG Bank en una laptop sostenida en las manos",
+        weight: macbook1.width,
+      },
+      {
+        src: macbook2,
+        alt: "Sección de presencia internacional del sitio de MMG Bank en una laptop apoyada contra una pared",
+        weight: macbook2.width,
+      },
+    ],
+  },
+  {
+    weight: paint1.height,
+    items: [
+      {
+        src: paint1,
+        alt: "Detalle de una obra de la colección de arte de MMG Bank",
+        weight: paint1.width,
+      },
+      {
+        src: paint2,
+        alt: "Detalle de otra obra de la colección de arte de MMG Bank",
+        weight: paint2.width,
+      },
+    ],
+  },
+  {
+    weight: phone1.height,
+    items: [
+      {
+        src: phone1,
+        alt: "Sitio de MMG Bank en un teléfono apoyado sobre un bloque de hormigón",
+        weight: phone1.width,
+      },
+      {
+        src: phone2,
+        alt: "Sección de bienvenida del sitio de MMG Bank en un teléfono sobre un pedestal",
+        weight: phone2.width,
+      },
+      {
+        src: phone3,
+        alt: "Sección de crédito hipotecario del sitio de MMG Bank en un teléfono",
+        weight: phone3.width,
+      },
+    ],
+  },
+];
+
+// The bento's own proportion, derived from the same numbers for the same reason.
+const mosaicAspect = `${macbook1.width + macbook2.width} / ${
+  macbook1.height + paint1.height + phone1.height
+}`;
+
+// Brand palette — single full-bleed swatches (no tint pairs), as in the Gelato,
+// Quantia and Net Value pages. RGB is derived from the hex in the component, so a
+// label can never drift from its swatch. NOTE: EVERY row's RGB in the source mock
+// is wrong — the six triplets are a stray column from another palette and none of
+// them match their own hex (Verde MMG reads R19/G43/B83, Blanco and Verde Black
+// share R255/G255/B255, Gris reads R237/G237/B237). Hex is treated as source of
+// truth, so the component renders the correct values.
+// `dark` marks the fields deep enough to carry white text.
+const palette = [
+  { name: "Verde MMG", main: { hex: "#00AC69", dark: true }, weight: 2 },
+  { name: "Verde Oscuro MMG", main: { hex: "#124734", dark: true }, weight: 1.33 },
+  { name: "Verde Claro MMG", main: { hex: "#A6E2B9" }, weight: 1 },
+  { name: "Verde Black MMG", main: { hex: "#08291C", dark: true }, weight: 0.84 },
+  { name: "Blanco", main: { hex: "#FFFFFF" }, weight: 0.7 },
+  { name: "Gris", main: { hex: "#676461", dark: true }, weight: 0.7 },
+];
+---
+
+<style is:global set:html={fontFaceCss}></style>
+
+<Layout
+  title="MMG Bank — Zil Design"
+  description="Caso de estudio: comunicación institucional y producto digital para MMG Bank."
+>
+  <Header />
+  <main class="project-mmg">
+    {
+      /* The key art is a mockup with an EMPTY brand panel — the green wedge is
+        the field the lockup is meant to sit on — so this is the hero shape that
+        composites the logo on top. The two cuts put that wedge on different
+        sides (right of the monitor on desktop, above it on mobile), which is why
+        the lockup's placement is overridden per breakpoint below. */
+    }
+    <ProjectHero
+      image={heroImage}
+      mobileImage={heroImageMobile}
+      imageAlt="Sitio web de MMG Bank mostrado en un iMac sobre un escritorio de madera"
+      logo={heroLogo}
+      title="MMG Bank"
+    />
+    <ProjectBrief meta={meta} blocks={brief} />
+    {
+      /* `stroke` and `gridWidth` both point at the grid artwork on purpose: the
+        rings are drawn in the colour it strokes its rules in (#00AC69) and at the
+        weight derived from its intrinsic width, so the two sections render the
+        literal same hairline. */
+    }
+    <ConceptCircles
+      words={concepts}
+      gridWidth={gridImage.width}
+      stroke="#00AC69"
+      ink="#00AC69"
+      fontFamily={'"Bornia", sans-serif'}
+      fontWeight={500}
+    />
+    <LogoGrid
+      image={gridImage}
+      alt="Logotipo de MMG Bank dentro de su grilla de composición"
+    />
+    <ColorPalette colors={palette} />
+    {
+      /* `specimens` (rather than regularUrl/boldUrl) because this page already
+        registers Bornia for the concept rings — the default path would emit a
+        second @font-face for the same family, and hard-code format("opentype")
+        against files that are truetype. */
+    }
+    <TypeSpecimen
+      name="Bornia"
+      fontFamily="Bornia"
+      wordmarkImage={mmgFontImg}
+      specimens={[
+        {
+          label: "Bornia - Regular",
+          fontFamily: '"Bornia", sans-serif',
+          fontWeight: 400,
+        },
+        {
+          label: "Bornia - Bold",
+          fontFamily: '"Bornia", sans-serif',
+          fontWeight: 700,
+        },
+      ]}
+    />
+    {
+      /* Full-bleed: no `inset`, so the bento takes the component's default —
+        a side inset equal to the GAP between its own images, which makes the
+        spacing uniform all the way around and runs the row to the screen edge. */
+    }
+    <Mosaic
+      rows={mosaic}
+      aspect={mosaicAspect}
+      rowsFrom="tablet"
+      fit="natural"
+      ariaLabel="Piezas aplicadas"
+    />
+    <WebShowcase
+      label="Diseño Web"
+      body="Diseñamos una web institucional que organiza la oferta de servicios del banco de forma clara e intuitiva, integrando los servicios de banca privada y corporativa, gestión de activos e inversión y consultoría, en una experiencia visual coherente. Su arquitectura optimiza la navegación, fortalece la credibilidad institucional y potencia su posicionamiento como referente financiero en Panamá."
+      laptop={{
+        src: macbookCut,
+        alt: "Sección de servicios del sitio de MMG Bank en una laptop",
+      }}
+      phones={{
+        src: phonesCut,
+        alt: "Historia del banco y sección de asesores externos del sitio de MMG Bank en dos teléfonos",
+      }}
+      coins={[
+        { src: coinLight, spin: -8 },
+        { src: coinDark, spin: 6 },
+        { src: coinPrimary, spin: -4 },
+      ]}
+    />
+    {
+      /* Verde Black MMG, not the Verde Oscuro the hero uses — the band is the
+        page's one full-dark moment, and the deeper field is what separates it
+        from the hero rather than reading as the same green twice. */
+    }
+    <IconSystem
+      field="#08291C"
+      texture={buildingTexture}
+      label="Diseño de íconos personalizados"
+      body="Creamos un set de íconos personalizados para la web, diseñados desde cero para acompañar cada sección y servicio. Un lenguaje visual propio que refuerza la identidad de la marca y facilita la lectura de la información."
+      laptopA={{
+        src: macbookSoluciones,
+        alt: "Sección de soluciones de inversiones del sitio de MMG Bank en una laptop",
+      }}
+      laptopB={{
+        src: macbookClients,
+        alt: "Sección de clientes del sitio de MMG Bank en una laptop",
+      }}
+      phones={{
+        src: phonesSustentabilidad,
+        alt: "Sección de sustentabilidad del sitio de MMG Bank en dos teléfonos",
+      }}
+      icons={[
+        { src: iconSolar, alt: "Energía solar" },
+        { src: iconTrade, alt: "Cambio de divisas" },
+        { src: iconPeople, alt: "Gobierno corporativo" },
+        { src: iconGive, alt: "Inversión social" },
+        { src: iconWorld, alt: "Alcance global" },
+        { src: iconConfig, alt: "Gestión operativa" },
+      ]}
+    />
+    <BackToTop />
+  </main>
+  <ProjectEnd current="mmg" />
+  <Footer />
+</Layout>
+
+<style>
+  /* Scoped project theme — remaps ONLY the semantic colour aliases within this
+     page's subtree, so MMG's branding can never leak into global scope.
+     Everything structural (type scale, spacing rhythm, breakpoints) stays on the
+     global tokens.
+
+     Straight from the brand palette below: Verde Oscuro MMG (#124734) doubles as
+     the ink, Verde MMG (#00AC69) is the accent. The case-study body is a light,
+     faintly warm field — the bank's own institutional register — so the hero's
+     deep green reads as the one saturated moment rather than the whole page. The
+     hero opts out with its own full-bleed artwork and consumes none of these. */
+  .project-mmg {
+    --color-primary: #124734; /* Verde Oscuro MMG (brand palette) */
+    --color-accent: #00ac69; /* Verde MMG (brand palette) */
+
+    --color-surface: #f3efee; /* light warm case-study field */
+    --color-text: #124734; /* Verde Oscuro MMG doubles as the ink */
+    --color-muted: #676461; /* Gris (brand palette) — secondary copy */
+    --color-border: #ddd8d5; /* warm hairline divider */
+
+    background-color: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  /* Hero lockup placement — MMG only. The shared ProjectHero pins the lockup
+     high against the LEFT gutter, which suits Clojure's and Quantia's artwork.
+     MMG's key art is the opposite composition: the brand panel is the green
+     wedge, which sits top-left on the portrait cut but on the RIGHT of the
+     monitor on the landscape one, so the default position lands the lockup on
+     the wall behind the desk at desktop and runs it off the wedge's diagonal on
+     mobile. Both offsets are percentages of the section, so the lockup tracks
+     the wedge as `object-cover` rescales the artwork.
+
+     `:global` is required because the <h1> is rendered by the component, not by
+     this file — the `.project-mmg` parent still carries this page's scope hash,
+     so nothing here can leak to another project. */
+  .project-mmg :global(h1) {
+    /* The wedge's diagonal runs down-left, so the lockup's BOTTOM-RIGHT corner
+       is the constrained one: at 22% down it clears the edge, and the width is
+       what keeps the corner off it. */
+    top: max(7rem, 15%);
+    width: 40%;
+    max-width: 13rem;
+  }
+
+  @media (width >= 1024px) {
+    .project-mmg :global(h1) {
+      /* Centred on the open green field to the right of the monitor. Left is a
+         percentage, not `var(--gutter)`: the lockup is welded to the ARTWORK
+         here, not to the content grid the sections below align to. */
+      top: max(8rem, 24%);
+      left: 64%;
+      width: 18%;
+      max-width: 21rem;
+    }
+  }
+</style>

@@ -1,0 +1,279 @@
+---
+/**
+ * WebShowcase — the "Diseño Web" beat: a text block, then a STAGE where the
+ * responsive mockups float, two of them leaning past the container's edges while
+ * brand coins fall through the composition.
+ *
+ * The stage is a PROPORTIONAL CANVAS, not a layout. It carries an
+ * `aspect-ratio`, and every piece is placed with percentage offsets and sized as
+ * a percentage of the stage's WIDTH — so the whole arrangement scales as one
+ * picture instead of the pieces drifting apart at some viewport in between.
+ * Height offsets are percentages of the stage's height, which the ratio makes a
+ * known quantity. Nothing here is a pixel value, and nothing needs a media query
+ * except the ratio itself and a handful of placements: the composition is wide
+ * on a desktop and stacks tall on a phone, and those are genuinely different
+ * arrangements of the same five pieces.
+ *
+ * The stage is the CONTENT CONTAINER's width, and the two mockups sit against its
+ * outer edges — the laptop right, the phones left — anchored by that edge rather
+ * than by an `--x` offset, so they meet the column exactly at any width. The
+ * section still clips horizontal overflow as a backstop.
+ *
+ * The coins ship pre-rendered in isometric projection, so their tilt is baked
+ * into the artwork; a CSS rotation on top only adds spin around the viewing axis.
+ * Each gets a small, DIFFERENT rotation so they read as caught mid-fall rather
+ * than laid out on a grid.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Piece {
+  src: ImageMetadata;
+  alt: string;
+}
+interface Coin {
+  src: ImageMetadata;
+  /** Spin around the viewing axis, in degrees. The isometric tilt is in the art. */
+  spin: number;
+}
+interface Props {
+  label: string;
+  body: string;
+  /** The laptop — sits against the container's RIGHT edge. */
+  laptop: Piece;
+  /** The phone pair — sits against the container's LEFT edge. */
+  phones: Piece;
+  /** Exactly three coins, in paint order: back, middle, front. */
+  coins: [Coin, Coin, Coin];
+  /** Section landmark label. */
+  ariaLabel?: string;
+}
+const {
+  label,
+  body,
+  laptop,
+  phones,
+  coins,
+  ariaLabel = "Diseño Web",
+} = Astro.props;
+
+const container = "mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12";
+---
+
+<section class="overflow-x-clip py-section" aria-label={ariaLabel}>
+  <div class={container}>
+    <h3 class="text-p-sm font-bold tracking-wider text-text uppercase">
+      {label}
+    </h3>
+    <p class="mt-4 max-w-md text-p text-muted">{body}</p>
+
+    <div class="ws-stage">
+      {
+        /* Coins are decorative — the pieces they fall around carry the meaning —
+          so they take an empty alt and stay out of the accessibility tree. Paint
+          order is DOM order: the two behind the mockups come first. */
+      }
+      <img
+        class="ws-piece ws-coin ws-coin-1"
+        style={`--spin:${coins[0].spin}deg`}
+        src={coins[0].src.src}
+        width={coins[0].src.width}
+        height={coins[0].src.height}
+        alt=""
+        loading="lazy"
+      />
+      <img
+        class="ws-piece ws-coin ws-coin-2"
+        style={`--spin:${coins[1].spin}deg`}
+        src={coins[1].src.src}
+        width={coins[1].src.width}
+        height={coins[1].src.height}
+        alt=""
+        loading="lazy"
+      />
+
+      <Image
+        class="ws-piece ws-laptop"
+        src={laptop.src}
+        alt={laptop.alt}
+        widths={[700, 1100, 1600]}
+        sizes="(min-width: 1024px) 50vw, 60vw"
+        loading="lazy"
+      />
+      <Image
+        class="ws-piece ws-phones"
+        src={phones.src}
+        alt={phones.alt}
+        widths={[420, 700, 1000]}
+        sizes="(min-width: 1024px) 32vw, 52vw"
+        loading="lazy"
+      />
+
+      {/* The front coin, painted over the mockups. */}
+      <img
+        class="ws-piece ws-coin ws-coin-3"
+        style={`--spin:${coins[2].spin}deg`}
+        src={coins[2].src.src}
+        width={coins[2].src.width}
+        height={coins[2].src.height}
+        alt=""
+        loading="lazy"
+      />
+    </div>
+  </div>
+</section>
+
+<style>
+  /* The canvas. Its ratio is the ONE number the placements below are read
+     against — change it and every piece moves together, which is the point. */
+  .ws-stage {
+    position: relative;
+    width: 100%;
+    margin-top: 4rem;
+    aspect-ratio: 1 / 1.08;
+
+    /* Every piece is absolutely positioned, so NONE of them contributes height:
+       the stage is exactly its `aspect-ratio` and a piece placed low hangs out
+       the bottom. That overhang used to be swallowed by the section's own
+       `py-section`, which is the design system's HALF of the gap to the next
+       section — so the phones ended up under the dark band that follows.
+
+       `--overhang` gives the hanging part its own room. It is a percentage of
+       the stage's WIDTH (which is what a percentage margin resolves against),
+       and it is the one value here that is derived rather than eyeballed:
+       for the lowest piece, overhang = --y × ratio + --w × (art height / art
+       width) − ratio, all in units of the stage's width. Re-derive it whenever
+       the lowest piece's --y or --w moves, or the section starts eating its own
+       padding again. */
+    margin-bottom: var(--overhang, 0);
+  }
+
+  /* Every piece: placed by its top-left corner, sized off the stage's WIDTH so
+     its own proportion is never touched. `--x` and `--w` are percentages of the
+     stage's width, `--y` of its height. */
+  .ws-piece {
+    position: absolute;
+    top: var(--y);
+    left: var(--x);
+    width: var(--w);
+    height: auto;
+    max-width: none;
+  }
+
+  .ws-coin {
+    rotate: var(--spin);
+  }
+
+  /* The two mockups are anchored by the OUTER edge they sit against — the laptop
+     to the container's right, the phones to its left — rather than by `--x`.
+     `--over` is how far each leans past that edge.
+
+     A LENGTH is the wrong unit for it, and both blocks below avoid one:
+
+     · Where the lean is meant to run off-screen (mobile), it is a PERCENTAGE of
+       the stage. A fixed 140px is 43% of the stage on a 375px phone and 15% on a
+       1023px tablet, so the same number draws two different compositions across
+       the range the block covers. A percentage draws one.
+     · Where the mockup must stay whole (desktop), the lean is capped by the space
+       that actually exists beside the container:
+       `calc((100vw - 100%) / 2)` is the gutter — `100%` resolves against the
+       stage, which IS the container — and 0.75rem covers the scrollbar `100vw`
+       includes but the viewport doesn't. Without that cap a 100px lean is free
+       room at 1920 and 52px of missing laptop at 1024. */
+  .ws-laptop {
+    left: auto;
+    right: calc(-1 * var(--over));
+  }
+  .ws-phones {
+    left: calc(-1 * var(--over));
+  }
+
+  /* THE PLACEMENTS. Everything below is a knob, and these two blocks are the only
+     place any of them lives.
+
+       --x  left edge, % of the stage's WIDTH   (coins only — the mockups anchor
+                                                 to the stage's outer edge above)
+       --y  top edge,  % of the stage's HEIGHT
+       --w  width,     % of the stage's WIDTH   (height follows the artwork)
+
+     Because --w is a percentage of the width and --y of the height, the stage's
+     `aspect-ratio` is what ties the two axes together: change the ratio and the
+     whole composition restacks. Change a piece's --w and only that piece grows.
+
+     Mobile — the composition stacks tall: coins top-left under the copy, the
+     laptop entering from the right, the phones from the left below it. */
+  /* Lowest piece: the phones (--y 52%, --w 55%) hang ~20% of the stage's width
+     below it. */
+  .ws-stage {
+    --overhang: 21%;
+  }
+
+  .ws-coin-1 {
+    --x: 0%;
+    --y: 0%;
+    --w: 28%;
+  }
+  .ws-coin-2 {
+    --x: 0%;
+    --y: 23%;
+    --w: 32%;
+  }
+  .ws-laptop {
+    --over: 43%;
+    --y: 1%;
+    --w: 100%;
+  }
+  .ws-phones {
+    --over: 12%;
+    --y: 52%;
+    --w: 55%;
+  }
+  .ws-coin-3 {
+    --x: 56%;
+    --y: 90%;
+    --w: 33%;
+  }
+
+  /* Desktop — the stage goes wide. The pieces spread out and shrink relative to
+     it, and the coins fill the space the copy leaves at the top left. */
+  @media (width >= 1024px) {
+    /* Lowest piece is still the phones (--y 40%, --w 36%), hanging ~4% below. */
+    .ws-stage {
+      aspect-ratio: 1 / 0.72;
+      margin-top: 3.5rem;
+      --overhang: 5%;
+    }
+    .ws-coin-1 {
+      --x: 28%;
+      --y: 6%;
+      --w: 18%;
+    }
+    .ws-coin-2 {
+      --x: 4%;
+      --y: 13%;
+      --w: 20%;
+    }
+    .ws-laptop {
+      --over: min(100px, calc((100vw - 100%) / 2 - 0.75rem));
+      --y: 0%;
+      --w: 55%;
+    }
+    .ws-phones {
+      --over: 0px;
+      --y: 40%;
+      --w: 36%;
+    }
+    .ws-coin-3 {
+      --x: 45%;
+      --y: 70%;
+      --w: 21%;
+    }
+  }
+
+  /* No motion for a reader who asked for none: the coins' spin is decorative. */
+  @media (prefers-reduced-motion: reduce) {
+    .ws-coin {
+      rotate: none;
+    }
+  }
+</style>
