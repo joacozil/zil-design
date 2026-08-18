@@ -188,7 +188,12 @@ const palette = [
       /* `stroke` and `gridWidth` both point at the grid artwork on purpose: the
         rings are drawn in the colour it strokes its rules in (#00AC69) and at the
         weight derived from its intrinsic width, so the two sections render the
-        literal same hairline. */
+        literal same hairline.
+
+        `fontWeight` is Regular, and 400 is stated rather than left to the
+        component's 500 default on purpose: Bornia ships only Regular and Bold, so
+        a 500 resolves to this same file. Writing 400 keeps the code honest about
+        what actually renders. */
     }
     <ConceptCircles
       words={concepts}
@@ -196,7 +201,7 @@ const palette = [
       stroke="#00AC69"
       ink="#00AC69"
       fontFamily={'"Bornia", sans-serif'}
-      fontWeight={500}
+      fontWeight={400}
     />
     <LogoGrid
       image={gridImage}
