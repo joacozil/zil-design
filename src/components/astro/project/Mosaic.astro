@@ -19,6 +19,17 @@ interface Item {
   alt: string;
   /** Share of the row's width on desktop. */
   weight?: number;
+  /**
+   * Position in the STACKED order, 1-based. Only read below the bento
+   * breakpoint, where the rows collapse and every image becomes one item in a
+   * single column — see the flatten rule in the styles.
+   *
+   * It exists because the two orders answer different questions. The bento's
+   * order is spatial: which images share a row. The stack's is a sequence, and a
+   * row that reads as a pair side by side can read as a repetition one above the
+   * other. Set it on EVERY item or none — an unset item sorts to the front.
+   */
+  stackOrder?: number;
 }
 interface RowDef {
   items: Item[];
@@ -97,7 +108,9 @@ const {
             {row.items.map((it) => (
               <img
                 class="mosaic-img"
-                style={`--w:${it.weight ?? 1}`}
+                style={`--w:${it.weight ?? 1}${
+                  it.stackOrder ? `;--order:${it.stackOrder}` : ""
+                }`}
                 src={it.src.src}
                 width={it.src.width}
                 height={it.src.height}
@@ -130,6 +143,20 @@ const {
     gap: var(--gap);
   }
 
+  /* Stacked: the rows STOP EXISTING (`display: contents` lifts their images to be
+     the column's own children) so `stackOrder` can interleave images that the
+     bento keeps in different rows. Without the flatten, `order` could only
+     shuffle images within their own row.
+
+     The column's `gap` then applies between all of them uniformly, which is the
+     same value the rows used, so nothing about the spacing changes. */
+  .mosaic-row {
+    display: contents;
+  }
+  .mosaic-img {
+    order: var(--order, 0);
+  }
+
   /* Mobile: each image full width at its natural ratio (weights ignored). */
   .mosaic-img {
     display: block;
@@ -146,7 +173,11 @@ const {
     .mosaic--from-tablet {
       aspect-ratio: var(--aspect);
     }
+    .mosaic--from-tablet .mosaic-img {
+      order: 0;
+    }
     .mosaic--from-tablet .mosaic-row {
+      display: flex;
       flex-direction: row;
       flex: var(--w);
       min-height: 0;
@@ -185,7 +216,11 @@ const {
     .mosaic {
       aspect-ratio: var(--aspect);
     }
+    .mosaic-img {
+      order: 0;
+    }
     .mosaic-row {
+      display: flex;
       flex-direction: row;
       flex: var(--w);
       min-height: 0;

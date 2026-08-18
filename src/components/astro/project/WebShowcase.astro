@@ -130,22 +130,36 @@ const container = "mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12";
     position: relative;
     width: 100%;
     margin-top: 4rem;
-    aspect-ratio: 1 / 1.08;
+    aspect-ratio: 1 / var(--ratio);
 
     /* Every piece is absolutely positioned, so NONE of them contributes height:
-       the stage is exactly its `aspect-ratio` and a piece placed low hangs out
-       the bottom. That overhang used to be swallowed by the section's own
-       `py-section`, which is the design system's HALF of the gap to the next
-       section — so the phones ended up under the dark band that follows.
+       the stage is exactly its `aspect-ratio`, and the phones — the lowest piece
+       in both arrangements — hang out the bottom. Left alone, that overhang is
+       swallowed by the section's own `py-section`, which is the design system's
+       HALF of the gap to the next section, and the phones end up under the dark
+       band that follows.
 
-       `--overhang` gives the hanging part its own room. It is a percentage of
-       the stage's WIDTH (which is what a percentage margin resolves against),
-       and it is the one value here that is derived rather than eyeballed:
-       for the lowest piece, overhang = --y × ratio + --w × (art height / art
-       width) − ratio, all in units of the stage's width. Re-derive it whenever
-       the lowest piece's --y or --w moves, or the section starts eating its own
-       padding again. */
-    margin-bottom: var(--overhang, 0);
+       So the stage reserves room for it. The number is NOT hand-tuned: it is the
+       phones' own placement run through their artwork's proportion,
+
+         overhang = --y × ratio + --w × (art height ÷ art width) − ratio
+
+       in units of the stage's width, which is what a percentage margin resolves
+       against. Because the same `--ph-y` / `--ph-w` drive both the phones and
+       this calc, retuning the phones retunes the reservation — the two cannot
+       drift apart, which is exactly how they drifted before. `max()` covers the
+       arrangements where the phones sit high enough not to hang at all. */
+    --ph-art: 1.3113; /* phones-cut.avif — 1310 ÷ 999 */
+    --overhang: max(
+      0%,
+      calc(
+        (
+            var(--ph-y) / 100 * var(--ratio) + var(--ph-w) / 100 * var(--ph-art) -
+              var(--ratio)
+          ) * 100%
+      )
+    );
+    margin-bottom: var(--overhang);
   }
 
   /* Every piece: placed by its top-left corner, sized off the stage's WIDTH so
@@ -186,6 +200,9 @@ const container = "mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12";
   }
   .ws-phones {
     left: calc(-1 * var(--over));
+    /* Driven by the stage's numbers, not its own — see `--overhang`. */
+    --y: calc(var(--ph-y) * 1%);
+    --w: calc(var(--ph-w) * 1%);
   }
 
   /* THE PLACEMENTS. Everything below is a knob, and these two blocks are the only
@@ -200,48 +217,54 @@ const container = "mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12";
      `aspect-ratio` is what ties the two axes together: change the ratio and the
      whole composition restacks. Change a piece's --w and only that piece grows.
 
-     Mobile — the composition stacks tall: coins top-left under the copy, the
-     laptop entering from the right, the phones from the left below it. */
-  /* Lowest piece: the phones (--y 52%, --w 55%) hang ~20% of the stage's width
-     below it. */
+     MOBILE — the canvas is tall and the composition reads as two beats: the
+     laptop with the two coins falling past its left edge, then the phone pair
+     with the third coin beside it. They are allowed to overlap where the laptop
+     bottoms out — the phones enter over its lower-left corner — so the beats are
+     a reading order, not two sealed halves.
+
+     The laptop leans far off the right edge on purpose here (`--over` is most of
+     the stage's width): a phone is too narrow to show the whole machine at a size
+     where its screen is legible, so the composition shows the screen and lets the
+     body run off. */
   .ws-stage {
-    --overhang: 21%;
+    --ratio: 1.9;
+    --ph-y: 66;
+    --ph-w: 80;
   }
 
   .ws-coin-1 {
     --x: 0%;
-    --y: 0%;
+    --y: 25%;
     --w: 28%;
   }
   .ws-coin-2 {
     --x: 0%;
-    --y: 23%;
+    --y: 38%;
     --w: 32%;
   }
   .ws-laptop {
-    --over: 43%;
-    --y: 1%;
-    --w: 100%;
+    --over: 88%;
+    --y: 2%;
+    --w: 160%;
   }
   .ws-phones {
-    --over: 12%;
-    --y: 52%;
-    --w: 55%;
+    --over: 25%;
   }
   .ws-coin-3 {
-    --x: 56%;
-    --y: 90%;
+    --x: 63%;
+    --y: 88%;
     --w: 33%;
   }
 
   /* Desktop — the stage goes wide. The pieces spread out and shrink relative to
      it, and the coins fill the space the copy leaves at the top left. */
   @media (width >= 1024px) {
-    /* Lowest piece is still the phones (--y 40%, --w 36%), hanging ~4% below. */
     .ws-stage {
-      aspect-ratio: 1 / 0.72;
+      --ratio: 0.72;
+      --ph-y: 40;
+      --ph-w: 36;
       margin-top: 3.5rem;
-      --overhang: 5%;
     }
     .ws-coin-1 {
       --x: 28%;
@@ -260,8 +283,6 @@ const container = "mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12";
     }
     .ws-phones {
       --over: 0px;
-      --y: 40%;
-      --w: 36%;
     }
     .ws-coin-3 {
       --x: 45%;
