@@ -1,0 +1,120 @@
+---
+/**
+ * La lista de pisos de precio.
+ *
+ * ── POR QUÉ EXISTE ESTE COMPONENTE ──────────────────────────────────────────
+ * La primera versión de la página de presupuesto explicaba CÓMO cotizamos y no
+ * publicaba un solo número. Rankeaba para "presupuesto diseño gráfico" y
+ * "diseño gráfico precios" prometiendo algo que después no daba: el que busca un
+ * precio y encuentra un método se va en cinco segundos, y ese rebote lo mide
+ * Google. Un título que no puede cumplir su promesa es peor que no rankear.
+ *
+ * Publicar el PISO resuelve las dos puntas. Cumple con la búsqueda, y no expone
+ * el techo: "desde" es un dato real y sigue siendo cierto para el proyecto de
+ * cuatro líneas de negocio que cuesta el triple.
+ *
+ * ── EL NÚMERO ES EL PROTAGONISTA ────────────────────────────────────────────
+ * Se compone en `text-h3` y alineado a la derecha con `tabular-nums`, no como
+ * un dato al final de una oración. Es lo que la persona vino a buscar y tiene
+ * que poder leerse salteando todo lo demás. El panel lilac es el mismo recurso
+ * que usa la sección de contacto: marca el bloque como el centro de la página.
+ *
+ * ── MANTENIMIENTO ───────────────────────────────────────────────────────────
+ * Los valores viven en la página que usa este componente, no acá, y llevan la
+ * fecha de vigencia al pie. Un precio publicado sin fecha envejece en silencio;
+ * con fecha, al menos se sabe cuándo dejó de ser cierto.
+ */
+interface PriceItem {
+  name: string;
+  /** El piso, ya formateado (p.ej. "3.000"). Sin símbolo: lo pone el componente. */
+  from: string;
+  detail: string;
+}
+
+interface Props {
+  title: string;
+  intro?: string;
+  items: PriceItem[];
+  currency?: string;
+  /** Nota al pie: desde cuándo rigen estos valores. */
+  updated: string;
+}
+
+const { title, intro, items, currency = "USD", updated } = Astro.props;
+---
+
+<section class="py-section">
+  <div class="mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12">
+    <div data-reveal-group>
+      <h2
+        class="max-w-[24ch] text-h2 tracking-[-0.03em] text-balance"
+        data-reveal
+      >
+        {title}
+      </h2>
+
+      {
+        intro && (
+          <p class="mt-6 max-w-[62ch] text-p-lg text-pretty" data-reveal>
+            {intro}
+          </p>
+        )
+      }
+    </div>
+
+    <div
+      class="mt-12 bg-primary-light p-8 tablet:mt-16 tablet:p-12 desktop:p-16"
+      data-reveal-group
+    >
+      <ul class="flex flex-col">
+        {
+          items.map((item, i) => (
+            <li
+              class:list={[
+                "flex flex-col gap-1 py-6 tablet:flex-row tablet:items-baseline tablet:justify-between tablet:gap-8",
+                i > 0 && "border-t border-primary-dark/15",
+              ]}
+              data-reveal
+            >
+              <div class="tablet:max-w-[46ch]">
+                <h3 class="text-h5 tracking-[-0.02em] text-text">
+                  {item.name}
+                </h3>
+                <p class="mt-1 text-p-sm text-pretty text-text/70">
+                  {item.detail}
+                </p>
+              </div>
+
+              {/* El número, alineado a la derecha y en tabular para que las
+                  cifras de todas las filas caigan en la misma columna. */}
+              <p class="shrink-0 tablet:text-right">
+                <span class="text-p-sm font-bold tracking-wide text-primary-dark uppercase">
+                  desde
+                </span>{" "}
+                <span class="text-h3 tracking-[-0.02em] text-text tabular-nums">
+                  {currency} {item.from}
+                </span>
+              </p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    {
+      /* La aclaración va PEGADA a los números y no al pie de la página. Estos
+        pisos son el alcance mínimo contratado como paquete de horas; un
+        proyecto cerrado se cotiza por caso y sale más. Enterrar eso abajo
+        convierte la página en una promesa que la propuesta después no cumple,
+        que es peor que no publicar nada: el lector ya ancló en el número. */
+    }
+    <p class="mt-6 max-w-[62ch] text-p-sm text-muted" data-reveal>
+      Valores vigentes desde {updated}, en {currency}. Son <strong
+        class="font-semibold text-text">pisos</strong
+      >, no presupuestos: corresponden al alcance mínimo de cada servicio
+      contratado como paquete de horas. Un proyecto cerrado, con entregables
+      definidos y calidad garantizada, se cotiza caso por caso y parte de esos
+      valores hacia arriba.
+    </p>
+  </div>
+</section>

@@ -70,7 +70,7 @@ const PAGE_URL = new URL(serviceHref(slug), Astro.site).href;
 // ahí el botón baja al formulario del final.
 const isBudget = slug === BUDGET_SLUG;
 const ctaHref = isBudget ? "#hablemos" : serviceHref(BUDGET_SLUG);
-const ctaLabel = isBudget ? "Contanos tu proyecto" : "Cómo presupuestamos";
+const ctaLabel = isBudget ? "Contanos tu proyecto" : "Ver precios";
 ---
 
 <Layout title={title} description={description}>

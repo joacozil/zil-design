@@ -1,27 +1,83 @@
 ---
 /**
- * Presupuesto — el cluster más chico del mapa y el de intención más pura.
+ * Cuánto cuesta un proyecto de diseño — el cluster más chico del mapa y el de
+ * intención más pura.
  *
  * 690 búsquedas/mes ganables sobre 950, y a diferencia de todos los demás no
  * tiene mitad informativa con la que competir: el que escribe "presupuesto
- * diseño gráfico" está costeando un proyecto. Nueve de sus dieciséis keywords
- * están en competencia 35 o menos porque casi ningún estudio contesta la
- * pregunta.
+ * diseño gráfico" o "diseño gráfico precios" está costeando un proyecto. Nueve
+ * de sus dieciséis keywords están en competencia 35 o menos porque casi ningún
+ * estudio contesta la pregunta.
  *
- * ── SIN NÚMEROS, POR DECISIÓN ────────────────────────────────────────────────
- * La página explica CÓMO se cotiza y no publica cifras. Eso vuelve más difícil
- * ganar las búsquedas de "precios", que esperan una lista, así que la página
- * tiene que compensarlo respondiendo todo lo demás mejor que nadie: qué mueve el
- * número, qué trae una propuesta, cuánto tarda, cómo se factura. Decirlo de
- * frente en la primera línea es parte de eso — una página que promete precios y
- * no los da se cierra en cinco segundos, y ese rebote lo mide Google.
+ * ── LA PÁGINA PUBLICA NÚMEROS, Y ESA ES LA PÁGINA ───────────────────────────
+ * La primera versión se llamaba "Cómo presupuestamos" y explicaba el método sin
+ * dar una sola cifra. Dos problemas encadenados: ese título es el estudio
+ * hablando de sí mismo y no la respuesta que se buscó, así que no se clickea; y
+ * si igual se clickeara, el que entra buscando un precio y encuentra un método
+ * se va enseguida, que es la señal que hunde una posición más rápido que no
+ * aparecer.
+ *
+ * Publicar el piso arregla las dos. El título ahora es la pregunta tal como se
+ * escribe, y la página la contesta arriba de todo.
+ *
+ * ── LOS PISOS SON PISOS ─────────────────────────────────────────────────────
+ * Los valores corresponden al ALCANCE MÍNIMO de cada servicio, contratado como
+ * paquete de horas. Un proyecto cerrado, con entregables definidos y calidad
+ * garantizada, se cotiza por caso y arranca de ahí para arriba. Esa aclaración
+ * viaja pegada a los números y no al pie: el lector ancla en la primera cifra
+ * que ve, y una propuesta que después triplica ese ancla es peor que no haber
+ * publicado nada.
  */
 import ServiceLayout from "../layouts/ServiceLayout.astro";
 import Prose from "../components/astro/service/Prose.astro";
+import PriceList from "../components/astro/service/PriceList.astro";
 import Deliverables from "../components/astro/service/Deliverables.astro";
 import ServiceStatement from "../components/astro/service/ServiceStatement.astro";
 import { SERVICES, serviceHref } from "../data/services";
 import type { FaqItem } from "../data/services";
+
+// Un solo lugar para la fecha de vigencia. Un precio publicado sin fecha
+// envejece en silencio.
+const VIGENCIA = "agosto de 2026";
+
+const precios = [
+  {
+    name: "Identidad de marca",
+    from: "3.000",
+    detail:
+      "Estrategia, marca gráfica, sistema de color y tipografía, y el manual con sus reglas de aplicación.",
+  },
+  {
+    name: "Diseño de logo",
+    from: "1.500",
+    detail:
+      "Sólo la marca gráfica: logotipo, variantes de uso, versiones monocromas y archivos finales.",
+  },
+  {
+    name: "Sitio institucional",
+    from: "3.000",
+    detail:
+      "Arquitectura, diseño de las plantillas, desarrollo, SEO técnico y puesta en producción.",
+  },
+  {
+    name: "Diseño UX/UI",
+    from: "3.000",
+    detail:
+      "Investigación, flujos, wireframes, interfaz y sistema de componentes entregado en Figma.",
+  },
+  {
+    name: "Editorial y packaging",
+    from: "1.000",
+    detail:
+      "Diseño de la pieza y preparación de artes finales para el sistema de impresión que corresponda.",
+  },
+  {
+    name: "Abono mensual",
+    from: "800",
+    detail:
+      "Producción continua: piezas de redes, evolución de un sitio o soporte de producto, por mes.",
+  },
+];
 
 const variables = [
   {
@@ -50,9 +106,9 @@ const variables = [
       "Un proyecto con fecha ajustada se cotiza distinto porque obliga a superponer etapas y a reservar disponibilidad del equipo. Si la fecha es negociable, decilo: suele ser la variable más barata de mover.",
   },
   {
-    name: "Continuidad",
+    name: "Modalidad",
     detail:
-      "Un encargo cerrado y un acompañamiento mensual se estructuran distinto. Para producción continua, como piezas de redes o soporte de producto, trabajamos con abono.",
+      "Paquete de horas o proyecto cerrado. El primero arranca en los pisos publicados; el segundo compromete entregables y calidad de antemano, y por eso se cotiza por caso.",
   },
 ];
 
@@ -86,14 +142,20 @@ const propuesta = [
 
 const faqs: FaqItem[] = [
   {
-    question: "¿Tienen lista de precios?",
+    question: "¿Cuánto cuesta un proyecto de diseño?",
     answer:
-      "No, y la razón no es reserva comercial. Un proyecto de identidad para una empresa de un solo producto y otro para una con cuatro líneas que tienen que convivir no comparten alcance ni trabajo, y un precio de lista sólo puede describir a uno de los dos. Lo que sí podemos decir de entrada, en la primera conversación y sin compromiso, es un rango realista para tu caso.",
+      "Los pisos son: identidad de marca desde USD 3.000, diseño de logo desde USD 1.500, sitio institucional desde USD 3.000, UX/UI desde USD 3.000, editorial y packaging desde USD 1.000, y abono mensual desde USD 800. Esos valores corresponden al alcance mínimo de cada servicio contratado como paquete de horas. Un proyecto cerrado, con entregables definidos y calidad garantizada, se cotiza por caso y parte de ahí hacia arriba.",
   },
   {
-    question: "¿Cómo se presupuesta un proyecto de diseño?",
+    question:
+      "¿Cuál es la diferencia entre paquete de horas y proyecto cerrado?",
     answer:
-      "Por alcance, no por hora ni por pieza. Definimos qué problema hay que resolver, qué entregables lo resuelven y en cuántas etapas, y cada etapa lleva su monto. Cotizar por hora traslada al cliente el riesgo de nuestra estimación, y cotizar por pieza premia entregar muchas piezas en lugar de las que hacen falta.",
+      "En un paquete de horas comprás una cantidad de trabajo y la usamos donde haga más falta. Es la modalidad más barata y la más flexible, y lo que se logra depende de hasta dónde alcancen esas horas. En un proyecto cerrado definimos de antemano los entregables, las etapas y el estándar de calidad, y ese resultado queda comprometido sin importar cuánto trabajo lleve. Por eso el segundo se cotiza por caso: el riesgo de la estimación lo asumimos nosotros.",
+  },
+  {
+    question: "¿Por qué publican precios si después cotizan por caso?",
+    answer:
+      "Porque un piso honesto le ahorra tiempo a todo el mundo. Si el mínimo de una identidad no entra en lo que tenías pensado invertir, lo sabemos los dos en veinte segundos y no en tres reuniones. Lo que no se puede publicar es un precio final: un proyecto para una empresa de un producto y otro para una con cuatro líneas que tienen que convivir no comparten alcance ni trabajo.",
   },
   {
     question: "¿Cuánto tarda una propuesta?",
@@ -108,49 +170,57 @@ const faqs: FaqItem[] = [
   {
     question: "¿Cómo se factura?",
     answer:
-      "Por hitos, contra entrega de cada etapa, con un anticipo al inicio. Facturamos desde Argentina y también podemos hacerlo para el exterior, con transferencia bancaria o plataformas internacionales de pago según de dónde sea la empresa.",
+      "Por hitos, contra entrega de cada etapa, con un anticipo al inicio. Facturamos desde Argentina y también para el exterior, con transferencia bancaria o plataformas internacionales de pago según de dónde sea la empresa.",
   },
   {
     question: "¿Qué pasa si el alcance cambia en el medio?",
     answer:
       "Se cotiza aparte y se aprueba antes de hacerlo. Suena burocrático y evita el problema más común de cualquier proyecto de diseño, que es el trabajo agregado de a poco sin que nadie lo cuente hasta que el plazo ya se pasó.",
   },
-  {
-    question: "¿Trabajan con abono mensual?",
-    answer:
-      "Sí, para producción continua: piezas de redes, soporte de producto, evolución de un sitio. Un abono tiene sentido cuando el trabajo es sostenido y previsible. Para transformaciones puntuales, como una identidad o un sitio nuevo, el proyecto cerrado protege mejor a las dos partes.",
-  },
 ];
 ---
 
 <ServiceLayout
-  title="Presupuesto de diseño: cómo cotizamos un proyecto | Zil Design"
-  description="Cómo presupuestamos un proyecto de diseño gráfico: qué variables mueven el número, qué incluye una propuesta, en cuánto tiempo la entregamos y cómo se factura."
+  title="Cuánto cuesta un proyecto de diseño en Argentina | Zil Design"
+  description="Precios de diseño: identidad de marca desde USD 3.000, logo desde USD 1.500, sitio web desde USD 3.000. Qué incluye cada piso y qué mueve el número final."
   slug="presupuesto"
-  breadcrumb="Presupuesto"
-  eyebrow="Presupuesto"
-  h1="Cómo presupuestamos un proyecto de diseño"
-  lede="No tenemos lista de precios. Sí podemos explicar exactamente cómo se arma el número, qué lo mueve y qué vas a recibir en la propuesta."
-  heroBody="Cotizamos por alcance y por etapas. La propuesta se entrega en tres a cinco días hábiles y no tiene costo."
+  breadcrumb="Precios"
+  eyebrow="Precios y presupuesto"
+  h1="Cuánto cuesta un proyecto de diseño"
+  lede="Publicamos el piso de cada servicio. Abajo está la lista completa, qué incluye cada uno y qué mueve el número hacia arriba."
+  heroBody="Los valores son en dólares y corresponden al alcance mínimo contratado como paquete de horas. Un proyecto cerrado se cotiza por caso."
   faqs={faqs}
-  faqTitle="Preguntas sobre presupuesto"
+  faqTitle="Preguntas sobre precios"
   ctaTitle="Pedí tu presupuesto"
-  ctaText="Contanos qué necesitás y para cuándo. Si de la primera conversación sale un rango, te lo damos ahí mismo."
+  ctaText="Contanos qué necesitás y para cuándo. Si de la primera conversación sale un número, te lo damos ahí mismo."
 >
-  <Prose title="Por qué no hay una lista de precios">
+  <PriceList
+    title="Los pisos, por servicio"
+    intro="Lo primero que quiere saber cualquiera que llega acá. Estos son los valores desde los que arranca cada servicio."
+    items={precios}
+    updated={VIGENCIA}
+  />
+
+  <Prose title="Paquete de horas o proyecto cerrado">
     <p>
-      Porque cualquier lista honesta tendría una sola fila útil y el resto sería
-      relleno. Ordenar una identidad que ya existe y construir una desde cero
-      son trabajos distintos. Una empresa de un producto y una con cuatro líneas
-      que tienen que convivir son problemas distintos. Un precio de lista sólo
-      puede describir uno de esos casos y le miente a todos los demás.
+      Los pisos de arriba son de <strong>paquete de horas</strong>: comprás una
+      cantidad de trabajo y la usamos donde haga más falta. Es la modalidad más
+      barata y la más flexible, y lo que se logra depende de hasta dónde
+      alcancen esas horas.
     </p>
     <p>
-      Lo que sí se puede hacer, y es lo que hacemos, es dar un
-      <strong>rango realista en la primera conversación</strong>, sin compromiso
-      y antes de escribir nada. Si ese rango no cierra con lo que tenías
-      pensado, lo sabemos los dos en veinte minutos en lugar de en tres
-      reuniones.
+      Un <strong>proyecto cerrado</strong> funciona al revés. Definimos primero los
+      entregables, las etapas y el estándar de calidad, y ese resultado queda comprometido
+      sin importar cuánto trabajo termine llevando. El riesgo de la estimación lo
+      asumimos nosotros, y por eso se cotiza por caso y parte de esos pisos hacia
+      arriba.
+    </p>
+    <p>
+      Cuál conviene depende de qué estés resolviendo. Para una necesidad
+      acotada, con criterio propio del lado del cliente, el paquete de horas
+      rinde. Para una identidad o un sitio que la empresa va a usar durante
+      años, el proyecto cerrado es lo que garantiza que el resultado exista, y
+      no solamente que se hayan consumido las horas.
     </p>
   </Prose>
 
@@ -162,6 +232,11 @@ const faqs: FaqItem[] = [
     offset={1}
   />
 
+  <ServiceStatement
+    lead="Un piso honesto ahorra más tiempo que un"
+    highlight="consultanos."
+  />
+
   <Deliverables
     title="Qué trae la propuesta"
     intro="Todas nuestras propuestas tienen la misma estructura, así se pueden comparar con las de cualquier otro estudio."
@@ -169,21 +244,17 @@ const faqs: FaqItem[] = [
     offset={3}
   />
 
-  <ServiceStatement
-    lead="Un precio de lista sólo puede describir a"
-    highlight="un cliente."
-  />
-
-  <Prose title="Cotizamos por alcance, no por hora">
+  <Prose title="Cotizamos por alcance, no por hora trabajada">
     <p>
-      Cobrar por hora traslada al cliente el riesgo de nuestra estimación: si
-      tardamos de más, paga de más. Cobrar por pieza premia entregar muchas
-      piezas en lugar de las que resuelven el problema.
+      Aun en el paquete de horas, lo que se acuerda es un alcance. Facturar por
+      hora efectivamente trabajada traslada al cliente el riesgo de nuestra
+      estimación: si tardamos de más, paga de más. Y cotizar por pieza premia
+      entregar muchas piezas en lugar de las que resuelven el problema.
     </p>
     <p>
-      Por eso el presupuesto se arma por alcance y se divide en etapas, cada una
-      con su entrega y su aprobación. Sabés qué recibís y cuándo, y si algo se
-      agrega en el medio se cotiza y se aprueba antes de hacerlo.
+      Por eso el presupuesto se divide en etapas, cada una con su entrega y su
+      aprobación. Sabés qué recibís y cuándo, y si algo se agrega en el medio se
+      cotiza y se aprueba antes de hacerlo.
     </p>
   </Prose>
 

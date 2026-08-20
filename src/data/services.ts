@@ -86,9 +86,17 @@ export const SERVICES: ServiceEntry[] = [
   },
 ];
 
-/** La página de presupuesto: mismo trato de URL, pero no es un servicio. */
+/**
+ * La página de precios: mismo trato de URL, pero no es un servicio.
+ *
+ * La etiqueta dice "Precios" y no "Presupuesto" porque la página publica los
+ * pisos de cada servicio. "Presupuesto" describe un trámite; "Precios" describe
+ * lo que hay del otro lado del enlace, que es lo que decide si alguien lo
+ * clickea. El slug se queda en /presupuesto/ a propósito: es la keyword
+ * (presupuesto diseño gráfico, 210/mes) y cambiarlo tiraría la URL.
+ */
 export const BUDGET_SLUG = "presupuesto";
-export const BUDGET_LABEL = "Presupuesto";
+export const BUDGET_LABEL = "Precios";
 
 /**
  * La URL de una página de servicio. Construir SIEMPRE por acá y nunca escribir
