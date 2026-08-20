@@ -1,0 +1,146 @@
+---
+/**
+ * Diseño UX/UI — 1.140 ganables sobre 5.440.
+ *
+ * "Diseño ux ui" es el término de servicio más buscado de todo el mapa
+ * (2.400/mes) y no es el objetivo de esta página: en competencia 55, contra un
+ * SERP de bootcamps y cursos, no es una pelea de primer año. Los accesos reales
+ * son "diseño ui" (210, comp 33), "diseño de interfaz" (140, comp 29) y "ux y
+ * ui" (70, comp 36).
+ *
+ * Advertencia que vale la pena tener escrita: buena parte del volumen UX/UI en
+ * Argentina es gente buscando ESTUDIAR, no contratar. Se esperan menos
+ * conversiones por impresión que en identidad, y eso no es un fallo de la
+ * página. Por eso el copy habla de producto y de negocio desde la primera línea,
+ * que es el filtro más honesto que se puede poner.
+ */
+import ServiceLayout from "../layouts/ServiceLayout.astro";
+import Prose from "../components/astro/service/Prose.astro";
+import Deliverables from "../components/astro/service/Deliverables.astro";
+import ServiceStatement from "../components/astro/service/ServiceStatement.astro";
+import { serviceHref } from "../data/services";
+import { projectHref } from "../data/projects";
+import type { FaqItem } from "../data/services";
+
+const etapas = [
+  {
+    name: "Investigación",
+    detail:
+      "Entrevistas con usuarios reales, revisión de la analítica que ya existe y recorrido de los productos con los que se compara. El objetivo es encontrar dónde se cae la gente, no confirmar lo que suponíamos.",
+  },
+  {
+    name: "Arquitectura y flujos",
+    detail:
+      "Cómo se organiza la información y qué camino recorre cada tarea. Se resuelve antes de que haya una sola pantalla dibujada, porque una interfaz linda sobre un flujo malo sigue siendo un flujo malo.",
+  },
+  {
+    name: "Wireframes",
+    detail:
+      "Las pantallas en gris, para discutir estructura y contenido sin que la conversación se desvíe a los colores.",
+  },
+  {
+    name: "Interfaz",
+    detail:
+      "El diseño visual aplicado sobre la estructura aprobada, con sus estados de carga, error, vacío y éxito. Los estados no son un detalle: son la mitad del producto y la mitad que siempre se olvida especificar.",
+  },
+  {
+    name: "Sistema de diseño",
+    detail:
+      "Componentes, tokens de color y tipografía, y reglas de uso, entregados en Figma para que el equipo de desarrollo construya sobre algo consistente.",
+  },
+  {
+    name: "Entrega a desarrollo",
+    detail:
+      "Especificaciones, medidas, comportamiento responsive y una sesión con el equipo técnico. El diseño termina cuando está construido, no cuando está aprobado.",
+  },
+];
+
+const faqs: FaqItem[] = [
+  {
+    question: "¿Cuál es la diferencia entre UX y UI?",
+    answer:
+      "UX es cómo funciona: qué camino recorre el usuario, cómo está organizada la información, dónde se traba. UI es cómo se ve y cómo responde: la interfaz, sus componentes y sus estados. Se trabajan juntas porque separarlas produce productos que se ven bien y no se pueden usar, o que funcionan y nadie quiere usar.",
+  },
+  {
+    question: "¿Diseñan también el sistema de componentes?",
+    answer:
+      "Sí, y en un producto que va a seguir creciendo es lo más valioso que queda. Entregamos los componentes con sus variantes y estados, y los tokens de color, tipografía y espaciado, en un archivo de Figma que el equipo de desarrollo puede traducir a código sin tener que interpretar medidas de una captura.",
+  },
+  {
+    question: "¿Trabajan sobre un producto que ya existe?",
+    answer:
+      "Es el caso más frecuente. Empezamos por medir dónde está el problema, con la analítica que ya tenés y con entrevistas, y priorizamos por impacto. Rediseñar todo de una vez suele ser más caro y más riesgoso que resolver los tres o cuatro puntos donde se está cayendo la gente.",
+  },
+  {
+    question: "¿Entregan el diseño en Figma?",
+    answer:
+      "Sí, con el archivo organizado y compartido, no una exportación de imágenes. Incluye los componentes, los estados, las medidas y las notas de comportamiento responsive que el equipo técnico necesita para construir sin adivinar.",
+  },
+  {
+    question: "¿Hacen también el desarrollo?",
+    answer:
+      "El desarrollo del sitio lo resolvemos nosotros cuando se trata de una web. Para producto digital trabajamos con el equipo técnico del cliente, o con el suyo si ya tiene uno, y nos ocupamos de que la entrega sea construible: especificaciones, sistema de componentes y acompañamiento durante la implementación.",
+  },
+];
+---
+
+<ServiceLayout
+  title="Diseño UX/UI y de interfaz para producto digital | Zil Design"
+  description="Diseño UX/UI en Argentina: investigación, flujos, wireframes, diseño de interfaz y sistema de componentes en Figma, entregado listo para desarrollo."
+  slug="diseno-ux-ui"
+  breadcrumb="Diseño UX/UI"
+  eyebrow="Diseño UX/UI"
+  h1="Diseño UX/UI y de interfaz"
+  lede="Diseñamos productos digitales que se pueden usar y que el equipo de desarrollo puede construir sin traducir capturas."
+  heroBody="Diseño de experiencia de usuario e interfaz para plataformas y aplicaciones, con sistema de componentes y entrega documentada."
+  faqs={faqs}
+  ctaTitle="Hablemos de tu producto"
+  ctaText="Contanos qué producto tenés o querés construir y dónde está el problema hoy."
+>
+  <Prose title="El diseño de interfaz empieza antes de la pantalla">
+    <p>
+      La mayoría de los rediseños que nos llegan piden una interfaz nueva y el
+      problema está una capa más abajo: la información no está organizada como
+      la busca el usuario, o la tarea principal exige cuatro pasos donde
+      alcanzaba con dos. Repintar eso lo deja igual de difícil, sólo que más
+      prolijo.
+    </p>
+    <p>
+      Por eso arrancamos por medir dónde se cae la gente, con la analítica que
+      ya existe y con entrevistas, y resolvemos flujo y arquitectura antes de
+      dibujar. El diseño visual llega después, sobre una estructura que ya se
+      probó.
+    </p>
+  </Prose>
+
+  <Deliverables
+    title="Cómo trabajamos"
+    intro="Seis etapas, cada una con su entrega. El proyecto puede empezar en cualquiera de ellas si el trabajo anterior ya está hecho."
+    items={etapas}
+    offset={3}
+  />
+
+  <ServiceStatement
+    lead="Una interfaz linda sobre un flujo malo sigue siendo un"
+    highlight="flujo malo."
+  />
+
+  <Prose title="Los estados son la mitad del producto">
+    <p>
+      Una pantalla no es un estado, son cinco: cargando, con datos, vacía, con
+      error y con la acción completada. La versión que se muestra en una
+      presentación es siempre la del medio, y las otras cuatro son las que el
+      usuario encuentra en un día real.
+    </p>
+    <p>
+      Las especificamos todas, porque si no las define el diseño las termina
+      definiendo el desarrollo bajo presión de fecha, y ahí es donde un producto
+      cuidado empieza a sentirse improvisado.
+    </p>
+    <p>
+      Podés ver un producto digital completo en el caso de
+      <a href={projectHref("quantia")}>Quantia</a>. Si además necesitás el sitio
+      público, está <a href={serviceHref("diseno-web")}>diseño web</a>.
+    </p>
+  </Prose>
+</ServiceLayout>

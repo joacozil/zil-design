@@ -1,0 +1,137 @@
+---
+/**
+ * La grilla de entregables: qué recibe el cliente, ítem por ítem.
+ *
+ * Es la sección que carga el peso de estas páginas. Alguien que busca "manual de
+ * marca" o "diseño editorial" está tratando de averiguar qué incluye el trabajo,
+ * y la respuesta honesta a esa pregunta es también el texto que hace que la
+ * página merezca la búsqueda.
+ *
+ * ── POR QUÉ TARJETAS DE COLOR Y NO UNA LISTA ────────────────────────────────
+ * La primera versión de esto era una grilla de celdas blancas separadas por
+ * hairlines. Funcionaba y no era este sitio: Zil Design es campos de color
+ * saturado, lima contra violeta, tipografía grande. Una tabla gris en el medio
+ * de eso se lee como una nota al pie de otro proyecto.
+ *
+ * Los colores salen de la MISMA paleta de variantes que ServicesSelector
+ * (`components/react/ServicesSelector.tsx`), que es donde el sitio ya definió
+ * cómo se ve una tarjeta de servicio. Se rota lilac → lime → dark → primary y
+ * vuelve a empezar, así una grilla de seis o de ocho ítems nunca deja dos
+ * tarjetas del mismo color pegadas y ninguna grilla se ve igual que la anterior.
+ *
+ * La numeración es real, no decorativa: los ítems se entregan y se leen en
+ * orden. Donde el orden no signifique nada, pasar `numbered={false}`.
+ */
+interface Item {
+  name: string;
+  detail: string;
+}
+
+interface Props {
+  title: string;
+  intro?: string;
+  items: Item[];
+  numbered?: boolean;
+  /** Desde qué color arranca la rotación, para que dos grillas seguidas no coincidan. */
+  offset?: number;
+}
+
+const { title, intro, items, numbered = true, offset = 0 } = Astro.props;
+
+// Las cuatro variantes de ServicesSelector, en el mismo orden en que ese
+// componente las usa. `kicker` es el número, `detail` el texto secundario: los
+// dos necesitan su propio tono porque sobre `dark` y `primary` el texto va en
+// blanco y sobre `lilac` y `lime` en negro.
+const VARIANTS = [
+  {
+    card: "bg-primary-light",
+    heading: "text-text",
+    detail: "text-text/70",
+    kicker: "text-primary-dark",
+  },
+  {
+    card: "bg-accent",
+    heading: "text-text",
+    detail: "text-text/70",
+    kicker: "text-primary",
+  },
+  {
+    card: "bg-primary-dark",
+    heading: "text-text-inverse",
+    detail: "text-text-inverse/70",
+    kicker: "text-accent",
+  },
+  {
+    card: "bg-primary",
+    heading: "text-text-inverse",
+    detail: "text-text-inverse/75",
+    kicker: "text-accent",
+  },
+] as const;
+---
+
+<section class="py-section">
+  <div class="mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12">
+    <div data-reveal-group>
+      <h2
+        class="max-w-[24ch] text-h2 tracking-[-0.03em] text-balance"
+        data-reveal
+      >
+        {title}
+      </h2>
+
+      {
+        intro && (
+          <p class="mt-6 max-w-[62ch] text-p-lg text-pretty" data-reveal>
+            {intro}
+          </p>
+        )
+      }
+    </div>
+
+    {
+      /* Grupo propio: la lista es más alta que el fold en un teléfono, así que
+        con un solo disparador arriba los últimos ítems corren su entrada
+        mientras todavía están muy por debajo de la pantalla. Mismo criterio que
+        las filas del FAQ. */
+    }
+    <ol
+      class="mt-12 grid grid-cols-1 gap-4 tablet:mt-16 tablet:grid-cols-2 desktop:grid-cols-3"
+      data-reveal-group
+    >
+      {
+        items.map((item, i) => {
+          const v = VARIANTS[(i + offset) % VARIANTS.length];
+          return (
+            <li
+              class:list={["flex flex-col gap-3 p-8 desktop:p-10", v.card]}
+              data-reveal
+            >
+              {numbered && (
+                <span
+                  class:list={[
+                    "text-p-sm font-bold tracking-wide tabular-nums",
+                    v.kicker,
+                  ]}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+              )}
+              <h3
+                class:list={[
+                  "text-h4 tracking-[-0.02em] text-pretty",
+                  v.heading,
+                ]}
+              >
+                {item.name}
+              </h3>
+              <p class:list={["text-p-sm text-pretty", v.detail]}>
+                {item.detail}
+              </p>
+            </li>
+          );
+        })
+      }
+    </ol>
+  </div>
+</section>

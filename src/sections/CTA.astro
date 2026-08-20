@@ -3,6 +3,32 @@ import Button from "../components/astro/Button.astro";
 import LeadHoneypot from "../components/astro/LeadHoneypot.astro";
 import LeadSuccess from "../components/astro/LeadSuccess.astro";
 
+/**
+ * El formulario de contacto. Sin props es el de la home; las páginas de
+ * servicio le cambian el copy y, sobre todo, el `placement`.
+ *
+ * `placement` NO es cosmético: viaja al lead como `formPlacement` y es lo único
+ * que distingue de dónde salió. Un lead que llega desde /presupuesto/ ya dijo
+ * que está cotizando, y el que llega desde la home no; si las dos páginas mandan
+ * "cta" esa diferencia se pierde en workspace y no vuelve.
+ */
+interface Props {
+  placement?: string;
+  title?: string;
+  text?: string;
+  cta?: string;
+  /** `false` en las páginas de servicio: el ancla #cta es del nav de la home. */
+  anchor?: boolean;
+}
+
+const {
+  placement = "cta",
+  title = "Hablemos de tu marca",
+  text = "Activá el máximo potencial de tu marca y transformalo en crecimiento para tu negocio.",
+  cta = "Descubre Zil Design",
+  anchor = true,
+} = Astro.props;
+
 // Shared classes for the white fields so every input/textarea matches.
 const fieldBase =
   "w-full rounded-2xl bg-surface px-6 py-4 text-p text-text placeholder:text-p placeholder:font-normal placeholder:text-gray focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-primary-light";
@@ -12,7 +38,7 @@ const fieldBase =
   <div
     class="mx-auto w-full max-w-8xl px-6 py-section tablet:px-8 desktop:px-12"
   >
-    <div id="cta" class="scroll-anchor"></div>
+    {anchor && <div id="cta" class="scroll-anchor" />}
 
     <div class="bg-primary-light p-8 tablet:p-12 desktop:p-16">
       {
@@ -34,11 +60,10 @@ const fieldBase =
             class="max-w-[16ch] text-h2 tracking-[-0.03em] text-balance"
             data-reveal
           >
-            Hablemos de tu marca
+            {title}
           </h2>
           <p class="mt-4 max-w-[36ch] text-p-lg text-pretty" data-reveal>
-            Activá el máximo potencial de tu marca y transformalo en crecimiento
-            para tu negocio.
+            {text}
           </p>
         </div>
 
@@ -52,7 +77,7 @@ const fieldBase =
           <form
             class="flex flex-col gap-4"
             data-lead-form
-            data-lead-placement="cta"
+            data-lead-placement={placement}
           >
             <input
               type="text"
@@ -107,9 +132,7 @@ const fieldBase =
             </p>
 
             <div class="mt-2" data-reveal>
-              <Button type="submit" variant="pill-dark"
-                >Descubre Zil Design</Button
-              >
+              <Button type="submit" variant="pill-dark">{cta}</Button>
             </div>
           </form>
 

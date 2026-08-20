@@ -1,12 +1,31 @@
 ---
 import Badge from "../components/astro/Badge.astro";
+import type { FaqItem } from "../data/services";
+
+/**
+ * El acordeón de preguntas. Sin props rinde el FAQ de la home; las páginas de
+ * servicio le pasan SU propia lista, porque cada una tiene que responder las
+ * preguntas de su búsqueda y no las de la portada.
+ *
+ * La lista también es la fuente del JSON-LD `FAQPage`: la página importa sus
+ * preguntas del mismo módulo que se las pasa acá, así el structured data y lo
+ * que ve el lector no pueden divergir. Declarar en JSON-LD una pregunta que no
+ * está en la página es exactamente lo que Google penaliza.
+ */
+interface Props {
+  items?: FaqItem[];
+  title?: string;
+  badge?: string;
+  /** `false` en las páginas de servicio: el ancla #faq es del nav de la home. */
+  anchor?: boolean;
+}
 
 // Las preguntas están escritas como las escribe alguien en Google, no como las
 // haría un cliente ya sentado en la mesa. Es el único lugar de la página donde
 // entra lenguaje de búsqueda sin forzar el diseño: el resto son títulos cortos
 // y de marca. Sin esto el cuerpo no decía "agencia de branding" ni una vez, y
 // el <title> prometía algo que el texto no respaldaba.
-const faqs = [
+const homeFaqs: FaqItem[] = [
   {
     question: "¿Qué es Zil Design y qué hace una agencia de branding?",
     answer:
@@ -36,8 +55,7 @@ const faqs = [
       "Estamos 100% preparados para el trabajo global. Centralizamos la comunicación en plataformas eficientes, pautamos reuniones virtuales optimizando las diferencias horarias y te mantenemos al tanto del avance del proyecto mediante reportes claros. Esto te permite revisar el trabajo en el momento del día que mejor te convenga, sin frenar tu agenda.",
   },
   {
-    question:
-      "¿Cuánto cuesta un proyecto de branding y cómo se presupuesta?",
+    question: "¿Cuánto cuesta un proyecto de branding y cómo se presupuesta?",
     answer:
       "No hay lista de precios: cotizamos a medida según el alcance y los objetivos de tu empresa. No cuesta lo mismo ordenar una identidad de marca que ya existe que construir una desde cero, ni una empresa de un solo producto que una con varias líneas. Para tu comodidad y transparencia, trabajamos con contratos claros por hitos y ofrecemos diversas plataformas de pago internacionales (como Stripe, PayPal o transferencias bancarias directas) para que operar con nosotros sea simple desde cualquier parte del mundo.",
   },
@@ -90,6 +108,13 @@ const faqs = [
       "Sí, entendemos que un buen diseño necesita alcance para generar retornos. Diseñamos piezas optimizadas visualmente para anuncios (Meta Ads, Google Ads) con estructuras que captan la atención y convierten. Nos enfocamos en que las piezas gráficas de tus campañas de pago estén alineadas con la estrategia de ventas de tu negocio.",
   },
 ];
+
+const {
+  items = homeFaqs,
+  title = "¿Tenés alguna duda?",
+  badge = "Preguntas frecuentes",
+  anchor = true,
+} = Astro.props;
 ---
 
 <section>
@@ -97,13 +122,13 @@ const faqs = [
     class="mx-auto flex w-full max-w-8xl flex-col items-center px-6 py-section tablet:px-8 desktop:px-12"
     data-reveal-group
   >
-    <div id="faq" class="scroll-anchor"></div>
-    <Badge class="mb-6" data-reveal>Preguntas frecuentes</Badge>
+    {anchor && <div id="faq" class="scroll-anchor" />}
+    <Badge class="mb-6" data-reveal>{badge}</Badge>
     <h2
       class="max-w-[20ch] text-center text-h2 tracking-[-0.03em] text-balance"
       data-reveal
     >
-      ¿Tenés alguna duda?
+      {title}
     </h2>
 
     {
@@ -115,7 +140,7 @@ const faqs = [
     }
     <div class="mt-12 w-full max-w-3xl tablet:mt-16" data-reveal-group>
       {
-        faqs.map((faq) => (
+        items.map((faq) => (
           <div class="faq-item border-b border-border/60" data-reveal>
             <button
               type="button"

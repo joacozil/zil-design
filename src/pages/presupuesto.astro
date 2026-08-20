@@ -1,0 +1,220 @@
+---
+/**
+ * Presupuesto — el cluster más chico del mapa y el de intención más pura.
+ *
+ * 690 búsquedas/mes ganables sobre 950, y a diferencia de todos los demás no
+ * tiene mitad informativa con la que competir: el que escribe "presupuesto
+ * diseño gráfico" está costeando un proyecto. Nueve de sus dieciséis keywords
+ * están en competencia 35 o menos porque casi ningún estudio contesta la
+ * pregunta.
+ *
+ * ── SIN NÚMEROS, POR DECISIÓN ────────────────────────────────────────────────
+ * La página explica CÓMO se cotiza y no publica cifras. Eso vuelve más difícil
+ * ganar las búsquedas de "precios", que esperan una lista, así que la página
+ * tiene que compensarlo respondiendo todo lo demás mejor que nadie: qué mueve el
+ * número, qué trae una propuesta, cuánto tarda, cómo se factura. Decirlo de
+ * frente en la primera línea es parte de eso — una página que promete precios y
+ * no los da se cierra en cinco segundos, y ese rebote lo mide Google.
+ */
+import ServiceLayout from "../layouts/ServiceLayout.astro";
+import Prose from "../components/astro/service/Prose.astro";
+import Deliverables from "../components/astro/service/Deliverables.astro";
+import ServiceStatement from "../components/astro/service/ServiceStatement.astro";
+import { SERVICES, serviceHref } from "../data/services";
+import type { FaqItem } from "../data/services";
+
+const variables = [
+  {
+    name: "Alcance",
+    detail:
+      "Cuántas piezas, cuántas plantillas, cuántas aplicaciones. Es la variable más grande y la más fácil de estimar mal, porque casi siempre aparecen aplicaciones que nadie mencionó en la primera reunión.",
+  },
+  {
+    name: "Punto de partida",
+    detail:
+      "No cuesta lo mismo ordenar una identidad que ya existe que construir una desde cero. Una empresa con el posicionamiento resuelto salta media etapa; una que lo está definiendo va a usar el proyecto para eso.",
+  },
+  {
+    name: "Profundidad de la investigación",
+    detail:
+      "Un diagnóstico con entrevistas, análisis de competencia y revisión de datos es una etapa en sí misma. Se puede acotar, y cuando se acorta las decisiones posteriores se apoyan en menos evidencia.",
+  },
+  {
+    name: "Complejidad de la marca",
+    detail:
+      "Una empresa de un solo producto y una con varias líneas que tienen que convivir no son el mismo problema. La segunda necesita arquitectura de marca, que es trabajo de estructura antes que de dibujo.",
+  },
+  {
+    name: "Plazo",
+    detail:
+      "Un proyecto con fecha ajustada se cotiza distinto porque obliga a superponer etapas y a reservar disponibilidad del equipo. Si la fecha es negociable, decilo: suele ser la variable más barata de mover.",
+  },
+  {
+    name: "Continuidad",
+    detail:
+      "Un encargo cerrado y un acompañamiento mensual se estructuran distinto. Para producción continua, como piezas de redes o soporte de producto, trabajamos con abono.",
+  },
+];
+
+const propuesta = [
+  {
+    name: "El problema, escrito",
+    detail:
+      "Lo que entendimos de la conversación, en nuestras palabras. Si esa parte está mal, todo lo que sigue está mal, y es mejor descubrirlo en la página uno.",
+  },
+  {
+    name: "Alcance y entregables",
+    detail:
+      "Qué se entrega, ítem por ítem, y qué queda explícitamente afuera. Lo segundo evita la discusión más habitual de cualquier proyecto.",
+  },
+  {
+    name: "Etapas y plazos",
+    detail:
+      "Las fases con sus fechas y sus puntos de aprobación, incluyendo cuánto tiempo necesitamos de tu equipo. Un proyecto se atrasa tanto por nuestras demoras como por las devoluciones que no llegan.",
+  },
+  {
+    name: "Inversión y forma de pago",
+    detail:
+      "El monto por etapa, con el calendario de facturación atado a los hitos de entrega, y los medios de pago disponibles.",
+  },
+  {
+    name: "Condiciones",
+    detail:
+      "Rondas de revisión incluidas, propiedad de los archivos y qué pasa si el alcance cambia en el medio. Todo lo que después nadie quiere estar interpretando.",
+  },
+];
+
+const faqs: FaqItem[] = [
+  {
+    question: "¿Tienen lista de precios?",
+    answer:
+      "No, y la razón no es reserva comercial. Un proyecto de identidad para una empresa de un solo producto y otro para una con cuatro líneas que tienen que convivir no comparten alcance ni trabajo, y un precio de lista sólo puede describir a uno de los dos. Lo que sí podemos decir de entrada, en la primera conversación y sin compromiso, es un rango realista para tu caso.",
+  },
+  {
+    question: "¿Cómo se presupuesta un proyecto de diseño?",
+    answer:
+      "Por alcance, no por hora ni por pieza. Definimos qué problema hay que resolver, qué entregables lo resuelven y en cuántas etapas, y cada etapa lleva su monto. Cotizar por hora traslada al cliente el riesgo de nuestra estimación, y cotizar por pieza premia entregar muchas piezas en lugar de las que hacen falta.",
+  },
+  {
+    question: "¿Cuánto tarda una propuesta?",
+    answer:
+      "Entre tres y cinco días hábiles desde la reunión inicial. Si el proyecto es grande o tiene varias líneas de negocio, puede pedir una segunda conversación para precisar el alcance antes de escribirla.",
+  },
+  {
+    question: "¿Cobran la propuesta?",
+    answer:
+      "No. La propuesta y la reunión previa no tienen costo. Lo que sí es un trabajo pago es el diagnóstico en profundidad, cuando el proyecto lo requiere, porque implica entrevistas y análisis y es en sí mismo una etapa del proyecto.",
+  },
+  {
+    question: "¿Cómo se factura?",
+    answer:
+      "Por hitos, contra entrega de cada etapa, con un anticipo al inicio. Facturamos desde Argentina y también podemos hacerlo para el exterior, con transferencia bancaria o plataformas internacionales de pago según de dónde sea la empresa.",
+  },
+  {
+    question: "¿Qué pasa si el alcance cambia en el medio?",
+    answer:
+      "Se cotiza aparte y se aprueba antes de hacerlo. Suena burocrático y evita el problema más común de cualquier proyecto de diseño, que es el trabajo agregado de a poco sin que nadie lo cuente hasta que el plazo ya se pasó.",
+  },
+  {
+    question: "¿Trabajan con abono mensual?",
+    answer:
+      "Sí, para producción continua: piezas de redes, soporte de producto, evolución de un sitio. Un abono tiene sentido cuando el trabajo es sostenido y previsible. Para transformaciones puntuales, como una identidad o un sitio nuevo, el proyecto cerrado protege mejor a las dos partes.",
+  },
+];
+---
+
+<ServiceLayout
+  title="Presupuesto de diseño: cómo cotizamos un proyecto | Zil Design"
+  description="Cómo presupuestamos un proyecto de diseño gráfico: qué variables mueven el número, qué incluye una propuesta, en cuánto tiempo la entregamos y cómo se factura."
+  slug="presupuesto"
+  breadcrumb="Presupuesto"
+  eyebrow="Presupuesto"
+  h1="Cómo presupuestamos un proyecto de diseño"
+  lede="No tenemos lista de precios. Sí podemos explicar exactamente cómo se arma el número, qué lo mueve y qué vas a recibir en la propuesta."
+  heroBody="Cotizamos por alcance y por etapas. La propuesta se entrega en tres a cinco días hábiles y no tiene costo."
+  faqs={faqs}
+  faqTitle="Preguntas sobre presupuesto"
+  ctaTitle="Pedí tu presupuesto"
+  ctaText="Contanos qué necesitás y para cuándo. Si de la primera conversación sale un rango, te lo damos ahí mismo."
+>
+  <Prose title="Por qué no hay una lista de precios">
+    <p>
+      Porque cualquier lista honesta tendría una sola fila útil y el resto sería
+      relleno. Ordenar una identidad que ya existe y construir una desde cero
+      son trabajos distintos. Una empresa de un producto y una con cuatro líneas
+      que tienen que convivir son problemas distintos. Un precio de lista sólo
+      puede describir uno de esos casos y le miente a todos los demás.
+    </p>
+    <p>
+      Lo que sí se puede hacer, y es lo que hacemos, es dar un
+      <strong>rango realista en la primera conversación</strong>, sin compromiso
+      y antes de escribir nada. Si ese rango no cierra con lo que tenías
+      pensado, lo sabemos los dos en veinte minutos en lugar de en tres
+      reuniones.
+    </p>
+  </Prose>
+
+  <Deliverables
+    title="Qué mueve el número"
+    intro="Seis variables. Cuando pedís un presupuesto, es sobre esto que preguntamos."
+    items={variables}
+    numbered={false}
+    offset={1}
+  />
+
+  <Deliverables
+    title="Qué trae la propuesta"
+    intro="Todas nuestras propuestas tienen la misma estructura, así se pueden comparar con las de cualquier otro estudio."
+    items={propuesta}
+    offset={3}
+  />
+
+  <ServiceStatement
+    lead="Un precio de lista sólo puede describir a"
+    highlight="un cliente."
+  />
+
+  <Prose title="Cotizamos por alcance, no por hora">
+    <p>
+      Cobrar por hora traslada al cliente el riesgo de nuestra estimación: si
+      tardamos de más, paga de más. Cobrar por pieza premia entregar muchas
+      piezas en lugar de las que resuelven el problema.
+    </p>
+    <p>
+      Por eso el presupuesto se arma por alcance y se divide en etapas, cada una
+      con su entrega y su aprobación. Sabés qué recibís y cuándo, y si algo se
+      agrega en el medio se cotiza y se aprueba antes de hacerlo.
+    </p>
+  </Prose>
+
+  <Prose title="Qué podés pedir">
+    <p>
+      Estos son los alcances que cotizamos. Cada página explica qué incluye el
+      trabajo y qué se entrega al final:
+    </p>
+    <ul>
+      {
+        SERVICES.map((s) => (
+          <li>
+            <a href={serviceHref(s.slug)}>{s.navLabel}</a>
+          </li>
+        ))
+      }
+    </ul>
+  </Prose>
+</ServiceLayout>
+
+<style>
+  /* La única lista con viñetas del sitio. Va acá y no en Prose porque es el
+     único lugar donde hace falta, y un estilo global de <ul> tocaría también las
+     listas del footer y del nav, que no llevan marca. */
+  ul {
+    margin-top: 1.25em;
+    padding-left: 1.25em;
+    list-style: disc;
+  }
+
+  li + li {
+    margin-top: 0.4em;
+  }
+</style>

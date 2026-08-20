@@ -1,0 +1,146 @@
+---
+/**
+ * Diseño web — el cluster más buscado del mapa y el más difícil de ganar.
+ *
+ * Vale tener el número a la vista antes de invertirle esfuerzo: 11.690
+ * búsquedas/mes en total y sólo 710 ganables, el 6%. Es cinco veces el volumen
+ * de identidad de marca y la décima parte de su proporción aprovechable.
+ * "Landing page" (5.400) es casi todo intención equivocada — gente buscando qué
+ * es o con qué armarla — y "diseño web", "desarrollo web" y "diseño de paginas
+ * web" suman 4.500 entre 55 y 62 de competencia, disputados por cada agencia y
+ * cada plataforma de plantillas del mercado.
+ *
+ * La página se construye igual, porque el estudio vende el servicio y la oferta
+ * tiene que estar completa. Pero el <title> lo manda "diseño de sitios web"
+ * (110/mes, competencia 25), que es lo que se puede ganar, y no el término de
+ * cabeza que quedaría lindo y no rankea.
+ */
+import ServiceLayout from "../layouts/ServiceLayout.astro";
+import Prose from "../components/astro/service/Prose.astro";
+import Deliverables from "../components/astro/service/Deliverables.astro";
+import ServiceStatement from "../components/astro/service/ServiceStatement.astro";
+import { serviceHref } from "../data/services";
+import { projectHref } from "../data/projects";
+import type { FaqItem } from "../data/services";
+
+const alcance = [
+  {
+    name: "Arquitectura del sitio",
+    detail:
+      "Qué páginas existen, qué dice cada una y cómo se llega. Se define con el objetivo comercial adelante, no con el organigrama de la empresa.",
+  },
+  {
+    name: "Diseño de las páginas",
+    detail:
+      "Cada plantilla resuelta en móvil y en escritorio, con sus estados reales: formularios enviados, listados vacíos, textos que se estiran más de lo previsto.",
+  },
+  {
+    name: "Desarrollo",
+    detail:
+      "Construcción del sitio con el stack que corresponda al caso, priorizando velocidad de carga y que el equipo pueda editar el contenido sin depender de nosotros.",
+  },
+  {
+    name: "Contenido y SEO técnico",
+    detail:
+      "Títulos, descripciones, encabezados jerarquizados, datos estructurados y sitemap. Un sitio que no declara qué es no aparece, por bien diseñado que esté.",
+  },
+  {
+    name: "Medición",
+    detail:
+      "Analítica y eventos de conversión configurados desde el día uno, para que a los tres meses haya datos con los que decidir en vez de impresiones.",
+  },
+  {
+    name: "Puesta en producción",
+    detail:
+      "Dominio, certificado, redirecciones desde las URLs viejas y verificación en Search Console. Las redirecciones son lo que evita perder el posicionamiento acumulado en la mudanza.",
+  },
+];
+
+const faqs: FaqItem[] = [
+  {
+    question: "¿Qué incluye el diseño de un sitio web?",
+    answer:
+      "La arquitectura del sitio, el diseño de cada plantilla en móvil y escritorio, el desarrollo, el SEO técnico, la medición y la puesta en producción con sus redirecciones. No incluye la redacción de todos los contenidos salvo que se acuerde: podemos escribirlos, y es un alcance aparte porque lleva su propio tiempo.",
+  },
+  {
+    question: "¿Puedo editar el sitio después sin depender de ustedes?",
+    answer:
+      "Sí, y es parte del criterio con el que se elige la tecnología. Dejamos editable lo que efectivamente cambia con frecuencia, que suele ser textos, imágenes, notas y listados, y dejamos fijo lo estructural, que es donde un editor abierto produce sitios rotos. Entregamos el sitio con una sesión de traspaso.",
+  },
+  {
+    question: "¿Rehacen un sitio que ya existe sin perder posicionamiento?",
+    answer:
+      "Sí, y es la parte del trabajo que más se subestima. Antes de migrar relevamos qué URLs tienen tráfico y posiciones ganadas, y armamos el mapa de redirecciones desde las viejas hacia las nuevas. Un rediseño sin ese mapa puede tirar años de posicionamiento en un fin de semana.",
+  },
+  {
+    question: "¿Trabajan con plantillas o desarrollan a medida?",
+    answer:
+      "A medida sobre el sistema de diseño de la marca. Una plantilla resuelve rápido y se nota: el sitio termina pareciéndose a los otros que usan la misma, y las modificaciones que la plantilla no previó salen más caras que haberlo hecho a medida desde el principio.",
+  },
+  {
+    question: "¿Cuánto tarda un sitio web?",
+    answer:
+      "Entre seis y doce semanas para un sitio institucional, según cuántas plantillas distintas tenga y en qué estado esté el contenido. Lo que más demora los proyectos no suele ser el diseño ni el desarrollo, sino la espera de los textos y las fotos definitivas.",
+  },
+];
+---
+
+<ServiceLayout
+  title="Diseño de sitios web y desarrollo para empresas | Zil Design"
+  description="Diseño y desarrollo web profesional en Argentina: arquitectura, diseño de páginas, SEO técnico, medición y puesta en producción con redirecciones."
+  slug="diseno-web"
+  breadcrumb="Diseño web"
+  eyebrow="Diseño web"
+  h1="Diseño y desarrollo web"
+  lede="Diseñamos y construimos el sitio de tu empresa, desde la arquitectura hasta la puesta en producción."
+  heroBody="Diseño de sitios web profesional para empresas, con SEO técnico y medición configurados desde el primer día."
+  faqs={faqs}
+  ctaTitle="Hablemos de tu sitio"
+  ctaText="Contanos si el sitio es nuevo o hay que rehacer uno existente, y qué tiene que lograr."
+>
+  <Prose title="Un sitio que no se puede encontrar no está terminado">
+    <p>
+      Es la parte que más seguido llega sin resolver. El sitio se ve bien, carga
+      rápido, y no aparece en ninguna búsqueda porque nunca declaró qué es: sin
+      títulos propios por página, sin encabezados jerarquizados, sin datos
+      estructurados, sin sitemap.
+    </p>
+    <p>
+      Nada de eso es opcional ni posterior. Se resuelve mientras se construye,
+      que es cuando cuesta poco, y no seis meses después cuando alguien pregunta
+      por qué no entra tráfico.
+    </p>
+  </Prose>
+
+  <Deliverables
+    title="Qué incluye el proyecto"
+    intro="De la arquitectura al día de la publicación."
+    items={alcance}
+    offset={1}
+  />
+
+  <ServiceStatement
+    lead="Un sitio que no se puede encontrar no está"
+    highlight="terminado."
+  />
+
+  <Prose title="Rehacer un sitio sin perder lo ganado">
+    <p>
+      Si ya tenés un sitio con tráfico, el riesgo del rediseño no es estético:
+      es perder las posiciones que ese sitio se ganó. Pasa cuando las URLs
+      cambian y nadie armó el mapa de redirecciones, y se nota semanas después,
+      cuando recuperar cuesta mucho más que haberlo previsto.
+    </p>
+    <p>
+      Por eso el relevamiento de URLs con tráfico es la primera tarea de una
+      migración, antes que cualquier decisión visual.
+    </p>
+    <p>
+      Si el proyecto es una plataforma y no un sitio institucional, el alcance
+      que corresponde es
+      <a href={serviceHref("diseno-ux-ui")}>diseño UX/UI</a>. Podés ver trabajo
+      publicado en <a href={projectHref("net-value")}>Net Value</a> y
+      <a href={projectHref("quantia")}>Quantia</a>.
+    </p>
+  </Prose>
+</ServiceLayout>

@@ -66,7 +66,9 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
   id="hero"
   class="relative flex min-h-svh w-full flex-col overflow-hidden bg-primary"
 >
-  {/* The graphic layer. Decorative only — everything readable sits above it. */}
+  {
+    /* The graphic layer. Decorative only — everything readable sits above it. */
+  }
   <div aria-hidden="true" class="absolute inset-0" data-hero-image>
     <div class="hero-shape hero-shape-light"></div>
     <div class="hero-shape hero-shape-dark"></div>
@@ -103,8 +105,20 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
         clear the narrowest container at their breakpoint. If the copy ever
         changes, re-measure — nothing here adapts on its own any more. */
     }
+    {
+      /* El H1 nombra lo que somos antes de argumentar, y la palabra es
+        deliberada: "estudio de diseño" son 480 búsquedas/mes en Argentina con
+        competencia 32, contra 90 y competencia 80 de "agencia de branding", que
+        es a donde apuntaba el <title> viejo. Cambiar el título sin cambiar el
+        H1 no retarguetea nada: Google compara los dos y le cree al cuerpo.
+
+        Decía "El diseño como herramienta de negocio". La tesis no se perdió,
+        bajó al párrafo y al Statement, que es donde se puede defender con más
+        de seis palabras. Se mantiene el largo y el corte en tres líneas: el
+        tamaño del hero está afinado para ese bloque. */
+    }
     <h1 class="hero-title text-h1 text-text-inverse" data-reveal>
-      El diseño como<br />herramienta<br class="desktop:hidden" /> de negocio
+      Estudio de diseño<br />con criterio<br class="desktop:hidden" /> de negocio
     </h1>
 
     {
@@ -211,7 +225,10 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
          minmax lets the band grow rather than clip if the headline ever gets
          taller than the zone. The bare 1fr row is the open stage the diagonal
          crosses; desc + cta anchor bottom-right, the logos close the foot. */
-      grid-template-rows: minmax(min-content, calc(43svh - 6rem)) 1fr auto auto auto;
+      grid-template-rows: minmax(
+          min-content,
+          calc(43svh - 6rem)
+        ) 1fr auto auto auto;
       grid-template-areas:
         "title title"
         ". ."

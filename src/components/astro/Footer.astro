@@ -1,5 +1,11 @@
 ---
 import { NAV_LINKS } from "../../config/nav";
+import {
+  SERVICES,
+  serviceHref,
+  BUDGET_SLUG,
+  BUDGET_LABEL,
+} from "../../data/services";
 import Button from "./Button.astro";
 // The monochrome cut of the wordmark, inlined as a component so its fill comes
 // from `currentColor` and the colour is set by the token class below. Same
@@ -54,6 +60,44 @@ const prefix = isHome ? "" : `${base}/`;
         }
       </nav>
     </div>
+
+    {
+      /* Páginas de servicio.
+        Van SÓLO acá y no en el header a propósito. El nav de arriba son seis
+        anclas a las secciones de la home: es la navegación de una one-page y
+        agregarle rutas reales lo convierte en un menú mixto donde el visitante
+        no sabe qué lo mueve dentro de la página y qué lo saca de ella. En el
+        footer son lo que son: el índice del sitio, disponible desde cualquier
+        página, y el enlace interno que le dice a Google que estas páginas
+        existen y cuelgan de la home.
+
+        Mismo patrón que ya usa Meraki (`meraki/src/layouts/Layout.astro`), donde
+        las cuatro páginas de servicio viven en una fila propia del footer.
+
+        La lista sale de data/services.ts, la misma que alimenta el JSON-LD y el
+        sitemap. Agregar un servicio ahí lo suma a los tres lugares. */
+    }
+    <nav
+      aria-label="Servicios"
+      class="mt-12 flex flex-col gap-3 border-t border-text-inverse/15 pt-8 tablet:mt-14 tablet:flex-row tablet:flex-wrap tablet:gap-x-8"
+    >
+      {
+        SERVICES.map((service) => (
+          <a
+            href={serviceHref(service.slug)}
+            class="text-p-sm text-text-inverse/70 transition-colors duration-200 hover:text-text-inverse"
+          >
+            {service.navLabel}
+          </a>
+        ))
+      }
+      <a
+        href={serviceHref(BUDGET_SLUG)}
+        class="text-p-sm text-text-inverse/70 transition-colors duration-200 hover:text-text-inverse"
+      >
+        {BUDGET_LABEL}
+      </a>
+    </nav>
 
     {/* Bottom row: legal + scroll-to-top */}
     <div

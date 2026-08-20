@@ -1,14 +1,22 @@
 ---
 import "../styles/global.css";
+import { SERVICES, serviceHref } from "../data/services";
 
 interface Props {
   title?: string;
   description?: string;
 }
 
+// Los defaults son los de la HOME, y apuntan a "estudio de diseño" (480
+// búsquedas/mes en Argentina, competencia 32) en vez de "agencia de branding"
+// (90/mes, competencia 80), que es lo que decían antes. La palabra la elige el
+// mercado, no nosotros: todas las variantes de "agencia" están entre 59 y 87 de
+// competencia y todas las de "estudio" entre 30 y 39. "Branding" se queda en el
+// título y en la description porque es el único término donde ya rankeamos
+// (posición 9,4) y tirarlo sería regalar lo poco que hay.
 const {
-  title = "Agencia de branding y diseño en Argentina | Zil Design",
-  description = "Agencia de branding y diseño de identidad de marca en Argentina. Estrategia, sistema visual y cada punto de contacto, sostenidos por un equipo.",
+  title = "Estudio de diseño y branding en Argentina | Zil Design",
+  description = "Estudio de diseño y branding en Argentina. Identidad de marca, diseño web y UX/UI con criterio estratégico, sostenidos por un equipo.",
 } = Astro.props;
 
 // La URL pública, que NO es la de este proyecto: Astro sirve bajo `base`, pero
@@ -22,6 +30,10 @@ const {
 // pedir que no los indexe. `Astro.url.pathname` ya incluye el `base`, y `site`
 // (astro.config.mjs) aporta el host.
 const PUBLIC_URL = new URL(Astro.url.pathname, Astro.site).href;
+// La home, fija. La entidad "Zil Design" es UNA sola y vive acá: el `@id` del
+// JSON-LD tiene que ser el mismo string en todas las páginas o cada una declara
+// su propia organización y ninguna acumula las señales de las otras.
+const HOME_URL = new URL(import.meta.env.BASE_URL, Astro.site).href;
 // El banner vive en el sitio principal. Es el mismo dominio, así que resuelve
 // igual, y es preferible a compartir un link sin imagen.
 const OG_IMAGE = "https://zil.global/zil-banner.webp";
@@ -245,19 +257,26 @@ import boldWoff2 from "../assets/fonts/CircularStd-Bold.woff2?url";
     <title>{title}</title>
 
     {
-      /* Le dice a Google QUÉ es esto: una agencia, no una página cualquiera que
+      /* Le dice a Google QUÉ es esto: un estudio, no una página cualquiera que
         menciona branding. Sin dirección postal no califica para resultados
         locales —no perseguimos eso—; sirve para que la entidad "Zil Design"
-        quede ligada a Zil Global y al servicio que presta. */
+        quede ligada a Zil Global y al servicio que presta.
+
+        `@id` y `url` cuelgan de HOME_URL, no de la página actual. Cuando salían
+        de PUBLIC_URL cada caso de estudio declaraba su PROPIA organización, con
+        su propio identificador: seis entidades distintas llamadas igual, cada
+        una empezando de cero, en vez de una sola con seis páginas apuntándole.
+        `hasPart` es lo que las une, y por eso la lista de servicios vive en
+        data/services.ts y no repetida acá. */
     }
     <script
       type="application/ld+json"
       set:html={JSON.stringify({
         "@context": "https://schema.org",
         "@type": "ProfessionalService",
-        "@id": `${PUBLIC_URL}#organization`,
+        "@id": `${HOME_URL}#organization`,
         name: "Zil Design",
-        url: PUBLIC_URL,
+        url: HOME_URL,
         image: OG_IMAGE,
         description,
         areaServed: { "@type": "Country", name: "Argentina" },
@@ -266,13 +285,22 @@ import boldWoff2 from "../assets/fonts/CircularStd-Bold.woff2?url";
           name: "Zil Global",
           url: "https://zil.global",
         },
-        serviceType: [
-          "Branding",
-          "Diseño de identidad de marca",
-          "Diseño estratégico",
-        ],
+        serviceType: SERVICES.map((s) => s.schemaType),
+        hasPart: SERVICES.map((s) => ({
+          "@type": "WebPage",
+          name: s.navLabel,
+          url: new URL(serviceHref(s.slug), Astro.site).href,
+        })),
       })}
     />
+
+    {
+      /* Metadata que sólo conoce la página: FAQPage y BreadcrumbList de cada
+        página de servicio. Va acá y no en un componente porque el <head> no
+        acepta contenido inyectado desde el <body>, y cada página necesita
+        declarar preguntas distintas. */
+    }
+    <slot name="head" />
   </head>
   <body>
     <slot />

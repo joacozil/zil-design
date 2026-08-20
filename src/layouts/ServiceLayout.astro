@@ -1,0 +1,148 @@
+---
+/**
+ * El armazón de una página de servicio: chrome, encabezado, cierre y structured
+ * data. La página sólo aporta su contenido y sus preguntas.
+ *
+ * Existe porque las seis páginas comparten exactamente la misma estructura y
+ * difieren sólo en el texto. Escrita seis veces, la que se olvide el
+ * BreadcrumbList o mande el `placement` equivocado del formulario no falla el
+ * build: se despliega y no se entera nadie.
+ *
+ * ── ANCLAS ───────────────────────────────────────────────────────────────────
+ * CTA y FAQ van con `anchor={false}`. Los ids `#cta` y `#faq` son los destinos
+ * del nav del header, que fuera de la home apunta a `/design/#cta`; si estas
+ * páginas también los declararan, habría dos elementos con el mismo id en el
+ * sitio y el ancla del nav dejaría de ser una sola cosa.
+ *
+ * ── EL DRAWER NO VA ──────────────────────────────────────────────────────────
+ * ContactDrawer observa `#cta` para saber cuándo esconderse, y acá ese id no
+ * existe. Estas páginas cierran con el formulario en el flujo, que es lo que el
+ * lector vino a encontrar, así que no hace falta la hoja persistente.
+ */
+import Layout from "./Layout.astro";
+import Header from "../components/astro/Header.astro";
+import Footer from "../components/astro/Footer.astro";
+import ServiceHero from "../components/astro/service/ServiceHero.astro";
+import CTA from "../sections/CTA.astro";
+import FAQ from "../sections/FAQ.astro";
+import Clients from "../sections/Clients.astro";
+import { serviceHref, BUDGET_SLUG } from "../data/services";
+import type { FaqItem } from "../data/services";
+
+interface Props {
+  /** El <title>. Keyword principal primero, marca al final. */
+  title: string;
+  description: string;
+  /** Slug de esta página, para el breadcrumb y el canonical del schema. */
+  slug: string;
+  /** Nombre corto para el breadcrumb. */
+  breadcrumb: string;
+  eyebrow: string;
+  h1: string;
+  lede: string;
+  heroBody?: string;
+  faqs: FaqItem[];
+  faqTitle?: string;
+  ctaTitle?: string;
+  ctaText?: string;
+}
+
+const {
+  title,
+  description,
+  slug,
+  breadcrumb,
+  eyebrow,
+  h1,
+  lede,
+  heroBody,
+  faqs,
+  faqTitle = "Preguntas frecuentes",
+  ctaTitle,
+  ctaText,
+} = Astro.props;
+
+const HOME_URL = new URL(import.meta.env.BASE_URL, Astro.site).href;
+const PAGE_URL = new URL(serviceHref(slug), Astro.site).href;
+
+// El presupuesto es el destino del CTA de todas las páginas de servicio salvo
+// la suya, donde mandar al lector a la página en la que ya está no dice nada:
+// ahí el botón baja al formulario del final.
+const isBudget = slug === BUDGET_SLUG;
+const ctaHref = isBudget ? "#hablemos" : serviceHref(BUDGET_SLUG);
+const ctaLabel = isBudget ? "Contanos tu proyecto" : "Cómo presupuestamos";
+---
+
+<Layout title={title} description={description}>
+  <script
+    slot="head"
+    type="application/ld+json"
+    set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "@id": `${PAGE_URL}#faq`,
+      mainEntity: faqs.map((f) => ({
+        "@type": "Question",
+        name: f.question,
+        acceptedAnswer: { "@type": "Answer", text: f.answer },
+      })),
+    })}
+  />
+
+  <script
+    slot="head"
+    type="application/ld+json"
+    set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Zil Design",
+          item: HOME_URL,
+        },
+        { "@type": "ListItem", position: 2, name: breadcrumb, item: PAGE_URL },
+      ],
+    })}
+  />
+
+  <Header />
+
+  <main>
+    <ServiceHero
+      eyebrow={eyebrow}
+      title={h1}
+      lede={lede}
+      body={heroBody}
+      ctaLabel={ctaLabel}
+      ctaHref={ctaHref}
+    />
+
+    <slot />
+
+    {
+      /* La franja de clientes, antes del formulario. Es prueba, no decoración:
+        la página acaba de explicar qué hace y con qué alcance, y estos son los
+        logos de quienes ya lo compraron. Va acá y no arriba porque arriba el
+        lector todavía está confirmando que la página trata de lo que buscó.
+
+        `py-section-tight` lo pone el propio componente: es una tira, no un
+        bloque, y ese es el medio ritmo que le corresponde. */
+    }
+    <Clients />
+
+    <div id="hablemos" class="scroll-anchor"></div>
+    <CTA
+      placement={slug}
+      anchor={false}
+      title={ctaTitle}
+      text={ctaText}
+      cta="Empecemos"
+    />
+
+    <FAQ items={faqs} title={faqTitle} anchor={false} />
+  </main>
+
+  <Footer />
+</Layout>
