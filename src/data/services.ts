@@ -52,8 +52,8 @@ export const SERVICES: ServiceEntry[] = [
     slug: "identidad-de-marca",
     navLabel: "Identidad de marca",
     schemaType: "Diseño de identidad de marca",
-    primaryKeyword: "identidad de marca",
-    winnable: 1190,
+    primaryKeyword: "identidad visual",
+    winnable: 1400,
   },
   {
     // La keyword más ganable de todo el mapa, y hasta ahora era una SECCIÓN
@@ -67,34 +67,38 @@ export const SERVICES: ServiceEntry[] = [
     navLabel: "Manual de marca",
     schemaType: "Manual de marca",
     primaryKeyword: "manual de marca",
-    winnable: 3000,
+    winnable: 3860,
   },
   {
+    // El cluster más grande del mapa, y estuvo mal medido hasta la cuarta
+    // pasada: el filtro descartaba "tipos de" sin límite de palabra y eso
+    // matchea dentro de "logoTIPOS DE empresas". Se perdían 51 keywords y
+    // 2.780 búsquedas/mes, las de menor competencia de todo el relevamiento.
     slug: "diseno-de-logo",
     navLabel: "Diseño de logo",
     schemaType: "Diseño de logotipos",
-    primaryKeyword: "logotipos para empresas",
-    winnable: 1330,
+    primaryKeyword: "logotipos de empresas",
+    winnable: 4610,
   },
   {
     slug: "editorial-y-packaging",
     navLabel: "Editorial y packaging",
     schemaType: "Diseño editorial y packaging",
     primaryKeyword: "diseño editorial",
-    winnable: 1290,
+    winnable: 1300,
   },
   {
     slug: "diseno-ux-ui",
     navLabel: "Diseño UX/UI",
     schemaType: "Diseño UX/UI",
-    primaryKeyword: "diseño ui",
-    winnable: 1140,
+    primaryKeyword: "experiencia de usuario",
+    winnable: 1210,
   },
   {
     slug: "diseno-web",
     navLabel: "Diseño web",
     schemaType: "Diseño y desarrollo web",
-    primaryKeyword: "diseño de sitios web",
+    primaryKeyword: "diseño y desarrollo web",
     winnable: 710,
   },
 ];

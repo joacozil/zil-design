@@ -13,6 +13,22 @@
  * evalúa contratar, "manual de marca" quien quiere saber qué es y qué trae el
  * documento. Una sola página no puede hablarle bien a las dos.
  *
+ * ── CONVIVE CON UN POST DEL BLOG, NO COMPITE ────────────────────────────────
+ * `/es/blog/manual-de-marca` (publicado 2026-08-05) tiene la MISMA focus
+ * keyword. Dos páginas del mismo dominio peleando una query es una división de
+ * señales, y Google elige una sola.
+ *
+ * No se resuelve borrando ninguna de las dos: se resuelve separando la
+ * intención. El post es evaluativo —"cómo saber si el que te entregaron
+ * alcanza"— y se queda con la búsqueda informativa. Esta página es el servicio:
+ * el <title> pregunta y responde qué es y qué secciones tiene, y cierra en un
+ * formulario. Se enlazan entre sí para que quede explícito cuál es cuál.
+ *
+ * Si igual se dividen las señales, se va a ver: `/api/agent/seo/cannibalization`
+ * detecta clusters donde dos páginas nuestras compiten por la misma query, y
+ * `BlogPost.redirectTo` es el mecanismo que ya existe para consolidar. Hoy no lo
+ * detecta porque ninguna de las dos tiene impresiones todavía.
+ *
  * ── LOS DOS PÚBLICOS, Y CUÁL ES EL CLIENTE ──────────────────────────────────
  * Esta búsqueda tiene dos: el que quiere una plantilla o un ejemplo (mirá
  * "manual de marca pdf", "manual de marca ejemplo pdf") y la empresa que está
@@ -205,6 +221,13 @@ const faqs: FaqItem[] = [
   </Prose>
 
   <Prose title="Manuales que hicimos">
+    <p>
+      Si lo que tenés es un manual ya entregado y querés saber si está completo,
+      escribimos una guía aparte para eso:{" "}
+      <a href="/es/blog/manual-de-marca"
+        >cómo evaluar el manual de marca que te entregaron</a
+      >. Esta página es sobre hacerlo.
+    </p>
     <p>
       Podés ver el sistema completo, del diagnóstico a las aplicaciones, en los
       casos de <a href={projectHref("clojure")}>Clojure</a>,{" "}

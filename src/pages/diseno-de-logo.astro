@@ -1,14 +1,24 @@
 ---
 /**
- * Diseño de logo — 1.330 búsquedas/mes ganables sobre 4.560 totales.
+ * Diseño de logo — 4.610 búsquedas/mes ganables, el cluster más grande del mapa.
  *
- * El cluster está partido en dos y la página apunta a una sola mitad. Los tres
- * términos de cabeza ("diseño de logo", "diseño de logotipos", "diseño de logo
- * tipo") suman 3.000/mes en competencia 57, y su SERP son generadores gratuitos
- * y bancos de plantillas: no es una pelea que un estudio gane, y el que la
- * busca casi nunca contrata. La cola es otra cosa: "logotipos para empresas" y
- * sus variantes industriales están entre 17 y 45 y las escribe alguien que tiene
- * una empresa. Por eso el H1 dice "para empresas" y no sólo "diseño de logo".
+ * Ese número estuvo mal medido hasta la cuarta pasada. El filtro de keywords
+ * tenía una regla que descartaba "tipos de" sin límite de palabra, y eso
+ * matchea DENTRO de "logoTIPOS DE empresas": se comió 51 keywords y 2.780
+ * búsquedas/mes, justamente las de menor competencia y mayor intención. Con eso
+ * afuera la página parecía valer 1.330 y quedaba cuarta en prioridad.
+ *
+ * El cluster sigue partido en dos y la página sigue apuntando a una sola mitad.
+ * Los términos de cabeza ("diseño de logo", "diseño de logotipos") son 1.000/mes
+ * en competencia 57, con un SERP de generadores gratuitos y bancos de
+ * plantillas: no es una pelea que un estudio gane, y el que la busca casi nunca
+ * contrata.
+ *
+ * La otra mitad es la buena y es la que manda en el <title>: "logotipos de
+ * empresas" son 1.000/mes en competencia 20 —la mejor relación volumen/
+ * competencia de todo el relevamiento— más "logotipos empresas" (480, c18) y
+ * una cola vertical (constructoras 140/c15, comida 110/c2, construcción 90/c12,
+ * limpieza 70/c14) que la escribe alguien que ya tiene la empresa.
  *
  * La página existe separada de identidad de marca a propósito, aunque compartan
  * territorio: el lenguaje del que busca es distinto y meterlos juntos haría que
@@ -56,6 +66,34 @@ const entrega = [
   },
 ];
 
+// La cola vertical del cluster. No es relleno de SEO: son las búsquedas más
+// baratas del mapa entero (competencia 2 a 15) y las escribe alguien que YA
+// tiene la empresa, que es exactamente el lector que queremos. Cada rubro dice
+// algo cierto sobre cómo cambia el trabajo, porque un párrafo genérico con el
+// nombre del rubro cambiado se nota y no rankea.
+const rubros = [
+  {
+    name: "Constructoras e industria",
+    detail:
+      "La marca termina en un cartel de obra, un casco y una camioneta antes que en una web. Se diseña para leerse a treinta metros y para sobrevivir a una sola tinta sobre vinilo.",
+  },
+  {
+    name: "Gastronomía",
+    detail:
+      "Es el rubro donde el logo más se aplica sobre superficies difíciles: bolsas, vasos, packaging con calor, delivery. Necesita una versión reducida que aguante y una monocroma que no dependa del color.",
+  },
+  {
+    name: "Servicios y limpieza",
+    detail:
+      "Marcas que compiten por confianza en un mercado con mucha informalidad. El trabajo pasa por parecer una empresa establecida en uniformes, facturas y vehículos.",
+  },
+  {
+    name: "Profesionales y consultoras",
+    detail:
+      "Poca aplicación física y mucha firma de mail, propuesta y presentación. La tipografía pesa más que el símbolo, porque casi todo el uso es sobre documento.",
+  },
+];
+
 const faqs: FaqItem[] = [
   {
     question: "¿Qué incluye el diseño de un logotipo para empresas?",
@@ -78,6 +116,11 @@ const faqs: FaqItem[] = [
       "Sí, y conviene verificarlo antes de avanzar. Nosotros hacemos una búsqueda de antecedentes para no desarrollar sobre algo que ya está tomado, pero el registro ante el INPI lo tramita la empresa o su estudio jurídico, porque es un trámite legal y no de diseño.",
   },
   {
+    question: "¿Hacen logotipos para un rubro en particular?",
+    answer:
+      "Trabajamos con cualquier rubro y el entregable es el mismo. Lo que cambia es dónde va a terminar aplicada la marca: una constructora la necesita legible en un cartel de obra y en una sola tinta, una marca gastronómica la necesita sobreviviendo a un packaging con calor, una consultora la usa casi sólo sobre documento. Esa diferencia se resuelve en el dibujo, no en el precio.",
+  },
+  {
     question: "¿Trabajan con emprendimientos o sólo con empresas grandes?",
     answer:
       "Con los dos. Lo que cambia entre un emprendimiento y una empresa con varias líneas no es la calidad del trabajo sino el alcance: cuántas aplicaciones hay que resolver y cuánta documentación necesita el equipo que después lo va a usar.",
@@ -86,14 +129,14 @@ const faqs: FaqItem[] = [
 ---
 
 <ServiceLayout
-  title="Diseño de logo y logotipos para empresas | Zil Design"
-  description="Diseño de logo para empresas y emprendimientos en Argentina: variantes de uso, versiones monocromas, reglas de aplicación y archivos finales en vector."
+  title="Logotipos de empresas: diseño de logo profesional | Zil Design"
+  description="Diseño de logotipos de empresas en Argentina: variantes de uso, versiones monocromas, reglas de aplicación y archivos finales en vector, listos para imprenta y pantalla."
   slug="diseno-de-logo"
   breadcrumb="Diseño de logo"
   eyebrow="Diseño de logo"
-  h1="Diseño de logo para empresas"
-  lede="Dibujamos la marca gráfica y todas las versiones que va a necesitar, con las reglas para aplicarla sin romperla."
-  heroBody="Diseño de logotipos para empresas y emprendimientos, entregado en vectores editables y en los formatos que pide cada uso."
+  h1="Diseño de logotipos de empresas"
+  lede="Dibujamos la marca gráfica de tu empresa y todas las versiones que va a necesitar, con las reglas para aplicarla sin romperla."
+  heroBody="Logotipos de empresas y de negocios, entregados en vectores editables y en cada formato que pide el uso real: imprenta, pantalla, una tinta, bordado."
   faqs={faqs}
   ctaTitle="Hablemos de tu logo"
   ctaText="Contanos qué hace tu empresa y en qué contextos va a aparecer la marca."
@@ -124,6 +167,14 @@ const faqs: FaqItem[] = [
   <ServiceStatement
     lead="Un logo que existe en una sola versión falla en la"
     highlight="primera aplicación."
+  />
+
+  <Deliverables
+    title="Logotipos por rubro"
+    intro="El entregable es el mismo; lo que cambia es dónde termina aplicada la marca, y eso decide cómo se dibuja."
+    items={rubros}
+    numbered={false}
+    offset={3}
   />
 
   <Prose title="Cuándo conviene ir por la identidad completa">
