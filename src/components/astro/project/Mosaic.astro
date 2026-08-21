@@ -19,6 +19,17 @@ interface Item {
   alt: string;
   /** Share of the row's width on desktop. */
   weight?: number;
+  /**
+   * Position in the STACKED order, 1-based. Only read below the bento
+   * breakpoint, where the rows collapse and every image becomes one item in a
+   * single column — see the flatten rule in the styles.
+   *
+   * It exists because the two orders answer different questions. The bento's
+   * order is spatial: which images share a row. The stack's is a sequence, and a
+   * row that reads as a pair side by side can read as a repetition one above the
+   * other. Set it on EVERY item or none — an unset item sorts to the front.
+   */
+  stackOrder?: number;
 }
 interface RowDef {
   items: Item[];
@@ -29,45 +40,121 @@ interface Props {
   rows: RowDef[];
   /** Desktop aspect-ratio of the whole mosaic, e.g. "1600 / 850". */
   aspect?: string;
+  /** Section landmark label. */
+  ariaLabel?: string;
+  /**
+   * Side inset. Defaults to the gap, so the mosaic reads full-bleed and the
+   * spacing is uniform all around. Pass `var(--gutter)` for a mosaic that starts
+   * on the content edge instead — the design-system full-bleed rule.
+   */
+  inset?: string;
+  /**
+   * Breakpoint the weighted bento takes over at. Below it, images stack full
+   * width at their natural ratio.
+   *
+   * Defaults to `desktop`, which is right for a mosaic of many small cells (a
+   * row of five event flyers is unreadable at 240px each). Pass `tablet` for a
+   * mosaic of few, large pieces whose rows are already cut to a common height —
+   * there, stacking is the worse layout, since it turns three rows into seven
+   * full-width blocks and the section stops reading as a composition.
+   */
+  rowsFrom?: "tablet" | "desktop";
+  /**
+   * How an image meets its cell.
+   *
+   * `cover` (default) sizes the whole bento to `aspect` and crops each image to
+   * the cell that falls out of the weights — right when the pieces are flat
+   * artwork whose edges don't matter.
+   *
+   * `natural` throws the container aspect away and lets each row level itself:
+   * widths stay proportional to the weights and the row's height is whatever the
+   * images' own ratio makes it, so NOTHING is cropped. Use it for photographed
+   * mockups, where cropping eats the margin the shot was composed with and the
+   * piece reads as zoomed in. It also makes `aspect` unnecessary — the bento's
+   * proportion is the sum of what the rows resolve to.
+   */
+  fit?: "cover" | "natural";
 }
-const { rows, aspect = "1600 / 850" } = Astro.props;
+const {
+  rows,
+  aspect = "1600 / 850",
+  ariaLabel = "Piezas del evento",
+  inset,
+  rowsFrom = "desktop",
+  fit = "cover",
+} = Astro.props;
 ---
 
-<section aria-label="Piezas del evento" class="py-section">
-  <div class="mosaic" style={`--aspect:${aspect}`}>
-    {
-      rows.map((row) => (
-        <div class="mosaic-row" style={`--w:${row.weight ?? 1}`}>
-          {row.items.map((it) => (
-            <img
-              class="mosaic-img"
-              style={`--w:${it.weight ?? 1}`}
-              src={it.src.src}
-              width={it.src.width}
-              height={it.src.height}
-              alt={it.alt}
-              loading="lazy"
-            />
-          ))}
-        </div>
-      ))
-    }
+<section aria-label={ariaLabel} class="py-section">
+  {
+    /* The inset lives on a WRAPPER, not on `.mosaic` itself. `aspect-ratio` sizes
+      the BORDER box, so padding on the same element makes the bento taller than
+      the width its images actually get — every cell then comes out too tall and
+      `object-cover` crops the sides. Splitting the two keeps the ratio honest at
+      any inset. */
+  }
+  <div class="mosaic-outer" style={inset ? `--inset:${inset}` : undefined}>
+    <div
+      class:list={[
+        "mosaic",
+        rowsFrom === "tablet" && "mosaic--from-tablet",
+        fit === "natural" && "mosaic--natural",
+      ]}
+      style={`--aspect:${aspect}`}
+    >
+      {
+        rows.map((row) => (
+          <div class="mosaic-row" style={`--w:${row.weight ?? 1}`}>
+            {row.items.map((it) => (
+              <img
+                class="mosaic-img"
+                style={`--w:${it.weight ?? 1}${
+                  it.stackOrder ? `;--order:${it.stackOrder}` : ""
+                }`}
+                src={it.src.src}
+                width={it.src.width}
+                height={it.src.height}
+                alt={it.alt}
+                loading="lazy"
+              />
+            ))}
+          </div>
+        ))
+      }
+    </div>
   </div>
 </section>
 
 <style>
-  .mosaic {
+  .mosaic-outer {
     --gap: clamp(0.5rem, 1.1vw, 1rem);
+    padding-inline: var(--inset, var(--gap));
+  }
+
+  .mosaic {
     display: flex;
     flex-direction: column;
     gap: var(--gap);
-    padding-inline: var(--gap);
   }
 
   .mosaic-row {
     display: flex;
     flex-direction: column;
     gap: var(--gap);
+  }
+
+  /* Stacked: the rows STOP EXISTING (`display: contents` lifts their images to be
+     the column's own children) so `stackOrder` can interleave images that the
+     bento keeps in different rows. Without the flatten, `order` could only
+     shuffle images within their own row.
+
+     The column's `gap` then applies between all of them uniformly, which is the
+     same value the rows used, so nothing about the spacing changes. */
+  .mosaic-row {
+    display: contents;
+  }
+  .mosaic-img {
+    order: var(--order, 0);
   }
 
   /* Mobile: each image full width at its natural ratio (weights ignored). */
@@ -79,11 +166,61 @@ const { rows, aspect = "1600 / 850" } = Astro.props;
     border: 1px solid var(--color-border);
   }
 
+  /* The bento. Duplicated rather than factored out because the two variants
+     differ ONLY in the breakpoint they start at, and a media query can't take a
+     variable — see `rowsFrom`. */
+  @media (width >= 640px) {
+    .mosaic--from-tablet {
+      aspect-ratio: var(--aspect);
+    }
+    .mosaic--from-tablet .mosaic-img {
+      order: 0;
+    }
+    .mosaic--from-tablet .mosaic-row {
+      display: flex;
+      flex-direction: row;
+      flex: var(--w);
+      min-height: 0;
+    }
+    .mosaic--from-tablet .mosaic-img {
+      flex: var(--w);
+      width: auto;
+      height: 100%;
+      min-width: 0;
+      min-height: 0;
+    }
+  }
+
+  /* `natural`: the row levels itself. Each image's flex-grow is its weight
+     against a zero basis, so widths come out proportional and the height is the
+     one the images' own ratio produces — gaps included, since flex takes them
+     out of the space it distributes. No container ratio, so no crop. */
+  @media (width >= 640px) {
+    .mosaic--natural.mosaic--from-tablet,
+    .mosaic--natural.mosaic--from-tablet .mosaic-row {
+      aspect-ratio: auto;
+      flex: none;
+    }
+    .mosaic--natural.mosaic--from-tablet .mosaic-row {
+      flex-direction: row;
+      align-items: flex-start;
+    }
+    .mosaic--natural.mosaic--from-tablet .mosaic-img {
+      flex: var(--w) 1 0;
+      width: 0;
+      height: auto;
+    }
+  }
+
   @media (width >= 1024px) {
     .mosaic {
       aspect-ratio: var(--aspect);
     }
+    .mosaic-img {
+      order: 0;
+    }
     .mosaic-row {
+      display: flex;
       flex-direction: row;
       flex: var(--w);
       min-height: 0;
@@ -94,6 +231,21 @@ const { rows, aspect = "1600 / 850" } = Astro.props;
       height: 100%;
       min-width: 0;
       min-height: 0;
+    }
+
+    .mosaic--natural,
+    .mosaic--natural .mosaic-row {
+      aspect-ratio: auto;
+      flex: none;
+    }
+    .mosaic--natural .mosaic-row {
+      flex-direction: row;
+      align-items: flex-start;
+    }
+    .mosaic--natural .mosaic-img {
+      flex: var(--w) 1 0;
+      width: 0;
+      height: auto;
     }
   }
 </style>

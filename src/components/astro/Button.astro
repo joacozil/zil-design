@@ -20,10 +20,10 @@ interface Props {
   class?: string;
   arrowDirection?: "right" | "up";
   /**
-   * Cualquier otro atributo pasa tal cual al <a> o al <button>. Es la vía por la
-   * que un botón declara su medición (`data-track`, `data-track-location`) sin
-   * que este componente tenga que conocer los nombres de los eventos. Mismo
-   * criterio que Badge.astro usa para `data-reveal`.
+   * Anything else lands on the rendered tag: `data-*` hooks, `aria-*`, `target`.
+   * The pill is the site's only button, so a caller that needs an attribute must
+   * either get it through here or stop using the component — and a second
+   * hand-rolled pill is how the hover choreography starts drifting.
    */
   [key: string]: unknown;
 }

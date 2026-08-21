@@ -1,0 +1,300 @@
+---
+/**
+ * IconSystem — the band where the page turns DARK: three responsive mockups laid
+ * out against the brand's deep green, with the custom icon set shown beside them.
+ *
+ * The section owns its own field, so it re-declares the semantic colour aliases
+ * for its subtree rather than inheriting the page's light ones. That keeps the
+ * inversion in ONE place: everything inside goes on reading `text` / `muted`, and
+ * a project with a different dark tone changes `field` and nothing else.
+ *
+ * Layout is a GRID, not a free canvas. The pieces overlap the way the design
+ * asks for, but overlap here is a small `translate` on a grid cell — so the text
+ * block, which is the only thing whose height depends on its content, is never
+ * absolutely positioned and can never collide with a mockup when the copy grows
+ * or the font falls back. The grid is:
+ *
+ *   tablet and up      mobile
+ *   [lap1] [lap2]      [lap1]
+ *   [phon] [copy]      [lap2]
+ *                      [phon]
+ *                      [copy]
+ *
+ * It stacks only on MOBILE. A tablet is wide enough to hold the two-column
+ * composition, and stacking it there turns four pieces into four full-width
+ * blocks for no gain; a 375px column is the one width where the columns really
+ * are a pile rather than a composition.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Piece {
+  src: ImageMetadata;
+  alt: string;
+}
+interface Icon {
+  src: ImageMetadata;
+  /** Names what the icon depicts — these are content, not decoration. */
+  alt: string;
+}
+interface Props {
+  label: string;
+  body: string;
+  /**
+   * Decorative artwork anchored to the band's bottom-left corner, behind the
+   * content. Optional — a band without one simply doesn't render it.
+   */
+  texture?: ImageMetadata;
+  /** Top-left mockup. */
+  laptopA: Piece;
+  /** Top-right mockup — sits lower and larger, per the design. */
+  laptopB: Piece;
+  /** The phone pair, bottom-left. */
+  phones: Piece;
+  /** The icon set, in reading order. Rendered as a 3-column grid. */
+  icons: Icon[];
+  /** Field colour for the band. */
+  field?: string;
+  /** Section landmark label. */
+  ariaLabel?: string;
+}
+const {
+  label,
+  body,
+  texture,
+  laptopA,
+  laptopB,
+  phones,
+  icons,
+  field = "#124734",
+  ariaLabel = "Diseño de íconos personalizados",
+} = Astro.props;
+
+const container = "mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12";
+---
+
+<section class="is-band py-section" style={`--field:${field}`} aria-label={ariaLabel}>
+  {
+    /* Purely decorative, so it takes an empty alt and stays out of the
+      accessibility tree. It is a sibling of the container rather than a
+      background-image because it has to bleed off the LEFT edge while staying
+      anchored to the band's bottom corner — a background would have to be sized
+      and positioned against the same box the content is padded inside. */
+  }
+  {
+    texture && (
+      <img
+        class="is-texture"
+        src={texture.src}
+        width={texture.width}
+        height={texture.height}
+        alt=""
+        loading="lazy"
+      />
+    )
+  }
+  <div class={container}>
+    <div class="is-grid">
+      <Image
+        class="is-piece is-lap-a"
+        src={laptopA.src}
+        alt={laptopA.alt}
+        widths={[500, 800, 1100]}
+        sizes="(min-width: 1024px) 44vw, 90vw"
+        loading="lazy"
+      />
+      <Image
+        class="is-piece is-lap-b"
+        src={laptopB.src}
+        alt={laptopB.alt}
+        widths={[500, 800, 1100]}
+        sizes="(min-width: 1024px) 44vw, 90vw"
+        loading="lazy"
+      />
+      <Image
+        class="is-piece is-phones"
+        src={phones.src}
+        alt={phones.alt}
+        widths={[420, 700, 900]}
+        sizes="(min-width: 1024px) 40vw, 80vw"
+        loading="lazy"
+      />
+
+      <div class="is-copy">
+        <h3 class="text-p-sm font-bold tracking-wider uppercase">{label}</h3>
+        <p class="is-body mt-4 text-p">{body}</p>
+
+        {
+          /* A list, because that is what it is: a set of six peers. The icons
+            carry real alt text — they name the services the set was drawn for,
+            so a reader who can't see them still learns what the set covers. */
+        }
+        <ul class="is-icons">
+          {
+            icons.map((icon) => (
+              <li>
+                <img
+                  src={icon.src.src}
+                  width={icon.src.width}
+                  height={icon.src.height}
+                  alt={icon.alt}
+                  loading="lazy"
+                />
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* The band re-declares the semantic aliases for its own subtree. Everything
+     below (and any component dropped inside) keeps reading `text` / `muted`. */
+  .is-band {
+    --color-surface: var(--field);
+    --color-text: #ffffff;
+    --color-muted: #a9bdb2;
+    --color-border: #2b5b48;
+
+    background-color: var(--color-surface);
+    color: var(--color-text);
+
+    /* The texture is positioned against this box and clipped by it. `clip`
+       rather than `hidden`: `hidden` would make the band a scroll container,
+       which silently breaks `position: sticky` for anything ever placed inside. */
+    position: relative;
+    overflow: clip;
+  }
+
+  .is-texture {
+    position: absolute;
+    /* Flush into the corner, NOT pulled past it. The artwork already has its
+       own corner drawn at its bottom-left, so any negative offset slices through
+       the arcs instead of reading as a bleed. */
+    bottom: 0;
+    left: 0;
+    width: clamp(9rem, 22vw, 20rem);
+    height: auto;
+    pointer-events: none;
+  }
+
+  /* Mobile only: room at the bottom for the texture. Once the grid stacks, the
+     copy and its icons run the full width of the container, so the corner artwork
+     has nothing to sit beside and lands on top of the icon rows. The texture is
+     ~184px tall on a phone (its `width` clamp bottoms out at 9rem, and the art is
+     511/400 as tall as it is wide), so 10rem on TOP of the section's own padding
+     clears it with room to spare. Above the breakpoint the copy is in its own
+     column and the corner is free. */
+  @media (width < 640px) {
+    .is-band {
+      padding-bottom: calc(var(--spacing-section) + 10rem);
+    }
+  }
+
+  /* The content sits above the texture. Only a stacking context is needed — the
+     texture keeps its default order and never has to be given a negative one. */
+  .is-band > div {
+    position: relative;
+    z-index: 1;
+  }
+
+  .is-grid {
+    display: grid;
+    gap: 3rem;
+  }
+
+  .is-piece {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* The measure is capped at EVERY width, not just where the grid runs. Stacked,
+     the copy is the only thing in the column, so without this the paragraph runs
+     the full container and reads noticeably wider than the same paragraph in the
+     light sections above — which all cap at `max-w-md`. Same value here. */
+  .is-copy {
+    max-width: 28rem;
+  }
+
+  .is-body {
+    color: var(--color-muted);
+  }
+
+  /* The icon grid. Three columns at every size — the set is six peers, and two
+     rows of three is the shape the design reads as. `max-width` is what keeps
+     them from stretching apart in a wide column. */
+  .is-icons {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2.5rem 1.5rem;
+    margin-top: 2.5rem;
+    max-width: 26rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .is-icons img {
+    display: block;
+    width: auto;
+    /* Fluid, because the icons share the copy's column and that column is half
+       the container: at 640px it is ~288px wide, where three fixed 4.5rem icons
+       (the widest artwork is 98px) overrun their cells and collide. The clamp's
+       MAX is the size on a desktop — the value to change — and the vw term is
+       what keeps three of them inside a tablet column. */
+    /* Sized by HEIGHT, not width: the artworks share an 87px height but differ in
+       width (the globe is 98, the hand 77), so matching widths would leave them
+       optically different sizes. */
+    height: clamp(2.5rem, 5vw, 4.5rem);
+  }
+
+  @media (width >= 640px) {
+    /* An EVEN split, and both laptops fill their column. That is what keeps the
+       band centred: the top row spans the container edge to edge, so the
+       composition has the same margin on both sides, and the two laptops come out
+       the same size for free (their artworks share a ratio, so equal columns mean
+       equal pieces). Any uneven split has to be paid for with a hand-tuned width
+       on one of them, and then the row stops reaching one edge. */
+    .is-grid {
+      grid-template-columns: 1fr 1fr;
+      grid-template-areas:
+        "lap-a lap-b"
+        "phones copy";
+      gap: 4rem 3rem;
+      align-items: end;
+    }
+
+    .is-lap-a {
+      grid-area: lap-a;
+    }
+    /* The design staggers the two laptops — the right one sits lower, so the pair
+       reads as scattered rather than as a row of two. The offset is a translate,
+       not a margin, so it never changes the row's height and the pieces below
+       stay put.
+
+       It fills its column, like its neighbour — see the grid note above. */
+    .is-lap-b {
+      grid-area: lap-b;
+      translate: 0 14%;
+    }
+    .is-phones {
+      grid-area: phones;
+      align-self: start;
+      justify-self: start;
+      width: 78%;
+    }
+    /* Aligned to the START of its column, which is where the laptop above it
+       starts — the two share the column, so the copy's left edge and the mockup's
+       are the same line. The block stays narrower than the column rather than
+       filling it: a wider measure would make the paragraph harder to read, not
+       better balanced. What balances the band is the air the narrow column on the
+       left leaves, not stretching the text. */
+    .is-copy {
+      grid-area: copy;
+      align-self: center;
+      justify-self: start;
+    }
+  }
+</style>

@@ -116,6 +116,29 @@ export default function SystemToggle() {
 
   return (
     <div ref={root} className="relative h-[200svh] motion-reduce:h-auto">
+      {/* THE SEAM WITH THE HERO ABOVE. In the ON state this section is the same
+          deep violet as the hero, so its top edge butts straight into the foot
+          of the hero's Z — including the counter-space that runs off the bottom
+          there. Every other place that gradient meets flat ground is a drawn
+          line, and without this one that boundary is the only soft edge in the
+          composition. In the OFF state it fades out: against the light grey
+          panel there is already a hard tonal edge, and a violet hairline on top
+          of it would just be a stray mark.
+
+          It hangs off the WRAPPER, not the sticky panel, so it stays at the
+          section's true top edge — the boundary itself — instead of riding the
+          panel up to the top of the viewport once it pins. `z-10` because the
+          pinned panel is a positioned sibling that would otherwise paint its
+          background straight over it. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 z-10 transition-opacity duration-500 ease-out"
+        style={{
+          height: "var(--seam-w)",
+          backgroundColor: "var(--color-seam)",
+          opacity: on ? 1 : 0,
+        }}
+      />
       <div
         className="sticky top-0 flex h-svh flex-col overflow-hidden transition-[background-color] duration-500 ease-out motion-reduce:static motion-reduce:h-auto motion-reduce:min-h-svh"
         style={{ backgroundColor: s.bg }}

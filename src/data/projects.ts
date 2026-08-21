@@ -1,9 +1,9 @@
 import type { ImageMetadata } from "astro";
-import mmg from "../assets/img/mmg.jpg";
-import quantia from "../assets/img/quantia.jpg";
-import clojure from "../assets/img/clojure.jpg";
+import mmg from "../assets/img/mmg.avif";
+import quantia from "../assets/img/quantia.avif";
+import clojure from "../assets/img/clojure.avif";
 import gelato from "../assets/img/gelato.jpg";
-import advantia from "../assets/img/advantia.jpg";
+import advantia from "../assets/img/advantia.avif";
 import netValue from "../assets/img/net-value.avif";
 
 /**
@@ -49,6 +49,6 @@ export const projects: ProjectEntry[] = [
   },
   { img: netValue, name: "Net Value", category: "Branding", slug: "net-value" },
   { img: gelato, name: "Gelato", category: "Branding", slug: "gelato" },
-  { img: mmg, name: "MMG Bank", category: "Institucional" },
+  { img: mmg, name: "MMG Bank", category: "Institucional", slug: "mmg" },
   { img: advantia, name: "Advantia", category: "Institucional" },
 ];

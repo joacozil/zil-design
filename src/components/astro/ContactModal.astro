@@ -1,0 +1,289 @@
+---
+/**
+ * Contact modal — the hero's CTA, answered in place.
+ *
+ * WHY: "Hablemos de tu marca" sits on the first screen and used to point at a
+ * form six sections down. The reader who clicked it had already decided, and the
+ * page's answer was a long scroll past the entire argument they had just agreed
+ * to skip. The modal keeps the decision and the form in the same moment — which
+ * is the conversion-first structure PRODUCT.md asks for, not a shortcut around it.
+ *
+ * It does NOT replace the other two surfaces: sections/CTA.astro is the page's
+ * own ask at the end of the argument, ContactDrawer is the thumb's. All three
+ * render LeadForm, and `formPlacement` ("hero-modal") is what separates them in
+ * workspace's funnel reporting — same `formId`, so the funnel itself stays whole.
+ *
+ * Built on native <dialog>, not a div: `showModal()` gives the focus trap, the
+ * Escape key, the inert background and the top layer — four things a hand-rolled
+ * overlay gets subtly wrong. The top layer in particular is what puts this above
+ * the header (z-40) and the drawer (z-50) without joining the z-index argument at
+ * all, so there is no new number to keep in sync with those two.
+ *
+ * OPENING IS DELEGATED: anything on the page carrying `data-contact-modal-open`
+ * opens it, so a second trigger is an attribute, not a wire-up. The trigger keeps
+ * its `href="#cta"`, so with no JS the click still scrolls to the real form — the
+ * modal is an enhancement over a link that already worked, never the only route.
+ */
+import LeadForm from "./LeadForm.astro";
+---
+
+<dialog
+  id="contact-modal"
+  class="contact-modal"
+  aria-labelledby="contact-modal-title"
+>
+  {
+    /* The panel fills the dialog (which carries no padding of its own), so a
+      click that lands on the dialog ITSELF came from the backdrop — that is the
+      dismissal test in the script below. */
+  }
+  <div class="contact-modal-panel">
+    <button
+      type="button"
+      class="contact-modal-close"
+      data-contact-modal-close
+      aria-label="Cerrar"
+    >
+      <svg
+        viewBox="0 0 20 20"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.75"
+        stroke-linecap="round"
+        class="size-5"
+        aria-hidden="true"
+      >
+        <path d="M5.5 5.5L14.5 14.5M14.5 5.5L5.5 14.5"></path>
+      </svg>
+    </button>
+
+    {
+      /* The drawer's exact header, word for word. Two reasons, and neither is
+        laziness: these are the same ask on the same site, so they should not
+        introduce themselves differently — and "Hablemos" is one word, which at
+        this width cannot wrap the way a full sentence did. */
+    }
+    <h2 id="contact-modal-title" class="text-h3 font-medium text-text">
+      Hablemos
+    </h2>
+    {
+      /* Retires itself once the lead lands — see the `:has()` rule below. The
+        heading stays: it is this dialog's accessible name, and it still reads
+        true above a confirmation. */
+    }
+    <p class="contact-modal-ask mt-1 text-p-sm text-muted">
+      Contanos sobre tu marca
+    </p>
+
+    {
+      /* No `reveal`: these fields live in a dialog that never scrolls into view,
+        so a scroll trigger would never fire and the armed hidden state would
+        leave them invisible. The dialog's own entrance is the motion here. */
+    }
+    <LeadForm placement="hero-modal" tone="surface" compact class="mt-6" />
+  </div>
+</dialog>
+
+<style>
+  .contact-modal {
+    /* `margin: auto` is what centres an element in the top layer — the dialog is
+       positioned by the browser, not by the page's layout. */
+    margin: auto;
+    width: min(34rem, calc(100vw - 2rem));
+    /* 90svh, not less: the whole form has to clear the fold on a 800px-tall
+       laptop, which is where it lands within ~15px. Below that height the panel
+       scrolls, which is what `overflow-y` on it is for — but the submit button
+       being the thing pushed under the fold is a conversion cost, so the rhythm
+       above is tuned to keep it in view rather than left to fall where it may. */
+    max-height: min(90svh, 46rem);
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-lg);
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-lg);
+    /* The panel scrolls; this keeps the rounded corners over it. */
+    overflow: hidden;
+
+    /* Arrival: up into register, the way everything on this page arrives (see
+       scripts/reveal.ts — nothing here fades in from nowhere). Same easing as the
+       drawer's slide, because they are the same gesture at two sizes.
+
+       `overlay` and `display` need `allow-discrete` or the dialog would pop from
+       `display: none` with no frames to animate — that is the whole reason a
+       <dialog> historically could not be transitioned. Where those are
+       unsupported the modal simply appears, which is the correct fallback. */
+    opacity: 0;
+    translate: 0 1rem;
+    scale: 0.98;
+    transition:
+      opacity 260ms ease,
+      translate 320ms cubic-bezier(0.32, 0.72, 0, 1),
+      scale 320ms cubic-bezier(0.32, 0.72, 0, 1),
+      overlay 320ms allow-discrete,
+      display 320ms allow-discrete;
+  }
+
+  .contact-modal[open] {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+
+  /* The state to animate FROM on the frame the dialog enters the top layer.
+     Without it the element's first rendered style IS the open style, so the
+     entrance never plays and only the exit would. */
+  @starting-style {
+    .contact-modal[open] {
+      opacity: 0;
+      translate: 0 1rem;
+      scale: 0.98;
+    }
+  }
+
+  .contact-modal::backdrop {
+    /* Matches the drawer's scrim, so the two dismissable surfaces on this site
+       darken the page by the same amount. */
+    background-color: rgb(0 0 0 / 0.45);
+    opacity: 0;
+    transition:
+      opacity 260ms ease,
+      overlay 260ms allow-discrete,
+      display 260ms allow-discrete;
+  }
+
+  .contact-modal[open]::backdrop {
+    opacity: 1;
+  }
+
+  @starting-style {
+    .contact-modal[open]::backdrop {
+      opacity: 0;
+    }
+  }
+
+  /* Once the lead is in, "dejanos tus datos" is asking for something the reader
+     just gave. scripts/lead-form.ts marks the form `hidden` at that moment, so
+     the state is already in the DOM and this only has to read it — no new hook in
+     the shared engine, and no modal-specific branch inside it. Where `:has()` is
+     unsupported the line simply stays, which is what it did before. */
+  .contact-modal-panel:has(form[data-lead-form][hidden]) .contact-modal-ask {
+    display: none;
+  }
+
+  .contact-modal-panel {
+    max-height: inherit;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    /* Right padding also clears the close button. The bottom `max()` keeps the
+       submit off the home indicator when this runs near full height on a phone.
+       Not a responsive chain: one fluid value that holds at every width. */
+    padding: clamp(1.5rem, 5vw, 2rem);
+    padding-bottom: max(clamp(1.5rem, 5vw, 2rem), env(safe-area-inset-bottom));
+  }
+
+  .contact-modal-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius-full);
+    color: var(--color-muted);
+    cursor: pointer;
+    /* Colour-only feedback, so it stays ungated — there is nothing here for a
+       touch device to get stuck in (see the hover rule in CLAUDE.md). */
+    transition:
+      color 200ms ease,
+      background-color 200ms ease;
+  }
+
+  .contact-modal-close:hover {
+    color: var(--color-text);
+    background-color: var(--color-primary-light);
+  }
+
+  .contact-modal-close:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  /* No reduced-motion opt-out: this site animates regardless, by the motion
+     policy at the top of global.css. A raw @media here would survive it. */
+</style>
+
+<script>
+  const dialog = document.getElementById(
+    "contact-modal",
+  ) as HTMLDialogElement | null;
+
+  if (dialog) {
+    /**
+     * Releasing the page. Idempotent, and called from BOTH close paths on
+     * purpose — see the `close` listener at the bottom for why one is not enough.
+     */
+    const unlock = () => {
+      document.body.style.overflow = "";
+      window.lenis?.start();
+    };
+
+    const open = () => {
+      if (dialog.open) return;
+      dialog.showModal();
+      // showModal() makes the background inert but does NOT stop it scrolling.
+      // Both locks are needed: Lenis drives wheel/touch on its own rAF loop and
+      // ignores `overflow: hidden` entirely, while `overflow: hidden` covers the
+      // reduced-motion path, where there is no Lenis to stop.
+      document.body.style.overflow = "hidden";
+      window.lenis?.stop();
+    };
+
+    const close = () => {
+      if (!dialog.open) return;
+      dialog.close();
+      unlock();
+    };
+
+    // CAPTURE phase, deliberately. Layout.astro's anchor handler bails on
+    // `event.defaultPrevented`, and capture is the only ordering guaranteed to
+    // run before it — bubble order would depend on which module script Astro
+    // happens to bundle first, i.e. on nothing this file controls.
+    document.addEventListener(
+      "click",
+      (event) => {
+        const target = event.target as HTMLElement | null;
+        if (!target?.closest("[data-contact-modal-open]")) return;
+        event.preventDefault();
+        open();
+      },
+      true,
+    );
+
+    // The panel fills the dialog, so a click reaching the dialog element itself
+    // is a click on the backdrop.
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) close();
+    });
+
+    dialog
+      .querySelectorAll<HTMLElement>("[data-contact-modal-close]")
+      .forEach((el) => el.addEventListener("click", close));
+
+    // Escape is handled EXPLICITLY, even though a modal <dialog> is specified to
+    // close on it by itself — exactly as ContactDrawer does, and for a stronger
+    // reason: the native dismissal was verified NOT to fire in at least one
+    // Chromium embedder (no `close` event either, on a bare <dialog>). Relying on
+    // it alone risks a reader trapped in a modal with the page scroll-locked
+    // behind it, which is the worst failure this component has available.
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && dialog.open) close();
+    });
+
+    // The catch-all for a close this file did NOT initiate — the native Escape
+    // where it works, or `dialog.close()` from anywhere else. `unlock` is
+    // idempotent, so running it twice for one dismissal costs nothing, and the
+    // page is never left locked because one path forgot.
+    dialog.addEventListener("close", unlock);
+  }
+</script>

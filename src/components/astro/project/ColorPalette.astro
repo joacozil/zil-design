@@ -33,7 +33,14 @@ interface ColorRow {
   main: Swatch;
   /** Optional lighter tint shown as a narrow column. Omit for a single band. */
   variant?: Swatch;
-  /** Relative height weight — higher = taller band. Defaults to 1. */
+  /**
+   * Relative height weight — higher = taller band. Defaults to 1.
+   * KEEP IT WITHIN ~0.7–2 ACROSS EVERY PROJECT. The weight multiplies a fixed
+   * base band (144px mobile / 176px tablet), so it is not project-relative: a
+   * 3.9 does not read as "the tallest of this palette", it renders a 562px band
+   * next to another page's 230px one and the section stops matching the rest of
+   * the site. Emphasis is the RATIO between rows here, not the absolute number.
+   */
   weight?: number;
 }
 interface Props {

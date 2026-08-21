@@ -28,8 +28,30 @@
    win a race it does not reliably win: on iOS Safari, where a touch or momentum
    can cancel a programmatic smooth scroll, the reader is stranded at the top. */
 
+/* THE anchor-landing knob — the one place that decides where a `#section` jump
+   comes to rest, for every section and every route into it (nav click, mobile
+   menu, deep link with a hash).
+
+   The goal: a section lands FLUSH with the top of the viewport — its own
+   `py-section` breathing room visible above its badge, exactly as the section
+   reads mid-page. Do not "restore" a header offset on top of that; the header
+   hides on downward scroll (see Header.astro), so clearance reserved for it just
+   pushed every section down the screen with nothing occupying the gap.
+
+   Why this is `--spacing-section` and not 0: every anchor div sits INSIDE its
+   section's padded container, i.e. exactly `--spacing-section` below the
+   section's own top edge. Landing the ANCHOR at 0 therefore scrolls that padding
+   off-screen and jams the badge against the top of the viewport. Offsetting by
+   the very token that padding uses lands the section EDGE at 0, and because the
+   token already steps at both breakpoints, so does this — no media query here.
+
+   Tune landing position HERE and nowhere else. This used to be three values
+   fighting each other — `scroll-padding-top: 5rem` on <html>, this class at
+   2.25rem, and a `-scroll-mt-20` on HowWeWork cancelling the padding back out —
+   which netted 116px for most sections but 0 for HowWeWork, so no two sections
+   could be reasoned about together. */
 .scroll-anchor {
-  scroll-margin-top: 2.25rem;
+  scroll-margin-top: var(--spacing-section);
 }
 
 /* ============================================================================
@@ -75,6 +97,30 @@
 
      The values here are the MOBILE base; line-height, letter-spacing and
      weight stay constant across breakpoints — only the size steps. */
+
+  /* Display — ONE role above h1, used only by the hero's brutalist headline.
+     Unlike the rest of the scale it is FLUID: the headline's job is to span
+     ~80% of the stage at every width, and a fixed size per breakpoint cannot
+     do that across the 1024→1408px container range. The three clamps are
+     CHAINED — each cap equals the next range's floor — so the size is
+     continuous across both breakpoints instead of stepping.
+
+     THE DESKTOP CAP IS SET BY ONE MEASURED LINE, AND IT IS TIGHT. The longest
+     pinned line is "herramienta de negocio", which the hero sets at 700 rather
+     than this role's 500 — and bold is ~1.7% wider. At the cap (7.75rem =
+     124px) that line renders 1291px against the 1312px the 1408px container
+     leaves after `desktop:px-12`, i.e. 21px spare. It fits, but only just, and
+     the margin was 42px before the headline went bold.
+
+     So: do NOT raise this cap, change the headline's weight again, or lengthen
+     that line without re-measuring the rendered line box at a viewport ≥1632px
+     (where the cap binds rather than the vw term). The break is pinned with
+     `<br>`, so an overflow does not wrap — it runs straight into the section's
+     `overflow-hidden` and the last word is simply cut off. */
+  --text-display: clamp(2.5rem, 12vw, 3.6rem);
+  --text-display--line-height: 1.04;
+  --text-display--letter-spacing: -0.03em;
+  --text-display--font-weight: 500;
 
   --text-h1: 2.5rem;
   /* 40px mobile → 52 → 68 */
@@ -162,6 +208,19 @@
   --color-primary-light: var(--color-violet-light);
   --color-accent: var(--color-lime);
 
+  /* The hairline drawn wherever the brand violet meets a different ground: the
+     hero's Z outline, and the top edge of the system section once it turns
+     violet. Shared BECAUSE those two meet — the hero's foot is that section's
+     top — so a seam that differed by a shade would read as a mistake exactly
+     where the two touch. Saturated brand violet, lifted just enough to hold its
+     edge; mixing further toward primary-light turns it lavender and it stops
+     reading as the brand's own line. */
+  --color-seam: color-mix(
+    in srgb,
+    var(--color-primary-light) 20%,
+    var(--color-primary)
+  );
+
   --color-surface: var(--color-white);
   /* default page background */
   --color-surface-muted: #f3f3f5;
@@ -227,9 +286,20 @@
        animating, which is what lets its tweens `clearProps` at the end: without
        it, clearing the inline opacity would drop the element back to 0 here and
        it would vanish on completion.
+
+   THE HERO'S Z IS GATED HERE TOO, and for exactly the reason the block exists.
+   Its parts carry no `data-reveal` — heroIntro() drives them directly and writes
+   their start states with `gsap.set` — but those sets only run once the deferred
+   module has loaded GSAP, which is long after first paint. So the finished Z
+   painted for a beat and then vanished to draw itself: the blink this gate is
+   supposed to prevent, in the one composition that opens the page. Hiding the
+   whole layer (not each part) is deliberate — the parts' start states are
+   geometry, and geometry belongs to reveal.ts; all this rule owes them is not
+   being seen before those states are written. heroIntro() stamps `data-revealed`
+   on the layer in the same tick as the sets, so the Z appears already at t=0.
    ========================================================================== */
 
-html.reveal-armed [data-reveal]:not([data-revealed]) {
+html.reveal-armed :is([data-reveal], [data-hero-image]):not([data-revealed]) {
   opacity: 0;
 }
 
@@ -286,8 +356,11 @@ html.reveal-armed [data-reveal]:not([data-revealed]) {
   html {
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
-    /* Offset anchor jumps by the fixed header height (h-20 = 5rem). */
-    scroll-padding-top: 5rem;
+    /* No `scroll-padding-top` on purpose. It used to reserve the fixed header's
+       height on every anchor jump, but the header slides away on downward
+       scroll, so the reserved band sat empty and every section landed that far
+       below the top of the screen. Anchor landing is owned by `.scroll-anchor`
+       — see the comment on it near the top of this file. */
   }
 
   body {
@@ -329,6 +402,7 @@ html.reveal-armed [data-reveal]:not([data-revealed]) {
 /* Tablet — ≥ 640px */
 @media (width >=640px) {
   :root {
+    --text-display: clamp(3.6rem, 9vw, 4.85rem);
     --text-h1: 3.25rem;
     /* 52px */
     --text-h2: 2.5rem;
@@ -355,6 +429,7 @@ html.reveal-armed [data-reveal]:not([data-revealed]) {
 /* Desktop — ≥ 1024px */
 @media (width >=1024px) {
   :root {
+    --text-display: clamp(4.85rem, 7.6vw, 7.75rem);
     --text-h1: 4.25rem;
     /* 68px */
     --text-h2: 3.25rem;
@@ -393,6 +468,13 @@ html.reveal-armed [data-reveal]:not([data-revealed]) {
    ========================================================================== */
 :root {
   --gutter: max(1.5rem, calc((100% - 88rem) / 2 + 1.5rem));
+
+  /* Weight of the seam hairline (see --color-seam). Shared for the same reason
+     the colour is: the hero's Z outline and the system section's top edge meet
+     at the boundary between those two sections, and two different weights would
+     be visible exactly where they touch. Not responsive — a hairline is a
+     hairline at every size. */
+  --seam-w: 1.5px;
 }
 
 @media (width >=640px) {

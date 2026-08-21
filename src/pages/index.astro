@@ -11,6 +11,7 @@ import FAQ from "../sections/FAQ.astro";
 import CTA from "../sections/CTA.astro";
 import Footer from "../components/astro/Footer.astro";
 import ContactDrawer from "../components/astro/ContactDrawer.astro";
+import ContactModal from "../components/astro/ContactModal.astro";
 ---
 
 {/* Sin title/description: la home usa los del Layout, que apuntan a la consulta
@@ -33,4 +34,10 @@ import ContactDrawer from "../components/astro/ContactDrawer.astro";
       rather than in Layout because it observes this page's #cta section. */
   }
   <ContactDrawer />
+  {
+    /* The hero CTA's form, so that click is answered on the first screen instead
+      of by a scroll past the whole page. Mounted here rather than in Layout
+      because its trigger lives in this page's Hero. */
+  }
+  <ContactModal />
 </Layout>

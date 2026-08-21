@@ -26,8 +26,15 @@ const logos = [
   { img: wendys, alt: "Wendy's", h: "h-6 tablet:h-8" },
 ];
 
-// Plain, serializable data for the marquee island.
-const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
+// Plain, serializable data for the marquee island. `ratio` feeds the marquee's
+// `violet` tone, which draws each mark as a masked box and cannot read the
+// intrinsic ratio from the file.
+const marqueeLogos = logos.map(({ img, alt, h }) => ({
+  src: img.src,
+  alt,
+  h,
+  ratio: img.width / img.height,
+}));
 ---
 
 {
@@ -35,336 +42,565 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
     sections — the section rhythm (`py-section`) does NOT apply here. See the
     rhythm note in styles/global.css.
 
-    GRAPHIC STAGE, NOT A PHOTO. The whole hero is the brand violet, and the
-    composition is drawn by two clipped gradient panels on one diagonal sweep —
-    lime rising toward the top-right, deep purple grounding the bottom-left —
-    under a film-grain wash. The diagonal IS the site's "dirección" argument
-    stated as geometry: both panels' cut edges run the same bottom-left →
-    top-right direction, and their horizontal edges sit on the same horizon
-    line, broken by a deliberate stretch of open violet between them. The lime
-    panel is pushed toward the right edge so the headline always sits on clear
-    violet. Polygons and gradients live in the scoped <style> below; the sweep
-    only reads if both shapes are edited together.
+    A GRAPHIC STAGE, NOT A PHOTO. The whole hero is the deep brand violet, and
+    the composition is the brand's Z drawn as an OUTLINE across the full stage —
+    the wireframe of the logo's own glyph, oversized so its top and bottom bars
+    bleed past the viewport. What remains visible is exactly the glyph's centre:
+    two parallel diagonal edges and the two half-horizon edges where the bars
+    meet them. The two counter-spaces the outline carves out — top-right and
+    bottom-left — carry a lighter violet gradient under a noise wash, so the
+    seams read as cuts in a printed surface, not vector strokes on a void. The
+    noise belongs to those panels ONLY — the ground between the arms stays
+    clean, as it is in the comp. The diagonal IS the site's "dirección"
+    argument stated as geometry.
 
-    The graphic layer carries `data-hero-image`, so reveal.ts gives it the same
-    settle-scale intro the photo used to get: the geometry arrives slightly
-    overscaled and eases into register while the copy rises over it. The
-    section's `overflow-hidden` is what keeps that overscale from bleeding.
+    THE GEOMETRY IS THE LOGO'S, DRIVEN BY TWO NUMBERS (see the shape block
+    below): --z-j, where each bar's edge meets the horizon, and --z-run, how far
+    each diagonal travels across before exiting the stage. Everything — both
+    glow clips and all four line segments — derives from those two custom
+    properties, so the seams stay coincident by construction. Never nudge one
+    element on its own.
 
-    ONE GRID, TWO COMPOSITIONS — the areas move, the markup doesn't:
+    THE GRAPHIC IS ALSO THE PAGE'S ENTRANCE. The layer carries `data-hero-image`
+    — which is both reveal.ts's handle on it AND the hook the pre-reveal opacity
+    gate in global.css keys off, so the finished Z is not painted in the window
+    before the deferred module writes its start states — and its four parts carry
+    the class names reveal.ts looks for, because the Z DRAWS ITSELF at load: the horizon strokes left to right, each arm springs
+    from it as the stroke passes that arm's own junction, and the counter-spaces
+    flood in behind. So the class names below are an interface, not just
+    styling hooks — renaming one silently drops it out of the intro. The copy
+    then rises out of the finished line, held back by the `data-reveal-delay` on
+    the grid below. Every timing lives in scripts/reveal.ts.
 
-      mobile   headline + CTA at the top, the diagonal owns the middle of the
-               stage, description bottom-right (right-aligned, closing the
-               diagonal's sweep), marquee at the foot.
-      tablet+  headline top-left, description + CTA settle into the lower right
-               column — the diagonal runs between them — marquee at the foot.
-
-    The CTA is ONE node that the grid re-seats (area `cta`), never duplicated
-    markup: two pills would mean two focus stops for the same action. */
+    ONE CENTERED COLUMN AT EVERY SIZE, REGISTERED ON THE HORIZON: headline →
+    description → CTA → logo strip at the foot. The copy is NOT free-centred:
+    the grid's first row ends exactly on the Z's horizon (50svh), the headline
+    bottom-aligns into it, and the description opens just below — so the two
+    horizon edges always thread the gap between headline and description, at
+    every viewport, exactly as the reference composition argues. The diagonals
+    pass under the text at low contrast. */
 }
 <section
   id="hero"
-  class="relative flex min-h-svh w-full flex-col overflow-hidden bg-primary"
+  class="relative flex min-h-svh w-full flex-col overflow-hidden bg-primary-dark"
 >
   {
     /* The graphic layer. Decorative only — everything readable sits above it. */
   }
   <div aria-hidden="true" class="absolute inset-0" data-hero-image>
-    <div class="hero-shape hero-shape-light"></div>
-    <div class="hero-shape hero-shape-dark"></div>
+    <div class="hero-glow hero-glow-top"></div>
+    <div class="hero-glow hero-glow-bottom"></div>
+    <div class="hero-line"></div>
+    <div class="hero-diag hero-diag-top"></div>
+    <div class="hero-diag hero-diag-bottom"></div>
   </div>
   {
-    /* Grain sits OUTSIDE the settling layer so the texture stays fixed to the
-      screen — like film grain — while the geometry moves under it. */
-  }
-  <div aria-hidden="true" class="hero-grain"></div>
-
-  {
     /* `pt-24` is header clearance for the floating pill (~75px), NOT rhythm —
-      measured, not negotiable, and the SAME at every size: on tablet+ the
-      title band (see .hero-grid below) subtracts exactly this 6rem from its
-      43svh height, so the headline centres between the header and the horizon.
-      Change one without the other and that symmetry silently breaks. */
+      measured, not negotiable. The grid's first row subtracts exactly this
+      6rem from its 50svh height so the row's bottom edge lands ON the Z's
+      horizon — change one without the other and the registration silently
+      breaks. */
   }
   <div
     class="hero-grid relative z-10 mx-auto w-full max-w-8xl flex-1 px-6 pt-24 pb-9 tablet:px-8 tablet:pb-10 desktop:px-12 desktop:pb-12"
     data-reveal-group
+    data-reveal-delay="0.62"
   >
     {
       /* THE LINE BREAKS ARE PINNED, NOT WRAPPED. Letting width decide them
-        meant the headline re-flowed between two and three lines continuously
-        as the viewport moved — a different composition every few pixels. There
-        are now exactly three arrangements, one per breakpoint:
+        meant the headline re-flowed continuously as the viewport moved — a
+        different composition every few pixels. Exactly two arrangements:
 
           mobile / tablet   El diseño como / herramienta / de negocio
           desktop           El diseño como / herramienta de negocio
 
-        So: no `text-balance` (it re-distributes the lines we just fixed), and
-        no max-width (a cap narrower than a pinned line would add a fourth).
-        The widest line is 260px on mobile and 442px on desktop, both of which
-        clear the narrowest container at their breakpoint. If the copy ever
-        changes, re-measure — nothing here adapts on its own any more. */
+        So: no `text-balance` (it re-distributes the lines we just fixed) and
+        no max-width. `text-display` is fluid (see global.css), tuned so the
+        longest pinned line clears its container at every width — if the copy
+        ever changes, re-measure the clamp caps; nothing adapts on its own. */
     }
     {
-      /* El H1 nombra lo que somos antes de argumentar, y la palabra es
-        deliberada: "estudio de diseño" son 480 búsquedas/mes en Argentina con
-        competencia 32, contra 90 y competencia 80 de "agencia de branding", que
-        es a donde apuntaba el <title> viejo. Cambiar el título sin cambiar el
-        H1 no retarguetea nada: Google compara los dos y le cree al cuerpo.
+      /* TWO WEIGHTS, ONE SENTENCE — 400 for the setup, 700 for the payoff, so
+        the emphasis lands on what the agency actually sells instead of the
+        whole line shouting equally. Both are overridden here rather than in the
+        type scale: `text-display` carries 500 like every other role, and this
+        headline is the one place that split exists.
 
-        Decía "El diseño como herramienta de negocio". La tesis no se perdió,
-        bajó al párrafo y al Statement, que es donde se puede defender con más
-        de seis palabras. Se mantiene el largo y el corte en tres líneas: el
-        tamaño del hero está afinado para ese bloque. */
-    }
-    <h1 class="hero-title text-h1 text-text-inverse" data-reveal>
-      Estudio de diseño<br />con criterio<br class="desktop:hidden" /> de negocio
-    </h1>
+        A `span`, not `strong`: this is typographic emphasis, not semantic
+        importance, and `strong` would have a screen reader announce a stress
+        that is not in the sentence.
 
-    {
-      /* Right-aligned at every size — the ragged edge tracks the diagonal it
-        sits against, and on tablet+ the CTA closes the block on the same right
-        edge. White at full opacity — this is primary copy on a saturated
-        ground, not a caption. */
+        The bold half is ~1.7% wider than the same words at 500, which eats into
+        what the `--text-display` cap reserves for it — see the clamp note in
+        global.css before raising that cap. */
     }
-    <p
-      class="hero-desc max-w-[32ch] text-p text-pretty text-text-inverse tablet:max-w-[42ch]"
+    <h1
+      class="hero-title text-display font-normal text-text-inverse"
       data-reveal
     >
-      Diseñamos sistemas visuales que aportan dirección, fortalecen el
-      posicionamiento y potencian el valor percibido de tu marca.
+      El diseño como<br /><span class="font-bold"
+        >herramienta<br class="desktop:hidden" /> de negocio</span
+      >
+    </h1>
+
+    <p
+      class="hero-desc max-w-[34ch] text-p-lg text-pretty text-text-inverse tablet:max-w-[52ch]"
+      data-reveal
+    >
+      Somos un estudio de diseño y branding en Argentina. Construimos sistemas
+      visuales que aportan dirección, fortalecen el posicionamiento y potencian
+      el valor percibido de tu marca.
     </p>
 
     {
       /* The reveal goes on the wrapper, not the Button: the pill owns its own
         hover choreography on transform/padding and must not share a transform
-        with an entrance tween. */
+        with an entrance tween.
+
+        The pill runs one step down on mobile, where the stage is short and
+        the full-size CTA crowded the copy. Scoped to `max-tablet:` (NOT
+        unprefixed) on purpose: these are `!important`, and applying them at
+        every size would beat the variant's own `desktop:hover:pr-*` and kill
+        the arrow-reveal growth. Below 640px there is no hover, so nothing is
+        lost. */
     }
     {
-      /* The pill runs one step down on mobile, where it shares the stage with
-        the description and the logo strip and the full-size CTA crowded both.
-        Scoped to `max-tablet:` (NOT unprefixed) on purpose: these are
-        `!important`, and applying them at every size would also beat the
-        variant's own `desktop:hover:pr-*` and kill the arrow-reveal growth.
-        Below 640px there is no hover, so nothing is lost. */
+      /* `href="#cta"` STAYS, and is not vestigial: ContactModal intercepts the
+        click and opens the form right here, but with no JS the link still walks
+        the reader to the real CTA section. The modal is an enhancement over a
+        working link — see the header comment in ContactModal.astro. */
     }
-    <div class="hero-cta" data-reveal>
+    <div class="mt-8 tablet:mt-10" data-reveal>
       <Button
         href="#cta"
-        variant="pill"
         data-track="cta_click"
         data-track-location="home-hero"
+        variant="pill"
         class="max-tablet:py-3! max-tablet:pr-7! max-tablet:pl-7! max-tablet:text-p!"
+        data-contact-modal-open
+        aria-haspopup="dialog"
       >
         Hablemos de tu marca
       </Button>
     </div>
 
     {
-      /* Client trust strip. The reveal stays on this server-rendered wrapper,
-        never inside the Embla island; the wrapper also masks both edges so
-        logos fade out rather than clip. The strip now always sits on violet,
-        so the tone is plain `light` at every size. */
+      /* Client trust strip, closing the foot of the stage. The reveal stays on
+        this server-rendered wrapper, never inside the Embla island; the wrapper
+        also masks both edges so logos fade out rather than clip. The `violet`
+        tone renders every mark in the brand's light violet — see the marquee. */
     }
-    <div class="hero-logos hero-logos-fade" data-reveal>
-      <ClientsMarquee client:load logos={marqueeLogos} tone="light" />
+    <div
+      class="hero-logos hero-logos-fade mt-10 w-full self-end tablet:mt-12"
+      data-reveal
+    >
+      <ClientsMarquee client:load logos={marqueeLogos} tone="violet" />
     </div>
   </div>
 </section>
 
 <style>
-  /* --- Content grid ---------------------------------------------------------
-     Named areas so the CTA and description can trade places between the mobile
-     and tablet+ compositions without duplicating markup. The bare `.` row is
-     the stage: the flexible band of open violet the diagonal crosses. */
+  /* --- Content grid ----------------------------------------------------------
+     Four rows registered on the graphic, not free-centred:
+
+       1  minmax(min-content, 50svh − 6rem)   headline, bottom-aligned — the
+                                              row ends exactly on the horizon
+       2  auto                                description
+       3  auto                                CTA
+       4  1fr                                 open stage; logos pin to its end
+
+     The 6rem is the container's own pt-24 (see the markup comment), so row 1's
+     bottom edge = 50svh = the Z's horizon at any viewport. minmax lets the row
+     grow instead of clipping if the headline ever outgrows the zone (short
+     landscape phones). */
   .hero-grid {
     display: grid;
     grid-template-columns: 100%;
-    /* Headline at the top, then the open stage the diagonal crosses, then the
-       desc → CTA cluster and the logo strip closing the foot. The CTA stays
-       WITH the description at every size — it answers the sentence it follows,
-       and parking it up under the headline separated the two. */
-    grid-template-rows: auto 1fr auto auto auto;
-    grid-template-areas: "title" "." "desc" "cta" "logos";
+    grid-template-rows: minmax(min-content, calc(50svh - 6rem)) auto auto 1fr;
+    justify-items: center;
+    text-align: center;
+
+    /* The air between the horizon and the copy on EITHER side of it. One token
+       for both, because the two gaps must read as equal — the line sits
+       between the headline and the description, and any asymmetry makes it
+       look like it belongs to whichever one it is nearer. */
+    --z-copy-gap: 1.5rem;
   }
 
+  /* BOTH GAPS ARE MEASURED FROM THE TEXT, NOT FROM THE BOX — that is the whole
+     reason these two are calc()s instead of the same flat value.
+
+     A line box is taller than its text: the leading is split evenly above and
+     below, so `half-leading = (line-height − 1) / 2` of dead space sits inside
+     the box edge before any letter starts. The headline and the description
+     have very different leading (1.04 vs 1.55), so giving them an equal
+     padding/margin produces visibly UNEQUAL gaps — measured on a 390px phone,
+     a 16px padding and a 24px margin rendered as 17px above the line and 28px
+     below it, and the line read as belonging to the description.
+
+     Subtracting each element's own half-leading cancels that dead space, so
+     both gaps end up exactly --z-copy-gap from the actual type. The subtraction
+     is written in `em` deliberately: `em` resolves against the element's OWN
+     font-size, so each stays correct as the type scale steps at the
+     breakpoints, with no second set of numbers to keep in sync. The two
+     constants are just (line-height − 1) / 2 for each role — re-derive them if
+     a line-height in global.css ever changes. */
   .hero-title {
-    grid-area: title;
-    /* No max-width at any breakpoint — the <br>s in the markup set the lines,
-       and a cap could only add an unwanted fourth one. Clearance from the lime
-       panel is held by the pinned line widths plus the panel's own left vertex
-       (see the shapes below), not by capping the text. */
-  }
-
-  .hero-cta {
-    grid-area: cta;
-    /* Right-aligned so it closes the description's own right edge — the two
-       read as one block rather than a paragraph with a stray button. */
-    justify-self: end;
-    margin-top: 1.5rem;
+    align-self: end;
+    /* text-display, line-height 1.04 → (1.04 − 1) / 2 = 0.02em */
+    padding-bottom: calc(var(--z-copy-gap) - 0.02em);
   }
 
   .hero-desc {
-    grid-area: desc;
-    justify-self: end;
-    text-align: right;
-  }
-
-  .hero-logos {
-    grid-area: logos;
-    margin-top: 2.5rem;
+    /* text-p-lg, line-height 1.55 → (1.55 − 1) / 2 = 0.275em */
+    margin-top: calc(var(--z-copy-gap) - 0.275em);
   }
 
   @media (width >= 640px) {
     .hero-grid {
-      grid-template-columns: 1fr 1fr;
-      /* The title band is EXACTLY the violet zone above the shapes' horizon
-         line: 43svh (where both panels' horizontal edges sit) minus the 6rem
-         header clearance the container already spent as pt-24. Centring the
-         headline in that band gives it equal air above (to the header) and
-         below (to the horizon) at ANY viewport size — a plain 1fr band ran to
-         the desc row instead and dropped the h1 low on wide, short screens.
-         minmax lets the band grow rather than clip if the headline ever gets
-         taller than the zone. The bare 1fr row is the open stage the diagonal
-         crosses; desc + cta anchor bottom-right, the logos close the foot. */
-      grid-template-rows:
-        minmax(min-content, calc(43svh - 6rem))
-        1fr auto auto auto;
-      grid-template-areas:
-        "title title"
-        ". ."
-        ". desc"
-        ". cta"
-        "logos logos";
-    }
-
-    .hero-title {
-      align-self: center;
-    }
-
-    .hero-cta {
-      margin-top: 2rem;
-    }
-
-    .hero-logos {
-      margin-top: 4rem;
+      --z-copy-gap: 2rem;
     }
   }
 
-  /* --- The graphic ----------------------------------------------------------
-     Both panels are full-bleed layers clipped to polygons, so their gradients
-     and geometry are tuned in viewport percentages. THE COMPOSITION IS THE
-     BRAND'S Z: the lime panel is the top arm, the dark panel the bottom arm,
-     and the open violet channel between them the diagonal stroke. For the
-     channel to read as one stroke, the two cut edges must stay PARALLEL —
-     their Δx/Δy slopes are matched per breakpoint (mobile ≈1.22, tablet+
-     ≈0.84). If you move one vertex, recompute the other shape's to keep the
-     slopes equal. The lime panel also starts well right of the dark one so
-     the headline sits on clear violet at every width — don't pull its lower
-     vertex back toward the center.
+  /* --- The Z outline ---------------------------------------------------------
+     The brand glyph's own proportions, normalised to the stage. The Z's
+     bar-edges meet the horizon point-symmetrically about the centre, and here
+     the glyph is oversized so both bars bleed past the viewport: each diagonal
+     exits the stage edge instead of landing in a corner.
 
-     Every edge of the lime panel is crisp: its gradient runs mauve (a
-     violet/lime mix) at the top into full lime at the horizon, so the cut
-     reads as a drawn line, not a glow. The dark panel is the opposite — hard
-     top edge, gradient fading out toward the bottom tip, grounding the stage
-     without boxing it in. */
-  .hero-shape {
+     THE HORIZON IS CONTINUOUS, THE DIAGONALS CROSS IT. One unbroken rule runs
+     edge to edge at 50%; the two diagonals meet it at the two junctions and
+     carry on past, out of the stage. The span between those junctions IS the
+     Z's stroke, and the horizon segment across it is what ties the two halves
+     into one figure — drawing the horizon as two stubs that stopped at their
+     junctions left that span empty and the composition fell apart into two
+     disconnected halves.
+
+     MIND WHICH JUNCTION IS WHOSE — this was once wired backwards and the
+     diagonals crossed at the centre in an X. Tracing the glyph's own path: the
+     TOP bar's bottom edge runs from the LEFT stage edge to the LOWER junction,
+     and the diagonal meeting the horizon there is the LOWER one, heading on
+     down to the bottom-left. The UPPER diagonal lands at the mirrored junction,
+     where the BOTTOM bar's top edge takes over toward the right stage edge.
+
+       --z-gap        the Z's STROKE — the horizontal span between the two
+                      junctions. Authored directly, because it is the thing
+                      that has to stay constant (see below).
+       --z-j          the lower junction, DERIVED as 50% − gap/2; the upper
+                      junction mirrors at 100% − that.
+       --z-run        horizontal travel of each diagonal over its 50% drop.
+
+     Both diagonals share --z-run over the same half-height, so they are
+     parallel by construction, and every segment starts or ends on a shared
+     junction point. Change the composition ONLY through --z-gap and --z-run.
+
+     WORST CASE IS 360×640: narrow and short steepens the diagonals and pulls
+     the horizon lines closest to the copy. Re-check there before retuning. */
+  [data-hero-image] {
+    /* MOBILE NARROWS THE STROKE, ON PURPOSE, AGAINST THE RULE BELOW. The 11rem
+       floor that tablet and up use holds the Z at a constant DRAWN weight, but
+       that weight is 12% of a 1440 desktop and 45% of a 390 phone — the same
+       ink across a fifth of the width. At that share it stops reading as a mark
+       behind the copy and starts splitting the stage in two, so on a phone the
+       stroke is authored as a share of the width instead.
+
+       Narrowing walks BOTH junctions inward, which brings the upper arm further
+       across the headline — it passes under the type rather than beside it.
+       That is the documented intent for the diagonals, not a collision, but it
+       is the thing that changes as this number drops: re-look at 390×844 if you
+       take it much below 30%. */
+    --z-gap: 30%;
+    --z-j: calc(50% - var(--z-gap) / 2);
+    /* THE RUN IS FLOORED AGAINST THE STAGE HEIGHT, AND THAT FLOOR IS WHAT
+       KEEPS THE Z FROM DEFORMING ON A PHONE. The run is a percentage of WIDTH
+       but the drop is always half the HEIGHT, so a bare percentage lets the
+       aspect ratio set the diagonal's angle: at a flat 20% the arms sat 32.6°
+       off vertical on a 1440×900 desktop but only 10.5° on a 390×844 phone —
+       three times steeper. At that angle the two arms stop reading as an
+       offset pair and collapse into one near-vertical line with a kink in it,
+       which is not a Z any more.
+
+       So: `max()` against an svh floor pins a minimum slope, and because
+       desktop's 20% is far above that floor, THE DESKTOP COMPOSITION IS
+       UNCHANGED — the floor only binds on tall/narrow stages, which is exactly
+       where the collapse happened. `min(70%, …)` is the other guard: on an
+       extremely tall viewport the floor would otherwise run wider than the
+       stage itself.
+
+       Resulting angle off vertical: ~33° desktop, ~27° tablet and phone.
+       Re-measure those three if you retune — the number that matters is the
+       ANGLE, not the percentage. */
+    --z-run: min(70%, max(20%, 26svh));
+    /* HOW FAR EACH ARM OVERSHOOTS ITS OWN ENDS, as a fraction of its run. This
+       is not a stylistic number — it is what makes the seams close. See the
+       diagonal block below. */
+    --z-over: 0.04;
+    /* Where the horizon falls inside the overshot arm box, as a fraction of the
+       box's height: the arm is (1 + 2·over) runs long and starts one over
+       before its junction, so the cut sits at over / (1 + 2·over). */
+    --z-over-cut: calc(var(--z-over) / (1 + 2 * var(--z-over)) * 100%);
+    /* Shared with the system section's top edge, which butts directly against
+       this section's foot — see --color-seam in global.css. */
+    --z-line: var(--color-seam);
+    --z-line-w: var(--seam-w);
+
+    /* --- The noise tile ------------------------------------------------------
+       The Figma Noise effect (Mono, size 0.5, density 100%, #000000), consumed
+       by the panels as a background layer — see .hero-glow. Every part of the
+       Figma spec maps to something here:
+
+         mono / black   the filter zeroes RGB and routes the turbulence's red
+                        channel into ALPHA (the 4th feColorMatrix row), so the
+                        tile is BLACK at varying opacity rather than grey
+                        pixels. Grey would need a blend mode to disappear;
+                        black-on-alpha composites correctly as a plain layer.
+         size 0.5       `background-size` is HALF the tile's 160px, halving
+                        every feature to ~0.5px at 1x. Encoding a higher
+                        baseFrequency instead hits stitchTiles artefacts.
+         density 100%   numOctaves 1 — no coarse structure layered underneath,
+                        so the grain stays uniform.
+
+       Two knobs, and they are NOT interchangeable — reach for the first:
+
+         feFuncA slope   GRAIN CONTRAST. Widens the alpha spread around its
+                         midpoint; `intercept` is pinned to 0.5 − 0.5·slope so
+                         the MEAN alpha stays 0.5. More visible texture at the
+                         same average darkening, so the panel gradients keep
+                         the colour they were tuned to.
+         rect opacity    STRENGTH. Scales the whole veil, so it also darkens
+                         the panel by (mean alpha × opacity). It lives on the
+                         rect because a background LAYER cannot carry its own
+                         opacity the way the old standalone element could. */
+    --z-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='1' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='2.2' intercept='-0.6'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.34'/%3E%3C/svg%3E");
+  }
+
+  /* --- Counter-space panels --------------------------------------------------
+     The two regions the Z carves out of the stage. THE FILL IS THE FIGMA FILL:
+     a LINEAR gradient from --color-primary-dark (#4B256E) to --color-primary
+     (#9747FF) at full strength, running toward each region's outer corner — so
+     the stage is deepest along the Z's channel and opens into brand violet at
+     the top-right and bottom-left.
+
+     THE GRADIENT IS SIZED TO THE PANEL, NOT TO THE STAGE — this is the whole
+     trick, and getting it wrong is why the panels twice came out washed out.
+     Each element is full-bleed (so its clip-path can stay in stage
+     coordinates), but a full-bleed BACKGROUND would stretch the ramp across
+     the entire viewport, and the clip then reveals only the bright END of it:
+     every panel renders as a flat light violet with no dark anywhere. Figma
+     paints the fill across the SHAPE's own bounding box, so the full
+     #4B256E → #9747FF range fits inside the panel.
+
+     `background-size` + `background-position` reproduce exactly that: the
+     ramp is laid into the panel's bounding box — z-j wide (its horizontal
+     span) by 50% tall (the half-stage it occupies), anchored on the panel's
+     own outer corner — and `no-repeat` keeps it from tiling into the rest of
+     the layer, which the clip discards anyway.
+
+     The clip-path is what gives each panel its CRISP edge along the diagonal
+     and the horizon — the seam reads as a cut surface, with the stroked line
+     on top.
+
+     THE NOISE RIDES ON THE PANEL, NOT ON THE STAGE. In Figma the Noise is an
+     effect on the gradient SHAPE, so it exists only where the gradient does;
+     the deep violet ground between the arms is clean. It used to be a separate
+     full-bleed `.hero-grain` layer over the whole hero, which textured the
+     ground too and flattened the difference between panel and ground.
+
+     Being a second background layer on this element gets that for free: the
+     same clip-path bounds it, so it can never escape the panel. Two details
+     hold it together — the two layers need DIFFERENT sizing (the noise tiles
+     in stage pixels, the gradient is stretched to the panel box), which is why
+     each background property below is a two-value list, and the 0.34 strength
+     is baked into the tile's own `opacity` attribute rather than set here,
+     since a background layer cannot carry its own opacity. */
+  .hero-glow {
     position: absolute;
     inset: 0;
+    /* Layer order: noise on top, gradient underneath. */
+    background-image: var(--z-noise), var(--z-fill);
+    /* Noise tiles at a fixed 80px; the gradient is stretched to the panel's
+       own bounding box — z-j wide by 50% tall. Only the anchor differs per
+       panel, so it comes in as --z-fill-anchor. */
+    background-size:
+      80px 80px,
+      var(--z-j) 50%;
+    background-position:
+      0 0,
+      var(--z-fill-anchor);
+    background-repeat: repeat, no-repeat;
   }
 
-  .hero-shape-light {
-    background: linear-gradient(
-      195deg,
-      color-mix(in srgb, var(--color-primary) 65%, var(--color-accent)) 8%,
-      var(--color-accent) 42%
+  .hero-glow-top {
+    /* Right of the UPPER diagonal, above the horizon: from its top-edge exit
+       (56% + run) back down to the 56% junction. Bounding box = the top-right
+       corner, hence `100% 0`. */
+    clip-path: polygon(
+      calc(100% - var(--z-j) + var(--z-run)) 0,
+      100% 0,
+      100% 50%,
+      calc(100% - var(--z-j)) 50%
     );
-    /* The 70% here and the 30% on the dark panel below are the Z's STROKE
-       WIDTH: the horizontal gap between the two arms at the horizon. They
-       started at 56% / 54%, which pinched the channel to 2% — the arms read as
-       two shapes touching rather than one stroke running between them.
-
-       Both arms are now the SAME size (30% wide × 24.6% tall), which is what
-       keeps the composition symmetric top-to-bottom. The dark one is the
-       binding constraint: the description is right-aligned at the foot of the
-       mobile stage, and on a SHORT phone it rides up into the wide part of the
-       dark triangle — at 375×667 it used to cross the diagonal by 27px. 30%
-       keeps it clear down to 360×640 (the shortest phone worth supporting)
-       with ~15px to spare. Widening the arms again re-opens that collision;
-       re-measure at 360×640 before touching this pair, and recompute each apex
-       to hold the 1.22 slope (apex y = 42% ∓ Δx / 1.22). */
-    clip-path: polygon(100% 17.4%, 100% 42%, 70% 42%);
-  }
-
-  .hero-shape-dark {
-    background: linear-gradient(
-      192deg,
-      var(--color-primary-dark) 42%,
-      transparent 96%
+    --z-fill: linear-gradient(
+      to top,
+      var(--color-primary-dark) 10%,
+      var(--color-primary) 200%
     );
-    clip-path: polygon(0 42%, 30% 42%, 0 66.6%);
+    --z-fill-anchor: 100% 0;
   }
 
+  .hero-glow-bottom {
+    /* Mirror of the top: left of the LOWER diagonal, below the horizon, from
+       the 44% junction down to its bottom-edge exit (44% − run). Bounding box
+       = the bottom-left corner, hence `0 100%`. */
+    clip-path: polygon(
+      calc(var(--z-j) - var(--z-run)) 100%,
+      0 100%,
+      0 50%,
+      var(--z-j) 50%
+    );
+    --z-fill: linear-gradient(
+      to bottom,
+      var(--color-primary-dark) 10%,
+      var(--color-primary) 200%
+    );
+    --z-fill-anchor: 0 100%;
+  }
+
+  /* --- The horizon -----------------------------------------------------------
+     ONE UNBROKEN LINE, EDGE TO EDGE. Both bars' edges plus the segment that
+     joins them across the channel are the same rule, so it is drawn as a single
+     element — there is no seam to misalign.
+
+     It used to be two stubs, each stopping at its own junction, which left the
+     44%→56% channel empty and the composition read as two disconnected halves
+     with nothing tying them together. The connector IS the horizon; the
+     diagonals cross it rather than interrupt it. */
+  .hero-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(50% - var(--z-line-w) / 2);
+    height: var(--z-line-w);
+    background: var(--z-line);
+  }
+
+  /* --- Diagonal edges --------------------------------------------------------
+     Each diagonal is drawn corner-to-corner inside its own bounding box with
+     the to-corner gradient trick. Direction keyword, carefully: the 50% line
+     of a to-corner gradient runs through the two corners ADJACENT to the
+     target corner, so `to bottom right` puts it on the bottom-left ↔ top-right
+     diagonal — the ascending one both edges need. (`to top right` is the
+     descending diagonal; using it drew a backwards Z.) The line therefore
+     stays pixel-coincident with the glow's clipped edge at any aspect ratio
+     without knowing the viewport. Both boxes are --z-run wide over the stage's
+     half height, anchored on their own junction. */
+  /* THE STOPS ARE FEATHERED, AND THAT FEATHER IS THE ANTIALIASING. This used
+     to be a hard stop — two colour stops at the same position on each side —
+     which browsers do NOT antialias: every pixel gets either the full colour
+     or nothing, so a near-diagonal edge comes out as visible stair-steps.
+
+     It hid on retina and showed up on external monitors, which is the tell.
+     At 2dppx the line is 3 device pixels and each step is half-size; at 1dppx
+     it is 1.5 device pixels, the steps are full-size, and 1.5 cannot sit on
+     the pixel grid either, so the line ALSO alternates between 1px and 2px
+     runs and reads as uneven.
+
+     --z-aa is the width of the ramp the rasterizer gets to blend across, and
+     it is quoted per density so it lands on ONE device pixel either way:
+     softer than that and the hairline goes blurry on retina, which is the
+     failure mode in the other direction. The ramp straddles each edge — half
+     inside, half outside — so the line keeps its drawn weight instead of
+     growing by twice the feather. */
+  /* EACH ARM OVERSHOOTS ITS OWN TWO ENDS, AND IS MASKED BACK AT THE HORIZON.
+     Without that, both ends TAPER TO A POINT, because the ideal line runs
+     through the box's CORNERS: at a corner the band is cut by the horizontal
+     edge AND the vertical one at once, so the half of it that falls outside the
+     corner is thrown away and the stroke arrives at half weight. That is the
+     notch where the arm meets the horizon, and the tip that fades out just
+     short of the stage edge at the bottom — both were visible at the drawn
+     1.5px and obvious at 14px.
+
+     The box is grown by --z-over on each end AND IN BOTH AXES AT ONCE. The
+     aspect ratio is the angle here — the to-corner gradient always draws the
+     box's own diagonal — so growing width without height would swing the arm
+     off the panel's clipped edge. Growing both keeps the line exactly where it
+     was and simply extends it past where it is wanted.
+
+     What is left is one cut per arm at the horizon, and a cut by a straight
+     HORIZONTAL edge butts the full band against the horizon rule instead of
+     pinching it. The far end needs no cut: it now leaves the stage entirely and
+     the section's overflow takes it.
+
+     The cut is a mask, NOT a clip-path, because reveal.ts owns these elements'
+     clip-path for the intro — it insets each arm to nothing and grows it out of
+     the horizon. A CSS clip-path here would be overwritten for the length of
+     that tween, and the overshoot above the horizon would draw as a spur. */
+  .hero-diag {
+    position: absolute;
+    width: calc(var(--z-run) * (1 + 2 * var(--z-over)));
+    -webkit-mask-image: var(--z-cut);
+    mask-image: var(--z-cut);
+    --z-aa: 1px;
+    background: linear-gradient(
+      to bottom right,
+      transparent calc(50% - var(--z-line-w) / 2 - var(--z-aa) / 2),
+      var(--z-line) calc(50% - var(--z-line-w) / 2 + var(--z-aa) / 2),
+      var(--z-line) calc(50% + var(--z-line-w) / 2 - var(--z-aa) / 2),
+      transparent calc(50% + var(--z-line-w) / 2 + var(--z-aa) / 2)
+    );
+  }
+
+  @media (resolution >= 2dppx) {
+    .hero-diag {
+      --z-aa: 0.5px;
+    }
+  }
+
+  /* Rises from the upper junction (box's bottom-left) out the top edge. The
+     box hangs one --z-over BELOW the horizon and past the top of the stage;
+     the mask discards everything under the horizon. */
+  .hero-diag-top {
+    top: calc(0% - 50% * var(--z-over));
+    bottom: calc(50% - 50% * var(--z-over));
+    left: calc(100% - var(--z-j) - var(--z-run) * var(--z-over));
+    --z-cut: linear-gradient(
+      to bottom,
+      #000 calc(100% - var(--z-over-cut)),
+      transparent calc(100% - var(--z-over-cut))
+    );
+  }
+
+  /* Falls from the lower junction (box's top-right) out the bottom edge, with
+     the mirrored overshoot: one --z-over above the horizon and past the foot. */
+  .hero-diag-bottom {
+    top: calc(50% - 50% * var(--z-over));
+    bottom: calc(0% - 50% * var(--z-over));
+    left: calc(var(--z-j) - var(--z-run) * (1 + var(--z-over)));
+    --z-cut: linear-gradient(
+      to bottom,
+      transparent var(--z-over-cut),
+      #000 var(--z-over-cut)
+    );
+  }
+
+  /* --- Tablet and up: the stroke is a LENGTH, not a ratio ---------------------
+     --z-j was once a flat 44%, which made the stroke (100% − 2×44% = 12% of the
+     width) scale with the viewport: 173px on a 1440 desktop but 92px on a 768
+     tablet. A Z whose bar thins by half is a different letterform, so the glyph
+     read as deformed on narrow stages even after the diagonals' angle was fixed
+     — the angle and the stroke are two separate failures and both have to be
+     pinned.
+
+     `max()` against a rem floor holds it: 11rem ≈ the 12% a 1440 stage already
+     produced, so wide viewports keep their proportional stroke and narrower
+     ones stop shrinking it. The stroke is the SAME DRAWN WEIGHT at every size
+     from here up, which is what makes it the same letter.
+
+     Mobile deliberately opts out — see the note on --z-gap above. */
   @media (width >= 640px) {
-    /* ONE number drives both arms from here up, which is what guarantees the
-       two cut edges stay parallel: each arm steps the same --z-dx across and
-       the same 43% down, just anchored to opposite corners. Change the arms by
-       changing this, never by editing a polygon vertex on its own. Tablet runs
-       the arms at full width: its headline is three narrow lines and never
-       reaches them. Only desktop, where the headline goes wide on two lines,
-       has to negotiate — see the override in the 1024 block below. */
-    .hero-shape {
-      --z-dx: 36%;
+    [data-hero-image] {
+      --z-gap: max(11rem, 12%);
     }
-
-    .hero-shape-light {
-      background: linear-gradient(
-        190deg,
-        color-mix(in srgb, var(--color-primary) 65%, var(--color-accent)) 0%,
-        var(--color-accent) 41%
-      );
-      clip-path: polygon(100% 0, 100% 43%, calc(100% - var(--z-dx)) 43%);
-    }
-
-    .hero-shape-dark {
-      background: linear-gradient(
-        188deg,
-        var(--color-primary-dark) 46%,
-        transparent 98%
-      );
-      clip-path: polygon(0 43%, var(--z-dx) 43%, 0 86%);
-    }
-  }
-
-  @media (width >= 1024px) {
-    /* Desktop is the only layout where the headline and the lime arm compete
-       for the same row, because it is the only one that sets the headline on
-       two wide lines. `100% - 780px` reserves what those lines need: they end
-       at x=744 at every width up to the 1408px container, so the arm has to
-       start right of ~780.
-
-       Below ~1220px that reservation binds and the arm gives way; above it the
-       arm sits at its full 36% and the headline never comes close. A flat 36%
-       collided at 1024 (by 70px); a flat 23% cleared it but left the arms
-       stunted at every larger size. Note this must NOT be applied at tablet —
-       under 780px wide the subtraction goes negative and both arms vanish.
-
-       Re-measure at 1024×620: narrow AND short is the worst case, since a low
-       horizon lets this edge reach furthest left at the headline's last line. */
-    .hero-shape {
-      --z-dx: min(36%, calc(100% - 780px));
-    }
-  }
-
-  /* --- Grain -----------------------------------------------------------------
-     Monochrome fractal noise, blended over the whole stage. It is what makes
-     the flat gradients read as printed rather than rendered. */
-  .hero-grain {
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    mix-blend-mode: soft-light;
-    opacity: 0.55;
   }
 
   /* Soften the marquee's left/right edges: logos ease out into the surface

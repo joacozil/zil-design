@@ -128,18 +128,22 @@ export default function MobileMenu({
                   // Scroll through Lenis when it owns the scroll, else native —
                   // a native scroll races Lenis's rAF loop and stalls. See the
                   // note in smooth-scroll.ts.
+                  //
+                  // NO explicit offset, for the same reason as the desktop
+                  // handler in Layout.astro — read the comment there. Lenis
+                  // honours the target's `scroll-margin-top` (`.scroll-anchor`,
+                  // the single knob in global.css) on its own, so passing an
+                  // offset here can only fight it. This used to subtract the CSS
+                  // insets a second time, double-counting them and leaving every
+                  // section 232px down — the section heading landed near the
+                  // middle of a phone viewport instead of at the top.
                   const lenis = window.lenis;
                   if (lenis) {
-                    const spt =
-                      parseFloat(
-                        getComputedStyle(document.documentElement)
-                          .scrollPaddingTop,
-                      ) || 0;
-                    const smt =
-                      parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
-                    lenis.scrollTo(target, { offset: -(spt + smt) });
+                    lenis.scrollTo(target);
                   } else {
-                    target.scrollIntoView({ behavior: "smooth" });
+                    // No Lenis (reduced motion): native scroll honours the CSS
+                    // offsets on its own, and must not animate.
+                    target.scrollIntoView({ behavior: "auto", block: "start" });
                   }
                 }, linksFadeOut + overlayFade);
               }}
