@@ -80,6 +80,8 @@ const prefix = isHome ? "" : `${base}/`;
         SERVICES.map((service) => (
           <a
             href={serviceHref(service.slug)}
+            data-track="cta_click"
+            data-track-location="footer-servicios"
             class="text-p-sm text-text-inverse/70 transition-colors duration-200 hover:text-text-inverse"
           >
             {service.navLabel}

@@ -92,7 +92,14 @@ const { eyebrow, title, lede, body, ctaLabel, ctaHref } = Astro.props;
     }
 
     <div class="mt-10 self-start" data-reveal>
-      <Button href={ctaHref} variant="pill">{ctaLabel}</Button>
+      <Button
+        href={ctaHref}
+        variant="pill"
+        data-track="cta_click"
+        data-track-location="service-hero"
+      >
+        {ctaLabel}
+      </Button>
     </div>
   </div>
 </section>

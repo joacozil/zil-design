@@ -19,6 +19,13 @@ interface Props {
     "pill" | "pill-dark" | "pill-sm" | "outline" | "primary" | "secondary";
   class?: string;
   arrowDirection?: "right" | "up";
+  /**
+   * Cualquier otro atributo pasa tal cual al <a> o al <button>. Es la vía por la
+   * que un botón declara su medición (`data-track`, `data-track-location`) sin
+   * que este componente tenga que conocer los nombres de los eventos. Mismo
+   * criterio que Badge.astro usa para `data-reveal`.
+   */
+  [key: string]: unknown;
 }
 
 const {
@@ -27,6 +34,7 @@ const {
   variant = "primary",
   class: className = "",
   arrowDirection = "right",
+  ...rest
 } = Astro.props;
 
 const hasPillArrow = variant === "pill" || variant === "pill-dark";
@@ -75,7 +83,7 @@ const cls = [base, variantClasses[variant], className]
   .join(" ");
 ---
 
-<Tag class={cls} {...href ? { href } : { type }}>
+<Tag class={cls} {...rest} {...href ? { href } : { type }}>
   {
     hasPillArrow ? (
       <>

@@ -152,6 +152,8 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
       <Button
         href="#cta"
         variant="pill"
+        data-track="cta_click"
+        data-track-location="home-hero"
         class="max-tablet:py-3! max-tablet:pr-7! max-tablet:pl-7! max-tablet:text-p!"
       >
         Hablemos de tu marca
@@ -225,10 +227,9 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({ src: img.src, alt, h }));
          minmax lets the band grow rather than clip if the headline ever gets
          taller than the zone. The bare 1fr row is the open stage the diagonal
          crosses; desc + cta anchor bottom-right, the logos close the foot. */
-      grid-template-rows: minmax(
-          min-content,
-          calc(43svh - 6rem)
-        ) 1fr auto auto auto;
+      grid-template-rows:
+        minmax(min-content, calc(43svh - 6rem))
+        1fr auto auto auto;
       grid-template-areas:
         "title title"
         ". ."

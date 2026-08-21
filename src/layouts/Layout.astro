@@ -327,6 +327,15 @@ import boldWoff2 from "../assets/fonts/CircularStd-Bold.woff2?url";
     </script>
 
     {
+      /* Clicks de CTA y enlaces salientes. Delegado en document, así un botón
+        nuevo queda medido sin que nadie se acuerde de taggearlo. Los nombres de
+        evento son los del sitio principal, para que los informes se sumen. */
+    }
+    <script>
+      import "../scripts/click-tracking";
+    </script>
+
+    {
       /* Firefox half of the no-drag-ghost rule. `-webkit-user-drag: none` in
         global.css handles Chrome and Safari but does not exist in Firefox, so the
         gesture is cancelled here instead. Delegated from the document, so it also
