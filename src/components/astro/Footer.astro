@@ -1,11 +1,6 @@
 ---
 import { NAV_LINKS } from "../../config/nav";
-import {
-  SERVICES,
-  serviceHref,
-  BUDGET_SLUG,
-  BUDGET_LABEL,
-} from "../../data/services";
+import { SERVICES, serviceHref } from "../../data/services";
 import Button from "./Button.astro";
 // The monochrome cut of the wordmark, inlined as a component so its fill comes
 // from `currentColor` and the colour is set by the token class below. Same
@@ -91,12 +86,6 @@ const prefix = isHome ? "" : `${base}/`;
           </a>
         ))
       }
-      <a
-        href={serviceHref(BUDGET_SLUG)}
-        class="text-p-sm text-text-inverse/70 transition-colors duration-200 hover:text-text-inverse"
-      >
-        {BUDGET_LABEL}
-      </a>
     </nav>
 
     {/* Bottom row: legal + scroll-to-top */}

@@ -26,7 +26,7 @@ import ServiceHero from "../components/astro/service/ServiceHero.astro";
 import CTA from "../sections/CTA.astro";
 import FAQ from "../sections/FAQ.astro";
 import Clients from "../sections/Clients.astro";
-import { serviceHref, BUDGET_SLUG } from "../data/services";
+import { serviceHref } from "../data/services";
 import type { FaqItem } from "../data/services";
 
 interface Props {
@@ -65,12 +65,15 @@ const {
 const HOME_URL = new URL(import.meta.env.BASE_URL, Astro.site).href;
 const PAGE_URL = new URL(serviceHref(slug), Astro.site).href;
 
-// El presupuesto es el destino del CTA de todas las páginas de servicio salvo
-// la suya, donde mandar al lector a la página en la que ya está no dice nada:
-// ahí el botón baja al formulario del final.
-const isBudget = slug === BUDGET_SLUG;
-const ctaHref = isBudget ? "#hablemos" : serviceHref(BUDGET_SLUG);
-const ctaLabel = isBudget ? "Contanos tu proyecto" : "Ver precios";
+// El botón del encabezado baja al formulario de la MISMA página.
+//
+// Antes mandaba a /presupuesto/, que publicaba los pisos de cada servicio.
+// Esa página se dio de baja: los valores quedaban a la vista del equipo, que
+// conoce sus propios honorarios, y eso es información interna. Sin una página
+// de precios, mandar al lector fuera de la página que vino a leer sólo agrega
+// un paso antes del formulario.
+const ctaHref = "#hablemos";
+const ctaLabel = "Contanos tu proyecto";
 ---
 
 <Layout title={title} description={description}>

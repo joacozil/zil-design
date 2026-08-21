@@ -1,14 +1,16 @@
 ---
 /**
- * Identidad de marca — la página más fuerte del mapa de keywords, por lejos.
+ * Identidad de marca — el servicio, no el entregable.
  *
- * 31 de sus 33 keywords están en competencia ≤45, 7.180 búsquedas/mes en total.
- * Ninguna otra se le acerca en esa proporción. El grueso es "manual de marca"
- * (2.400/mes, competencia 30), que tiene DOS públicos: el que busca una
- * plantilla y la empresa que está averiguando quién se lo hace. La página
- * responde a los dos y el segundo es el cliente; por eso la sección más larga es
- * qué trae un manual, respondida en serio. Contestar bien esa pregunta es a la
- * vez lo que gana la búsqueda y lo que le muestra al que contrata qué compra.
+ * Apunta a "identidad de marca" (480/mes, competencia 33) y "identidad visual"
+ * (480, competencia 23), ~1.190/mes ganables entre las dos y su cola.
+ *
+ * El "manual de marca" SALIÓ de acá y tiene página propia. Es la keyword más
+ * ganable del mapa entero (2.400/mes en competencia 30) y estaba de sección
+ * adentro de esta página, peleando por atención con el servicio. Son búsquedas
+ * distintas: una la escribe quien está evaluando contratar un rediseño, la otra
+ * quien quiere saber qué es y qué trae el documento. Una sola página no puede
+ * hablarle bien a las dos, y la que perdía era la de más volumen.
  */
 import ServiceLayout from "../layouts/ServiceLayout.astro";
 import Prose from "../components/astro/service/Prose.astro";
@@ -17,49 +19,6 @@ import ServiceStatement from "../components/astro/service/ServiceStatement.astro
 import { serviceHref } from "../data/services";
 import { projectHref } from "../data/projects";
 import type { FaqItem } from "../data/services";
-
-const manual = [
-  {
-    name: "Estrategia y posicionamiento",
-    detail:
-      "Qué promete la marca, a quién y contra quién. Es la sección que después justifica cada decisión visual, y sin ella el resto del manual es una colección de gustos.",
-  },
-  {
-    name: "Marca gráfica y sus variantes",
-    detail:
-      "El logotipo con sus versiones horizontal, vertical y reducida, el isotipo suelto, y las reglas de área de resguardo y tamaño mínimo.",
-  },
-  {
-    name: "Usos incorrectos",
-    detail:
-      "Qué no se puede hacer con la marca, ilustrado. Es la página que más se consulta cuando el equipo crece y la identidad empieza a aplicarla gente que no estuvo en el proyecto.",
-  },
-  {
-    name: "Sistema cromático",
-    detail:
-      "Paleta principal y secundaria con sus valores en Pantone, CMYK, RGB y HEX, y las combinaciones válidas entre colores de fondo y de texto.",
-  },
-  {
-    name: "Sistema tipográfico",
-    detail:
-      "Las familias, sus pesos y la jerarquía entre título, subtítulo y texto, con la alternativa de sistema para cuando la tipografía licenciada no está disponible.",
-  },
-  {
-    name: "Recursos gráficos",
-    detail:
-      "Texturas, iconografía, tratamiento de imagen y elementos de composición: lo que hace que una pieza se reconozca como tuya incluso sin el logo a la vista.",
-  },
-  {
-    name: "Aplicaciones",
-    detail:
-      "La identidad puesta a trabajar en papelería, señalética, packaging, redes y entorno digital, que es donde se ve si el sistema aguanta.",
-  },
-  {
-    name: "Archivos originales",
-    detail:
-      "Los vectores editables y los formatos exportados para impresión y pantalla, ordenados para que cualquiera del equipo los use sin preguntar cuál va.",
-  },
-];
 
 const proceso = [
   {
@@ -135,7 +94,7 @@ const faqs: FaqItem[] = [
   <Prose title="Identidad visual e identidad de marca no son lo mismo">
     <p>
       La <strong>identidad visual</strong> es la parte que se ve: la marca gráfica,
-      el color, la tipografía, el tratamiento de imagen. La
+      el color, la tipografía, el tratamiento de imagen. La{" "}
       <strong>identidad de marca</strong> la contiene y le agrega lo que decide cómo
       se ve, que es el posicionamiento, la promesa y el tono.
     </p>
@@ -153,15 +112,9 @@ const faqs: FaqItem[] = [
     </p>
   </Prose>
 
-  <Deliverables
-    title="Qué incluye un manual de marca"
-    intro="El manual es el entregable que hace que la identidad sobreviva al equipo que la encargó. Estas son sus secciones, en el orden en que se leen."
-    items={manual}
-  />
-
   <ServiceStatement
-    lead="Una marca sin manual no es una marca, son"
-    highlight="cinco marcas."
+    lead="Sin estrategia atrás, elegir una identidad es una discusión de"
+    highlight="gustos."
   />
 
   <Deliverables
@@ -182,8 +135,9 @@ const faqs: FaqItem[] = [
     <p>
       Si lo que necesitás es sólo la marca gráfica, la página de{" "}
       <a href={serviceHref("diseno-de-logo")}>diseño de logo</a> explica ese alcance
-      más acotado. Y si querés el número antes de pedirlo, los pisos de cada servicio
-      están en <a href={serviceHref("presupuesto")}>precios</a>.
+      más acotado. Y si lo que estás averiguando es qué trae el documento que cierra
+      el proyecto, está todo en{" "}
+      <a href={serviceHref("manual-de-marca")}>manual de marca</a>.
     </p>
   </Prose>
 </ServiceLayout>

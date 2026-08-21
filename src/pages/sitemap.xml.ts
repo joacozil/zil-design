@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { SERVICES, BUDGET_SLUG } from "../data/services";
+import { SERVICES } from "../data/services";
 import { projects } from "../data/projects";
 
 /**
@@ -36,7 +36,6 @@ const projectPaths = projects
 const paths = [
   `${base}/`,
   ...SERVICES.map((s) => `${base}/${s.slug}/`),
-  `${base}/${BUDGET_SLUG}/`,
   ...projectPaths,
 ];
 

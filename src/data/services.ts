@@ -34,7 +34,6 @@ export interface FaqItem {
   answer: string;
 }
 
-/** El presupuesto no es un servicio, así que no entra en `serviceType`. */
 export interface ServiceEntry {
   /** Slug bajo /design/. */
   slug: string;
@@ -53,8 +52,22 @@ export const SERVICES: ServiceEntry[] = [
     slug: "identidad-de-marca",
     navLabel: "Identidad de marca",
     schemaType: "Diseño de identidad de marca",
+    primaryKeyword: "identidad de marca",
+    winnable: 1190,
+  },
+  {
+    // La keyword más ganable de todo el mapa, y hasta ahora era una SECCIÓN
+    // adentro de identidad de marca en vez de una página. "Manual de marca" son
+    // 2.400 búsquedas/mes en competencia 30, y su cola (brandguide, manual de
+    // identidad corporativa, manual de identidad visual) suma ~600 más, toda
+    // por debajo de 45. Una sola página no puede pelear a la vez "identidad de
+    // marca", que es un servicio, y "manual de marca", que es un entregable:
+    // son búsquedas distintas con intenciones distintas.
+    slug: "manual-de-marca",
+    navLabel: "Manual de marca",
+    schemaType: "Manual de marca",
     primaryKeyword: "manual de marca",
-    winnable: 7180,
+    winnable: 3000,
   },
   {
     slug: "diseno-de-logo",
@@ -85,18 +98,6 @@ export const SERVICES: ServiceEntry[] = [
     winnable: 710,
   },
 ];
-
-/**
- * La página de precios: mismo trato de URL, pero no es un servicio.
- *
- * La etiqueta dice "Precios" y no "Presupuesto" porque la página publica los
- * pisos de cada servicio. "Presupuesto" describe un trámite; "Precios" describe
- * lo que hay del otro lado del enlace, que es lo que decide si alguien lo
- * clickea. El slug se queda en /presupuesto/ a propósito: es la keyword
- * (presupuesto diseño gráfico, 210/mes) y cambiarlo tiraría la URL.
- */
-export const BUDGET_SLUG = "presupuesto";
-export const BUDGET_LABEL = "Precios";
 
 /**
  * La URL de una página de servicio. Construir SIEMPRE por acá y nunca escribir
