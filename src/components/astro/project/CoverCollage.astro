@@ -1,86 +1,145 @@
 ---
 /**
- * CoverCollage — the project's episode covers laid out as two flush rows, with a
- * brand card standing in for one of the tiles.
+ * CoverCollage — a project's covers and brand-mark panels laid out as flush rows.
  *
- * Rows keep a CONSTANT HEIGHT without anyone declaring one: each tile's
+ * Rows keep a CONSTANT HEIGHT without anyone declaring one: each item's
  * `flex-grow` is its own aspect ratio and its `flex-basis` is 0, so widths come
- * out proportional to the ratios and every tile in a row resolves to the same
- * height. Add a wider cover and the row re-proportions itself — no magic numbers,
- * no per-tile heights to keep in sync.
+ * out proportional to the ratios and every item in a row resolves to the same
+ * height. Swap a cover for a wider one and the row re-proportions itself — no
+ * magic numbers, no per-item heights to keep in sync. A card carries no image to
+ * measure, so it states its `ratio` and that number does double duty: it sets the
+ * card's own `aspect-ratio` AND its share of the row.
  *
- * The card recolours its two marks with `mask-image` rather than an image tag. The
- * source SVGs are filled in the brand violet, which is exactly the card's own
- * background — drawn normally they would be invisible against it. A mask throws
- * the artwork's colour away and keeps only its silhouette, which `background`
- * then paints in whatever the card needs, so one asset serves any field.
+ * Two kinds of item, discriminated by `kind`:
+ *
+ *   image — a photograph or cover, cropped to fill its share of the row.
+ *   card  — a flat colour field carrying two marks.
+ *
+ * A card renders its marks one of two ways, and `ink` is the switch:
+ *
+ *   ink SET   — the marks are MASKED and repainted in `ink`. Use this when the
+ *               artwork is filled in the card's own colour (the brand violet on a
+ *               violet field), where drawing it normally would make it vanish. A
+ *               mask throws the artwork's colour away and keeps its silhouette,
+ *               so one asset serves any field.
+ *   ink UNSET — the marks are drawn as-is. Required for TWO-TONE artwork (the
+ *               boxed logo cuts: a violet tile with a white counter, and its
+ *               inverse), which a mask would flatten into a single silhouette and
+ *               destroy.
  */
 import { Image } from "astro:assets";
 import type { ImageMetadata } from "astro";
 
-interface Tile {
+/**
+ * Position in the STACKED order, 1-based. Only read below the row breakpoint,
+ * where the rows collapse and every item becomes one block in a single column.
+ *
+ * It exists because the two orders answer different questions. The row order is
+ * spatial: which items sit side by side. The stack's is a sequence, and a pair
+ * that reads as a cover BESIDE its mark panel reads as two mark panels in a row
+ * once they are stacked. Set it on EVERY item or none — an unset item sorts to
+ * the front.
+ */
+interface Stackable {
+  stackOrder?: number;
+}
+interface ImageItem extends Stackable {
+  kind: "image";
   src: ImageMetadata;
   alt: string;
 }
-interface Props {
-  /** Top row: a square-ish cover, then a wide one. */
-  topLeft: Tile;
-  topRight: Tile;
-  /** Bottom row: the brand card, then a wide cover. */
-  bottomRight: Tile;
-  /** The two marks on the card — typically the filled cut and the outline cut. */
-  cardMarks: [ImageMetadata, ImageMetadata];
-  /** Card field colour. */
-  cardBg?: string;
-  /** Colour the marks are painted in (they're masked, so their own fill is discarded). */
-  cardInk?: string;
+interface CardItem extends Stackable {
+  kind: "card";
+  /** Field colour. */
+  bg: string;
+  /** The card's aspect ratio, which is also its share of the row — see above. */
+  ratio: number;
+  /** The two marks, in reading order. */
+  marks: [ImageMetadata, ImageMetadata];
+  /**
+   * Colour to repaint the marks in. Setting it switches the card to masking, so
+   * ONLY set it for single-colour artwork — see the header note.
+   */
+  ink?: string;
+  /**
+   * What the pair of marks communicates. The card is announced as one image with
+   * this label; the marks themselves are always hidden from the a11y tree, so
+   * assistive tech reads the panel once rather than twice.
+   */
+  label?: string;
 }
-const {
-  topLeft,
-  topRight,
-  bottomRight,
-  cardMarks,
-  cardBg = "#C000FF",
-  cardInk = "#FFFFFF",
-} = Astro.props;
+type Item = ImageItem | CardItem;
 
-const ratio = (i: ImageMetadata) => i.width / i.height;
-// The card fills the half of the bottom row the cover doesn't, so it simply
-// borrows that cover's proportion.
-const cardRatio = ratio(bottomRight.src);
+interface Props {
+  /** Each row is a pair of items, laid out left to right. */
+  rows: [Item, Item][];
+  /** Section landmark label. */
+  ariaLabel?: string;
+}
+const { rows, ariaLabel = "Portadas y aplicaciones de marca" } = Astro.props;
+
+const ratioOf = (item: Item) =>
+  item.kind === "card" ? item.ratio : item.src.width / item.src.height;
 ---
 
-<section class="py-section" aria-label="Portadas de episodios">
+<section class="py-section" aria-label={ariaLabel}>
   <div class="mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12">
     <div class="cv-rows">
-      <div class="cv-row">
-        <div class="cv-tile" style={`flex-grow:${ratio(topLeft.src)}`}>
-          <Image src={topLeft.src} alt={topLeft.alt} sizes="(min-width: 640px) 30vw, 90vw" class="cv-img" />
-        </div>
-        <div class="cv-tile" style={`flex-grow:${ratio(topRight.src)}`}>
-          <Image src={topRight.src} alt={topRight.alt} sizes="(min-width: 640px) 65vw, 90vw" class="cv-img" />
-        </div>
-      </div>
-
-      <div class="cv-row">
-        <div
-          class="cv-tile cv-card"
-          style={`flex-grow:${cardRatio};aspect-ratio:${cardRatio};background-color:${cardBg}`}
-        >
-          {
-            cardMarks.map((mark) => (
-              <span
-                class="cv-mark"
-                style={`--mark:url("${mark.src}");--mark-ratio:${mark.width / mark.height};background-color:${cardInk}`}
-                aria-hidden="true"
-              />
-            ))
-          }
-        </div>
-        <div class="cv-tile" style={`flex-grow:${ratio(bottomRight.src)}`}>
-          <Image src={bottomRight.src} alt={bottomRight.alt} sizes="(min-width: 640px) 48vw, 90vw" class="cv-img" />
-        </div>
-      </div>
+      {
+        rows.map((row) => (
+          <div class="cv-row">
+            {row.map((item) =>
+              item.kind === "image" ? (
+                <div
+                  class="cv-tile"
+                  style={`flex-grow:${ratioOf(item)}${item.stackOrder ? `;--order:${item.stackOrder}` : ""}`}
+                >
+                  <Image
+                    src={item.src}
+                    alt={item.alt}
+                    sizes="(min-width: 640px) 55vw, 90vw"
+                    class="cv-img"
+                  />
+                </div>
+              ) : (
+                <div
+                  class="cv-tile cv-card"
+                  style={`flex-grow:${item.ratio};aspect-ratio:${item.ratio};background-color:${item.bg}${item.stackOrder ? `;--order:${item.stackOrder}` : ""}`}
+                  role={item.label ? "img" : undefined}
+                  aria-label={item.label}
+                  aria-hidden={item.label ? undefined : "true"}
+                >
+                  {item.marks.map((mark) =>
+                    item.ink ? (
+                      /* Masked, not an image element: see the header note. `contain`
+                         keeps the silhouette whole, and the ratio comes from the
+                         source's own dimensions since a mask carries no intrinsic
+                         size. */
+                      <span
+                        class="cv-mark"
+                        style={`--mark:url("${mark.src}");--mark-ratio:${mark.width / mark.height};background-color:${item.ink}`}
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <img
+                        class="cv-mark cv-mark-img"
+                        src={mark.src}
+                        width={mark.width}
+                        height={mark.height}
+                        style={`--mark-ratio:${mark.width / mark.height}`}
+                        alt=""
+                        aria-hidden="true"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ),
+                  )}
+                </div>
+              ),
+            )}
+          </div>
+        ))
+      }
     </div>
   </div>
 </section>
@@ -92,12 +151,17 @@ const cardRatio = ratio(bottomRight.src);
     gap: clamp(0.5rem, 1vw, 0.75rem);
   }
 
-  /* Mobile: one tile per line — two covers side by side would be unreadable at
-     phone width, and these carry episode titles. */
+  /* Mobile: one item per line — two covers side by side would be unreadable at
+     phone width, and these carry episode titles.
+
+     The row DISSOLVES rather than turning into a column of its own: `display:
+     contents` drops the wrapper from the box tree so all four items become
+     direct children of `.cv-rows`, which is what lets `--order` interleave them
+     ACROSS rows. Nested columns could only ever reorder within a row. The gap is
+     unaffected — `.cv-rows` uses the same value the rows did, so the single
+     column keeps one uniform spacing. */
   .cv-row {
-    display: flex;
-    flex-direction: column;
-    gap: clamp(0.5rem, 1vw, 0.75rem);
+    display: contents;
   }
 
   .cv-tile {
@@ -105,6 +169,7 @@ const cardRatio = ratio(bottomRight.src);
        overrides the ratios below and the row stops being proportional. */
     min-width: 0;
     overflow: hidden;
+    order: var(--order, 0);
   }
   .cv-img {
     display: block;
@@ -117,14 +182,11 @@ const cardRatio = ratio(bottomRight.src);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12%;
+    gap: 10%;
   }
-  /* Masked, not an image element: see the header note. `contain` keeps the silhouette whole,
-     and the ratio comes from the source's own dimensions since a mask carries no
-     intrinsic size. */
   .cv-mark {
     display: block;
-    width: 21%;
+    width: 24%;
     aspect-ratio: var(--mark-ratio);
     mask-image: var(--mark);
     mask-size: contain;
@@ -135,15 +197,30 @@ const cardRatio = ratio(bottomRight.src);
     -webkit-mask-repeat: no-repeat;
     -webkit-mask-position: center;
   }
+  /* The unmasked variant is a real <img>, so it must not inherit the mask
+     properties above — they would clip it to nothing. Its intrinsic width/height
+     attributes are what a mask lacks, so the ratio is already carried by the box. */
+  .cv-mark-img {
+    height: auto;
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
 
   @media (width >= 640px) {
+    /* The row reappears as a box and lays its pair out side by side. */
     .cv-row {
+      display: flex;
       flex-direction: row;
+      gap: clamp(0.5rem, 1vw, 0.75rem);
     }
     /* flex-grow carries the aspect ratio (set inline) and basis is 0, so widths
        land proportional to the ratios and the row self-levels to one height. */
     .cv-tile {
       flex-basis: 0;
+      /* The stack sequence is a MOBILE answer; here the spatial order is the
+         markup's, so the property is dropped rather than left to reshuffle the
+         pairs. */
+      order: 0;
     }
   }
 </style>

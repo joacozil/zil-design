@@ -1,0 +1,82 @@
+---
+/**
+ * MockupAside — a mockup with a short aside of copy beside it. Shared by every
+ * project; content + art are passed in.
+ *
+ * The section's whole job is the pairing, so it owns no decoration of its own:
+ * the piece is the photograph and the copy is there to name what it shows. That
+ * is what separates it from `Merch` / `MaterialPop`, which each carry artwork
+ * specific to their subject (a connector, a glow) and cannot be reused for a
+ * plain pairing.
+ *
+ * Copy follows the same pattern as every other captioned section on a project
+ * page — a small uppercase label over a `max-w-md` paragraph in the muted ink —
+ * so a reader moving down the page meets one voice, not one per section.
+ *
+ * The columns are weighted toward the art (`1fr` of copy to `1.85fr` of mockup),
+ * because the paragraph is a caption and the mockup is the argument. Below
+ * tablet they stack, copy first: the label has to say what is coming before a
+ * phone-width crop of a mockup can.
+ *
+ * `reverse` mirrors the pair on tablet and up — for a run of these sections, so
+ * the page alternates instead of stacking every mockup down one edge. It is done
+ * with `order`, NOT by reordering the markup: the stacked layout must stay
+ * copy-first in both directions, and DOM order is what a screen reader follows.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  label: string;
+  body: string;
+  image: ImageMetadata;
+  imageAlt: string;
+  /** Section landmark label. */
+  ariaLabel?: string;
+  /** Full-bleed rule at the top of the section. */
+  topBorder?: boolean;
+  /** Put the mockup on the LEFT and the copy on the right, from tablet up. */
+  reverse?: boolean;
+}
+const {
+  label,
+  body,
+  image,
+  imageAlt,
+  ariaLabel,
+  topBorder = false,
+  reverse = false,
+} = Astro.props;
+
+const container = "mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12";
+---
+
+<section
+  class:list={["py-section", topBorder && "border-t border-border"]}
+  aria-label={ariaLabel ?? label}
+>
+  <div class={container}>
+    <div
+      class:list={[
+        "grid gap-10 tablet:items-center tablet:gap-16",
+        reverse
+          ? "tablet:grid-cols-[1.85fr_1fr]"
+          : "tablet:grid-cols-[1fr_1.85fr]",
+      ]}
+    >
+      <div class:list={[reverse && "tablet:order-2"]}>
+        <h3 class="text-p-sm font-bold tracking-wider text-text uppercase">
+          {label}
+        </h3>
+        <p class="mt-4 max-w-md text-p text-pretty text-muted">{body}</p>
+      </div>
+
+      <Image
+        src={image}
+        alt={imageAlt}
+        sizes="(min-width: 640px) 62vw, 90vw"
+        class:list={["h-auto w-full", reverse && "tablet:order-1"]}
+      />
+    </div>
+  </div>
+</section>

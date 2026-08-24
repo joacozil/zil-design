@@ -9,7 +9,8 @@ import ColorPalette from "../../components/astro/project/ColorPalette.astro";
 import LogoGrid from "../../components/astro/project/LogoGrid.astro";
 import TypeSpecimen from "../../components/astro/project/TypeSpecimen.astro";
 import CoverCollage from "../../components/astro/project/CoverCollage.astro";
-import StillsCollage from "../../components/astro/project/StillsCollage.astro";
+import Mosaic from "../../components/astro/project/Mosaic.astro";
+import MockupAside from "../../components/astro/project/MockupAside.astro";
 import ProjectEnd from "../../components/astro/project/ProjectEnd.astro";
 import BackToTop from "../../components/astro/project/BackToTop.astro";
 import heroImage from "../../assets/net-value/net-hero.avif";
@@ -18,12 +19,14 @@ import gridImage from "../../assets/net-value/net-grid.svg";
 import netFontImg from "../../assets/net-value/net-font.svg";
 import netLogo from "../../assets/net-value/net-logo.svg";
 import netLogoFilled from "../../assets/net-value/net-logo-filled.svg";
-import ahorrarImg from "../../assets/net-value/ahorrar.avif";
-import ahorrar2Img from "../../assets/net-value/ahorrar2.avif";
-import comoImg from "../../assets/net-value/como.avif";
-import mujerImg from "../../assets/net-value/mujer.avif";
-import hombreImg from "../../assets/net-value/hombre.avif";
-import socaloImg from "../../assets/net-value/socalo.avif";
+import netLogoWithBox from "../../assets/net-value/net-logo-with-box.svg";
+import netLogoWithBoxFilled from "../../assets/net-value/net-logo-with-box-filled.svg";
+import collage1 from "../../assets/net-value/collage-1.avif";
+import collage2 from "../../assets/net-value/collage-2.avif";
+import postsImg from "../../assets/net-value/posts.avif";
+import spotifyImg from "../../assets/net-value/spotify.avif";
+import thumbnailsImg from "../../assets/net-value/thumbnails.avif";
+import liveImg from "../../assets/net-value/live.avif";
 // Onest is Net Value's brand face. Self-hosted (Google Fonts' `latin` subset,
 // which covers Spanish in full) rather than loaded from fonts.gstatic.com, so the
 // page keeps its own asset graph and costs no third-party connection. ONE file:
@@ -47,15 +50,15 @@ const meta = [
 const brief = [
   {
     title: "Proyecto",
-    body: "Net Value es un podcast de negocios que entrevista a empresarios y emprendedores. En cada episodio, los invitados cuentan cómo construyeron sus empresas, qué decisiones marcaron el camino y qué aprendieron en el proceso, con consejos aplicables para quien está empezando o haciendo crecer su propio proyecto.",
+    body: "<strong>Net Value es un podcast de negocios que entrevista a empresarios y emprendedores.</strong> En cada episodio, los invitados cuentan cómo construyeron sus empresas, qué decisiones marcaron el camino y qué aprendieron en el proceso, con consejos aplicables para quien está empezando o haciendo crecer su propio proyecto.",
   },
   {
     title: "Desafío",
-    body: "El podcast nacía sin identidad y en una categoría saturada. El reto era construir una marca desde cero que transmitiera solidez y credibilidad sin caer en la solemnidad corporativa, y que funcionara en entornos digitales exigentes: portadas, miniaturas, clips verticales y redes.",
+    body: "El podcast nacía sin identidad y en una categoría saturada. El reto era <strong>construir una marca desde cero que transmitiera solidez y credibilidad sin caer en la solemnidad corporativa</strong>, y que funcionara en entornos digitales exigentes: portadas, miniaturas, clips verticales y redes.",
   },
   {
     title: "Propuesta",
-    body: "Desde Zil Design creamos la identidad completa de Net Value: logotipo, paleta cromática, sistema tipográfico y manual de marca. Diseñamos un sistema modular que resiste la reducción y se adapta a cada formato, dándole al podcast una imagen consistente y profesional desde su lanzamiento.",
+    body: "Desde Zil Design creamos la identidad completa de Net Value: logotipo, paleta cromática, sistema tipográfico y manual de marca. <strong>Diseñamos un sistema modular que resiste la reducción y se adapta a cada formato</strong>, dándole al podcast una imagen consistente y profesional desde su lanzamiento.",
   },
 ];
 
@@ -69,16 +72,20 @@ const concepts = [
 
 // Brand palette — single full-bleed swatches (no tint pairs). RGB is derived from
 // the hex in the component, so a label can never drift from its swatch. NOTE: the
-// source mock's RGB is wrong on three rows — Gris Net reads R75/G37/B10, Gris
-// Oscuro R23/G213/B255 and Blanco R225/G225/B225, none of which match their hex.
-// Hex is treated as source of truth, so the component renders the correct values.
+// source mock's RGB is still wrong on two rows — Gris Net reads R75/G37/B10 and
+// Blanco R225/G225/B225, neither of which matches its hex. Hex is treated as
+// source of truth, so the component renders the correct values.
 // `dark` marks the fields deep enough to carry white text.
 const palette = [
-  { name: "Negro", main: { hex: "#000000", dark: true }, weight: 2 },
-  { name: "Violeta Net", main: { hex: "#C000FF" }, weight: 1.6 },
-  { name: "Gris Net", main: { hex: "#8A8299", dark: true }, weight: 1.25 },
-  { name: "Gris Oscuro Net", main: { hex: "#26292C", dark: true }, weight: 1 },
-  { name: "Blanco", main: { hex: "#FFFFFF" }, weight: 1.05 },
+  { name: "Violeta Net", main: { hex: "#7510D3", dark: true }, weight: 1.9 },
+  {
+    name: "Violeta Oscuro Net",
+    main: { hex: "#5F03B4", dark: true },
+    weight: 1.85,
+  },
+  { name: "Negro", main: { hex: "#000000", dark: true }, weight: 1 },
+  { name: "Blanco", main: { hex: "#FFFFFF" }, weight: 0.85 },
+  { name: "Gris Net", main: { hex: "#8A9299", dark: true }, weight: 0.75 },
 ];
 ---
 
@@ -86,7 +93,7 @@ const palette = [
 
 <Layout
   title="Net Value — Zil Design"
-  description="Caso de estudio: identidad y comunicación para Net Value."
+  description="Caso de estudio: identidad de marca para Net Value — solidez sin solemnidad."
 >
   <Header />
   <main class="project-net-value">
@@ -99,15 +106,14 @@ const palette = [
     <ProjectBrief meta={meta} blocks={brief} />
     {
       /* `stroke` and `gridWidth` both point at the grid artwork on purpose: the
-        rings are drawn in the colour it strokes its rules in (#C000FF) and at the
+        rings are drawn in the colour it strokes its rules in (#7510D3) and at the
         weight derived from its intrinsic width, so the two sections render the
         literal same hairline. */
     }
     <ConceptCircles
       words={concepts}
       gridWidth={gridImage.width}
-      stroke="#C000FF"
-      ink="#ffffff"
+      stroke="#7510D3"
       fontFamily={'"Onest", sans-serif'}
     />
     <LogoGrid
@@ -140,52 +146,118 @@ const palette = [
       ]}
     />
     {
-      /* The card's marks are painted white by masking — the source SVGs are filled
-        in the same violet as the card, so drawn as images they'd vanish into it. */
+      /* Two rows, each pairing a cover with a mark panel on the opposite side, so
+        the isotipo is read against both of its extreme fields — black and violet.
+
+        The BLACK panel omits `ink`: the boxed cuts are two-tone (a violet tile
+        with a white counter, and its inverse), and masking would flatten both to
+        one silhouette. The VIOLET panel sets it, because the bare cuts are filled
+        in exactly the violet they sit on and would otherwise vanish.
+
+        The panel ratios are the composition's, not an asset's: 1.75 leaves the
+        square cover a third of the top row, and 1.7 splits the bottom row almost
+        evenly against the 16:9 cover. */
     }
     <CoverCollage
-      topLeft={{
-        src: ahorrarImg,
-        alt: "Portada del episodio 21: ahorrar en pesos o dólares",
-      }}
-      topRight={{
-        src: comoImg,
-        alt: "Portada de Señal de Mercado EP 15: cómo empezar a invertir",
-      }}
-      bottomRight={{
-        src: ahorrar2Img,
-        alt: "Portada del EP 21: ahorrar en pesos o dólares",
-      }}
-      cardMarks={[netLogoFilled, netLogo]}
+      ariaLabel="Portadas de episodios y aplicaciones del isotipo"
+      rows={[
+        [
+          {
+            kind: "image",
+            stackOrder: 1,
+            src: collage1,
+            alt: "Portada del episodio 21, «Vendimos y me arrepentí», con una invitada durante la grabación",
+          },
+          {
+            kind: "card",
+            stackOrder: 2,
+            bg: "#000000",
+            ratio: 1.75,
+            marks: [netLogoWithBoxFilled, netLogoWithBox],
+            label:
+              "El isotipo de Net Value encapsulado, en sus dos versiones: violeta con la marca en blanco y blanco con la marca en violeta",
+          },
+        ],
+        [
+          {
+            kind: "card",
+            stackOrder: 4,
+            bg: "#7510D3",
+            ratio: 1.7,
+            ink: "#FFFFFF",
+            marks: [netLogo, netLogoFilled],
+            label:
+              "El isotipo de Net Value en blanco sobre violeta, en sus versiones sólida y de contorno",
+          },
+          {
+            kind: "image",
+            stackOrder: 3,
+            src: collage2,
+            alt: "Miniatura de Señal de Mercado EP 15, «Empezamos con cero pesos», con los conductores en el set",
+          },
+        ],
+      ]}
     />
     {
-      /* `rule` draws the hairline separating this block from the covers above.
-        The two stills share an aspect ratio, so the top row lands as equal
-        halves; the proportional row would handle differing crops too. */
+      /* From here down the case study inverts to the black field — see the note
+        on `.net-dark` in the styles. The wrapper carries colour and NOTHING else:
+        no padding, no margin, so the section rhythm is still the sum of the two
+        halves its neighbours own. */
     }
-    <StillsCollage
-      rule
-      top={[
+    <div class="net-dark">
+    {
+      /* One piece, so the bento degenerates to a single cell — what earns Mosaic
+        here is `fit="natural"`: the mockup is a composed shot whose margin around
+        the phones IS the piece, and any crop would read as zoomed in. `inset`
+        puts it on the content edge rather than the mosaic's own full-bleed gap,
+        so it lines up with the collage above it. */
+    }
+    <Mosaic
+      topBorder
+      imageBorder={false}
+      fit="natural"
+      inset="var(--gutter)"
+      ariaLabel="El sistema aplicado a publicaciones de redes sociales"
+      rows={[
         {
-          src: mujerImg,
-          alt: "Los conductores de Net Value durante la grabación de un episodio",
-        },
-        {
-          src: hombreImg,
-          alt: "Los conductores de Net Value conversando en el set",
+          items: [
+            {
+              src: postsImg,
+              alt: "Tres publicaciones de Instagram de Net Value: «Pensar a largo plazo», «Escalar con poco» y «La trampa del crecimiento»",
+            },
+          ],
         },
       ]}
-      bottom={{
-        src: socaloImg,
-        alt: "Placa de zócalo en pantalla: Inversiones de alto riesgo",
-      }}
+    />
+    <MockupAside
+      label="El sistema en el reproductor"
+      body="La portada es lo único que se ve antes de darle play. Cada episodio se arma sobre la retícula del isotipo: el sistema absorbe títulos de cualquier largo y la marca se reconoce a tamaño de miniatura."
+      image={spotifyImg}
+      imageAlt="Tres pantallas de la aplicación mostrando episodios de Net Value en reproducción, con sus portadas en negro y violeta"
+      ariaLabel="El sistema aplicado a las portadas dentro del reproductor"
     />
     {
-      /* White arrow, not the page surface: this project's field is black, so the
-        default would draw a near-black arrow on the violet disc and hide the
-        focus ring against the page. */
+      /* `reverse` on the first of the pair, so the three mockup sections
+        alternate down the page instead of stacking every piece of art along the
+        same edge. */
     }
-    <BackToTop ink="#ffffff" />
+    <MockupAside
+      reverse
+      label="Miniaturas para YouTube"
+      body="Diseñamos un sistema de miniaturas consistente y memorable, fiel a la identidad de la marca. Cada episodio nuevo se arma sobre la misma plantilla, de forma tal que el canal crece sin perder unidad."
+      image={thumbnailsImg}
+      imageAlt="La página de un episodio de Net Value en YouTube, con la miniatura violeta y la lista de episodios sugeridos"
+      ariaLabel="Miniaturas de los episodios en YouTube"
+    />
+    <MockupAside
+      label="La marca dentro del video"
+      body="Cualquier frame del episodio tiene que poder salir solo. El isotipo queda fijo en una esquina y los títulos entran sobre placas con la tipografía del sistema, así que una captura, un clip o una recomendación arrastran la marca sin depender del canal que los muestre."
+      image={liveImg}
+      imageAlt="Un episodio de Net Value reproduciéndose, con la placa de título «Emprender en Argentina» y el isotipo fijo en la esquina"
+      ariaLabel="La gráfica de marca dentro del video"
+    />
+    </div>
+    <BackToTop />
   </main>
   <ProjectEnd current="net-value" />
   <Footer />
@@ -197,19 +269,44 @@ const palette = [
      Everything structural (type scale, spacing rhythm, breakpoints) stays on the
      global tokens.
 
-     Taken from the key art: a black field with the brand's magenta-violet
-     (#C000FF, sampled from net-logo.svg). A dark case-study body like Clojure's,
-     so the surface / text / muted / border aliases carry their dark-theme values.
-     PROVISIONAL past the hero — only the hero exists so far, so the body values
-     are a sensible default to retune once the later sections land. */
+     Straight from the brand palette below. The body is a WHITE field — the black
+     of the key art stays in the hero, so the photography and the palette bands
+     are the dark moments and the case study itself reads as paper. Violeta Net
+     (#7510D3) is then the one saturated voice on that paper: the concept rings,
+     the logo grid, the accent discs — and it draws the section rules too, so
+     every boundary on the page is stated in the brand's own colour rather than
+     in a neutral hairline. */
   .project-net-value {
-    --color-primary: #c000ff; /* brand magenta-violet */
-    --color-accent: #c000ff;
+    --color-primary: #7510d3; /* Violeta Net (brand palette) */
+    --color-accent: #7510d3;
 
-    --color-surface: #000000; /* black case-study field */
-    --color-text: #ffffff; /* light body text */
-    --color-muted: #a3a3a8; /* neutral grey — secondary copy */
-    --color-border: #c000ff; /* brand-violet hairline divider */
+    --color-surface: #ffffff; /* Blanco — white case-study field */
+    --color-text: #000000; /* Negro — body text */
+    --color-muted: #8a9299; /* Gris Net — secondary copy */
+    --color-border: #7510d3; /* Violeta Net — section rules carry the brand */
+
+    background-color: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  /* The applications half of the case study, inverted onto the black field.
+     The brand lives on both grounds and the page argues that by switching under
+     the reader: the identity is built on paper above, and applied on screen
+     below, where every piece it is applied TO is a dark interface.
+
+     It REDECLARES the same aliases the parent set, so the sections inside need
+     no knowledge of it — `text-text`, `text-muted` and `border-border` all keep
+     resolving through the cascade and simply come out inverted. Only the two
+     values that actually flip are listed; `--color-primary` / `--color-accent`
+     and `--color-muted` carry over from the parent unchanged, which is the
+     point: Violeta Net and Gris Net are legible on either ground.
+
+     The four mockups it holds are cut out on TRANSPARENCY, which is what makes
+     this safe — on a white-backed shot the same swap would frame each piece in a
+     bright rectangle. Check the alpha before adding a fifth. */
+  .net-dark {
+    --color-surface: #000000; /* Negro — the applications field */
+    --color-text: #ffffff; /* Blanco — body text on black */
 
     background-color: var(--color-surface);
     color: var(--color-text);
