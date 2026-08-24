@@ -1,0 +1,244 @@
+---
+/**
+ * Manual de marca — la keyword más ganable de todo el mapa.
+ *
+ * 2.400 búsquedas/mes en Argentina con competencia 30, y su cola (brandguide
+ * 260, manual de identidad corporativa 90, manual de identidad visual 70,
+ * manual de marca pdf 110) suma unas 600 más, TODA por debajo de 45. Ninguna
+ * otra página de este sitio tiene un término principal de ese tamaño a esa
+ * competencia.
+ *
+ * Estaba de sección adentro de identidad de marca, peleando por atención con el
+ * servicio. Son búsquedas distintas: "identidad de marca" la escribe quien
+ * evalúa contratar, "manual de marca" quien quiere saber qué es y qué trae el
+ * documento. Una sola página no puede hablarle bien a las dos.
+ *
+ * ── CONVIVE CON UN POST DEL BLOG, NO COMPITE ────────────────────────────────
+ * `/es/blog/manual-de-marca` (publicado 2026-08-05) tiene la MISMA focus
+ * keyword. Dos páginas del mismo dominio peleando una query es una división de
+ * señales, y Google elige una sola.
+ *
+ * No se resuelve borrando ninguna de las dos: se resuelve separando la
+ * intención. El post es evaluativo —"cómo saber si el que te entregaron
+ * alcanza"— y se queda con la búsqueda informativa. Esta página es el servicio:
+ * el <title> pregunta y responde qué es y qué secciones tiene, y cierra en un
+ * formulario. Se enlazan entre sí para que quede explícito cuál es cuál.
+ *
+ * Si igual se dividen las señales, se va a ver: `/api/agent/seo/cannibalization`
+ * detecta clusters donde dos páginas nuestras compiten por la misma query, y
+ * `BlogPost.redirectTo` es el mecanismo que ya existe para consolidar. Hoy no lo
+ * detecta porque ninguna de las dos tiene impresiones todavía.
+ *
+ * ── LOS DOS PÚBLICOS, Y CUÁL ES EL CLIENTE ──────────────────────────────────
+ * Esta búsqueda tiene dos: el que quiere una plantilla o un ejemplo (mirá
+ * "manual de marca pdf", "manual de marca ejemplo pdf") y la empresa que está
+ * averiguando quién se lo hace. El primero es mayoría y no contrata nunca.
+ *
+ * Eso NO es motivo para escribirle a la minoría. La página se gana la posición
+ * respondiendo bien la pregunta del que investiga —qué secciones tiene, en qué
+ * orden, para qué sirve cada una— y esa misma respuesta es la que le muestra al
+ * que sí contrata exactamente qué está comprando. Es la única sección del sitio
+ * donde ser exhaustivo es a la vez la jugada de SEO y la de ventas.
+ */
+import ServiceLayout from "../layouts/ServiceLayout.astro";
+import Prose from "../components/astro/service/Prose.astro";
+import Deliverables from "../components/astro/service/Deliverables.astro";
+import ServiceStatement from "../components/astro/service/ServiceStatement.astro";
+import { serviceHref } from "../data/services";
+import { projectHref } from "../data/projects";
+import type { FaqItem } from "../data/services";
+
+const secciones = [
+  {
+    name: "Estrategia y posicionamiento",
+    detail:
+      "Qué promete la marca, a quién y contra quién. Es la sección que después justifica cada decisión visual, y sin ella el resto del manual es una colección de gustos.",
+  },
+  {
+    name: "Marca gráfica y sus variantes",
+    detail:
+      "El logotipo con sus versiones horizontal, vertical y reducida, el isotipo suelto, y las reglas de área de resguardo y tamaño mínimo.",
+  },
+  {
+    name: "Usos incorrectos",
+    detail:
+      "Qué no se puede hacer con la marca, ilustrado. Es la página que más se consulta cuando el equipo crece y la identidad empieza a aplicarla gente que no estuvo en el proyecto.",
+  },
+  {
+    name: "Sistema cromático",
+    detail:
+      "Paleta principal y secundaria con sus valores en Pantone, CMYK, RGB y HEX, y las combinaciones válidas entre colores de fondo y de texto.",
+  },
+  {
+    name: "Sistema tipográfico",
+    detail:
+      "Las familias, sus pesos y la jerarquía entre título, subtítulo y texto, con la alternativa de sistema para cuando la tipografía licenciada no está disponible.",
+  },
+  {
+    name: "Recursos gráficos",
+    detail:
+      "Texturas, iconografía, tratamiento de imagen y elementos de composición: lo que hace que una pieza se reconozca como tuya incluso sin el logo a la vista.",
+  },
+  {
+    name: "Aplicaciones",
+    detail:
+      "La identidad puesta a trabajar en papelería, señalética, packaging, redes y entorno digital, que es donde se ve si el sistema aguanta.",
+  },
+  {
+    name: "Archivos originales",
+    detail:
+      "Los vectores editables y los formatos exportados para impresión y pantalla, ordenados para que cualquiera del equipo los use sin preguntar cuál va.",
+  },
+];
+
+const cuando = [
+  {
+    name: "Entró gente nueva",
+    detail:
+      "El equipo creció y ahora la marca la aplica gente que no estuvo en el proyecto. Sin un documento que consultar, cada uno resuelve por su cuenta.",
+  },
+  {
+    name: "Trabajás con proveedores",
+    detail:
+      "Imprentas, productoras, agencias de medios y freelances necesitan reglas y archivos, no un mail con un PNG adjunto y buena voluntad.",
+  },
+  {
+    name: "Cada pieza parece de otra empresa",
+    detail:
+      "El síntoma clásico de una identidad sin sistema: existe el logo, no existe lo que lo rodea, y la coherencia depende de quién hizo la pieza ese día.",
+  },
+  {
+    name: "Vas a licitar o presentarte a una marca grande",
+    detail:
+      "Los procesos de compra corporativos piden lineamientos por escrito. No tenerlos es una observación en el pliego antes que un problema de diseño.",
+  },
+];
+
+const faqs: FaqItem[] = [
+  {
+    question: "¿Qué es un manual de marca?",
+    answer:
+      "Es el documento que define cómo se usa la identidad de una empresa: la marca gráfica y sus variantes, los usos incorrectos, el sistema de color y tipografía, los recursos gráficos, las aplicaciones y los archivos originales. Su función es que la marca se vea igual la aplique quien la aplique, esté o no el equipo original.",
+  },
+  {
+    question: "¿Qué secciones tiene un manual de marca?",
+    answer:
+      "En orden de lectura: estrategia y posicionamiento, marca gráfica y variantes, usos incorrectos, sistema cromático, sistema tipográfico, recursos gráficos, aplicaciones y archivos originales. La extensión varía con el tamaño de la empresa, pero esas ocho son las que hacen que el documento sirva para trabajar y no sólo para presentar.",
+  },
+  {
+    question:
+      "¿Cuál es la diferencia entre manual de marca y manual de identidad corporativa?",
+    answer:
+      "En la práctica se usan como sinónimos. Cuando se distinguen, manual de identidad corporativa suele referirse al alcance más institucional, centrado en papelería, señalética y comunicación interna de una organización grande, mientras que manual de marca abarca también los canales comerciales y digitales. El contenido se superpone casi por completo.",
+  },
+  {
+    question: "¿Sirve descargar una plantilla de manual de marca?",
+    answer:
+      "Para entender la estructura, sí, y esta página la explica sección por sección sin necesidad de descargar nada. Para usarlo en tu empresa, no: un manual no es un formato a completar, es el resultado de haber decidido antes qué promete la marca y cómo se resuelve visualmente. Una plantilla te da el índice y ninguna de las decisiones.",
+  },
+  {
+    question: "¿Puedo pedir sólo el manual si ya tengo la marca hecha?",
+    answer:
+      "Sí, y es un encargo frecuente en empresas que crecieron con una identidad que nunca se documentó. Revisamos lo que existe, resolvemos las inconsistencias que aparecen al ordenarlo, que siempre aparecen, y documentamos el sistema resultante.",
+  },
+  {
+    question: "¿En qué formato se entrega?",
+    answer:
+      "Un PDF navegable para consulta diaria y los archivos originales de la marca en carpetas ordenadas por tipo de uso. Cuando el equipo es grande y la consulta es constante, también lo dejamos como página web interna, que es más fácil de mantener actualizada que un PDF circulando por mail en tres versiones distintas.",
+  },
+  {
+    question: "¿Cuánto tarda?",
+    answer:
+      "Documentar una identidad que ya existe lleva entre tres y cinco semanas. Si el manual es el cierre de un proyecto de identidad completo, va incluido en ese plazo y no se cuenta aparte.",
+  },
+];
+---
+
+<ServiceLayout
+  title="Qué es un manual de marca y qué secciones tiene | Zil Design"
+  description="Qué es un manual de marca, qué secciones lo componen y para qué sirve cada una. Cómo se hace, en qué formato se entrega y cuándo conviene tener uno."
+  slug="manual-de-marca"
+  breadcrumb="Manual de marca"
+  eyebrow="Manual de marca"
+  h1="Qué es un manual de marca"
+  lede="Es el documento que hace que tu identidad se vea igual la aplique quien la aplique. Acá está qué lleva adentro, sección por sección."
+  heroBody="Escribimos manuales de marca completos, tanto como cierre de un proyecto de identidad como para documentar una marca que ya existe."
+  faqs={faqs}
+  faqTitle="Preguntas sobre el manual de marca"
+  ctaTitle="Hablemos de tu manual"
+  ctaText="Contanos si la marca ya existe o si hay que construirla, y te decimos qué haría falta documentar."
+>
+  <Prose title="Para qué sirve, en concreto">
+    <p>
+      Una identidad sin manual dura lo que dura el equipo que la hizo. Mientras
+      son tres personas y estuvieron todas en el proyecto, la coherencia se
+      sostiene de memoria. En cuanto entra alguien nuevo, o hay que mandarle los
+      archivos a una imprenta, esa memoria deja de existir y cada pieza pasa a
+      ser una decisión improvisada.
+    </p>
+    <p>
+      El manual convierte esas decisiones en reglas consultables. No es un
+      documento de presentación: es material de trabajo, y se nota en que la
+      sección más visitada nunca es el logo, es <strong>usos incorrectos</strong
+      >.
+    </p>
+  </Prose>
+
+  <Deliverables
+    title="Qué secciones tiene un manual de marca"
+    intro="Las ocho que hacen que el documento sirva para trabajar y no sólo para presentar, en el orden en que se leen."
+    items={secciones}
+  />
+
+  <ServiceStatement
+    lead="La sección más consultada de un manual nunca es el logo, es"
+    highlight="usos incorrectos."
+  />
+
+  <Deliverables
+    title="Cuándo conviene tener uno"
+    intro="Cuatro situaciones donde la falta del documento deja de ser un detalle y empieza a costar plata."
+    items={cuando}
+    numbered={false}
+    offset={2}
+  />
+
+  <Prose title="Sobre las plantillas de manual de marca">
+    <p>
+      Es lo primero que aparece al buscar, así que conviene decirlo derecho: una
+      plantilla te da el índice y ninguna de las decisiones. El índice es la
+      parte fácil, y está entero más arriba en esta página, gratis y sin
+      descargar nada.
+    </p>
+    <p>
+      Lo que un manual real tiene y una plantilla no puede tener es el criterio:
+      por qué esta paleta y no otra, qué combinaciones son válidas sobre fondo
+      oscuro, hasta dónde puede reducirse la marca antes de dejar de leerse. Eso
+      sale de haber resuelto antes la{" "}
+      <a href={serviceHref("identidad-de-marca")}>identidad de marca</a>, y es
+      el trabajo que el documento después registra.
+    </p>
+  </Prose>
+
+  <Prose title="Manuales que hicimos">
+    <p>
+      Si lo que tenés es un manual ya entregado y querés saber si está completo,
+      escribimos una guía aparte para eso:{" "}
+      <a href="/es/blog/manual-de-marca"
+        >cómo evaluar el manual de marca que te entregaron</a
+      >. Esta página es sobre hacerlo.
+    </p>
+    <p>
+      Podés ver el sistema completo, del diagnóstico a las aplicaciones, en los
+      casos de <a href={projectHref("clojure")}>Clojure</a>,{" "}
+      <a href={projectHref("net-value")}>Net Value</a> y{" "}
+      <a href={projectHref("gelato")}>Gelato</a>.
+    </p>
+    <p>
+      Si todavía no tenés la marca resuelta, el punto de partida es{" "}
+      <a href={serviceHref("identidad-de-marca")}>identidad de marca</a>. Si
+      sólo necesitás la marca gráfica y sus archivos, está{" "}
+      <a href={serviceHref("diseno-de-logo")}>diseño de logo</a>.
+    </p>
+  </Prose>
+</ServiceLayout>

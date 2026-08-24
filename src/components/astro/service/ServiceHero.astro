@@ -1,0 +1,165 @@
+---
+/**
+ * El encabezado de una página de servicio.
+ *
+ * ── POR QUÉ NO ES EL HERO DE LA HOME ────────────────────────────────────────
+ * Aquel llena `100svh` y arma la Z completa con sus dos brazos: es la portada
+ * del sitio y su trabajo es detener a alguien que todavía no sabe qué somos.
+ * Acá el visitante llegó de una búsqueda concreta ("manual de marca", "diseño
+ * editorial") y necesita confirmar en dos segundos que la página trata de eso.
+ * Una portada a pantalla completa lo obliga a scrollear para averiguarlo.
+ *
+ * ── PERO SÍ ES EL MISMO SITIO ───────────────────────────────────────────────
+ * Campo violeta saturado, un brazo diagonal con el degradado a lima, grano
+ * encima y tipografía blanca grande: el mismo vocabulario, en una composición
+ * más corta. UN brazo y no dos, deliberadamente — la Z entera es la firma de la
+ * portada y repetirla en seis páginas la gasta. Este es un pariente, no una
+ * copia.
+ *
+ * ── ALTURA ──────────────────────────────────────────────────────────────────
+ * `min-h-[70svh]`, no `100svh`. Suficiente para que la composición gráfica se
+ * lea entera y para que el primer bloque de contenido asome por abajo, que es
+ * lo que le dice al lector que la respuesta que vino a buscar está más abajo.
+ *
+ * `pt-32` es despeje del header flotante (~75px + aire), medido igual que en
+ * Hero.astro y ProjectHero.astro. Es la excepción a la simetría del ritmo que
+ * la guía permite explícitamente para las secciones que bordean el header.
+ */
+import Badge from "../Badge.astro";
+import Button from "../Button.astro";
+
+interface Props {
+  eyebrow: string;
+  /** El H1. Tiene que contener la keyword principal, no una frase de marca. */
+  title: string;
+  lede: string;
+  /** Segundo párrafo, opcional: el matiz que el primero no puede cargar. */
+  body?: string;
+  ctaLabel: string;
+  ctaHref: string;
+}
+
+const { eyebrow, title, lede, body, ctaLabel, ctaHref } = Astro.props;
+---
+
+<section
+  class="relative flex min-h-[70svh] w-full flex-col overflow-hidden bg-primary"
+>
+  {/* Capa gráfica. Decorativa: todo lo legible va por encima. */}
+  <div aria-hidden="true" class="absolute inset-0" data-hero-image>
+    <div class="svc-shape"></div>
+  </div>
+  {
+    /* El grano va FUERA de la capa que se asienta, para que la textura quede
+      fija a la pantalla —como grano de película— mientras la geometría se
+      mueve debajo. Mismo criterio que en Hero.astro. */
+  }
+  <div aria-hidden="true" class="svc-grain"></div>
+
+  <div
+    class="relative z-10 mx-auto flex w-full max-w-8xl flex-1 flex-col justify-center px-6 pt-32 pb-56 tablet:px-8 tablet:pt-36 tablet:pb-section desktop:px-12 desktop:pt-40"
+    data-reveal-group
+  >
+    {
+      /* El badge sobre violeta: la variante clara del componente sigue
+        legible porque su fondo es primary-light, no transparente. */
+    }
+    <Badge class="mb-6 self-start" data-reveal>{eyebrow}</Badge>
+
+    <h1
+      class="max-w-[16ch] text-h1 tracking-[-0.03em] text-balance text-text-inverse"
+      data-reveal
+    >
+      {title}
+    </h1>
+
+    <p
+      class="mt-6 max-w-[46ch] text-p-lg text-pretty text-text-inverse"
+      data-reveal
+    >
+      {lede}
+    </p>
+
+    {
+      body && (
+        <p
+          class="mt-4 max-w-[52ch] text-p text-pretty text-text-inverse/75"
+          data-reveal
+        >
+          {body}
+        </p>
+      )
+    }
+
+    <div class="mt-10 self-start" data-reveal>
+      <Button
+        href={ctaHref}
+        variant="pill"
+        data-track="cta_click"
+        data-track-location="service-hero"
+      >
+        {ctaLabel}
+      </Button>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* UN brazo, no la Z entera: la Z es la firma de la portada y repetirla en
+     seis páginas la gasta.
+
+     ── MÓVIL: FRANJA AL PIE, NO BRAZO LATERAL ────────────────────────────────
+     La primera versión usaba el mismo brazo diagonal en las tres medidas, con
+     el recorte en porcentajes de la sección. En móvil eso lo cruzaba por el
+     medio: el texto ocupa casi todo el ancho —no hay columna libre a la
+     derecha— así que la arista pasaba por encima del segundo párrafo y partía
+     la pastilla del CTA en dos, con la mitad del texto blanco sobre lima.
+
+     Acá el brazo se convierte en una franja anclada al pie, de ALTURA FIJA y
+     no porcentual. Fija es lo que lo hace confiable: la altura de estas
+     secciones la decide el copy, que cambia por página, y un porcentaje se
+     mueve con ella. 220px de franja contra `pb-56` (224px) de la caja de
+     contenido: la diagonal siempre queda por debajo del último elemento.
+     Cambiar uno de los dos números pide cambiar el otro.
+
+     ── TABLET Y DESKTOP: EL BRAZO ────────────────────────────────────────────
+     Desde 640px el texto tiene medida máxima y deja libre el margen derecho,
+     así que ahí sí entra el brazo diagonal sin tocar nada legible. */
+  .svc-shape {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 220px;
+    background: linear-gradient(
+      195deg,
+      color-mix(in srgb, var(--color-primary) 65%, var(--color-accent)) 10%,
+      var(--color-accent) 55%
+    );
+    clip-path: polygon(0 100%, 100% 0, 100% 100%);
+  }
+
+  @media (width >= 640px) {
+    .svc-shape {
+      inset: 0;
+      height: auto;
+      clip-path: polygon(100% 26%, 100% 100%, 46% 100%);
+    }
+  }
+
+  @media (width >= 1024px) {
+    .svc-shape {
+      clip-path: polygon(100% 18%, 100% 100%, 58% 100%);
+    }
+  }
+
+  /* Mismo grano que el hero de la portada, misma frecuencia y misma mezcla.
+     Duplicado a propósito y no extraído a global.css: son las dos únicas
+     superficies del sitio que lo usan, y compartirlo desde global.css invita a
+     que aparezca en una tercera donde nadie lo pensó. */
+  .svc-grain {
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: soft-light;
+    opacity: 0.55;
+  }
+</style>

@@ -147,8 +147,9 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({
       class="hero-desc max-w-[34ch] text-p-lg text-pretty text-text-inverse tablet:max-w-[52ch]"
       data-reveal
     >
-      Diseñamos sistemas visuales que aportan dirección, fortalecen el
-      posicionamiento y potencian el valor percibido de tu marca.
+      Somos un estudio de diseño y branding en Argentina. Construimos sistemas
+      visuales que aportan dirección, fortalecen el posicionamiento y potencian
+      el valor percibido de tu marca.
     </p>
 
     {
@@ -172,6 +173,8 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({
     <div class="mt-8 tablet:mt-10" data-reveal>
       <Button
         href="#cta"
+        data-track="cta_click"
+        data-track-location="home-hero"
         variant="pill"
         class="max-tablet:py-3! max-tablet:pr-7! max-tablet:pl-7! max-tablet:text-p!"
         data-contact-modal-open

@@ -1,0 +1,55 @@
+---
+/**
+ * La afirmación grande de una página de servicio, con la palabra clave sobre la
+ * banda oscura.
+ *
+ * Es el mismo recurso que `sections/Statement.astro` usa en la portada y el
+ * gesto tipográfico más fuerte que tiene el sitio. Va acá porque estas páginas
+ * son largas y de lectura densa —entregables, procesos, preguntas— y necesitan
+ * un punto donde el argumento se diga en seis palabras y en escala grande, en
+ * vez de seguir explicándose en párrafos.
+ *
+ * ── DIFERENCIAS CON EL DE LA PORTADA ────────────────────────────────────────
+ * El de la portada antecede a una sección fijada al viewport, así que apoya
+ * `pt-section` y CERO abajo a propósito (ver su comentario). Este vive entre dos
+ * secciones normales de flujo, así que lleva `py-section` completo como
+ * cualquier otra: media separación de cada lado, que es lo que pide la regla de
+ * ritmo de CLAUDE.md.
+ *
+ * No lleva `data-reveal="band"`: esa animación de barrido es del cierre de la
+ * portada y ahí gana su lugar. Repetida seis veces se vuelve un tic.
+ */
+interface Props {
+  /** El texto antes de la palabra destacada. */
+  lead: string;
+  /** La palabra o frase sobre la banda. Corta: se compone en una línea. */
+  highlight: string;
+}
+
+const { lead, highlight } = Astro.props;
+---
+
+<section>
+  <div
+    class="mx-auto w-full max-w-8xl px-6 py-section text-center tablet:px-8 desktop:px-12"
+    data-reveal-group
+  >
+    <h2 class="svc-statement tracking-[-0.04em] text-balance" data-reveal>
+      {lead}{" "}
+      <span class="bg-primary-dark px-[0.15em] whitespace-nowrap text-accent"
+        >{highlight}</span
+      >
+    </h2>
+  </div>
+</section>
+
+<style>
+  /* Un escalón por debajo del de la portada (allá el clamp llega a 7rem). Esa
+     medida es la del cierre del sitio y tiene que seguir siendo la más grande;
+     si estas páginas la igualan, la portada deja de tener un techo propio. */
+  .svc-statement {
+    font-size: clamp(2rem, 7vw, 4.5rem);
+    line-height: 1.1;
+    font-weight: 600;
+  }
+</style>

@@ -250,11 +250,46 @@ const wire = (form: HTMLFormElement) => {
   };
   window.addEventListener("pagehide", captureAbandoned);
 
+  // ── PARIDAD CON EL FORMULARIO DEL SITIO PRINCIPAL ──────────────────────────
+  // zil-landing emite form_start / form_submit_attempt / form_submit_success /
+  // form_submit_error desde src/lib/analytics.js, y este formulario emitía sólo
+  // generate_lead. Con eso, en GA4 no se podía distinguir "nadie lo intentó" de
+  // "lo empezaron y lo abandonaron": form_start marcaba 1.778 en el sitio Next y
+  // 0 en estas páginas, que es exactamente el dato que hace falta cuando recién
+  // empiezan a recibir tráfico.
+  //
+  // `form_id` va con el mismo nombre que allá para que los eventos de los dos
+  // sitios se puedan sumar en un solo informe, y `form_placement` distingue de
+  // qué página salió, que es lo que el sitio principal no necesita.
+  const ga = (event: string, params: Record<string, unknown> = {}) =>
+    track(() =>
+      window.gtag?.("event", event, {
+        form_id: FORM_ID,
+        form_placement: placement,
+        ...params,
+      }),
+    );
+
+  // Una sola vez por formulario: es "empezó a completarlo", no "tocó un campo".
+  let started = false;
+  form.addEventListener(
+    "focusin",
+    (event) => {
+      const el = event.target as HTMLElement | null;
+      if (!el || !["INPUT", "TEXTAREA", "SELECT"].includes(el.tagName)) return;
+      if (started) return;
+      started = true;
+      ga("form_start");
+    },
+    true,
+  );
+
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (sending || sent) return;
 
     sending = true;
+    ga("form_submit_attempt");
     if (errorEl) errorEl.hidden = true;
     if (submit) {
       submit.disabled = true;
@@ -287,7 +322,8 @@ const wire = (form: HTMLFormElement) => {
         }),
       });
 
-      if (!response.ok) throw new Error(`Lead API responded ${response.status}`);
+      if (!response.ok)
+        throw new Error(`Lead API responded ${response.status}`);
 
       // The lead EXISTS from here on. Latch it before anything else can throw:
       // everything below is presentation, and a failure there that fell through
@@ -302,14 +338,17 @@ const wire = (form: HTMLFormElement) => {
       let leadId: string | null = null;
       try {
         const data = await response.json();
-        leadId = data?.id || data?._id || data?.leadId || data?.lead?._id || null;
+        leadId =
+          data?.id || data?._id || data?.leadId || data?.lead?._id || null;
       } catch {
         // a non-JSON 2xx is still a success
       }
 
+      ga("form_submit_success", { lead_id: leadId || undefined });
       track(() =>
         window.gtag?.("event", "generate_lead", {
           form_id: FORM_ID,
+          form_placement: placement,
           lead_id: leadId || undefined,
           currency: "USD",
           value: 1,
@@ -333,10 +372,15 @@ const wire = (form: HTMLFormElement) => {
       setTimeout(() => {
         window.location.href = bookingUrl;
       }, 2200);
-    } catch {
+    } catch (err) {
       // Never offer a retry for a lead the server already has — see the latch
       // above. This only catches failures on the way TO a lead.
       if (sent) return;
+      // Se mide acá y no antes del `if`: si el lead ya entró, lo que falló es la
+      // presentación y contarlo como error de envío ensucia la tasa.
+      ga("form_submit_error", {
+        error_message: err instanceof Error ? err.message : String(err),
+      });
       sending = false;
       if (submit) {
         submit.disabled = false;

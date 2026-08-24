@@ -1,0 +1,68 @@
+---
+/**
+ * Un bloque de texto con su título: la unidad con la que se arma el cuerpo de
+ * una página de servicio.
+ *
+ * Existe para que las seis páginas no repitan seis veces el mismo contenedor y
+ * el mismo `py-section`, que es exactamente como se desalinea el ritmo. Los
+ * párrafos entran por el slot en vez de por una prop `string[]` porque adentro
+ * hay <strong> y enlaces internos, y una prop los obligaría a viajar como HTML
+ * en un string.
+ *
+ * `narrow` (por defecto) limita la medida a ~62ch. La guía de tipografía pide
+ * texto corrido cerca de esa medida, y sin el tope el párrafo cruza los 1312px
+ * del contenedor en desktop y se vuelve ilegible.
+ */
+interface Props {
+  title?: string;
+  /** `false` para contenido que necesita todo el ancho (listas, grillas). */
+  narrow?: boolean;
+  class?: string;
+}
+
+const { title, narrow = true, class: className = "" } = Astro.props;
+---
+
+<section class:list={["py-section", className]}>
+  <div
+    class="mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12"
+    data-reveal-group
+  >
+    {
+      title && (
+        <h2
+          class="max-w-[24ch] text-h2 tracking-[-0.03em] text-balance"
+          data-reveal
+        >
+          {title}
+        </h2>
+      )
+    }
+
+    <div
+      class:list={["service-prose", title && "mt-8", narrow && "max-w-[62ch]"]}
+      data-reveal
+    >
+      <slot />
+    </div>
+  </div>
+</section>
+
+<style>
+  /* El espaciado interno del bloque, en un solo lugar. Es el único sitio del
+     repo donde hay texto corrido de varios párrafos, así que la alternativa
+     era repetir `mt-4` en cada <p> de cada página y olvidárselo en una. */
+  .service-prose > :global(p + p) {
+    margin-top: 1.25em;
+  }
+
+  .service-prose :global(a) {
+    color: var(--color-primary);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .service-prose :global(strong) {
+    font-weight: 600;
+  }
+</style>

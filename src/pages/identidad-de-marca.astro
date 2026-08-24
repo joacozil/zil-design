@@ -1,0 +1,143 @@
+---
+/**
+ * Identidad de marca — el servicio, no el entregable.
+ *
+ * Apunta a "identidad de marca" (480/mes, competencia 33) y "identidad visual"
+ * (480, competencia 23), ~1.190/mes ganables entre las dos y su cola.
+ *
+ * El "manual de marca" SALIÓ de acá y tiene página propia. Es la keyword más
+ * ganable del mapa entero (2.400/mes en competencia 30) y estaba de sección
+ * adentro de esta página, peleando por atención con el servicio. Son búsquedas
+ * distintas: una la escribe quien está evaluando contratar un rediseño, la otra
+ * quien quiere saber qué es y qué trae el documento. Una sola página no puede
+ * hablarle bien a las dos, y la que perdía era la de más volumen.
+ */
+import ServiceLayout from "../layouts/ServiceLayout.astro";
+import Prose from "../components/astro/service/Prose.astro";
+import Deliverables from "../components/astro/service/Deliverables.astro";
+import ServiceStatement from "../components/astro/service/ServiceStatement.astro";
+import { serviceHref } from "../data/services";
+import { projectHref } from "../data/projects";
+import type { FaqItem } from "../data/services";
+
+const proceso = [
+  {
+    name: "Diagnóstico",
+    detail:
+      "Entrevistas con tu equipo, revisión de la competencia y del material que ya existe. Salimos de acá con el problema escrito, que casi nunca es el que se enunció al principio.",
+  },
+  {
+    name: "Estrategia",
+    detail:
+      "Posicionamiento, arquitectura de marca y territorio verbal. Se aprueba antes de que exista un solo boceto, para que la discusión visual no termine siendo la discusión estratégica disfrazada.",
+  },
+  {
+    name: "Sistema visual",
+    detail:
+      "Marca gráfica, color, tipografía y recursos, presentados con el argumento de por qué resuelven lo que dijo el diagnóstico.",
+  },
+  {
+    name: "Aplicaciones y manual",
+    detail:
+      "El sistema llevado a las piezas reales y documentado. Cerramos con la entrega de archivos y una sesión con tu equipo para que puedan sostenerlo.",
+  },
+];
+
+const faqs: FaqItem[] = [
+  {
+    question: "¿Qué es un manual de marca y para qué sirve?",
+    answer:
+      "Es el documento que define cómo se usa la identidad: la marca gráfica y sus variantes, los usos incorrectos, el sistema de color y tipografía, los recursos gráficos y las aplicaciones. Sirve para que la marca se vea igual la aplique quien la aplique. Sin manual, cada pieza queda a criterio de quien la hace ese día, y en un año la empresa se ve como cinco empresas distintas.",
+  },
+  {
+    question:
+      "¿Cuál es la diferencia entre identidad visual e identidad de marca?",
+    answer:
+      "La identidad visual es la parte que se ve: logo, color, tipografía, imágenes. La identidad de marca la incluye y le suma lo que decide cómo se ve: el posicionamiento, la promesa, el tono con el que habla. Se puede encargar sólo lo visual, y a veces alcanza, pero entonces las decisiones estéticas no tienen contra qué validarse y la discusión se vuelve una cuestión de gusto.",
+  },
+  {
+    question: "¿Cuánto tarda un proyecto de identidad de marca?",
+    answer:
+      "Entre seis y doce semanas según el alcance. Lo que más mueve el plazo no es la cantidad de piezas sino cuántas decisiones de negocio quedan abiertas al empezar: una empresa con el posicionamiento resuelto avanza rápido, y una que está definiendo a qué se dedica va a usar la etapa de estrategia para eso, que está bien pero lleva tiempo.",
+  },
+  {
+    question: "¿Rehacen una identidad existente o sólo trabajan desde cero?",
+    answer:
+      "Las dos cosas, y no cuestan lo mismo. Ordenar una identidad que ya existe suele ser más trabajo de diagnóstico y menos de creación: hay que entender qué funciona antes de tocarlo, porque una marca con años tiene reconocimiento acumulado que un rediseño puede tirar sin querer.",
+  },
+  {
+    question: "¿Qué archivos recibo al final?",
+    answer:
+      "Los vectores editables originales, los formatos exportados para impresión y para pantalla, las tipografías con su licencia cuando corresponde, y el manual en PDF. Todo ordenado en carpetas por tipo de uso, para que alguien de tu equipo encuentre el archivo que necesita sin preguntarnos.",
+  },
+  {
+    question: "¿Puedo contratar sólo el manual si ya tengo la marca hecha?",
+    answer:
+      "Sí. Es un encargo frecuente en empresas que crecieron con una identidad que nunca se documentó y ahora tienen gente nueva aplicándola. Revisamos lo que hay, resolvemos las inconsistencias que aparecen al ordenarlo, y documentamos el sistema resultante.",
+  },
+];
+---
+
+<ServiceLayout
+  title="Diseño de identidad de marca e identidad visual | Zil Design"
+  description="Diseño de identidad de marca e identidad visual en Argentina: del posicionamiento al sistema visual completo. Cómo es el proceso y qué archivos recibís."
+  slug="identidad-de-marca"
+  breadcrumb="Identidad de marca"
+  eyebrow="Identidad de marca"
+  h1="Diseño de identidad de marca"
+  lede="Construimos el sistema visual de tu empresa y lo documentamos, para que la marca se sostenga cuando la apliquen otros."
+  heroBody="Trabajamos identidad de marca e identidad visual para clientes corporativos e institucionales, desde el posicionamiento hasta el manual y los archivos finales."
+  faqs={faqs}
+  ctaTitle="Hablemos de tu identidad"
+  ctaText="Contanos en qué estado está tu marca hoy y te decimos qué haría falta para ordenarla."
+>
+  <Prose title="Identidad visual e identidad de marca no son lo mismo">
+    <p>
+      La <strong>identidad visual</strong> es la parte que se ve: la marca gráfica,
+      el color, la tipografía, el tratamiento de imagen. La{" "}
+      <strong>identidad de marca</strong> la contiene y le agrega lo que decide cómo
+      se ve, que es el posicionamiento, la promesa y el tono.
+    </p>
+    <p>
+      La distinción parece académica hasta la primera reunión de presentación.
+      Cuando existe sólo lo visual, la única forma de evaluar una propuesta es
+      si gusta o no gusta, y esa conversación no termina nunca. Cuando hay
+      estrategia atrás, la pregunta cambia: si resuelve o no lo que el
+      diagnóstico dijo que había que resolver. Eso sí se puede responder.
+    </p>
+    <p>
+      Por eso el proceso arranca por el negocio y no por el boceto, y por eso la
+      etapa de estrategia se aprueba antes de que exista una sola propuesta
+      gráfica.
+    </p>
+  </Prose>
+
+  <ServiceStatement
+    lead="Sin estrategia atrás, elegir una identidad es una discusión de"
+    highlight="gustos."
+  />
+
+  <Deliverables
+    title="Cómo trabajamos"
+    offset={2}
+    intro="Cuatro etapas, cada una con una entrega que se aprueba antes de pasar a la siguiente."
+    items={proceso}
+  />
+
+  <Prose title="Trabajo publicado">
+    <p>
+      Podés ver el sistema completo aplicado en los casos de{" "}
+      <a href={projectHref("clojure")}>Clojure</a>,{" "}
+      <a href={projectHref("net-value")}>Net Value</a> y{" "}
+      <a href={projectHref("gelato")}>Gelato</a>: cada uno muestra el recorrido
+      desde el diagnóstico hasta las piezas finales.
+    </p>
+    <p>
+      Si lo que necesitás es sólo la marca gráfica, la página de{" "}
+      <a href={serviceHref("diseno-de-logo")}>diseño de logo</a> explica ese alcance
+      más acotado. Y si lo que estás averiguando es qué trae el documento que cierra
+      el proyecto, está todo en{" "}
+      <a href={serviceHref("manual-de-marca")}>manual de marca</a>.
+    </p>
+  </Prose>
+</ServiceLayout>

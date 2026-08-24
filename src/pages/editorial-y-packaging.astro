@@ -1,0 +1,142 @@
+---
+/**
+ * Editorial y packaging — la oportunidad que el primer análisis se había
+ * salteado, y la segunda mejor del mapa después de identidad.
+ *
+ * "Diseño editorial" son 720 búsquedas/mes en competencia 27 y "diseño de
+ * cartelería" 320 en 28: los dos números más bajos de todo el relevamiento con
+ * volumen real detrás. Son además entregables que se muestran en vez de
+ * explicarse, que es lo que un estudio hace mejor que un directorio.
+ *
+ * Packaging es la mitad más disputada de la página (48) y por eso no manda en el
+ * título: entra como parte del mismo oficio, que es lo que honestamente es.
+ */
+import ServiceLayout from "../layouts/ServiceLayout.astro";
+import Prose from "../components/astro/service/Prose.astro";
+import Deliverables from "../components/astro/service/Deliverables.astro";
+import ServiceStatement from "../components/astro/service/ServiceStatement.astro";
+import { serviceHref } from "../data/services";
+import type { FaqItem } from "../data/services";
+
+const piezas = [
+  {
+    name: "Publicaciones institucionales",
+    detail:
+      "Memorias, reportes anuales, informes y presentaciones extensas: documentos donde la jerarquía tipográfica es lo que hace que se lean en vez de hojearse.",
+  },
+  {
+    name: "Catálogos y brochures",
+    detail:
+      "Material comercial con grilla propia, pensado para que la producción de la próxima edición no empiece de cero.",
+  },
+  {
+    name: "Packaging y etiquetas",
+    detail:
+      "Envases, etiquetas y estuches resueltos con el troquel real, no sobre un mockup. Incluye la preparación de artes finales para el impresor.",
+  },
+  {
+    name: "Cartelería y señalética",
+    detail:
+      "Sistemas de carteles para local, vía pública y eventos, con las medidas y legibilidades que pide cada distancia de lectura.",
+  },
+  {
+    name: "Papelería",
+    detail:
+      "Tarjetas, hojas membretadas, carpetas y sobres, en el papel y el sistema de impresión que corresponden al presupuesto.",
+  },
+  {
+    name: "Artes finales",
+    detail:
+      "Los archivos listos para imprenta, con sangrados, demasías, perfiles de color y troqueles en capa aparte. Es la parte que decide si la pieza sale bien.",
+  },
+];
+
+const faqs: FaqItem[] = [
+  {
+    question: "¿Qué es el diseño editorial?",
+    answer:
+      "Es el diseño de publicaciones: catálogos, memorias, informes, revistas, libros y cualquier documento largo. Su materia no son las ilustraciones sino la grilla, la jerarquía tipográfica y el ritmo de las páginas, que es lo que hace que un documento de ochenta páginas se pueda leer de corrido o se abandone en la tercera.",
+  },
+  {
+    question: "¿Preparan los archivos para la imprenta?",
+    answer:
+      "Sí, y es parte del trabajo, no un extra. Entregamos artes finales con sangrado, demasías, marcas de corte, perfil de color según el sistema de impresión y los troqueles en una capa separada. Coordinamos con tu imprenta o con la nuestra para verificar el pliego antes de que entre a máquina.",
+  },
+  {
+    question: "¿Diseñan el packaging sobre el troquel real?",
+    answer:
+      "Siempre. Un envase se diseña sobre la plantilla del troquel que va a usar el proveedor, con sus pestañas, pliegues y zonas de pegado. Un packaging aprobado sobre un mockup y adaptado después al troquel real es cómo se pierde una tirada.",
+  },
+  {
+    question: "¿Trabajan con la imprenta o eso lo resuelve el cliente?",
+    answer:
+      "Como te convenga. Podemos entregar los archivos y que los produzca tu proveedor habitual, o coordinar nosotros la producción y hacer el seguimiento de color en planta. Lo segundo tiene sentido cuando la pieza es delicada en color o tiene terminaciones especiales.",
+  },
+  {
+    question: "¿Hacen cartelería para local y vía pública?",
+    answer:
+      "Sí. Cartelería de local, señalética interna, gráfica para eventos y piezas de vía pública. Cada una se resuelve con la distancia de lectura como dato de partida, porque lo que funciona en un folleto a treinta centímetros es ilegible a diez metros.",
+  },
+];
+---
+
+<ServiceLayout
+  title="Diseño editorial, packaging y cartelería | Zil Design"
+  description="Diseño editorial, packaging y cartelería en Argentina: catálogos, memorias, envases, etiquetas y señalética, con artes finales listas para imprenta."
+  slug="editorial-y-packaging"
+  breadcrumb="Editorial y packaging"
+  eyebrow="Editorial y packaging"
+  h1="Diseño editorial, packaging y cartelería"
+  lede="Piezas impresas resueltas hasta el archivo que entra a máquina, no hasta la imagen que se ve linda en pantalla."
+  heroBody="Diseño editorial, diseño de packaging y envases, y sistemas de cartelería, con artes finales preparadas para el sistema de impresión que corresponda."
+  faqs={faqs}
+  ctaTitle="Contanos qué hay que imprimir"
+  ctaText="Decinos qué pieza necesitás, en qué cantidad y para cuándo, y te decimos cómo la resolveríamos."
+>
+  <Prose title="El diseño impreso se juega en el archivo final">
+    <p>
+      Una pieza impresa puede estar perfectamente resuelta en pantalla y salir
+      mal igual. El color se corre porque el archivo iba en RGB, el texto queda
+      cortado porque faltó demasía, el troquel no cierra porque se diseñó sobre
+      un mockup en vez de sobre la plantilla del proveedor.
+    </p>
+    <p>
+      Por eso la <strong>preparación de artes finales</strong> es parte del trabajo
+      y no un adicional. Entregamos los archivos con sangrado, marcas de corte, perfil
+      de color según el sistema de impresión y los troqueles en capa aparte, y verificamos
+      el pliego con la imprenta antes de la tirada.
+    </p>
+  </Prose>
+
+  <Deliverables
+    title="Qué producimos"
+    intro="Piezas impresas y su preparación técnica, del catálogo institucional a la etiqueta."
+    items={piezas}
+    numbered={false}
+    offset={2}
+  />
+
+  <ServiceStatement
+    lead="Una pieza impresa se termina en el archivo, no en la"
+    highlight="pantalla."
+  />
+
+  <Prose title="La grilla es lo que hace que se lea">
+    <p>
+      En una publicación larga, lo que decide si se lee no son las imágenes: es
+      la grilla y la jerarquía tipográfica. Un informe de ochenta páginas con
+      una estructura clara se recorre; el mismo contenido sin sistema se hojea y
+      se abandona.
+    </p>
+    <p>
+      La grilla también resuelve la edición siguiente. Cuando existe, la próxima
+      memoria anual se arma sobre una estructura que ya funciona en lugar de
+      volver a discutirse desde cero.
+    </p>
+    <p>
+      Si la marca todavía no tiene un sistema visual del que colgar estas
+      piezas, el punto de partida es{" "}
+      <a href={serviceHref("identidad-de-marca")}>identidad de marca</a>.
+    </p>
+  </Prose>
+</ServiceLayout>
