@@ -1,0 +1,52 @@
+---
+/**
+ * TextureBand — a full-bleed strip of brand texture used as a divider between two
+ * sections of a case study.
+ *
+ * It is DECORATION, not content: the artwork makes an argument the surrounding
+ * copy already makes in words (for Vibra, the pixel as the identity's atom), so
+ * the image is `alt=""` and the wrapper is a plain div. A `<section>` here would
+ * add a landmark with no accessible name, and a landmark is a promise that there
+ * is something inside worth navigating to.
+ *
+ * `py-section-tight` — half the standard rhythm — because this is a STRIP rather
+ * than a block, the same call the client logo marquee makes. It still owns half
+ * the gap to each neighbour, so it can be moved or removed without retuning
+ * anything around it.
+ */
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  /** Full-bleed texture artwork. SVG, so it stays crisp at any width. */
+  image: ImageMetadata;
+}
+const { image } = Astro.props;
+---
+
+<div class="py-section-tight">
+  <img
+    class="texture-band"
+    src={image.src}
+    width={image.width}
+    height={image.height}
+    alt=""
+    aria-hidden="true"
+    loading="lazy"
+  />
+</div>
+
+<style>
+  /* Full width at its own ratio, with a floor. A band drawn at 1920×288 resolves
+     to 56px on a 375px phone, where the texture stops reading as pixels and turns
+     into noise. Below the floor the band keeps its height and `cover` crops the
+     SIDES instead — free for a texture that is the same all the way across, and
+     the one thing that would be wrong for artwork with a subject in it. */
+  .texture-band {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 6rem;
+    object-fit: cover;
+    object-position: center;
+  }
+</style>

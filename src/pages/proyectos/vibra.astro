@@ -1,0 +1,392 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/astro/Header.astro";
+import Footer from "../../components/astro/Footer.astro";
+import ProjectEnd from "../../components/astro/project/ProjectEnd.astro";
+import BackToTop from "../../components/astro/project/BackToTop.astro";
+import ColorPalette from "../../components/astro/project/ColorPalette.astro";
+import ProjectBrief from "../../components/astro/project/ProjectBrief.astro";
+import LogoGrid from "../../components/astro/project/LogoGrid.astro";
+import ProjectHeroImage from "../../components/astro/project/ProjectHeroImage.astro";
+import heroImage from "../../assets/vibra/vibra-hero.avif";
+import heroImageMobile from "../../assets/vibra/vibra-hero-mobile.avif";
+import TypeSpecimen from "../../components/astro/project/TypeSpecimen.astro";
+import ColumnCollage from "../../components/astro/project/ColumnCollage.astro";
+import stickersImg from "../../assets/vibra/stickers.avif";
+import browserImg from "../../assets/vibra/browser.avif";
+import profileImg from "../../assets/vibra/profile.avif";
+import streetSignImg from "../../assets/vibra/street-sign.avif";
+import TextureBand from "../../components/astro/project/TextureBand.astro";
+import pixelTextureImg from "../../assets/vibra/pixel-texture.avif";
+import MockupStage from "../../components/astro/project/MockupStage.astro";
+import cardsImg from "../../assets/vibra/cards.avif";
+import youtubeLaptopImg from "../../assets/vibra/youtube-laptop.avif";
+import videoLaptopImg from "../../assets/vibra/video-laptop.avif";
+import IconGrid from "../../components/astro/project/IconGrid.astro";
+import computerOutline from "../../assets/vibra/computer-outline.svg";
+import jarraFilled from "../../assets/vibra/jarra-filled.svg";
+import heartOutline from "../../assets/vibra/heart-outline.svg";
+import manIcon from "../../assets/vibra/man.svg";
+import womanIcon from "../../assets/vibra/woman.svg";
+import heartFilled from "../../assets/vibra/heart-filled.svg";
+import jarraOutline from "../../assets/vibra/jarra-outline.svg";
+import computerFilled from "../../assets/vibra/computer-filled.svg";
+import Mosaic from "../../components/astro/project/Mosaic.astro";
+import terracotaImg from "../../assets/vibra/terracota.avif";
+import dePromptImg from "../../assets/vibra/de-prompt.avif";
+import cadaFrameImg from "../../assets/vibra/cada-frame.avif";
+import avisoImg from "../../assets/vibra/aviso.avif";
+import mockupsImg from "../../assets/vibra/mockups.avif";
+import vibraFontImg from "../../assets/vibra/vibra-font.svg";
+// Vibra's two faces. Self-hosted (Google Fonts' `latin` subset, which covers
+// Spanish in full) rather than loaded from fonts.gstatic.com, so the page keeps
+// its own asset graph and costs no third-party connection — same call as Onest
+// on the Net Value page.
+//
+// ONE file each. Space Mono only ever appears at Regular here, and Google ships
+// Manrope as a VARIABLE font, so Regular / Semibold / Bold are the same download
+// driven along the wght axis — registering three static faces would fetch the
+// same bytes three times.
+import spaceMonoRegular from "../../assets/vibra/space-mono/SpaceMono-Regular.woff2?url";
+import manropeVariable from "../../assets/vibra/manrope/Manrope-Variable.woff2?url";
+
+// @font-face can't read CSS vars for its src, so the resolved URLs are
+// interpolated and injected globally (same approach as the Gelato, Quantia and
+// Net Value pages).
+const fontFaceCss = `
+@font-face{font-family:"Space Mono";src:url("${spaceMonoRegular}") format("woff2");font-weight:400;font-style:normal;font-display:swap;}
+@font-face{font-family:"Manrope";src:url("${manropeVariable}") format("woff2");font-weight:200 800;font-style:normal;font-display:swap;}
+`;
+import gridImage from "../../assets/vibra/vibra-grid.svg";
+
+// Case-study content lives with the page (per-project composition).
+const meta = [
+  { label: "Cliente", value: "Vibra" },
+  { label: "Servicio", value: "Branding" },
+];
+
+const brief = [
+  {
+    title: "Proyecto",
+    body: "<strong>Vibra es un estudio creativo integral que explora nuevas formas de crear con Inteligencia Artificial.</strong> Trabaja entre la precisi\u00f3n t\u00e9cnica y el espacio experimental: animaci\u00f3n por nodos, video arte digital y sistemas gr\u00e1ficos din\u00e1micos, donde la tecnolog\u00eda avanzada se cruza con la sensibilidad humana.",
+  },
+  {
+    title: "Desaf\u00edo",
+    body: "Vibra nace en una categor\u00eda que todav\u00eda se est\u00e1 escribiendo, en la que <strong>casi todas las marcas de IA terminan hablando el mismo idioma visual</strong>. El reto era construir una identidad capaz de sostener dos naturalezas opuestas: el rigor del sistema y el accidente digital, sin caer en el imaginario gen\u00e9rico de la tecnolog\u00eda.",
+  },
+  {
+    title: "Propuesta",
+    body: "Desde Zil Design construimos una identidad que opera como una interfaz viva: <strong>el p\u00edxel como unidad m\u00ednima de construcci\u00f3n y el nodo como punto donde las ideas se conectan, procesan y transforman.</strong> Un sistema modular de matrices, l\u00edneas de flujo y conexiones, con el ruido y el glitch incorporados como recurso controlado, no como error.",
+  },
+];
+
+// Brand palette. RGB is derived from the hex in the component, so a label can
+// never drift from its swatch — which matters here: the source mock prints Azul
+// Vibra as R9/G9/B214, and #0000D6 is R0/G0/B214. Hex is source of truth.
+// `dark` marks the fields deep enough to carry white text; Celeste and Gris are
+// mid-tone but the brand sets both in white, so they are flagged too.
+//
+// Weights are the mock's RATIO, not its pixels: the two brand voices (Naranja,
+// Azul) lead and the three neutrals share one band height below them.
+const palette = [
+  { name: "Naranja Vibra", main: { hex: "#E44734", dark: true }, weight: 1.9 },
+  { name: "Azul Vibra", main: { hex: "#0000D6", dark: true }, weight: 1.2 },
+  { name: "Celeste Vibra", main: { hex: "#22B0FF", dark: true }, weight: 0.8 },
+  { name: "Negro Vibra", main: { hex: "#181D19", dark: true }, weight: 0.8 },
+  { name: "Gris Vibra", main: { hex: "#959595", dark: true }, weight: 0.8 },
+];
+---
+
+<style is:global set:html={fontFaceCss}></style>
+
+<Layout
+  title="Vibra — Zil Design"
+  description="Caso de estudio: identidad de marca para Vibra, estudio de generación de video con inteligencia artificial."
+>
+  <Header />
+  <main class="project-vibra">
+    {
+      /* The key art already carries the wordmark, so the hero is JUST the artwork
+        — ProjectHeroImage, not the variants that composite a separate `logo`.
+        Landscape from tablet up, a portrait cut on mobile: the 2:1 frame would
+        read as a thin strip on a phone and crop the glitch column off the right
+        edge. */
+    }
+    <ProjectHeroImage
+      image={heroImage}
+      mobileImage={heroImageMobile}
+      imageAlt="El logotipo de Vibra en blanco sobre azul, con la columna de píxeles que se desintegra hacia el borde derecho"
+      title="Vibra"
+    />
+    <ProjectBrief meta={meta} blocks={brief} />
+    <LogoGrid
+      image={gridImage}
+      alt="El logotipo de Vibra dentro de su grilla de construcción, con los píxeles azules, celestes y naranja que forman la matriz"
+    />
+    <ColorPalette colors={palette} />
+    {
+      /* `specimens` (rather than regularUrl/boldUrl) because this is a TWO-face
+        system and the page already registers both above — the default path would
+        emit a second @font-face per family and hard-code format("opentype")
+        against files that are woff2.
+
+        Each block samples its family at ONE weight, and the Manrope label names
+        the three the system uses: Semibold and Bold come off the same variable
+        file, so showing them as separate alphabets would repeat the same shapes
+        three times to say what the label already says. */
+    }
+    <TypeSpecimen
+      name="Space Mono"
+      fontFamily="Space Mono"
+      wordmarkImage={vibraFontImg}
+      specimens={[
+        {
+          label: "Space Mono - Regular",
+          fontFamily: '"Space Mono", monospace',
+          fontWeight: 400,
+        },
+        {
+          label: "Manrope - Regular, Semibold, Bold",
+          fontFamily: '"Manrope", sans-serif',
+          fontWeight: 400,
+        },
+      ]}
+    />
+    {
+      /* Two columns of applied pieces, each at its own natural ratio — see the
+        header of ColumnCollage for why this is not a Mosaic.
+
+        The two columns end flush because their ratios balance: sticker (1.03) +
+        browser (1.49) against profile (1.49) + street sign (1.03). That is the
+        composition, not a coincidence — swapping a piece for one of a different
+        ratio breaks the bottom edge. */
+    }
+    <ColumnCollage
+      ariaLabel="El sistema aplicado"
+      columns={[
+        [
+          {
+            src: stickersImg,
+            alt: "Un sticker de Vibra pegado en la tapa de una laptop, sobre un fondo de piedra",
+            stackOrder: 1,
+          },
+          {
+            src: browserImg,
+            alt: "El sitio de Vibra abierto en el navegador, con el logotipo azul sobre un fondo celeste",
+            stackOrder: 3,
+          },
+        ],
+        [
+          {
+            src: profileImg,
+            alt: "El perfil de Instagram de Vibra, @vibra.ia, con la portada azul y los píxeles desintegrándose en la esquina",
+            stackOrder: 2,
+          },
+          {
+            src: streetSignImg,
+            alt: "Una pantalla publicitaria en la calle con el logotipo de Vibra en blanco sobre azul y la trama de píxeles en la base",
+            stackOrder: 4,
+          },
+        ],
+      ]}
+    />
+    {
+      /* Brand texture as a divider. Decoration, so it carries no landmark and no
+        alt — see the component header. */
+    }
+    <TextureBand image={pixelTextureImg} />
+    {
+      /* A loose composition of three cut-out mockups — see MockupStage's header
+        for why this is a proportional canvas and not a grid.
+
+        The numbers are read off the design, in percent of the stage. The one that
+        is NOT free is `aspect`: a piece is placed by its TOP edge and takes the
+        height its own artwork gives it, so the ratio has to be tall enough to
+        contain the lowest piece's bottom. video-laptop is that piece — it starts
+        at 50% and is nearly square, so it needs the stage to run to ~98%. */
+    }
+    <MockupStage
+      label="La marca en el canal"
+      body="Diseñamos la identidad del canal de principio a fin: portada, miniaturas y la gráfica que acompaña cada video. Cada pieza nueva se arma sobre la misma plantilla, de forma tal que el canal crece sin perder unidad."
+      copy={{ x: 0, y: 4, w: 30 }}
+      aspect="809 / 780"
+      pieces={[
+        {
+          src: cardsImg,
+          alt: "Dos tarjetas personales de Vibra, una azul y una blanca, con la trama de píxeles naranja en el borde",
+          x: 57,
+          y: 0,
+          w: 41,
+        },
+        {
+          src: youtubeLaptopImg,
+          alt: "El canal de YouTube de Vibra en una laptop, con la portada azul y la grilla de videos",
+          x: -1,
+          y: 36,
+          w: 51,
+        },
+        {
+          src: videoLaptopImg,
+          alt: "Un video de Vibra reproduciéndose en una laptop, con el isotipo fijo en la esquina del reproductor",
+          x: 47,
+          y: 50,
+          w: 47,
+        },
+      ]}
+    />
+    {
+      /* The icon set. Reading order is the design's: outline and filled cuts
+        alternate down the rows rather than grouping by weight, so the pair of
+        each mark reads as one idea seen twice. */
+    }
+    <IconGrid
+      label="Diseño de íconos personalizados"
+      body="Creamos un set de íconos propios para utilizar en conjunto con los patrones pixelados. Un lenguaje visual que refuerza la identidad y facilita la lectura de la información."
+      icons={[
+        {
+          src: computerOutline,
+          alt: "Monitor de computadora, versión de contorno",
+        },
+        { src: jarraFilled, alt: "Ánfora, versión sólida" },
+        { src: heartOutline, alt: "Corazón, versión de contorno" },
+        { src: manIcon, alt: "Figura masculina" },
+        { src: womanIcon, alt: "Figura femenina" },
+        { src: heartFilled, alt: "Corazón, versión sólida" },
+        { src: jarraOutline, alt: "Ánfora, versión de contorno" },
+        { src: computerFilled, alt: "Monitor de computadora, versión sólida" },
+      ]}
+    />
+    {
+      /* Four campaign pieces: a row of three squares over one wide banner.
+
+        `fit="natural"` — the three squares share a ratio, so the row levels
+        itself into three equal cells with nothing cropped, and the banner below
+        keeps its own 2.7:1. `inset="var(--gutter)"` puts the block on the CONTENT
+        edge: the gutter token already accounts for the 88rem cap, so the mosaic
+        lines up with the sections above it instead of running to the screen edge.
+
+        `imageBorder={false}` because each piece already carries its own edge —
+        the release-notes card is drawn with a hairline, and the other three are
+        saturated fields that state their own boundary. */
+    }
+    <Mosaic
+      ariaLabel="Piezas de campaña"
+      fit="natural"
+      rowsFrom="tablet"
+      imageBorder={false}
+      inset="var(--gutter)"
+      rows={[
+        {
+          items: [
+            {
+              src: terracotaImg,
+              alt: "Pieza de notas de versión: «Terracota v2.4 — 4× más veloz, motion mejorado»",
+              stackOrder: 1,
+            },
+            {
+              src: dePromptImg,
+              alt: "Pieza azul: «de prompt a imagen en 12 segundos», con la dirección vibra.video",
+              stackOrder: 2,
+            },
+            {
+              src: cadaFrameImg,
+              alt: "Pieza celeste y negra: «cada frame, con intención», con la trama de píxeles en el medio",
+              stackOrder: 3,
+            },
+          ],
+        },
+        {
+          items: [
+            {
+              src: avisoImg,
+              alt: "Banner rojo: «Este aviso se escribió, no se filmó», con el logotipo de Vibra y @vibra.studio",
+              stackOrder: 4,
+            },
+          ],
+        },
+      ]}
+    />
+    {
+      /* One piece, so the bento degenerates to a single cell — what earns Mosaic
+        here is `fit="natural"`: the mockup is a composed shot whose margin around
+        the devices IS the piece, and any crop would read as zoomed in. `inset`
+        puts it on the content edge rather than the mosaic's own full-bleed gap,
+        so it lines up with the campaign pieces above it. Borderless because the
+        shot is cut out on transparency — a hairline would frame empty space. */
+    }
+    <Mosaic
+      ariaLabel="El producto en pantalla"
+      fit="natural"
+      rowsFrom="tablet"
+      imageBorder={false}
+      inset="var(--gutter)"
+      rows={[
+        {
+          items: [
+            {
+              src: mockupsImg,
+              alt: "Dos laptops y un teléfono mostrando la plataforma Terracota de Vibra: la pantalla de acceso, el panel de granja y el resumen en el móvil",
+            },
+          ],
+        },
+      ]}
+    />
+    <BackToTop />
+  </main>
+  <ProjectEnd current="vibra" />
+  <Footer />
+</Layout>
+
+<style>
+  /* Scoped project theme — remaps ONLY the semantic colour aliases within this
+     page's subtree, so Vibra's branding can never leak into global scope.
+     Everything structural (type scale, spacing rhythm, breakpoints) stays on the
+     global tokens.
+
+     Straight from the brand palette in the frontmatter. Azul Vibra is the
+     structural voice (rules, accents) and Naranja Vibra the one that shouts, so
+     `primary` is the blue and `accent` the red. Negro Vibra — not pure black —
+     is the ink, and Gris Vibra the secondary copy. */
+  .project-vibra {
+    --color-primary: #0000d6; /* Azul Vibra */
+    --color-accent: #e44734; /* Naranja Vibra */
+
+    --color-surface: #ffffff;
+    --color-text: #181d19; /* Negro Vibra */
+    --color-muted: #959595; /* Gris Vibra */
+    --color-border: #0000d6; /* Azul Vibra — section rules carry the brand */
+
+    background-color: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  /* No rules around the palette. Both hairlines it appears to own are `border-t`
+     rules: its OWN, which lands on the first colour band, and TypeSpecimen's,
+     which lands on its bottom edge. Five full-bleed colour bands already begin
+     and end in a hard edge, so a rule on top of either just doubles it.
+
+     Scoped to this page via :global() (the rule lives on TypeSpecimen's own
+     markup, which Astro's scoping can't reach from here) so the shared component
+     keeps its border everywhere else — Clojure, Gelato, Quantia and Net Value all
+     rely on it. If a section is ever placed BETWEEN the palette and the type
+     specimen, this selector stops being the right one: it targets the type
+     section by name, not "whatever follows the palette". */
+  .project-vibra :global(section[aria-label="Tipografía"]),
+  .project-vibra :global(section[aria-label="Paleta de color"]) {
+    border-top: 0;
+  }
+
+  /* No rule between the brief's meta list and its Proyecto / Desafío / Propuesta
+     triad. ProjectBrief draws a full-bleed hairline there for every project, and
+     it is the FIRST rule on the page — the one that reads as a line hung under
+     the hero. Vibra's design does not have it: the three blocks are set far
+     enough from the meta list to separate themselves.
+
+     Scoped with :global() for the same reason as the rule above — the <hr> is
+     ProjectBrief's own markup, so Astro's scoping can't reach it from here, and
+     the other five project pages keep their divider. The margin is kept: it is
+     the gap between the two beats, and only the LINE is being removed. */
+  .project-vibra :global(hr) {
+    border-top-width: 0;
+  }
+</style>

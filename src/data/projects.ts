@@ -5,6 +5,7 @@ import clojure from "../assets/img/clojure.avif";
 import gelato from "../assets/img/gelato.jpg";
 import advantia from "../assets/img/advantia.avif";
 import netValue from "../assets/img/net-value.avif";
+import vibra from "../assets/img/vibra.avif";
 
 /**
  * The project roster — the single source of truth shared by the homepage slider
@@ -47,6 +48,7 @@ export const projects: ProjectEntry[] = [
     category: "Producto Digital",
     slug: "quantia",
   },
+  { img: vibra, name: "Vibra", category: "Branding", slug: "vibra" },
   { img: netValue, name: "Net Value", category: "Branding", slug: "net-value" },
   { img: gelato, name: "Gelato", category: "Branding", slug: "gelato" },
   { img: mmg, name: "MMG Bank", category: "Institucional", slug: "mmg" },

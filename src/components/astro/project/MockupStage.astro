@@ -1,0 +1,142 @@
+---
+/**
+ * MockupStage — a short block of copy and a set of cut-out mockups arranged as a
+ * loose, overlapping composition rather than a grid.
+ *
+ * The stage is a PROPORTIONAL CANVAS, not a layout — the same device
+ * `WebShowcase` uses, and for the same reason. It carries an `aspect-ratio`, and
+ * every piece is placed with percentage offsets and sized as a percentage of the
+ * stage's WIDTH, so the whole arrangement scales as one picture instead of the
+ * pieces drifting apart at some viewport in between. Nothing here is a pixel
+ * value.
+ *
+ * The difference from `WebShowcase` is that its pieces are named props with their
+ * placements hard-coded in CSS (MMG's laptop, phones and three coins). This one
+ * takes the arrangement as DATA, so a project composes its own set — which is
+ * what a scattered composition needs, since the numbers ARE the design and they
+ * are different every time.
+ *
+ * The copy is placed on the stage too, not stacked above it, because in a
+ * composition like this the text block is one of the shapes: it fills the corner
+ * the mockups leave empty. It uses the same small-uppercase-label-over-a-muted-
+ * paragraph pattern as every other captioned section on a project page, so a
+ * reader moving down the page meets one voice.
+ *
+ * Below TABLET the canvas is abandoned entirely: the copy leads and the pieces
+ * stack full width at their natural ratio. A composition that depends on pieces
+ * overlapping at 40% of a container cannot survive a 375px screen — there is no
+ * arrangement, only a queue — and every other collage on the site makes the same
+ * call.
+ *
+ * PAINT ORDER IS DOM ORDER. A piece listed later covers the ones before it.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Piece {
+  src: ImageMetadata;
+  alt: string;
+  /** Left edge, % of the stage's width. May be negative to lean off the edge. */
+  x: number;
+  /** Top edge, % of the stage's HEIGHT — a known quantity via the ratio. */
+  y: number;
+  /** Width, % of the stage's width. The height follows the art's own ratio. */
+  w: number;
+}
+interface Props {
+  /**
+   * Optional caption. Omit BOTH (with `copy`) for a composition that is only
+   * pieces — a stage whose neighbours already name what it shows.
+   */
+  label?: string;
+  body?: string;
+  pieces: Piece[];
+  /** Placement of the copy block, in the same units as a piece. Omit with the copy. */
+  copy?: { x: number; y: number; w: number };
+  /**
+   * The stage's ratio, e.g. "809 / 780". The ONE number every placement above is
+   * read against — change it and the whole composition moves together, which is
+   * the point. Size it so the lowest piece's BOTTOM lands inside it: a piece is
+   * positioned by its top edge and its height comes from its own artwork, so the
+   * stage does not grow to contain it.
+   */
+  aspect: string;
+  /** Section landmark label. */
+  ariaLabel?: string;
+}
+const { label, body, pieces, copy, aspect, ariaLabel } = Astro.props;
+
+const container = "mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12";
+---
+
+<section class="overflow-x-clip py-section" aria-label={ariaLabel ?? label ?? "Piezas del proyecto"}>
+  <div class={container}>
+    <div class="ms-stage" style={`--aspect:${aspect}`}>
+      {
+        label && copy && (
+          <div
+            class="ms-copy"
+            style={`--x:${copy.x}%;--y:${copy.y}%;--w:${copy.w}%`}
+          >
+            <h3 class="text-p-sm font-bold tracking-wider text-text uppercase">
+              {label}
+            </h3>
+            {body && <p class="mt-4 text-p text-pretty text-muted">{body}</p>}
+          </div>
+        )
+      }
+
+      {
+        pieces.map((p) => (
+          <Image
+            class="ms-piece"
+            style={`--x:${p.x}%;--y:${p.y}%;--w:${p.w}%`}
+            src={p.src}
+            alt={p.alt}
+            widths={[640, 1000, 1400]}
+            sizes="(min-width: 640px) 50vw, 90vw"
+            loading="lazy"
+          />
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Mobile: no canvas. A plain stack, copy first, each piece at its own ratio. */
+  .ms-stage {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2rem, 6vw, 3rem);
+  }
+  .ms-piece {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  @media (width >= 640px) {
+    /* The canvas. Pieces are placed against it, so it must establish the
+       containing block AND resolve to a real height — hence the ratio. */
+    .ms-stage {
+      display: block;
+      position: relative;
+      aspect-ratio: var(--aspect);
+    }
+
+    .ms-copy,
+    .ms-piece {
+      position: absolute;
+      left: var(--x);
+      top: var(--y);
+      width: var(--w);
+    }
+    /* `height: auto` is not the default for an absolutely-positioned replaced
+       element in every engine's eyes once `top` is set — state it, so the piece
+       always takes the height its own ratio gives it and never stretches. */
+    .ms-piece {
+      height: auto;
+    }
+  }
+</style>

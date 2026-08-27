@@ -1,0 +1,98 @@
+---
+/**
+ * IconGrid — a custom icon set shown as a plain grid, with a short block of copy
+ * naming it alongside.
+ *
+ * Deliberately NOT `IconSystem`, which is Quantia's dark band: that one owns a
+ * field colour, three mockups and a texture, and shows its icons as one element
+ * of a larger composition. This is the icon set on its own — the copy says what
+ * the set is for and the grid lets a reader count the marks.
+ *
+ * The icons are CONTENT, not decoration: each one is a deliverable of the
+ * project, so each carries a real `alt` naming what it depicts rather than an
+ * empty one.
+ *
+ * Copy follows the same small-uppercase-label-over-a-muted-paragraph pattern as
+ * every other captioned section on a project page. The columns are weighted
+ * toward the grid (`1fr` of copy to `1.85fr` of icons), the same ratio
+ * `MockupAside` uses and for the same reason: the paragraph is a caption and the
+ * set is the argument.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Icon {
+  src: ImageMetadata;
+  /** Names what the icon depicts — these are content, not decoration. */
+  alt: string;
+}
+interface Props {
+  label: string;
+  body: string;
+  /** The set, in reading order. */
+  icons: Icon[];
+  /** Icons per row, at every size. */
+  columns?: number;
+  /** Section landmark label. */
+  ariaLabel?: string;
+}
+const { label, body, icons, columns = 4, ariaLabel } = Astro.props;
+---
+
+<section class="py-section" aria-label={ariaLabel ?? label}>
+  <div class="mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12">
+    <div class="grid gap-12 tablet:grid-cols-[1fr_1.85fr] tablet:gap-16">
+      <div>
+        <h3 class="text-p-sm font-bold tracking-wider text-text uppercase">
+          {label}
+        </h3>
+        <p class="mt-4 max-w-md text-p text-pretty text-muted">{body}</p>
+      </div>
+
+      {/* `--cols` rather than a Tailwind `grid-cols-N`: the count is data, and
+          Tailwind can only emit classes it can see at build time. */}
+      <ul class="icon-grid" style={`--cols:${columns}`}>
+        {
+          icons.map((icon) => (
+            <li>
+              <Image
+                class="icon-grid-img"
+                src={icon.src}
+                alt={icon.alt}
+                loading="lazy"
+              />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* The SAME column count at every size. A pixel icon is a small, dense shape,
+     so a phone fits the full row where a photograph would not — and keeping the
+     count means the set reads as one 4×2 block everywhere instead of turning
+     into a 2×4 column that a reader has to re-count. */
+  .icon-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--cols), 1fr);
+    gap: clamp(1rem, 4vw, 3rem);
+    place-items: center;
+  }
+
+  /* The icons are drawn at different intrinsic sizes but read as ONE set, so
+     they are sized by a shared box rather than by their own artwork: each fits
+     inside a square cell and keeps its ratio.
+
+     The cap is fluid with a LOW floor, because the row has to fit: four icons
+     plus three gaps inside a 375px screen leaves each about 65px, and a cap
+     above that would let the artwork drive the width and overflow the grid. */
+  .icon-grid-img {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: clamp(2.5rem, 8vw, 7rem);
+  }
+</style>
