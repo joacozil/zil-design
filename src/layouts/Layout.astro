@@ -121,9 +121,14 @@ import boldWoff2 from "../assets/fonts/CircularStd-Bold.woff2?url";
         n.version = "2.0";
         n.queue = [];
       })(window, document, "script");
-      fbq("init", "2107258050021163");
-      fbq("track", "PageView");
+      /* Mismo criterio que GA4: sin esto el pixel sumaba PageViews de prueba y
+        metía el browser de desarrollo en las audiencias de retargeting. */
+      if (/(^|\.)zil\.global$/i.test(location.hostname)) {
+        fbq("init", "2107258050021163");
+        fbq("track", "PageView");
+      }
       (function () {
+        if (!/(^|\.)zil\.global$/i.test(location.hostname)) return;
         var load = function () {
           var t = document.createElement("script");
           t.async = !0;
@@ -162,9 +167,18 @@ import boldWoff2 from "../assets/fonts/CircularStd-Bold.woff2?url";
         window.dataLayer.push(arguments);
       }
       window.gtag = gtag;
-      gtag("js", new Date());
-      gtag("config", "G-BGMH92ZFKE");
+      /* Sólo el dominio real mide: el dev server (:4321) y los previews de Pages
+        mandaban page_views a la propiedad de producción —3.283 en 60 días, la
+        mayoría de acá— y como /design es un filtro de ruta, el ruido caía
+        entero sobre las páginas de este sitio. gtag queda definido igual: lo
+        llaman lead-form y click-tracking, y encolar sin enviar no rompe nada. */
+      var zilMeasurable = /(^|\.)zil\.global$/i.test(location.hostname);
+      if (zilMeasurable) {
+        gtag("js", new Date());
+        gtag("config", "G-BGMH92ZFKE");
+      }
       (function () {
+        if (!zilMeasurable) return;
         var load = function () {
           var s = document.createElement("script");
           s.async = !0;
