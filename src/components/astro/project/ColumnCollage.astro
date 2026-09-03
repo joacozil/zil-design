@@ -1,0 +1,112 @@
+---
+/**
+ * ColumnCollage — a collage of applied pieces laid out as COLUMNS, each column a
+ * stack of images at their own natural ratio.
+ *
+ * The distinction from `Mosaic` is the axis the composition is built on, and it
+ * is not cosmetic. Mosaic is row-based: a row levels itself to ONE height and
+ * splits its width by weight, so two pieces sharing a row always share a bottom
+ * edge. That is the wrong model for a masonry — a set where the columns line up
+ * top and bottom but split at DIFFERENT points inside, because the pieces are
+ * mockups shot at unrelated ratios (a tall street-sign against a wide browser
+ * chrome). Feeding those to Mosaic either crops them or produces a zigzag of
+ * unequal column widths.
+ *
+ * Here the columns are equal width and the images keep their own proportions,
+ * so a column's height is whatever its stack adds up to. Two columns come out
+ * flush at the bottom when their ratios happen to balance (the usual case, since
+ * a collage is composed that way) and simply end where they end when they don't
+ * — nothing is stretched to force it.
+ *
+ * Below `tablet` the columns collapse to a single stack. The bento's order is
+ * spatial (which pieces share a column); a stack's is a sequence, so `stackOrder`
+ * exists for the same reason it does on Mosaic — set it on EVERY item or none, as
+ * an unset item sorts to the front.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Item {
+  src: ImageMetadata;
+  alt: string;
+  /** Position in the collapsed single-column order, 1-based. */
+  stackOrder?: number;
+}
+interface Props {
+  /** One entry per column, each a top-to-bottom stack. */
+  columns: Item[][];
+  /** Section landmark label. */
+  ariaLabel?: string;
+}
+const { columns, ariaLabel = "Piezas del proyecto" } = Astro.props;
+---
+
+<section class="py-section" aria-label={ariaLabel}>
+  <div class="mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12">
+    <div class="cc">
+      {
+        columns.map((col) => (
+          <div class="cc-col">
+            {col.map((it) => (
+              <Image
+                class="cc-img"
+                style={it.stackOrder ? `--order:${it.stackOrder}` : undefined}
+                src={it.src}
+                alt={it.alt}
+                widths={[640, 960, 1280]}
+                sizes="(min-width: 640px) 50vw, 100vw"
+                loading="lazy"
+              />
+            ))}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  /* One gap token for both axes, so the spacing reads uniform all around — the
+     same value and the same reasoning as Mosaic's. */
+  .cc {
+    --gap: clamp(0.5rem, 1.1vw, 1rem);
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+  }
+
+  /* Stacked: the columns STOP EXISTING (`display: contents` lifts their images
+     to be the collage's own children) so `stackOrder` can interleave pieces the
+     bento keeps in different columns. Without the flatten, `order` could only
+     shuffle within a column. */
+  .cc-col {
+    display: contents;
+  }
+
+  .cc-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    order: var(--order, 0);
+  }
+
+  @media (width >= 640px) {
+    .cc {
+      flex-direction: row;
+      align-items: flex-start;
+    }
+    .cc-col {
+      display: flex;
+      flex: 1;
+      /* `min-width: 0` — without it a flex item floors at its content's
+         intrinsic width, and a 2283px-wide mockup would push the column past its
+         half share and overflow the container. */
+      min-width: 0;
+      flex-direction: column;
+      gap: var(--gap);
+    }
+    .cc-img {
+      order: 0;
+    }
+  }
+</style>

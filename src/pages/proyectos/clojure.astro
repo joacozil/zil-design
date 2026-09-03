@@ -52,16 +52,32 @@ const mosaic = [
   {
     weight: 62,
     items: [
-      { src: conferenceImg, alt: "Invitación al evento Clojure/Conj 2026", weight: 43 },
+      {
+        src: conferenceImg,
+        alt: "Invitación al evento Clojure/Conj 2026",
+        weight: 43,
+      },
       { src: documentaryImg, alt: "Clojure Documentary Q&A", weight: 57 },
     ],
   },
   {
     weight: 38,
     items: [
-      { src: registerImg, alt: "Registro al livestream gratuito de Clojure/Conj 2026", weight: 38 },
-      { src: workshopsImg, alt: "Workshop Day Pass de Clojure/Conj 2026", weight: 26 },
-      { src: speakerImg, alt: "Workshop con Adrian Smith: Fast, Lean, Native Clojure", weight: 36 },
+      {
+        src: registerImg,
+        alt: "Registro al livestream gratuito de Clojure/Conj 2026",
+        weight: 38,
+      },
+      {
+        src: workshopsImg,
+        alt: "Workshop Day Pass de Clojure/Conj 2026",
+        weight: 26,
+      },
+      {
+        src: speakerImg,
+        alt: "Workshop con Adrian Smith: Fast, Lean, Native Clojure",
+        weight: 36,
+      },
     ],
   },
 ];
@@ -79,7 +95,8 @@ const work = [
     label: "Email Marketing",
     body: "Diseñamos piezas de comunicación digital con una estructura clara e identidad visual consistente para difundir novedades y llamadas a la acción. Cada envío fortalece la presencia del evento, mejora la comunicación y potencia la convocatoria.",
     image: phonesImg,
-    imageAlt: "Campañas de email marketing de Clojure/Conj 2026 en dos teléfonos",
+    imageAlt:
+      "Campañas de email marketing de Clojure/Conj 2026 en dos teléfonos",
     side: "left" as const,
   },
   {
@@ -99,7 +116,8 @@ const meta = [
   { label: "Cliente", value: "Nubank - Clojure" },
   {
     label: "Servicio",
-    value: "Web, UX/UI, Merchandising, Event Branding, Material POP, Email Marketing",
+    value:
+      "Web, UX/UI, Merchandising, Event Branding, Material POP, Email Marketing",
   },
 ];
 
@@ -189,10 +207,22 @@ const palette = [
       wordmarkImage={clojureFontImg}
     />
     <ProjectCollage
-      laptops={{ src: laptopsImg, alt: "Programa y ponentes de Clojure/Conj 2026 en dos laptops" }}
-      texture={{ src: textureImg, alt: "Textura gráfica de la identidad de Clojure/Conj" }}
-      phone={{ src: phoneImg, alt: "Sitio web de Clojure/Conj 2026 en un teléfono" }}
-      shirts={{ src: shirtsImg, alt: "Remeras del merchandising de Clojure/Conj 2026" }}
+      laptops={{
+        src: laptopsImg,
+        alt: "Programa y ponentes de Clojure/Conj 2026 en dos laptops",
+      }}
+      texture={{
+        src: textureImg,
+        alt: "Textura gráfica de la identidad de Clojure/Conj",
+      }}
+      phone={{
+        src: phoneImg,
+        alt: "Sitio web de Clojure/Conj 2026 en un teléfono",
+      }}
+      shirts={{
+        src: shirtsImg,
+        alt: "Remeras del merchandising de Clojure/Conj 2026",
+      }}
       sign={{ src: signImg, alt: "Banner de Clojure/Conj 2026 en un backdrop" }}
     />
     <Work rows={work} topBorder />

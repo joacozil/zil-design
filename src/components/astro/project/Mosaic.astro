@@ -74,6 +74,17 @@ interface Props {
    * proportion is the sum of what the rows resolve to.
    */
   fit?: "cover" | "natural";
+  /** Full-bleed rule at the top of the section. */
+  topBorder?: boolean;
+  /**
+   * Hairline around each image. On by default: a bento of flat artwork needs the
+   * edge to say where one cell stops and the next begins.
+   *
+   * Turn it OFF for a mockup that already carries its own edge — a shot on a
+   * white ground reads as a bordered box rather than as a piece, and with a
+   * saturated `--color-border` the frame competes with the artwork inside it.
+   */
+  imageBorder?: boolean;
 }
 const {
   rows,
@@ -82,10 +93,15 @@ const {
   inset,
   rowsFrom = "desktop",
   fit = "cover",
+  topBorder = false,
+  imageBorder = true,
 } = Astro.props;
 ---
 
-<section aria-label={ariaLabel} class="py-section">
+<section
+  aria-label={ariaLabel}
+  class:list={["py-section", topBorder && "border-t border-border"]}
+>
   {
     /* The inset lives on a WRAPPER, not on `.mosaic` itself. `aspect-ratio` sizes
       the BORDER box, so padding on the same element makes the bento taller than
@@ -99,6 +115,7 @@ const {
         "mosaic",
         rowsFrom === "tablet" && "mosaic--from-tablet",
         fit === "natural" && "mosaic--natural",
+        !imageBorder && "mosaic--borderless",
       ]}
       style={`--aspect:${aspect}`}
     >
@@ -164,6 +181,9 @@ const {
     height: auto;
     object-fit: cover;
     border: 1px solid var(--color-border);
+  }
+  .mosaic--borderless .mosaic-img {
+    border: 0;
   }
 
   /* The bento. Duplicated rather than factored out because the two variants
