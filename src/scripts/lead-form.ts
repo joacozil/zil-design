@@ -41,6 +41,8 @@ declare global {
     // must never depend on a measurement global existing.
     fbq?: (...args: unknown[]) => void;
     gtag?: (...args: unknown[]) => void;
+    // Defined inline in Layout.astro, alongside gtag itself.
+    zilConversion?: (url: string) => boolean;
   }
 }
 
@@ -370,7 +372,12 @@ const wire = (form: HTMLFormElement) => {
         if (redirecting) enter(redirecting, ["opacity-0"]);
       }, 1100);
       setTimeout(() => {
-        window.location.href = bookingUrl;
+        // zilConversion fires the Ads conversion and waits for gtag's
+        // event_callback before leaving — a plain redirect here would race
+        // the hit and lose it. Falls back to a direct redirect if the
+        // measurement script never installed the global (ad-blocker).
+        if (window.zilConversion) window.zilConversion(bookingUrl);
+        else window.location.href = bookingUrl;
       }, 2200);
     } catch (err) {
       // Never offer a retry for a lead the server already has — see the latch

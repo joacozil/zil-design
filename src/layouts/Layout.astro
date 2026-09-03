@@ -176,6 +176,7 @@ import boldWoff2 from "../assets/fonts/CircularStd-Bold.woff2?url";
       if (zilMeasurable) {
         gtag("js", new Date());
         gtag("config", "G-BGMH92ZFKE");
+        gtag("config", "AW-18426603960");
       }
       (function () {
         if (!zilMeasurable) return;
@@ -189,6 +190,26 @@ import boldWoff2 from "../assets/fonts/CircularStd-Bold.woff2?url";
           requestIdleCallback(load);
         else setTimeout(load, 3500);
       })();
+    </script>
+    {
+      /* Google Ads conversion — fires on the same `send_to` label the form
+        redirect uses (see lead-form.ts). The callback is what makes the
+        redirect wait: gtag confirms the hit landed before `window.location`
+        moves the reader off the page that would have sent it. */
+    }
+    <script is:inline>
+      function zilConversion(url) {
+        var callback = function () {
+          if (typeof url != "undefined") {
+            window.location = url;
+          }
+        };
+        gtag("event", "conversion", {
+          send_to: "AW-18426603960/3lSaCOPF0O0cELjTvtJE",
+          event_callback: callback,
+        });
+        return false;
+      }
     </script>
     {
       /* MOTION POLICY, JS half — see the matching block at the top of global.css.
