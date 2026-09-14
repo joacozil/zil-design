@@ -2,31 +2,62 @@
 /**
  * El encabezado de una página de servicio.
  *
- * ── POR QUÉ NO ES EL HERO DE LA HOME ────────────────────────────────────────
- * Aquel llena `100svh` y arma la Z completa con sus dos brazos: es la portada
- * del sitio y su trabajo es detener a alguien que todavía no sabe qué somos.
- * Acá el visitante llegó de una búsqueda concreta ("manual de marca", "diseño
- * editorial") y necesita confirmar en dos segundos que la página trata de eso.
- * Una portada a pantalla completa lo obliga a scrollear para averiguarlo.
+ * ── LA MISMA Z QUE LA PORTADA ───────────────────────────────────────────────
+ * Es la firma de la marca y por eso aparece en todas las superficies de entrada
+ * del sitio, no sólo en la home: el visitante que cae a "manual de marca" desde
+ * una búsqueda tiene que reconocer el mismo lugar que el que entró por la
+ * portada. El glifo lo dibuja ZStage.astro y es idéntico en ambas — ahí vive
+ * toda su geometría.
  *
- * ── PERO SÍ ES EL MISMO SITIO ───────────────────────────────────────────────
- * Campo violeta saturado, un brazo diagonal con el degradado a lima, grano
- * encima y tipografía blanca grande: el mismo vocabulario, en una composición
- * más corta. UN brazo y no dos, deliberadamente — la Z entera es la firma de la
- * portada y repetirla en seis páginas la gasta. Este es un pariente, no una
- * copia.
+ * Lo que cambia es el ENCUADRE, no la letra:
  *
- * ── ALTURA ──────────────────────────────────────────────────────────────────
- * `min-h-[70svh]`, no `100svh`. Suficiente para que la composición gráfica se
- * lea entera y para que el primer bloque de contenido asome por abajo, que es
- * lo que le dice al lector que la respuesta que vino a buscar está más abajo.
+ *   · el escenario mide 70svh en vez de 100svh, así que se ve un recorte más
+ *     corto de la misma Z (`variant="section"` escala el recorrido de los
+ *     brazos para que el ángulo no se deforme — ver el prop);
+ *   · la columna de texto va alineada a la izquierda y no centrada, porque acá
+ *     el lector viene a leer una respuesta concreta, no a mirar una portada.
  *
- * `pt-32` es despeje del header flotante (~75px + aire), medido igual que en
- * Hero.astro y ProjectHero.astro. Es la excepción a la simetría del ritmo que
- * la guía permite explícitamente para las secciones que bordean el header.
+ * ── EL TEXTO SE REGISTRA SOBRE EL HORIZONTE ─────────────────────────────────
+ * Igual que en la portada, la copy no flota libre: la primera fila de la grilla
+ * termina exactamente sobre la línea del horizonte de la Z, el bloque de título
+ * se apoya contra ella desde arriba y la bajada abre justo debajo. Así las dos
+ * aristas del horizonte siempre pasan por el hueco entre el título y la bajada.
+ *
+ * `pt-24` es despeje del header flotante (~75px), medido igual que en
+ * Hero.astro, y la fila se lo resta para que su borde inferior caiga sobre el
+ * horizonte: cambiar uno sin el otro rompe el registro en silencio.
+ *
+ * ── LOS 78svh SON EL NÚMERO QUE SOSTIENE ESE REGISTRO ───────────────────────
+ * No es un gusto: el horizonte de la Z cae al 50% del ESCENARIO, y la fila del
+ * título termina a `39svh` del borde de arriba. Los dos coinciden sólo mientras
+ * la sección mida efectivamente 78svh — es decir, mientras la copy ENTRE en esa
+ * altura. Si se pasa, la sección crece por abajo, el 50% baja con ella y la
+ * línea se corre hacia la bajada hasta apoyarse encima: con 70svh, que es lo
+ * que esta sección medía, la página de logo llegaba a 18px de corrimiento y el
+ * horizonte quedaba pegado al primer renglón.
+ *
+ * 78svh es la altura que hace entrar a la más larga de las seis páginas
+ * (~690px a 1440×900) con aire de sobra, y sigue dejando asomar el bloque
+ * siguiente por abajo, que es lo que le dice al lector que la respuesta que vino
+ * a buscar está más abajo. Los tres números —`min-h-[78svh]`, el `39svh` de la
+ * grilla y el `variant="section"` de ZStage— son UNO SOLO escrito tres veces:
+ * se tocan juntos o no se tocan. Si una página nueva trae tanta copy que no
+ * entra, el arreglo es acortarla o subir los tres, nunca sólo uno.
+ *
+ * El `pb-6` del final de esa cadena es parte del mismo cálculo y no un gusto:
+ * es un PISO, no el aire real. Mientras la sección la manda `min-h`, la fila 2
+ * es `1fr` y el aire bajo el CTA lo pone la holgura sobrante; el padding sólo
+ * aparece cuando la copy desborda el escenario y es la sección la que crece —
+ * y ahí cada píxel que se le agregue a este padding se convierte en medio
+ * píxel de corrimiento del horizonte. Con `pb-12`, la página de logo quedaba a
+ * 9px; con `pb-6` no pasa de 6px en ninguna altura de viewport.
+ *
+ * Como las secciones ancladas al viewport, NO lleva `py-section`: el aire lo
+ * decide el alto del escenario.
  */
 import Badge from "../Badge.astro";
 import Button from "../Button.astro";
+import ZStage from "../ZStage.astro";
 
 interface Props {
   eyebrow: string;
@@ -43,123 +74,122 @@ const { eyebrow, title, lede, body, ctaLabel, ctaHref } = Astro.props;
 ---
 
 <section
-  class="relative flex min-h-[70svh] w-full flex-col overflow-hidden bg-primary"
+  class="relative flex min-h-[78svh] w-full flex-col overflow-hidden bg-primary-dark"
 >
-  {/* Capa gráfica. Decorativa: todo lo legible va por encima. */}
-  <div aria-hidden="true" class="absolute inset-0" data-hero-image>
-    <div class="svc-shape"></div>
-  </div>
+  <ZStage variant="section" />
+
   {
-    /* El grano va FUERA de la capa que se asienta, para que la textura quede
-      fija a la pantalla —como grano de película— mientras la geometría se
-      mueve debajo. Mismo criterio que en Hero.astro. */
+    /* El mismo retardo que la portada: la copy sube recién cuando la Z terminó
+      de dibujarse. El número vive en Hero.astro y acá — son la misma entrada
+      sobre el mismo gráfico, así que si se retoca uno se retoca el otro. */
   }
-  <div aria-hidden="true" class="svc-grain"></div>
-
   <div
-    class="relative z-10 mx-auto flex w-full max-w-8xl flex-1 flex-col justify-center px-6 pt-32 pb-56 tablet:px-8 tablet:pt-36 tablet:pb-section desktop:px-12 desktop:pt-40"
+    class="svc-grid relative z-10 mx-auto w-full max-w-8xl flex-1 px-6 pt-24 pb-6 tablet:px-8 desktop:px-12"
     data-reveal-group
+    data-reveal-delay="0.62"
   >
-    {
-      /* El badge sobre violeta: la variante clara del componente sigue
-        legible porque su fondo es primary-light, no transparente. */
-    }
-    <Badge class="mb-6 self-start" data-reveal>{eyebrow}</Badge>
+    <div class="svc-head">
+      {
+        /* El badge sobre violeta: la variante clara del componente sigue
+          legible porque su fondo es primary-light, no transparente. */
+      }
+      <Badge class="mb-6" data-reveal>{eyebrow}</Badge>
 
-    <h1
-      class="max-w-[16ch] text-h1 tracking-[-0.03em] text-balance text-text-inverse"
-      data-reveal
-    >
-      {title}
-    </h1>
-
-    <p
-      class="mt-6 max-w-[46ch] text-p-lg text-pretty text-text-inverse"
-      data-reveal
-    >
-      {lede}
-    </p>
-
-    {
-      body && (
-        <p
-          class="mt-4 max-w-[52ch] text-p text-pretty text-text-inverse/75"
-          data-reveal
-        >
-          {body}
-        </p>
-      )
-    }
-
-    <div class="mt-10 self-start" data-reveal>
-      <Button
-        href={ctaHref}
-        variant="pill"
-        data-track="cta_click"
-        data-track-location="service-hero"
+      <h1
+        class="max-w-[16ch] text-h1 tracking-[-0.03em] text-balance text-text-inverse"
+        data-reveal
       >
-        {ctaLabel}
-      </Button>
+        {title}
+      </h1>
+    </div>
+
+    <div class="svc-body">
+      <p
+        class="max-w-[46ch] text-p-lg text-pretty text-text-inverse"
+        data-reveal
+      >
+        {lede}
+      </p>
+
+      {
+        body && (
+          <p
+            class="mt-4 max-w-[52ch] text-p text-pretty text-text-inverse/75"
+            data-reveal
+          >
+            {body}
+          </p>
+        )
+      }
+
+      <div class="mt-10" data-reveal>
+        <Button
+          href={ctaHref}
+          variant="pill"
+          data-track="cta_click"
+          data-track-location="service-hero"
+        >
+          {ctaLabel}
+        </Button>
+      </div>
     </div>
   </div>
 </section>
 
 <style>
-  /* UN brazo, no la Z entera: la Z es la firma de la portada y repetirla en
-     seis páginas la gasta.
+  /* Dos filas registradas sobre el gráfico, no centradas libremente:
 
-     ── MÓVIL: FRANJA AL PIE, NO BRAZO LATERAL ────────────────────────────────
-     La primera versión usaba el mismo brazo diagonal en las tres medidas, con
-     el recorte en porcentajes de la sección. En móvil eso lo cruzaba por el
-     medio: el texto ocupa casi todo el ancho —no hay columna libre a la
-     derecha— así que la arista pasaba por encima del segundo párrafo y partía
-     la pastilla del CTA en dos, con la mitad del texto blanco sobre lima.
+       1  minmax(min-content, 39svh − 6rem)   badge + título, apoyados abajo —
+                                             la fila termina sobre el horizonte
+       2  1fr                                bajada, matiz y CTA
 
-     Acá el brazo se convierte en una franja anclada al pie, de ALTURA FIJA y
-     no porcentual. Fija es lo que lo hace confiable: la altura de estas
-     secciones la decide el copy, que cambia por página, y un porcentaje se
-     mueve con ella. 220px de franja contra `pb-56` (224px) de la caja de
-     contenido: la diagonal siempre queda por debajo del último elemento.
-     Cambiar uno de los dos números pide cambiar el otro.
+     Los 6rem son el `pt-24` del contenedor y los 39svh la mitad de los 78svh
+     del escenario (ver el comentario de cabecera): el borde inferior de la fila
+     1 cae exactamente sobre el horizonte de la Z.
 
-     ── TABLET Y DESKTOP: EL BRAZO ────────────────────────────────────────────
-     Desde 640px el texto tiene medida máxima y deja libre el margen derecho,
-     así que ahí sí entra el brazo diagonal sin tocar nada legible. */
-  .svc-shape {
-    position: absolute;
-    inset: auto 0 0 0;
-    height: 220px;
-    background: linear-gradient(
-      195deg,
-      color-mix(in srgb, var(--color-primary) 65%, var(--color-accent)) 10%,
-      var(--color-accent) 55%
-    );
-    clip-path: polygon(0 100%, 100% 0, 100% 100%);
+     `minmax` y no una altura fija: en un viewport bajo y ancho —1440×700— la
+     fila no alcanza para el título, que no se achica porque su cuerpo lo decide
+     el ANCHO. Fija, el bloque se desbordaría hacia arriba y el badge terminaría
+     detrás del header; así la fila cede y crece, y lo que se paga es unos pocos
+     px de corrimiento del horizonte en esa medida. */
+  .svc-grid {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: minmax(min-content, calc(39svh - 6rem)) 1fr;
+
+    /* El aire a cada lado del horizonte. Un solo token para los dos, porque las
+       dos mitades tienen que leerse iguales: la línea pasa entre el título y la
+       bajada, y cualquier asimetría la hace parecer parte de uno de los dos. */
+    --z-copy-gap: 1.5rem;
   }
 
   @media (width >= 640px) {
-    .svc-shape {
-      inset: 0;
-      height: auto;
-      clip-path: polygon(100% 26%, 100% 100%, 46% 100%);
+    .svc-grid {
+      --z-copy-gap: 2rem;
     }
   }
 
-  @media (width >= 1024px) {
-    .svc-shape {
-      clip-path: polygon(100% 18%, 100% 100%, 58% 100%);
-    }
+  /* LOS DOS HUECOS SE MIDEN DESDE EL TEXTO, NO DESDE LA CAJA — por eso son
+     calc() y no un valor plano. La caja de línea es más alta que su texto: el
+     interlineado se reparte mitad arriba y mitad abajo, así que queda
+     `(line-height − 1) / 2` de aire muerto adentro del borde antes de la primera
+     letra. El h1 y la bajada tienen interlineados muy distintos (1.05 vs 1.55),
+     y un padding igual para los dos rinde huecos visiblemente DESIGUALES.
+
+     Restar el medio-interlineado de cada uno cancela ese aire muerto. Va en
+     `em` a propósito: `em` resuelve contra el font-size del PROPIO elemento, así
+     que sigue siendo correcto cuando la escala tipográfica escalona en los
+     breakpoints, sin un segundo juego de números que mantener. Las constantes
+     son (line-height − 1) / 2 de cada rol — recalcularlas si cambia un
+     line-height en global.css. Mismo criterio que en Hero.astro. */
+  .svc-head {
+    align-self: end;
+    /* text-h1, line-height 1.05 → (1.05 − 1) / 2 = 0.025em */
+    padding-bottom: calc(var(--z-copy-gap) - 0.025em);
   }
 
-  /* Mismo grano que el hero de la portada, misma frecuencia y misma mezcla.
-     Duplicado a propósito y no extraído a global.css: son las dos únicas
-     superficies del sitio que lo usan, y compartirlo desde global.css invita a
-     que aparezca en una tercera donde nadie lo pensó. */
-  .svc-grain {
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    mix-blend-mode: soft-light;
-    opacity: 0.55;
+  .svc-body {
+    /* text-p-lg, line-height 1.55 → (1.55 − 1) / 2 = 0.275em */
+    margin-top: calc(var(--z-copy-gap) - 0.275em);
   }
 </style>
