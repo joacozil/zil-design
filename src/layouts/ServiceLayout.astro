@@ -23,7 +23,7 @@ import Layout from "./Layout.astro";
 import Header from "../components/astro/Header.astro";
 import Footer from "../components/astro/Footer.astro";
 import ServiceHero from "../components/astro/service/ServiceHero.astro";
-import CTA from "../sections/CTA.astro";
+import LeadForm from "../components/astro/LeadForm.astro";
 import FAQ from "../sections/FAQ.astro";
 import Clients from "../sections/Clients.astro";
 import { serviceHref } from "../data/services";
@@ -43,8 +43,8 @@ interface Props {
   heroBody?: string;
   faqs: FaqItem[];
   faqTitle?: string;
-  ctaTitle?: string;
-  ctaText?: string;
+  ctaTitle: string;
+  ctaText: string;
 }
 
 const {
@@ -135,14 +135,47 @@ const ctaLabel = "Contanos tu proyecto";
     }
     <Clients />
 
-    <div id="hablemos" class="scroll-anchor"></div>
-    <CTA
-      placement={slug}
-      anchor={false}
-      title={ctaTitle}
-      text={ctaText}
-      cta="Empecemos"
-    />
+    {
+      /* El cierre en formulario. Usa LeadForm directamente y no sections/CTA,
+        que es la portada: aquel trae su propio ancla #cta y su propio copy, y
+        acá el copy es por página. LeadForm es el mismo markup en las cuatro
+        superficies del sitio, así que un campo nuevo llega igual a workspace
+        venga de donde venga. `placement` es el slug: es lo único que distingue
+        de qué página salió el lead. */
+    }
+    <section>
+      <div
+        class="mx-auto w-full max-w-8xl px-6 py-section tablet:px-8 desktop:px-12"
+      >
+        <div id="hablemos" class="scroll-anchor"></div>
+
+        <div class="bg-primary-light p-8 tablet:p-12 desktop:p-16">
+          <div
+            class="grid grid-cols-1 gap-10 desktop:grid-cols-2 desktop:gap-16"
+            data-reveal-group
+          >
+            <div>
+              <h2
+                class="max-w-[16ch] text-h2 tracking-[-0.03em] text-balance"
+                data-reveal
+              >
+                {ctaTitle}
+              </h2>
+              <p class="mt-4 max-w-[36ch] text-p-lg text-pretty" data-reveal>
+                {ctaText}
+              </p>
+            </div>
+
+            <LeadForm
+              placement={slug}
+              tone="lilac"
+              reveal
+              submitLabel="Empecemos"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
 
     <FAQ items={faqs} title={faqTitle} anchor={false} />
   </main>
