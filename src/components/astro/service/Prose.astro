@@ -12,6 +12,12 @@
  * `narrow` (por defecto) limita la medida a ~62ch. La guía de tipografía pide
  * texto corrido cerca de esa medida, y sin el tope el párrafo cruza los 1312px
  * del contenedor en desktop y se vuelve ilegible.
+ *
+ * Un bloque `narrow` además va CENTRADO desde tablet: con la medida topeada, el
+ * texto alineado a la izquierda dejaba más de media pantalla en blanco a la
+ * derecha y el bloque se leía caído hacia un costado. En mobile vuelve a la
+ * izquierda: ahí la columna ya ocupa todo el ancho y un párrafo largo centrado
+ * se lee peor, porque cada renglón empieza en un lugar distinto.
  */
 interface Props {
   title?: string;
@@ -31,7 +37,10 @@ const { title, narrow = true, class: className = "" } = Astro.props;
     {
       title && (
         <h2
-          class="max-w-[24ch] text-h2 tracking-[-0.03em] text-balance"
+          class:list={[
+            "max-w-[24ch] text-h2 tracking-[-0.03em] text-balance",
+            narrow && "tablet:mx-auto tablet:text-center",
+          ]}
           data-reveal
         >
           {title}
@@ -40,7 +49,11 @@ const { title, narrow = true, class: className = "" } = Astro.props;
     }
 
     <div
-      class:list={["service-prose", title && "mt-8", narrow && "max-w-[62ch]"]}
+      class:list={[
+        "service-prose",
+        title && "mt-8",
+        narrow && "max-w-[62ch] tablet:mx-auto tablet:text-center",
+      ]}
       data-reveal
     >
       <slot />

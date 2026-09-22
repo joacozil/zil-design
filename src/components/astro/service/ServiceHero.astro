@@ -11,49 +11,34 @@
  *
  * Lo que cambia es el ENCUADRE, no la letra:
  *
- *   · el escenario mide 70svh en vez de 100svh, así que se ve un recorte más
- *     corto de la misma Z (`variant="section"` escala el recorrido de los
- *     brazos para que el ángulo no se deforme — ver el prop);
+ *   · se ve un recorte más corto de la misma Z: el escenario es de 78svh (el
+ *     alto con el que `variant="section"` escala el recorrido de los brazos
+ *     para que el ángulo no se deforme — ver el prop) y la sección, más baja,
+ *     corta su mitad de abajo;
  *   · la columna de texto va alineada a la izquierda y no centrada, porque acá
  *     el lector viene a leer una respuesta concreta, no a mirar una portada.
  *
  * ── EL TEXTO SE REGISTRA SOBRE EL HORIZONTE ─────────────────────────────────
- * Igual que en la portada, la copy no flota libre: la primera fila de la grilla
- * termina exactamente sobre la línea del horizonte de la Z, el bloque de título
- * se apoya contra ella desde arriba y la bajada abre justo debajo. Así las dos
- * aristas del horizonte siempre pasan por el hueco entre el título y la bajada.
+ * Igual que en la portada, la copy no flota libre: el horizonte de la Z pasa
+ * exactamente por el hueco entre el título y la bajada. Acá no se consigue
+ * calzando alturas en svh sino al revés: la Z se ancla al pie del título (ver
+ * `.svc-stage-z`), así que el registro vale para cualquier largo de copy y en
+ * cualquier viewport, sin números que mantener en sincronía.
  *
- * `pt-24` es despeje del header flotante (~75px), medido igual que en
- * Hero.astro, y la fila se lo resta para que su borde inferior caiga sobre el
- * horizonte: cambiar uno sin el otro rompe el registro en silencio.
+ * ── EL AIRE DE ARRIBA Y EL DE ABAJO SON EL MISMO ────────────────────────────
+ * El header flotante tapa el borde de arriba, así que si la sección centrara
+ * su contenido en su propia caja, el aire visible arriba (bajo el header)
+ * quedaría más chico que el de abajo. La grilla lo resuelve con una fila de
+ * despeje del header y dos filas de aire `1fr` idénticas alrededor de la copy:
+ * el aire bajo el header y el aire bajo la bajada salen iguales por
+ * construcción, en todas las páginas y en todos los viewports.
  *
- * ── LOS 78svh SON EL NÚMERO QUE SOSTIENE ESE REGISTRO ───────────────────────
- * No es un gusto: el horizonte de la Z cae al 50% del ESCENARIO, y la fila del
- * título termina a `39svh` del borde de arriba. Los dos coinciden sólo mientras
- * la sección mida efectivamente 78svh — es decir, mientras la copy ENTRE en esa
- * altura. Si se pasa, la sección crece por abajo, el 50% baja con ella y la
- * línea se corre hacia la bajada hasta apoyarse encima: con 70svh, que es lo
- * que esta sección medía, la página de logo llegaba a 18px de corrimiento y el
- * horizonte quedaba pegado al primer renglón.
- *
- * 78svh es la altura que hace entrar a la más larga de las seis páginas
- * (~690px a 1440×900) con aire de sobra, y sigue dejando asomar el bloque
- * siguiente por abajo, que es lo que le dice al lector que la respuesta que vino
- * a buscar está más abajo. Los tres números —`min-h-[78svh]`, el `39svh` de la
- * grilla y el `variant="section"` de ZStage— son UNO SOLO escrito tres veces:
- * se tocan juntos o no se tocan. Si una página nueva trae tanta copy que no
- * entra, el arreglo es acortarla o subir los tres, nunca sólo uno.
- *
- * El `pb-6` del final de esa cadena es parte del mismo cálculo y no un gusto:
- * es un PISO, no el aire real. Mientras la sección la manda `min-h`, la fila 2
- * es `1fr` y el aire bajo el CTA lo pone la holgura sobrante; el padding sólo
- * aparece cuando la copy desborda el escenario y es la sección la que crece —
- * y ahí cada píxel que se le agregue a este padding se convierte en medio
- * píxel de corrimiento del horizonte. Con `pb-12`, la página de logo quedaba a
- * 9px; con `pb-6` no pasa de 6px en ninguna altura de viewport.
+ * `min-h-[80svh]` sólo decide CUÁNTO aire hay — la holgura que se reparten
+ * las dos filas. Deja asomar el bloque siguiente por abajo, que es lo que le
+ * dice al lector que la respuesta que vino a buscar está más abajo.
  *
  * Como las secciones ancladas al viewport, NO lleva `py-section`: el aire lo
- * decide el alto del escenario.
+ * decide la grilla.
  */
 import Badge from "../Badge.astro";
 import Button from "../Button.astro";
@@ -74,36 +59,55 @@ const { eyebrow, title, lede, body, ctaLabel, ctaHref } = Astro.props;
 ---
 
 <section
-  class="relative flex min-h-[78svh] w-full flex-col overflow-hidden bg-primary-dark"
+  class="svc-hero relative min-h-[80svh] w-full overflow-hidden bg-primary-dark"
+  data-reveal-group
+  data-reveal-delay="0.62"
 >
-  <ZStage variant="section" />
+  {
+    /* El escenario ocupa las filas 1–3: del borde de arriba hasta el pie del
+      título. Su hijo mide el doble de eso, así que el centro de la Z — el
+      horizonte — cae siempre sobre ese pie, sin importar cuánto mida la copy.
+      Ver `.svc-stage-z` abajo. */
+  }
+  <div class="svc-stage" aria-hidden="true">
+    <div class="svc-stage-z">
+      <ZStage variant="section" />
+    </div>
+  </div>
 
   {
-    /* El mismo retardo que la portada: la copy sube recién cuando la Z terminó
-      de dibujarse. El número vive en Hero.astro y acá — son la misma entrada
-      sobre el mismo gráfico, así que si se retoca uno se retoca el otro. */
+    /* El mismo retardo que la portada (el data-reveal-delay de la sección): la
+      copy sube recién cuando la Z terminó de dibujarse. El número vive en
+      Hero.astro y acá — son la misma entrada sobre el mismo gráfico, así que si
+      se retoca uno se retoca el otro. */
   }
   <div
-    class="svc-grid relative z-10 mx-auto w-full max-w-8xl flex-1 px-6 pt-24 pb-6 tablet:px-8 desktop:px-12"
-    data-reveal-group
-    data-reveal-delay="0.62"
+    class="svc-head relative z-10 mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12"
   >
-    <div class="svc-head">
-      {
-        /* El badge sobre violeta: la variante clara del componente sigue
-          legible porque su fondo es primary-light, no transparente. */
-      }
-      <Badge class="mb-6" data-reveal>{eyebrow}</Badge>
+    {
+      /* El badge sobre violeta: la variante clara del componente sigue
+        legible porque su fondo es primary-light, no transparente. */
+    }
+    <Badge class="mb-6" data-reveal>{eyebrow}</Badge>
 
-      <h1
-        class="max-w-[16ch] text-h1 tracking-[-0.03em] text-balance text-text-inverse"
-        data-reveal
-      >
-        {title}
-      </h1>
-    </div>
+    <h1
+      class="max-w-[16ch] text-h1 tracking-[-0.03em] text-balance text-text-inverse"
+      data-reveal
+    >
+      {title}
+    </h1>
+  </div>
 
-    <div class="svc-body">
+  {
+    /* En desktop la bajada y el CTA se separan: el texto queda a la
+      izquierda y el botón a la derecha, con su base alineada a la última
+      línea del texto. Así la columna respira y el peso visual se reparte en
+      todo el escenario en vez de apilarse contra el borde izquierdo. */
+  }
+  <div
+    class="svc-body relative z-10 mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:grid desktop:grid-cols-[1fr_auto] desktop:items-end desktop:gap-x-12 desktop:px-12"
+  >
+    <div>
       <p
         class="max-w-[46ch] text-p-lg text-pretty text-text-inverse"
         data-reveal
@@ -121,41 +125,44 @@ const { eyebrow, title, lede, body, ctaLabel, ctaHref } = Astro.props;
           </p>
         )
       }
+    </div>
 
-      <div class="mt-10" data-reveal>
-        <Button
-          href={ctaHref}
-          variant="pill"
-          data-track="cta_click"
-          data-track-location="service-hero"
-        >
-          {ctaLabel}
-        </Button>
-      </div>
+    <div class="mt-10 desktop:mt-0" data-reveal>
+      <Button
+        href={ctaHref}
+        variant="pill"
+        data-track="cta_click"
+        data-track-location="service-hero"
+      >
+        {ctaLabel}
+      </Button>
     </div>
   </div>
 </section>
 
 <style>
-  /* Dos filas registradas sobre el gráfico, no centradas libremente:
+  /* Seis filas, simétricas alrededor de la copy:
 
-       1  minmax(min-content, 39svh − 6rem)   badge + título, apoyados abajo —
-                                             la fila termina sobre el horizonte
-       2  1fr                                bajada, matiz y CTA
+       1  6rem            despeje del header flotante
+       2  minmax(0, 1fr)  aire de arriba
+       3  auto            badge + título       ── el horizonte pasa acá abajo
+       4  auto            bajada, matiz y CTA
+       5  minmax(0, 1fr)  aire de abajo
+       6  1.5rem          piso
 
-     Los 6rem son el `pt-24` del contenedor y los 39svh la mitad de los 78svh
-     del escenario (ver el comentario de cabecera): el borde inferior de la fila
-     1 cae exactamente sobre el horizonte de la Z.
+     Las filas 2 y 5 son el MISMO `1fr`, así que se reparten la holgura del
+     `min-h` en partes iguales: el aire sobre el badge y bajo la bajada salen
+     iguales por construcción, sin un número por página. El despeje y el piso
+     también se compensan: el header termina a 74px (16 de `pt-4` + la caja),
+     así que la fila 1 deja 22px visibles bajo él, contra los 24 de la fila 6.
+     Si cambia el alto del header, se retoca la fila 1 para mantener ese par.
 
-     `minmax` y no una altura fija: en un viewport bajo y ancho —1440×700— la
-     fila no alcanza para el título, que no se achica porque su cuerpo lo decide
-     el ANCHO. Fija, el bloque se desbordaría hacia arriba y el badge terminaría
-     detrás del header; así la fila cede y crece, y lo que se paga es unos pocos
-     px de corrimiento del horizonte en esa medida. */
-  .svc-grid {
+     Cuando la copy no entra en el `min-h` —mobile, siempre— las dos filas de
+     aire caen a 0 a la vez y queda el mismo par 22/24: sigue balanceado. */
+  .svc-hero {
     display: grid;
     grid-template-columns: 100%;
-    grid-template-rows: minmax(min-content, calc(39svh - 6rem)) 1fr;
+    grid-template-rows: 6rem minmax(0, 1fr) auto auto minmax(0, 1fr) 1.5rem;
 
     /* El aire a cada lado del horizonte. Un solo token para los dos, porque las
        dos mitades tienen que leerse iguales: la línea pasa entre el título y la
@@ -164,9 +171,36 @@ const { eyebrow, title, lede, body, ctaLabel, ctaHref } = Astro.props;
   }
 
   @media (width >= 640px) {
-    .svc-grid {
+    .svc-hero {
       --z-copy-gap: 2rem;
     }
+  }
+
+  /* EL HORIZONTE SE ANCLA AL TÍTULO, NO A LA MITAD DE LA SECCIÓN. El marco
+     `.svc-stage` cubre las filas 1–3, así que su borde de abajo ES el pie del
+     bloque de título. La Z adentro mide el doble de ese marco (o 78svh, lo que
+     sea mayor) y queda centrada sobre ese borde: el horizonte, que ZStage
+     dibuja al 50% de su propio alto, cae exactamente ahí. La mitad de abajo de
+     la Z sale por el pie de la sección y la corta el `overflow-hidden` — es un
+     recorte más de la misma letra, como el de 78svh lo era de la de portada.
+
+     Los 78svh son el alto con el que `variant="section"` calcula el ángulo de
+     los brazos (su `--z-k`). Mientras el marco no pase de 39svh, la Z mide
+     justo eso y la letra es idéntica a la de antes; si la copy o el aire lo
+     estiran, la Z crece con él y se empina apenas, en vez de despegar el
+     horizonte del título. `top` sube la Z lo que haga falta para centrarla
+     cuando mide 78svh, y es 0 cuando mide el doble del marco. */
+  .svc-stage {
+    position: relative;
+    grid-row: 1 / 4;
+    grid-column: 1;
+  }
+
+  .svc-stage-z {
+    position: absolute;
+    inset-inline: 0;
+    height: max(78svh, 200%);
+    top: min(0px, calc(100% - 39svh));
   }
 
   /* LOS DOS HUECOS SE MIDEN DESDE EL TEXTO, NO DESDE LA CAJA — por eso son
@@ -183,12 +217,15 @@ const { eyebrow, title, lede, body, ctaLabel, ctaHref } = Astro.props;
      son (line-height − 1) / 2 de cada rol — recalcularlas si cambia un
      line-height en global.css. Mismo criterio que en Hero.astro. */
   .svc-head {
-    align-self: end;
+    grid-row: 3;
+    grid-column: 1;
     /* text-h1, line-height 1.05 → (1.05 − 1) / 2 = 0.025em */
     padding-bottom: calc(var(--z-copy-gap) - 0.025em);
   }
 
   .svc-body {
+    grid-row: 4;
+    grid-column: 1;
     /* text-p-lg, line-height 1.55 → (1.55 − 1) / 2 = 0.275em */
     margin-top: calc(var(--z-copy-gap) - 0.275em);
   }
