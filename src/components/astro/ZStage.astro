@@ -41,11 +41,11 @@ interface Props {
    * The glyph's angle is set by how far each arm travels sideways over its own
    * half-stage, so a shorter stage needs proportionally shorter travel or the
    * same numbers draw a flatter, deformed Z. Every horizontal length below is
-   * scaled by this, which is what lets a 70svh service hero show a SHORTER CROP
+   * scaled by this, which is what lets an 80svh service hero show a SHORTER CROP
    * of the same letter instead of a squashed one.
    *
    *   page     100svh — the home hero
-   *   section    78svh — a service hero
+   *   section    80svh — a service hero
    *
    * If a stage's height ever changes, change its fraction here in the same
    * commit; they are one number written twice.
@@ -108,7 +108,7 @@ const { variant = "page" } = Astro.props;
     /* THE STAGE'S HEIGHT AS A FRACTION OF THE VIEWPORT — see the `variant` prop.
        Every HORIZONTAL length below is multiplied by it, because each arm's drop
        is half the stage: scaling the travel by the same factor as the drop is
-       what keeps the angle — i.e. the letterform — identical on a 70svh stage
+       what keeps the angle — i.e. the letterform — identical on an 80svh stage
        and a 100svh one. It is the only number that differs between the two. */
     --z-k: 1;
     /* MOBILE NARROWS THE STROKE, ON PURPOSE, AGAINST THE RULE BELOW. The 11rem
@@ -191,14 +191,14 @@ const { variant = "page" } = Astro.props;
     --z-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='1' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='2.2' intercept='-0.6'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.34'/%3E%3C/svg%3E");
   }
 
-  /* A service hero is 78svh, so its half-stage — every arm's drop — is 0.78 of
-     the home hero's. Scaling the travel by the same 0.78 keeps the angle, and
+  /* A service hero is 80svh, so its half-stage — every arm's drop — is 0.8 of
+     the home hero's. Scaling the travel by the same 0.8 keeps the angle, and
      the reader sees a SHORTER CROP of the same oversized glyph rather than a
      squat one. Specificity beats the base rule on purpose: the media query below
      re-declares --z-gap on the same selector, and equal weights would make the
      cascade order load-bearing. */
   [data-hero-image].z-stage-section {
-    --z-k: 0.78;
+    --z-k: 0.8;
   }
 
   /* --- Counter-space panels --------------------------------------------------
