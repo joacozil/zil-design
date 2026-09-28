@@ -42,7 +42,13 @@ declare global {
     fbq?: (...args: unknown[]) => void;
     gtag?: (...args: unknown[]) => void;
     // PostHog, also inline in Layout.astro. `capture` only exists on zil.global.
-    posthog?: { capture?: (event: string, props?: object) => void };
+    posthog?: {
+      capture?: (event: string, props?: object) => void;
+      setPersonProperties?: (props: object) => void;
+      get_distinct_id?: () => string;
+    };
+    // The experiment engine, injected by zil-landing's edge (edge/ab-client.js).
+    zilAB?: { distinctId: string; variants: () => Record<string, string> };
     // Defined inline in Layout.astro, alongside gtag itself.
     zilConversion?: (url: string) => boolean;
   }
@@ -150,6 +156,11 @@ const getTrackingData = async () => {
     fbc: getCookie("_fbc"),
     fbp: getCookie("_fbp"),
     sessionId: getSessionId(),
+    // Which identity and which experiment variants this lead arrived with, so
+    // workspace can join it to its PostHog history and to the test it converted in.
+    posthogDistinctId:
+      window.zilAB?.distinctId || window.posthog?.get_distinct_id?.() || "",
+    abVariants: window.zilAB?.variants() || {},
     ...getUTMs(),
   };
 };
@@ -273,6 +284,21 @@ const wire = (form: HTMLFormElement) => {
     track(() => window.posthog?.capture?.(event, props));
   };
 
+  // form_viewed: the form reached mid-screen, touched or not. Without this step
+  // a low form_start can't tell "nobody sees it" from "they see it and pass".
+  // The drawer's form counts when the drawer is open, which is when it's on screen.
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        io.disconnect();
+        ga("form_viewed");
+      },
+      { rootMargin: "0px 0px -50% 0px" },
+    );
+    io.observe(form);
+  }
+
   // Una sola vez por formulario: es "empezó a completarlo", no "tocó un campo".
   let started = false;
   form.addEventListener(
@@ -364,6 +390,12 @@ const wire = (form: HTMLFormElement) => {
           lead_id: leadId || undefined,
         }),
       );
+      // The person stops being anonymous in PostHog without changing identity:
+      // identify() would change it, and the edge would bucket them anew.
+      track(() => {
+        const { email, fullName, company } = readFields(form);
+        window.posthog?.setPersonProperties?.({ email, name: fullName, company });
+      });
 
       const bookingUrl = leadId
         ? `${BOOKING_URL}?leadId=${encodeURIComponent(leadId)}`

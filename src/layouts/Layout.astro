@@ -255,8 +255,21 @@ import boldWoff2 from "../assets/fonts/CircularStd-Bold.woff2?url";
           (e.__SV = 1));
       })(document, window.posthog || []);
       if (/(^|\.)zil\.global$/i.test(location.hostname)) {
+        var zab = window.__ZAB__;
         posthog.init("phc_DhQjMUxWiu5f2DyqVyQWZBhSUg4JGfsTUdy2VU5A4Ba2", {
           api_host: "/ingest",
+          /* La identidad y las variantes que eligió el edge de zil-landing
+            (edge/ab.js), que también atiende /design: medir con otra identidad
+            es atribuirle la variante a otra persona. */
+          bootstrap: zab
+            ? {
+                distinctID: zab.did,
+                featureFlags: zab.assignments.reduce(function (acc, a) {
+                  if (!a.qa) acc[a.flag] = a.variant;
+                  return acc;
+                }, {}),
+              }
+            : undefined,
           ui_host: "https://us.posthog.com",
           person_profiles: "identified_only",
           capture_pageview: "history_change",

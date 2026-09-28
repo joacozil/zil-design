@@ -30,7 +30,7 @@
 declare global {
   interface Window {
     gtag?: (...args: unknown[]) => void;
-    posthog?: { capture?: (event: string, props?: object) => void };
+    // `posthog` lo declara lead-form.ts, que declara todo lo que se usa de él.
   }
 }
 
