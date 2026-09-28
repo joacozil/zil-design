@@ -30,16 +30,16 @@
 declare global {
   interface Window {
     gtag?: (...args: unknown[]) => void;
+    posthog?: { capture?: (event: string, props?: object) => void };
   }
 }
 
-/** Medir nunca puede romper una navegación: gtag es un global de terceros. */
+/** Medir nunca puede romper una navegación: gtag y posthog son de terceros. */
 const send = (event: string, params: Record<string, unknown>) => {
   try {
-    window.gtag?.("event", event, {
-      page: window.location.pathname,
-      ...params,
-    });
+    const props = { page: window.location.pathname, ...params };
+    window.gtag?.("event", event, props);
+    window.posthog?.capture?.(event, props);
   } catch {
     // una medición perdida es más barata que un click que no navega
   }

@@ -41,6 +41,8 @@ declare global {
     // must never depend on a measurement global existing.
     fbq?: (...args: unknown[]) => void;
     gtag?: (...args: unknown[]) => void;
+    // PostHog, also inline in Layout.astro. `capture` only exists on zil.global.
+    posthog?: { capture?: (event: string, props?: object) => void };
     // Defined inline in Layout.astro, alongside gtag itself.
     zilConversion?: (url: string) => boolean;
   }
@@ -263,14 +265,13 @@ const wire = (form: HTMLFormElement) => {
   // `form_id` va con el mismo nombre que allá para que los eventos de los dos
   // sitios se puedan sumar en un solo informe, y `form_placement` distingue de
   // qué página salió, que es lo que el sitio principal no necesita.
-  const ga = (event: string, params: Record<string, unknown> = {}) =>
-    track(() =>
-      window.gtag?.("event", event, {
-        form_id: FORM_ID,
-        form_placement: placement,
-        ...params,
-      }),
-    );
+  // PostHog recibe los mismos eventos con los mismos nombres: el embudo del
+  // formulario se arma igual en los dos lados.
+  const ga = (event: string, params: Record<string, unknown> = {}) => {
+    const props = { form_id: FORM_ID, form_placement: placement, ...params };
+    track(() => window.gtag?.("event", event, props));
+    track(() => window.posthog?.capture?.(event, props));
+  };
 
   // Una sola vez por formulario: es "empezó a completarlo", no "tocó un campo".
   let started = false;
@@ -354,6 +355,13 @@ const wire = (form: HTMLFormElement) => {
           lead_id: leadId || undefined,
           currency: "USD",
           value: 1,
+        }),
+      );
+      track(() =>
+        window.posthog?.capture?.("generate_lead", {
+          form_id: FORM_ID,
+          form_placement: placement,
+          lead_id: leadId || undefined,
         }),
       );
 
