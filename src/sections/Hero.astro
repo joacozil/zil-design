@@ -46,9 +46,14 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({
     A GRAPHIC STAGE, NOT A PHOTO: the deep brand violet, with the brand's Z
     drawn across it as an outline. The glyph, its geometry and its self-drawing
     entrance all live in ZStage.astro — read that file before touching anything
-    that registers on it. All this section owns is the copy laid over it, and
-    the copy rises out of the finished line, held back by the
-    `data-reveal-delay` on the grid below. Every timing lives in scripts/reveal.ts.
+    that registers on it. All this section owns is the copy laid over it.
+
+    THE COPY AND THE CTA ARE PAINTED AT LOAD, NOT REVEALED. They used to rise
+    out of the finished line, which kept the headline (the page's LCP element)
+    at opacity 0 until the JS ran and the Z finished drawing: LCP p75 on phones
+    was 4.7s, 95% of it render delay, and paid traffic left before seeing the
+    offer. Only the logo strip still waits on the Z, via the
+    `data-reveal-delay` on the grid below.
 
     ONE CENTERED COLUMN AT EVERY SIZE, REGISTERED ON THE HORIZON: headline →
     description → CTA → logo strip at the foot. The copy is NOT free-centred:
@@ -103,10 +108,7 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({
         what the `--text-display` cap reserves for it — see the clamp note in
         global.css before raising that cap. */
     }
-    <h1
-      class="hero-title text-display font-normal text-text-inverse"
-      data-reveal
-    >
+    <h1 class="hero-title text-display font-normal text-text-inverse">
       El diseño como<br /><span class="font-bold"
         >herramienta<br class="desktop:hidden" /> de negocio</span
       >
@@ -114,7 +116,6 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({
 
     <p
       class="hero-desc max-w-[34ch] text-p-lg text-pretty text-text-inverse tablet:max-w-[52ch]"
-      data-reveal
     >
       Somos un estudio de diseño y branding en Argentina. Construimos sistemas
       visuales que aportan dirección, fortalecen el posicionamiento y potencian
@@ -122,11 +123,7 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({
     </p>
 
     {
-      /* The reveal goes on the wrapper, not the Button: the pill owns its own
-        hover choreography on transform/padding and must not share a transform
-        with an entrance tween.
-
-        The pill runs one step down on mobile, where the stage is short and
+      /* The pill runs one step down on mobile, where the stage is short and
         the full-size CTA crowded the copy. Scoped to `max-tablet:` (NOT
         unprefixed) on purpose: these are `!important`, and applying them at
         every size would beat the variant's own `desktop:hover:pr-*` and kill
@@ -139,7 +136,7 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({
         the reader to the real CTA section. The modal is an enhancement over a
         working link — see the header comment in ContactModal.astro. */
     }
-    <div class="mt-8 tablet:mt-10" data-reveal>
+    <div class="mt-8 flex flex-col items-center gap-4 tablet:mt-10">
       <Button
         href="#cta"
         data-track="cta_click"
@@ -151,6 +148,19 @@ const marqueeLogos = logos.map(({ img, alt, h }) => ({
       >
         Hablemos de tu marca
       </Button>
+      {
+        /* The direct path for whoever already knows they want to talk: straight
+          to the booking calendar, no form first. Same URL lead-form.ts hands off
+          to after a submission. */
+      }
+      <a
+        href="https://workspace.zil.global/book/zil"
+        data-track="booking_click"
+        data-track-location="home-hero"
+        class="text-p-sm text-text-inverse/80 underline underline-offset-4 transition-colors hover:text-text-inverse"
+      >
+        O agendá una llamada
+      </a>
     </div>
 
     {
