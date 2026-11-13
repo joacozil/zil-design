@@ -70,50 +70,43 @@ const { eyebrow, title, lede, body, ctaLabel, ctaHref } = Astro.props;
   <ZStage variant="section" />
 
   {
-    /* El mismo retardo que la portada: la copy sube recién cuando la Z terminó
-      de dibujarse. El número vive en Hero.astro y acá — son la misma entrada
-      sobre el mismo gráfico, así que si se retoca uno se retoca el otro. */
+    /* LA COPY Y EL CTA SE PINTAN AL CARGAR, NO SE REVELAN. Antes subían cuando
+      la Z terminaba de dibujarse, igual que en la portada, y eso dejaba el
+      título (el LCP de la página) en opacity 0 hasta que corría el JS: en
+      celular el LCP daba 9,4 s, casi todo demora de render. La portada ya se
+      corrigió igual (ver Hero.astro). */
   }
   <div
     class="svc-grid relative z-10 mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12"
-    data-reveal-group
-    data-reveal-delay="0.62"
   >
     <div class="svc-head">
       {
         /* El badge sobre violeta: la variante clara del componente sigue
           legible porque su fondo es primary-light, no transparente. */
       }
-      <Badge class="mb-6" data-reveal>{eyebrow}</Badge>
+      <Badge class="mb-6">{eyebrow}</Badge>
 
       <h1
         class="max-w-[16ch] text-h1 tracking-[-0.03em] text-balance text-text-inverse"
-        data-reveal
       >
         {title}
       </h1>
     </div>
 
     <div class="svc-body">
-      <p
-        class="max-w-[46ch] text-p-lg text-pretty text-text-inverse"
-        data-reveal
-      >
+      <p class="max-w-[46ch] text-p-lg text-pretty text-text-inverse">
         {lede}
       </p>
 
       {
         body && (
-          <p
-            class="mt-4 max-w-[52ch] text-p text-pretty text-text-inverse/75"
-            data-reveal
-          >
+          <p class="mt-4 max-w-[52ch] text-p text-pretty text-text-inverse/75">
             {body}
           </p>
         )
       }
 
-      <div class="mt-10" data-reveal>
+      <div class="mt-10">
         <Button
           href={ctaHref}
           variant="pill"
