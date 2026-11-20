@@ -1,0 +1,501 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/astro/Header.astro";
+import Footer from "../../components/astro/Footer.astro";
+import ProjectEnd from "../../components/astro/project/ProjectEnd.astro";
+import BackToTop from "../../components/astro/project/BackToTop.astro";
+import ProjectHeroImage from "../../components/astro/project/ProjectHeroImage.astro";
+import ProjectBrief from "../../components/astro/project/ProjectBrief.astro";
+import ConceptCircles from "../../components/astro/project/ConceptCircles.astro";
+import LogoGrid from "../../components/astro/project/LogoGrid.astro";
+import ColorPalette from "../../components/astro/project/ColorPalette.astro";
+import TypeSpecimen from "../../components/astro/project/TypeSpecimen.astro";
+import FramedGallery from "../../components/astro/project/FramedGallery.astro";
+import heroImage from "../../assets/merienda/merienda-hero.webp";
+import heroImageMobile from "../../assets/merienda/merienda-hero-mobile.webp";
+import squaresOrnament from "../../assets/merienda/squares.svg";
+import milanesaImg from "../../assets/merienda/milanesa.webp";
+import penneImg from "../../assets/merienda/penne.webp";
+import cafeImg from "../../assets/merienda/cafe.webp";
+import cheesecakeImg from "../../assets/merienda/cheesecake.webp";
+import risottoImg from "../../assets/merienda/risotto.webp";
+import emplatadoImg from "../../assets/merienda/emplatado.webp";
+import sandwichesImg from "../../assets/merienda/sandwiches.webp";
+import ColumnCollage from "../../components/astro/project/ColumnCollage.astro";
+import IconTiles from "../../components/astro/project/IconTiles.astro";
+import OrnamentBand from "../../components/astro/project/OrnamentBand.astro";
+import menuEjecutivoImg from "../../assets/merienda/menu-ejecutivo.webp";
+import menuTardecitasImg from "../../assets/merienda/menu-tardecitas.webp";
+import menuNocheImg from "../../assets/merienda/menu-noche.webp";
+import iconBanderaImg from "../../assets/merienda/icon-bandera.svg";
+import iconTortaImg from "../../assets/merienda/icon-torta.svg";
+import iconMenuImg from "../../assets/merienda/icon-menu.svg";
+import iconEncuentroImg from "../../assets/merienda/icon-encuentro.svg";
+import iconPlatoImg from "../../assets/merienda/icon-plato.svg";
+import feedCroissantImg from "../../assets/merienda/feed-croissant.webp";
+import feedPenneImg from "../../assets/merienda/feed-penne.webp";
+import postRigatoniImg from "../../assets/merienda/post-rigatoni.webp";
+import postMedialunaImg from "../../assets/merienda/post-medialuna.webp";
+import postDulceImg from "../../assets/merienda/post-dulce-de-leche.webp";
+import postPastaImg from "../../assets/merienda/post-pasta.webp";
+import storyMedialunaImg from "../../assets/merienda/story-medialuna.webp";
+import storyCafeImg from "../../assets/merienda/story-cafe.webp";
+import storyDulceImg from "../../assets/merienda/story-dulce-de-leche.webp";
+import gridImage from "../../assets/merienda/merienda-grid.svg";
+import meriendaFontImg from "../../assets/merienda/merienda-font.svg";
+// Montserrat, self-hosted from Google Fonts' `latin` subset (which covers
+// Spanish in full) rather than loaded from fonts.gstatic.com, so the page keeps
+// its own asset graph and costs no third-party connection — the same call Vibra
+// makes for Manrope and Net Value for Onest.
+//
+// ONE file: Google ships Montserrat as a VARIABLE font, so Regular and Bold are
+// the same download driven along the wght axis. Registering two static faces
+// would fetch the same bytes twice.
+import montserratVariable from "../../assets/merienda/montserrat/Montserrat-Variable.woff2?url";
+
+// @font-face can't read CSS vars for its src, so the resolved URL is
+// interpolated and injected globally (same approach as the Gelato, Quantia,
+// Net Value and Vibra pages).
+const fontFaceCss = `
+@font-face{font-family:"Montserrat";src:url("${montserratVariable}") format("woff2");font-weight:400 700;font-style:normal;font-display:swap;}
+`;
+
+// Case-study content lives with the page (per-project composition).
+const meta = [
+  { label: "Cliente", value: "Merienda" },
+  { label: "Servicio", value: "Social Media" },
+];
+
+const brief = [
+  {
+    title: "Proyecto",
+    body: "Merienda es una marca gastronómica que pone en valor los sabores y las tradiciones argentinas, reinterpretando platos clásicos y comidas típicas desde una propuesta original y contemporánea.<br />Una forma de volver a disfrutar esos sabores de siempre, con una identidad propia.",
+  },
+  {
+    title: "Desafío",
+    body: "Merienda necesitaba reforzar su presencia en redes sociales y generar una comunicación visual atractiva que acompañara su propuesta de marca. El desafío era desarrollar contenidos capaces de conectar con su comunidad y mantener una identidad reconocible y consistente en cada publicación.",
+  },
+  {
+    title: "Propuesta",
+    body: "Desde Zil Design desarrollamos contenido para redes sociales de Merienda, incluyendo publicaciones estáticas, historias y carruseles. Cada pieza fue diseñada para transmitir la personalidad de la marca, conectar desde su comunidad y mantener una comunicación visual atractiva y consistente en distintos formatos.",
+  },
+];
+
+// Brand palette. RGB is derived from the hex in the component, so a label can
+// never drift from its swatch.
+//
+// Weights are the artboard's RATIO, not its pixels: Blanco leads, Dorado sits
+// under it and the two dark bands close, which is what the palette artboard
+// measures (257 / 173 / 110 px at the width it was exported).
+//
+// The whole set is then lifted ~25% so the bands read taller on the page. The
+// weight multiplies a FIXED base band (144px mobile / 176px tablet), so it is not
+// project-relative — the component caps the useful range at about 2, and Blanco
+// now sits at the top of it.
+//
+// Negro and Bordo are `dark`: their fields carry a white label. Blanco and
+// Dorado take black, which is what the artboard sets and what their luminance
+// asks for.
+const palette = [
+  { name: "Blanco Merienda", main: { hex: "#FFF9EF" }, weight: 1.9 },
+  { name: "Dorado Merienda", main: { hex: "#D0B079" }, weight: 1.25 },
+  { name: "Bordo Merienda", main: { hex: "#A5303C", dark: true }, weight: 0.9 },
+  { name: "Negro Merienda", main: { hex: "#000000", dark: true }, weight: 0.9 },
+];
+---
+
+<style is:global set:html={fontFaceCss}></style>
+
+<Layout
+  title="Merienda — Zil Design"
+  description="Caso de estudio: contenido y dirección visual para redes sociales de Merienda, marca gastronómica de Buenos Aires."
+>
+  <Header />
+  <main class="project-merienda">
+    {
+      /* The key art already carries the wordmark on its gold band, so the hero is
+        JUST the artwork — ProjectHeroImage, not the variants that composite a
+        separate `logo`.
+
+        Both cuts ship. The landscape frame object-covered into a phone's tall
+        viewport crops hard to the centre — the cup goes, and the gold band runs
+        off both edges with its ornaments cut — so the portrait cut is the one
+        that actually holds the composition there. */
+    }
+    <ProjectHeroImage
+      image={heroImage}
+      mobileImage={heroImageMobile}
+      imageAlt="Una persona sostiene una bolsa de papel y un vaso de café de Merienda, con el logotipo dorado sobre la banda que cruza la imagen"
+      title="Merienda"
+    />
+    <ProjectBrief meta={meta} blocks={brief} />
+    {
+      /* The five words of the brand, in the design's order.
+
+        `stroke` is Dorado and NOT the colour the LogoGrid artwork rules its grid
+        in (#A5303C) — which is the default this component documents. The design
+        is explicit here: the rings and their words are gold in the mock, against
+        a grid whose hairlines are bordo. Following the convention would turn the
+        chain red and contradict the artboard.
+
+        `gridWidth` still comes from the grid SVG, and that part is unchanged: it
+        is what makes the ring outline resolve to the SAME WEIGHT as the grid's
+        own 0.5 stroke at every viewport. */
+    }
+    <ConceptCircles
+      words={["Cercanía", "Encuentro", "Auténtica", "Tradicional", "Confianza"]}
+      stroke="#D0B079"
+      ink="#D0B079"
+      fontFamily='"Montserrat", sans-serif'
+      fontWeight={500}
+      gridWidth={gridImage.width}
+    />
+    <LogoGrid
+      image={gridImage}
+      alt="El logotipo de Merienda Buenos Aires dentro de su grilla de construcción, con los dos bloques bordó en las esquinas opuestas"
+    />
+    <ColorPalette colors={palette} />
+    {
+      /* FROM HERE DOWN THE PAGE CHANGES GROUND, from white to the brand's own
+        Blanco — which is where the artboard puts the change, and why Blanco is
+        not the page surface in the first place (see the theme note at the foot
+        of this file).
+
+        It is a wrapper that redeclares `--color-surface`, the same device the
+        Net Value page uses for its black half: everything inside goes on reading
+        the semantic aliases and simply resolves them against the new field, so
+        neither section below needs to know it moved. */
+    }
+    <div class="merienda-blanco">
+      {
+        /* `specimens` (rather than regularUrl/boldUrl) because Montserrat ships as
+          ONE variable file, which the frontmatter above already registers across
+          400–700. The default path would emit a second @font-face per weight and
+          hard-code format("opentype") against a file that is woff2. */
+      }
+      <TypeSpecimen
+        name="Montserrat"
+        fontFamily="Montserrat"
+        wordmarkImage={meriendaFontImg}
+        specimens={[
+          {
+            label: "Montserrat - Regular",
+            fontFamily: '"Montserrat", sans-serif',
+            fontWeight: 400,
+          },
+          {
+            label: "Montserrat - Bold",
+            fontFamily: '"Montserrat", sans-serif',
+            fontWeight: 700,
+          },
+        ]}
+      />
+      {
+        /* The food photography, framed by the brand's own ornament.
+
+        The weights are the artboard's units, unnormalised, so they can be read
+        back against it: three rows at 248 / 156 / 231 of a 655-tall stage, and
+        inside them the pictures at their measured widths out of 552.
+
+        Each photo was cut to roughly its cell's ratio before it got here — see
+        the note in FramedGallery. The sources are 9:16 phone frames, so a cell
+        like Café (2.66:1) would otherwise crop away two thirds of every byte
+        downloaded. */
+      }
+      <FramedGallery
+        ariaLabel="La cocina de Merienda"
+        ornament={squaresOrnament}
+        aspect="552 / 655"
+        rows={[
+          {
+            weight: 248,
+            items: [
+              {
+                src: milanesaImg,
+                alt: "Una milanesa con papas y un gajo de limón, servida en un plato celeste sobre la barra",
+                weight: 186,
+              },
+              {
+                src: penneImg,
+                alt: "Un plato de penne con hongos y un huevo poché, con una copa de vino tinto al lado",
+                weight: 356,
+              },
+            ],
+          },
+          {
+            weight: 156,
+            items: [
+              {
+                src: cafeImg,
+                alt: "Una taza de café con leche con un cisne dibujado en latte art",
+                weight: 415,
+              },
+              {
+                src: cheesecakeImg,
+                alt: "Una porción de cheesecake con salsa de caramelo y una flor comestible",
+                weight: 128,
+              },
+            ],
+          },
+          {
+            weight: 231,
+            items: [
+              {
+                src: risottoImg,
+                alt: "Un risotto azafranado servido en plato hondo, con una copa de vino tinto sobre la mesa de madera",
+                weight: 175,
+              },
+              {
+                src: emplatadoImg,
+                alt: "Las manos de un cocinero, con guantes negros, terminando de emplatar una ensalada",
+                weight: 164,
+              },
+              {
+                src: sandwichesImg,
+                alt: "Dos sándwiches de miga de jamón y queso apilados sobre una rejilla",
+                weight: 194,
+              },
+            ],
+          },
+        ]}
+      />
+      {
+        /* Redes sociales — the feed and the stories as they are actually seen.
+          Three columns of unequal height: the artboard alternates a phone and a
+          flat post card down each one, so no two neighbours are the same object
+          and the columns stagger on their own.
+
+          `ColumnCollage` rather than `Mosaic` for the reason its header gives:
+          this is a masonry, where the columns line up at the ends but split at
+          different points inside, because a phone mockup and a post card are
+          shot at unrelated ratios. A row-based bento would either crop them or
+          produce a zigzag of unequal column widths.
+
+          `stackOrder` is the artboard read ROW BY ROW, so the single column a
+          phone gets keeps alternating phone, card, phone — which is the point
+          the section makes — instead of showing five phones and then four
+          cards. */
+      }
+      <ColumnCollage
+        ariaLabel="Redes sociales"
+        label="Redes sociales"
+        body="Desarrollamos un sistema de contenido para redes sociales orientado a comunicar con claridad, fortalecer la identidad de la marca y mantener una presencia consistente. Cada pieza fue diseñada para captar la atención, transmitir el mensaje de forma inmediata y generar una comunicación más efectiva."
+        align="center"
+        gap="clamp(0.75rem, 2.4vw, 2.125rem)"
+        columns={[
+          [
+            {
+              src: feedCroissantImg,
+              alt: "El feed de Merienda en un teléfono: una medialuna rellena de dulce de leche, con la frase «Si sos argentina, sabés que todo con dulce de leche es mejor»",
+              stackOrder: 1,
+            },
+            {
+              src: postMedialunaImg,
+              alt: "Publicación con medialunas recién horneadas: «En Argentina tenemos una regla no escrita: ante la duda, dulce de leche»",
+              stackOrder: 4,
+            },
+            {
+              src: storyMedialunaImg,
+              alt: "Historia con una medialuna rellena: «Hay cosas que no hace falta explicar»",
+              stackOrder: 7,
+            },
+          ],
+          [
+            {
+              src: postRigatoniImg,
+              alt: "Publicación de los rigatoni con ragú bolognesa, servidos en la mesa",
+              stackOrder: 2,
+            },
+            {
+              src: storyCafeImg,
+              alt: "Historia con una porción de torta y un café con leche: «Ni compartir, si somos sinceros»",
+              stackOrder: 5,
+            },
+            {
+              src: postPastaImg,
+              alt: "Publicación de pasta con albahaca: «Tu próxima pasta la disfrutás en Merienda»",
+              stackOrder: 8,
+            },
+          ],
+          [
+            {
+              src: feedPenneImg,
+              alt: "El feed de Merienda en un teléfono, con el penne rigate y la milanesa al ragú",
+              stackOrder: 3,
+            },
+            {
+              src: postDulceImg,
+              alt: "Publicación por el Día del Dulce de Leche, con dulce de leche cayendo de una jarra",
+              stackOrder: 6,
+            },
+            {
+              src: storyDulceImg,
+              alt: "Historia por el Día del Dulce de Leche: «Si sos argentino, ya sabés qué hacer»",
+              stackOrder: 9,
+            },
+          ],
+        ]}
+      />
+      {
+        /* The icon set, on the chequerboard the artboard sets it in. Order is
+          the artboard's: the five marks run left to right across the top row and
+          are dealt again in a different order underneath, so no mark sits above
+          itself and the two colours stay a chequer rather than stripes.
+
+          NOTE: the body copy here is the same paragraph the Menú section uses.
+          That is what the artboard shows, so it is what is set — but it reads as
+          a paste that was never rewritten (it describes adapting three menus to
+          Instagram stories, which is the next section's subject, not this one's).
+          Worth replacing with copy about the icon system. */
+      }
+      <IconTiles
+        label="Iconografía"
+        body="Diseñamos una adaptación de los tres menús de Merienda al formato de historias de Instagram, reorganizando la información para facilitar su lectura y consulta desde dispositivos móviles. La propuesta mantiene la identidad visual de la marca y permite presentar las opciones de forma clara y accesible."
+        colors={["#D0B079", "#A5303C"]}
+        icons={[
+          { src: iconBanderaImg, alt: "La bandera argentina" },
+          { src: iconTortaImg, alt: "Una torta de varios pisos" },
+          { src: iconMenuImg, alt: "Una carta de menú" },
+          {
+            src: iconEncuentroImg,
+            alt: "Dos personas conversando, con un globo de diálogo con corazones",
+          },
+          { src: iconPlatoImg, alt: "Un plato con tenedor y cuchillo" },
+          { src: iconMenuImg, alt: "Una carta de menú" },
+          {
+            src: iconEncuentroImg,
+            alt: "Dos personas conversando, con un globo de diálogo con corazones",
+          },
+          { src: iconPlatoImg, alt: "Un plato con tenedor y cuchillo" },
+          { src: iconTortaImg, alt: "Una torta de varios pisos" },
+          { src: iconBanderaImg, alt: "La bandera argentina" },
+        ]}
+      />
+      {
+        /* Menú para redes — the page's third ground, and the only saturated one.
+        The ornament that framed the gallery's sides comes back turned on its
+        side, closing the field top and bottom.
+
+        THE BANDS SIT ON THE BLANCO, NOT ON THE BORDO — they are outside the
+        coloured div on purpose. Inside it the squares would be gold on red and
+        read as a pattern the field is wearing; on the cream they are the edge
+        the red field is cut against, which is what the artboard draws.
+
+        The caption hangs from the RIGHT edge: the phones are three tall columns
+        with their air on that side, and a left-set caption would sit in the
+        middle of it. */
+      }
+      <OrnamentBand image={squaresOrnament} />
+      <div class="merienda-bordo">
+        <ColumnCollage
+          ariaLabel="Menú para redes"
+          label="Menú para redes"
+          body="Diseñamos una adaptación de los tres menús de Merienda al formato de historias de Instagram, reorganizando la información para facilitar su lectura y consulta desde dispositivos móviles. La propuesta mantiene la identidad visual de la marca y permite presentar las opciones de forma clara y accesible."
+          captionAlign="end"
+          gap="clamp(0.75rem, 2.4vw, 2.125rem)"
+          columns={[
+            [
+              {
+                src: menuEjecutivoImg,
+                alt: "Historia con el Menú Ejecutivo: dos y tres pasos, de lunes a viernes de 12:00 a 15:45",
+              },
+            ],
+            [
+              {
+                src: menuTardecitasImg,
+                alt: "Historia con el Menú Tardecitas: para picar, para compartir y para combinar, todos los días de 17:00 a 19:00",
+              },
+            ],
+            [
+              {
+                src: menuNocheImg,
+                alt: "Historia con la carta Merienda de Noche: entradas, principales, postre del día y bebidas",
+              },
+            ],
+          ]}
+        />
+      </div>
+      <OrnamentBand image={squaresOrnament} />
+    </div>
+    <BackToTop />
+  </main>
+  <ProjectEnd current="merienda" />
+  <Footer />
+</Layout>
+
+<style>
+  /* Scoped project theme — remaps ONLY the semantic colour aliases within this
+     page's subtree, so Merienda's branding can never leak into global scope.
+     Everything structural (type scale, spacing rhythm, breakpoints) stays on the
+     global tokens.
+
+     Straight from the brand palette in the frontmatter. Bordo Merienda is the
+     structural voice — it rules the construction grid and fills its two corner
+     blocks — so it is `primary`; Dorado Merienda carries the wordmark and the
+     concept rings, so it is `accent`.
+
+     The field is WHITE, not the brand's own Blanco (#FFF9EF). That looks
+     backwards until you look at the palette section: its first band IS Blanco,
+     and the bands are drawn edge to edge with no outline, so on a Blanco field
+     that band would simply disappear into the page. The palette artboard shows
+     it as a distinct band, which only reads against white. Blanco is then spent
+     where the mock spends it — as the typography section's own field, below. */
+  .project-merienda {
+    --color-primary: #a5303c; /* Bordo Merienda */
+    --color-accent: #d0b079; /* Dorado Merienda */
+
+    --color-surface: #ffffff;
+    --color-text: #000000; /* the mock sets labels and headings in pure black */
+    --color-muted: #6b6b6b; /* secondary copy */
+    --color-border: #e8ddcb; /* warm hairline — see the note below */
+
+    background-color: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  /* The page's second half, on Blanco Merienda. The artboard runs white down
+     through the palette and switches at the type specimen, so the brand's own
+     off-white is where the identity stops being explained and starts being
+     applied.
+
+     It REDECLARES the alias rather than painting a background on each section,
+     so the sections inside need no knowledge of it — `border-border`,
+     `text-muted` and the rest keep resolving through the cascade. */
+  .merienda-blanco {
+    --color-surface: #fff9ef; /* Blanco Merienda */
+
+    background-color: var(--color-surface);
+  }
+
+  /* The menu section on Bordo Merienda — the page's one saturated field, and
+     the only place the brand's loudest colour is given the whole width rather
+     than a band in the palette.
+
+     Same device as `.merienda-blanco` above and as Net Value's black half: it
+     redeclares the aliases, so the collage inside goes on reading `text` and
+     `muted` and simply resolves them against the new ground.
+
+     BOTH inks are Blanco Merienda. `muted` would normally step down from `text`,
+     but there is no step to take here: a grey secondary on a saturated red reads
+     as dirt, and the Dorado this held first put the caption in the same colour
+     as the ornament, which made the copy look like part of the frame. On this
+     field the brand has one ink. */
+  .merienda-bordo {
+    --color-surface: #a5303c; /* Bordo Merienda */
+    --color-text: #fff9ef; /* Blanco Merienda */
+    --color-muted: #fff9ef; /* Blanco Merienda — see above */
+
+    background-color: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  /* No rule between the brief's meta list and its Proyecto / Desafío / Propuesta
+     triad — the mock doesn't have one, the same call Vibra makes. ProjectBrief
+     draws a full-bleed hairline there for every other project.
+
+     The margin is kept: it is the gap between the two beats, and only the LINE is
+     being removed. Scoped with :global() for the reason above. */
+  .project-merienda :global(hr) {
+    border-top-width: 0;
+  }
+</style>

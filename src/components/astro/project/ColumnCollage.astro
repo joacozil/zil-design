@@ -37,13 +37,81 @@ interface Props {
   columns: Item[][];
   /** Section landmark label. */
   ariaLabel?: string;
+  /**
+   * Optional caption above the collage — the same small-uppercase-label-over-a-
+   * muted-paragraph pattern every other captioned section on a project page
+   * uses, so a reader moving down the page meets one voice. Omit both for a
+   * collage that needs no introduction (Vibra's does not).
+   */
+  label?: string;
+  body?: string;
+  /**
+   * Which edge the caption hangs from. `start` (the default) is the page's usual
+   * voice; `end` is for a block whose composition leaves its air on the right,
+   * where a left-set caption would sit in the middle of nothing.
+   */
+  captionAlign?: "start" | "end";
+  /**
+   * How columns of unequal height sit against each other.
+   *
+   * `start` (the default) hangs them from a shared top edge, which is right when
+   * the ratios were composed to balance and the columns end flush anyway.
+   *
+   * `center` is for a set that deliberately does NOT balance — Merienda's feed
+   * mockups are a third taller than its post cards, so the short column reads as
+   * having fallen off the bottom unless the difference is split between the two
+   * ends. It is the stagger, not a fallback for a column that came out wrong.
+   */
+  align?: "start" | "center";
+  /**
+   * Space between the pieces, both axes. Defaults to the shared collage token —
+   * the same value and reasoning as Mosaic's — and that is what a collage of
+   * flat artwork wants, where the gap only has to say where one piece ends.
+   *
+   * Override it for pieces that are OBJECTS rather than images: Merienda's
+   * section is phone mockups, which already carry a dark frame and a shadow, so
+   * at the token's 16px they read as one slab of phones rather than as nine
+   * pieces laid out. Its artboard sets them about 34px apart at a desktop width.
+   */
+  gap?: string;
 }
-const { columns, ariaLabel = "Piezas del proyecto" } = Astro.props;
+const {
+  columns,
+  ariaLabel = "Piezas del proyecto",
+  label,
+  body,
+  captionAlign = "start",
+  align = "start",
+  gap,
+} = Astro.props;
+
+// The `sizes` hint has to know how many columns share the row, or a three-column
+// collage asks for images at half the container and ships 1.5× the pixels it can
+// show. Below the breakpoint every column is the full width, whatever the count.
+const colVw = Math.round(100 / columns.length);
 ---
 
 <section class="py-section" aria-label={ariaLabel}>
   <div class="mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12">
-    <div class="cc">
+    {
+      label && (
+        <div
+          class:list={[
+            "mb-12 max-w-md tablet:mb-16",
+            captionAlign === "end" && "ml-auto",
+          ]}
+        >
+          <h2 class="text-p-sm font-bold tracking-wider text-text uppercase">
+            {label}
+          </h2>
+          {body && <p class="mt-4 text-p-sm text-muted">{body}</p>}
+        </div>
+      )
+    }
+    <div
+      class:list={["cc", align === "center" && "cc--center"]}
+      style={gap ? `--gap:${gap}` : undefined}
+    >
       {
         columns.map((col) => (
           <div class="cc-col">
@@ -54,7 +122,7 @@ const { columns, ariaLabel = "Piezas del proyecto" } = Astro.props;
                 src={it.src}
                 alt={it.alt}
                 widths={[640, 960, 1280]}
-                sizes="(min-width: 640px) 50vw, 100vw"
+                sizes={`(min-width: 640px) ${colVw}vw, 100vw`}
                 loading="lazy"
               />
             ))}
@@ -94,6 +162,12 @@ const { columns, ariaLabel = "Piezas del proyecto" } = Astro.props;
     .cc {
       flex-direction: row;
       align-items: flex-start;
+    }
+    /* Columns of unequal height centred against each other — see `align`. It is
+       only ever the ROW's cross-axis alignment, so the stacked layout below the
+       breakpoint, where `.cc` is a column, is untouched. */
+    .cc--center {
+      align-items: center;
     }
     .cc-col {
       display: flex;

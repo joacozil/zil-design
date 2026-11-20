@@ -1,0 +1,505 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/astro/Header.astro";
+import Footer from "../../components/astro/Footer.astro";
+import ProjectEnd from "../../components/astro/project/ProjectEnd.astro";
+import BackToTop from "../../components/astro/project/BackToTop.astro";
+import ProjectHeroImage from "../../components/astro/project/ProjectHeroImage.astro";
+import ProjectBrief from "../../components/astro/project/ProjectBrief.astro";
+import ConceptCircles from "../../components/astro/project/ConceptCircles.astro";
+import LogoGrid from "../../components/astro/project/LogoGrid.astro";
+import ColorPalette from "../../components/astro/project/ColorPalette.astro";
+import TypeSpecimen from "../../components/astro/project/TypeSpecimen.astro";
+import heroImage from "../../assets/nacida-y-criada/nacida-hero.webp";
+import heroImageMobile from "../../assets/nacida-y-criada/nacida-hero-mobile.webp";
+import gridImage from "../../assets/nacida-y-criada/nacida-grid.svg";
+import agencyFontImg from "../../assets/nacida-y-criada/nacida-font-agency.svg";
+import acmeFontImg from "../../assets/nacida-y-criada/nacida-font-acme.svg";
+import PhotoBento from "../../components/astro/project/PhotoBento.astro";
+import fotoIguazu from "../../assets/nacida-y-criada/foto-iguazu.webp";
+import fotoBrindis from "../../assets/nacida-y-criada/foto-brindis.webp";
+import fotoBarraVaso from "../../assets/nacida-y-criada/foto-barra-vaso.webp";
+import fotoDesierto from "../../assets/nacida-y-criada/foto-desierto.webp";
+import fotoBuenosAires from "../../assets/nacida-y-criada/foto-buenos-aires.webp";
+import fotoMano from "../../assets/nacida-y-criada/foto-mano.webp";
+import fotoCiudad from "../../assets/nacida-y-criada/foto-ciudad.webp";
+import fotoPatagonia from "../../assets/nacida-y-criada/foto-patagonia.webp";
+import fotoBarra from "../../assets/nacida-y-criada/foto-barra.webp";
+import ColumnCollage from "../../components/astro/project/ColumnCollage.astro";
+import postMomento from "../../assets/nacida-y-criada/post-momento.webp";
+import postVariedades from "../../assets/nacida-y-criada/post-variedades.webp";
+import feedPersonalidades from "../../assets/nacida-y-criada/feed-personalidades.webp";
+import VarietyBands from "../../components/astro/project/VarietyBands.astro";
+import ilusImg from "../../assets/nacida-y-criada/ilus.webp";
+import phoneGolden from "../../assets/nacida-y-criada/phone-golden.webp";
+import phoneHoney from "../../assets/nacida-y-criada/phone-honey.webp";
+import phoneIpa from "../../assets/nacida-y-criada/phone-ipa.webp";
+import botellaGolden from "../../assets/nacida-y-criada/botella-golden.webp";
+import botellaHoney from "../../assets/nacida-y-criada/botella-honey.webp";
+import botellaIpa from "../../assets/nacida-y-criada/botella-ipa.webp";
+import FieldBands from "../../components/astro/project/FieldBands.astro";
+import storyPresentacion from "../../assets/nacida-y-criada/story-presentacion.webp";
+import storyJuntada from "../../assets/nacida-y-criada/story-juntada.webp";
+import storyDonde from "../../assets/nacida-y-criada/story-donde.webp";
+// The brand's two faces, self-hosted from the licensed desktop files rather than
+// loaded from a foundry CDN, so the page keeps its own asset graph — the same
+// call Clojure makes for Acumin and Gelato for Job Clarendon.
+//
+// Agency Gothic CT ships as SEPARATE FAMILIES, not as weights of one: the
+// medium file's own `name` table calls itself "Agency Gothic CT Medium" as the
+// family. Registering both under one family name here is what lets the page ask
+// for 500 and 700 of "Agency Gothic CT" and get the right cut, instead of
+// relying on the browser to group four unrelated families.
+//
+// The medium file is the "Regular" the artboard labels: CastleType's lightest
+// upright cut of this family is Medium (usWeightClass 500). There is no lighter
+// one to ship.
+import agencyMedium from "../../assets/nacida-y-criada/agency-gothic/AgencyGothicCT-Medium.woff2?url";
+import agencyBold from "../../assets/nacida-y-criada/agency-gothic/AgencyGothicCT-Bold.woff2?url";
+import acmeRegular from "../../assets/nacida-y-criada/acme-gothic/AcmeGothic-Regular.woff2?url";
+
+// @font-face can't read CSS vars for its src, so the resolved URLs are
+// interpolated and injected globally (same approach as every other project page
+// that ships its own faces).
+const fontFaceCss = `
+@font-face{font-family:"Agency Gothic CT";src:url("${agencyMedium}") format("woff2");font-weight:500;font-style:normal;font-display:swap;}
+@font-face{font-family:"Agency Gothic CT";src:url("${agencyBold}") format("woff2");font-weight:700;font-style:normal;font-display:swap;}
+@font-face{font-family:"Acme Gothic";src:url("${acmeRegular}") format("woff2");font-weight:400;font-style:normal;font-display:swap;}
+`;
+
+// Case-study content lives with the page (per-project composition).
+const meta = [
+  { label: "Cliente", value: "Nacida y Criada" },
+  { label: "Servicio", value: "Social Media" },
+];
+
+const brief = [
+  {
+    title: "Proyecto",
+    body: "Nacida y Criada es una marca de cerveza que celebra sus raíces, su identidad y el orgullo de lo propio. A través de la elaboración de cerveza, busca ofrecer una propuesta auténtica, con personalidad y espíritu local, conectada con la cultura cervecera y el disfrute de compartir.",
+  },
+  {
+    title: "Desafío",
+    body: "En una categoría con muchas cervezas artesanales que compiten por la atención en redes, Nacida y Criada necesitaba una comunicación que reflejara su identidad argentina y diferenciara cada una de sus variedades. El reto era transmitir el orgullo por lo propio y la diversidad del territorio sin caer en lugares comunes ni perder la cercanía de una marca artesanal.",
+  },
+  {
+    title: "Propuesta",
+    body: "Desde Zil Design desarrollamos un sistema de contenidos para redes sociales con historias, reels, carruseles y piezas gráficas. Trabajamos cada variedad a partir de su paisaje: la Golden con la Patagonia, la Honey con el Norte argentino y la IPA con las Cataratas del Iguazú. El sistema le da a la marca una identidad visual reconocible y a cada cerveza, un universo propio.",
+  },
+];
+
+// Brand palette. RGB is derived from the hex in the component, so a label can
+// never drift from its swatch.
+//
+// Weights are the artboard's RATIO: Hueso and Dorado lead at 117px against the
+// 78px the other six share, which is 1.5 to 1. The base band the component
+// multiplies is 144px mobile / 176px tablet, so a weight of 1 here lands almost
+// exactly on the artboard's own 78 — this palette needed no lift.
+//
+// `dark` is the brand's own call, not a luminance function, which is why the two
+// MID-TONES split: Amarillo miel takes a white label at 0.77 luminance while
+// Verde salvia and Azul cielo take black at 0.64. Read off the artboard.
+const palette = [
+  { name: "Hueso", main: { hex: "#F5EFE4" }, weight: 1.5 },
+  { name: "Dorado", main: { hex: "#996C29", dark: true }, weight: 1.5 },
+  { name: "Amarillo miel", main: { hex: "#F9CA3B", dark: true } },
+  { name: "Marrón tierra", main: { hex: "#663F1F", dark: true } },
+  { name: "Verde salvia", main: { hex: "#6EC196" } },
+  { name: "Verde bosque", main: { hex: "#1F4331", dark: true } },
+  { name: "Azul cielo", main: { hex: "#88B0E1" } },
+  { name: "Azul marino", main: { hex: "#053749", dark: true } },
+];
+---
+
+<style is:global set:html={fontFaceCss}></style>
+
+<Layout
+  title="Nacida y Criada — Zil Design"
+  description="Caso de estudio: sistema de contenidos para redes sociales de Nacida y Criada, cerveza argentina."
+>
+  <Header />
+  <main class="project-nacida-y-criada">
+    {
+      /* The key art already carries the brand on the bottles' own labels, so the
+        hero is JUST the artwork — ProjectHeroImage, not the variants that
+        composite a separate `logo`. Both cuts ship: the landscape triptych reads
+        as a thin strip on a phone and would crop two of its three panels off. */
+    }
+    <ProjectHeroImage
+      image={heroImage}
+      mobileImage={heroImageMobile}
+      imageAlt="Tres botellas de Nacida y Criada — Golden, IPA y Honey — sobre ilustraciones de un bosque nevado, una cascada y un desierto con cactus"
+      title="Nacida y Criada"
+    />
+    <ProjectBrief meta={meta} blocks={brief} />
+    {
+      /* `stroke` is Dorado, which is also the colour the grid artwork rules its
+        construction box in — so the rings and the grid draw the literal same
+        line, which is what this component is for. `gridWidth` is what makes the
+        weight match too: the grid's rules are drawn at `stroke-width="0.5"` in
+        its own 700-unit space, and the ring reproduces that at any viewport.
+
+        `fontScale` is raised because Agency Gothic CT is CONDENSED — the default
+        0.085 is calibrated against a normal-width sans, and a condensed face set
+        at it leaves the word rattling around inside its ring. Same correction
+        Gelato makes for Job Clarendon, a little gentler. */
+    }
+    <ConceptCircles
+      words={["Argentina", "Auténtica", "Cercana", "Tradicional", "Social"]}
+      stroke="#996C29"
+      ink="#996C29"
+      fontFamily='"Agency Gothic CT", sans-serif'
+      fontWeight={500}
+      fontScale={0.105}
+      gridWidth={gridImage.width}
+    />
+    <LogoGrid
+      image={gridImage}
+      alt="El logotipo de Nacida y Criada dentro de su grilla de construcción, con los dos bloques dorados en las esquinas opuestas"
+    />
+    <ColorPalette colors={palette} />
+    {
+      /* FROM HERE DOWN THE PAGE CHANGES GROUND, from white to the brand's own
+        Hueso — which is where the artboard changes it, and why Hueso is not the
+        page surface in the first place (see the theme note at the foot of this
+        file).
+
+        A wrapper that redeclares `--color-surface`, the same device Merienda
+        uses for its Blanco half and Net Value for its black one: everything
+        inside goes on reading the semantic aliases and simply resolves them
+        against the new field. */
+    }
+    <div class="nacida-hueso">
+      {
+        /* TWO specimens, one per face, because this is a two-family system and the
+        artboard gives each its own full-width wordmark.
+
+        `specimens` rather than regularUrl/boldUrl on both: the frontmatter above
+        already registers all three faces, and the default path would emit a
+        second @font-face per weight and hard-code format("opentype") against
+        files that are woff2. */
+      }
+      <TypeSpecimen
+        name="Agency Gothic CT"
+        fontFamily="Agency Gothic CT"
+        wordmarkImage={agencyFontImg}
+        specimens={[
+          {
+            label: "Agency Gothic CT - Regular",
+            fontFamily: '"Agency Gothic CT", sans-serif',
+            fontWeight: 500,
+          },
+          {
+            label: "Agency Gothic CT - Bold",
+            fontFamily: '"Agency Gothic CT", sans-serif',
+            fontWeight: 700,
+          },
+        ]}
+      />
+      {
+        /* TODO — the artboard shows TWO Acme cuts, Condensed Regular and Wide
+        Bold, and neither is on the machine: the only Acme Gothic installed is a
+        free trial of the normal width, one weight, 142 characters and no
+        accents at all. So this specimen shows the one cut that exists rather
+        than printing the same file twice under two labels it would contradict.
+
+        That trial is also why Acme is not used for any TEXT on this page: a
+        single tilde would fall back mid-word. Even here the symbol row's `¡`
+        comes out in the fallback face, which is the one visible seam. Swap in
+        the licensed family and this becomes two blocks. */
+      }
+      <TypeSpecimen
+        name="Acme Gothic"
+        fontFamily="Acme Gothic"
+        wordmarkImage={acmeFontImg}
+        specimens={[
+          {
+            label: "Acme Gothic - Regular",
+            fontFamily: '"Acme Gothic", sans-serif',
+            fontWeight: 400,
+          },
+        ]}
+      />
+      {
+        /* The gallery. `areas` below is the composition drawn in text, one line
+          per row — read it and you can see the layout: Buenos Aires holding the
+          two top rows in the middle, the bar shot holding the bottom two on the
+          right, and the bar pair sharing row two on the left.
+
+          Tracks are the artboard's own units (72 / 61 / 51 / 68 / 136 across,
+          91 / 91 / 92 down), unnormalised, so they can be read back against it.
+
+          Every photo was exported at its cell's ratio already — the nine sources
+          came in within 2% of their targets — so the crop that got them here was
+          a centring, not a decision. */
+      }
+      <PhotoBento
+        ariaLabel="Nacida y Criada en su lugar"
+        aspect="408 / 286"
+        columns="72fr 61fr 51fr 68fr 136fr"
+        rows="91fr 91fr 92fr"
+        areas={`
+          "iguazu   iguazu   baires baires patagonia"
+          "brindis  vaso     baires baires barra"
+          "desierto desierto mano   ciudad barra"
+        `}
+        items={[
+          {
+            area: "iguazu",
+            src: fotoIguazu,
+            alt: "Una botella de IPA frente a las Cataratas del Iguazú",
+          },
+          {
+            area: "brindis",
+            src: fotoBrindis,
+            alt: "Dos personas brindan con vasos de cerveza sobre la barra, junto a una botella Honey",
+          },
+          {
+            area: "vaso",
+            src: fotoBarraVaso,
+            alt: "Una botella de IPA y un vaso servido en la barra de un bar, con un bol de maní al lado",
+          },
+          {
+            area: "desierto",
+            src: fotoDesierto,
+            alt: "Una botella de Honey entre cardones, con los cerros del Norte argentino al atardecer",
+          },
+          {
+            area: "baires",
+            src: fotoBuenosAires,
+            alt: "Una botella de Golden en un balcón porteño, con una bandera argentina y la ciudad detrás",
+          },
+          {
+            area: "mano",
+            src: fotoMano,
+            alt: "Una mano alcanza una botella de IPA sobre la barra",
+          },
+          {
+            area: "ciudad",
+            src: fotoCiudad,
+            alt: "Una botella de Golden en una terraza, con las luces de la ciudad de noche",
+          },
+          {
+            area: "patagonia",
+            src: fotoPatagonia,
+            alt: "Una botella de Golden frente a una laguna patagónica y el cerro nevado",
+          },
+          {
+            area: "barra",
+            src: fotoBarra,
+            alt: "Las tres variedades — IPA, Golden y Honey — alineadas sobre la barra de un bar",
+          },
+        ]}
+      />
+      {
+        /* Redes sociales — two feed posts and the phone they live in.
+
+          `ColumnCollage` with one piece per column, which is a row with extra
+          steps until you look at the heights: the phone is a third taller than
+          the cards, so `align="center"` is what splits the difference between
+          the two ends instead of hanging all three from a shared top edge and
+          leaving the cards floating. The same call Merienda's section makes.
+
+          NOTE: this body copy is word for word Merienda's. Generic enough to
+          read as studio boilerplate rather than a paste of another client's
+          story — it names nobody — but worth a rewrite if these two cases are
+          ever read one after the other. */
+      }
+      <ColumnCollage
+        ariaLabel="Redes sociales"
+        label="Redes sociales"
+        body="Desarrollamos un sistema de contenido para redes sociales orientado a comunicar con claridad, fortalecer la identidad de la marca y mantener una presencia consistente. Cada pieza fue diseñada para captar la atención, transmitir el mensaje de forma inmediata y generar una comunicación más efectiva."
+        align="center"
+        gap="clamp(0.75rem, 2.4vw, 2.125rem)"
+        columns={[
+          [
+            {
+              src: postMomento,
+              alt: "Publicación con las tres variedades: «Cada momento tiene su birra y cada birra tiene su momento»",
+            },
+          ],
+          [
+            {
+              src: postVariedades,
+              alt: "Publicación con la pregunta «¿Golden, Honey o IPA?» y la aclaración «no existe respuesta incorrecta»",
+            },
+          ],
+          [
+            {
+              src: feedPersonalidades,
+              alt: "El feed de Nacida y Criada en un teléfono: «3 personalidades, 1 misma familia», con los tres paisajes ilustrados",
+            },
+          ],
+        ]}
+      />
+      {
+        /* The three varieties, each owning a vertical field. Fields and inks are
+          the palette's own pairs — Azul cielo over Azul marino, Amarillo miel
+          over Marrón tierra, Verde salvia over Verde bosque — which is read off
+          the artboard, not chosen: each name is set in the dark relative of the
+          colour it sits on.
+
+          TODO — THE HEADING IS SPECIFIED IN ACME GOTHIC WIDE, WHICH IS NOT ON
+          THE MACHINE. The only Acme installed is the normal-width trial, and it
+          has no accented characters at all, so the Á of "SUMÁ" falls through to
+          the next family in the stack. Agency Gothic CT is put there on purpose:
+          the gap then shows as one glyph in the project's OTHER face rather than
+          in the site's sans, which keeps it inside the brand while staying
+          obviously unfinished. Install Acme Gothic Wide and this becomes one
+          face and one word again. */
+      }
+      <VarietyBands
+        ariaLabel="Las tres variedades"
+        crest={ilusImg}
+        heading="SUMÁ CERVEZA ARTESANAL ARGENTINA."
+        headingInk="#996C29"
+        headingFont='"Acme Gothic", "Agency Gothic CT", sans-serif'
+        nameFont='"Agency Gothic CT", sans-serif'
+        bandTint="rgb(244 239 229 / 0.7)"
+        varieties={[
+          {
+            name: "Golden",
+            field: "#88B0E1",
+            ink: "#053749",
+            phone: phoneGolden,
+            phoneAlt:
+              "Historia de la Golden: «Mucho gusto, soy Golden — dorada y refrescante»",
+            bottle: botellaGolden,
+            bottleAlt: "La botella de Nacida y Criada Golden",
+          },
+          {
+            name: "Honey",
+            field: "#F9CA3B",
+            ink: "#663F1F",
+            phone: phoneHoney,
+            phoneAlt:
+              "Historia de la Honey: «Mucho gusto, soy Honey — suave con miel»",
+            bottle: botellaHoney,
+            bottleAlt: "La botella de Nacida y Criada Honey",
+          },
+          {
+            name: "IPA",
+            field: "#6EC196",
+            ink: "#1F4331",
+            phone: phoneIpa,
+            phoneAlt:
+              "Historia de la IPA: «Mucho gusto, soy IPA — aromática y lupulada»",
+            bottle: botellaIpa,
+            bottleAlt: "La botella de Nacida y Criada IPA",
+          },
+        ]}
+      />
+      {
+        /* The closer: the three stories the campaign ends on, and then the
+          fields themselves signing off.
+
+          `ColumnCollage` for the phones, which puts them on the content edge
+          like every other row of pieces on this page. The artboard sets them a
+          little wider than that — 89% of its width against the container's 68%
+          — but the page's own grid wins over a few percent, and nothing else
+          here hangs off the container.
+
+          The bands below are full-bleed, because they are not pieces: they are
+          the same three fields from the section above, continuing past the
+          content column and running out the bottom of the page. */
+      }
+      <ColumnCollage
+        ariaLabel="La invitación"
+        gap="clamp(0.75rem, 2.2vw, 1.25rem)"
+        columns={[
+          [
+            {
+              src: storyPresentacion,
+              alt: "Historia de presentación: «Mucho gusto, somos Nacida y Criada — cerveza artesanal argentina, nacida acá, criada acá»",
+            },
+          ],
+          [
+            {
+              src: storyJuntada,
+              alt: "Historia: «Vinimos a conocer gente — ¿nos hacés un lugar en la próxima juntada?»",
+            },
+          ],
+          [
+            {
+              src: storyDonde,
+              alt: "Historia: «Nosotros llevamos la cerveza, vos decinos dónde — escribinos y te contamos dónde conseguirlas»",
+            },
+          ],
+        ]}
+      />
+      {
+        /* Measured off the artboard at its own scale: a field, the rule set, and
+          a last field that runs off the bottom. Units are against 1920, the
+          width every sheet of this project is drawn at. */
+      }
+      <FieldBands
+        unitWidth={1920}
+        fields={["#88B0E1", "#F9CA3B", "#6EC196"]}
+        rows={[
+          { h: 144, kind: "field" },
+          { h: 18, kind: "ground" },
+          { h: 36, kind: "field" },
+          { h: 36, kind: "ground" },
+          { h: 131, kind: "field" },
+        ]}
+      />
+    </div>
+    <BackToTop />
+  </main>
+  <ProjectEnd current="nacida-y-criada" />
+  <Footer />
+</Layout>
+
+<style>
+  /* Scoped project theme — remaps ONLY the semantic colour aliases within this
+     page's subtree, so Nacida y Criada's branding can never leak into global
+     scope. Everything structural (type scale, spacing rhythm, breakpoints) stays
+     on the global tokens.
+
+     Dorado is `primary`: it is the one colour that does structural work in the
+     identity — it rules the construction grid, fills its two corner blocks and
+     draws the concept rings. Amarillo miel is `accent`, the brightest of the
+     eight and the one that can carry a control.
+
+     The field is WHITE and not the brand's own Hueso, for the same reason
+     Merienda's is not its Blanco: the palette's first band IS Hueso, the bands
+     are drawn edge to edge with no outline, and on a Hueso field that band would
+     disappear into the page. */
+  .project-nacida-y-criada {
+    --color-primary: #996c29; /* Dorado */
+    --color-accent: #f9ca3b; /* Amarillo miel */
+
+    --color-surface: #ffffff;
+    --color-text: #000000; /* the artboard sets labels and headings in black */
+    --color-muted: #6b6b6b; /* secondary copy */
+    --color-border: #e3d9c8; /* a hairline a shade under Hueso */
+
+    background-color: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  /* The page's second half, on Hueso. The artboard runs white down through the
+     palette and switches at the type specimen, so the brand's own off-white is
+     where the identity stops being explained and starts being applied.
+
+     It REDECLARES the alias rather than painting a background on each section,
+     so the sections inside need no knowledge of it — `border-border`,
+     `text-muted` and the rest keep resolving through the cascade. */
+  .nacida-hueso {
+    --color-surface: #f5efe4; /* Hueso */
+
+    background-color: var(--color-surface);
+  }
+
+  /* No rule between the brief's meta list and its Proyecto / Desafío / Propuesta
+     triad — the artboard doesn't have one, the same call Merienda and Vibra
+     make. ProjectBrief draws a full-bleed hairline there for the older projects.
+
+     The margin is kept: it is the gap between the two beats, and only the LINE
+     is being removed. `:global()` is required because the <hr> is ProjectBrief's
+     own markup, which Astro's scoping can't reach from here — the parent still
+     carries this page's scope hash, so nothing leaks to another project. */
+  .project-nacida-y-criada :global(hr) {
+    border-top-width: 0;
+  }
+</style>

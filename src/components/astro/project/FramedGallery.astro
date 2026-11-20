@@ -1,0 +1,281 @@
+---
+/**
+ * FramedGallery — a weighted bento of photographs held inside TWO frames: a
+ * column of the brand's own ornament running down each side, and a hairline
+ * rectangle inset over the pictures themselves.
+ *
+ * It is deliberately NOT a `Mosaic` with extra props. Mosaic is a full-bleed
+ * bento and owns its own `<section>`, so the rails and the inset rule could only
+ * be bolted on from outside it — and those two frames are not decoration around a
+ * gallery here, they ARE the section: the ornament is the brand's pattern doing
+ * the job a border does, and the inset rule is a second frame that deliberately
+ * does not agree with the first. The bento is the part that happens to be shared.
+ *
+ * THE WHOLE THING IS A PROPORTIONAL CANVAS, the same device `MockupStage` and
+ * `WebShowcase` use. The stage carries an `aspect-ratio`, rows split its height by
+ * weight and pictures split each row's width by theirs, so the composition scales
+ * as one picture at every viewport instead of re-flowing into a different
+ * arrangement halfway down. The weights below are read straight off the artboard
+ * in its own units — they are a RATIO, so the numbers can stay what the design
+ * measured rather than being normalised to something tidier.
+ *
+ * Every picture `object-cover`s its cell. Hand it art already cut to roughly the
+ * cell's ratio: these are 9:16 phone frames in landscape cells, and letting the
+ * browser crop that far means shipping four times the pixels the reader sees.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Item {
+  src: ImageMetadata;
+  alt: string;
+  /** Share of the row's width. Defaults to 1. */
+  weight?: number;
+}
+interface RowDef {
+  items: Item[];
+  /** Share of the stage's height. Defaults to 1. */
+  weight?: number;
+}
+interface Props {
+  rows: RowDef[];
+  /**
+   * The stage's ratio — the pictures only, NOT counting the ornament rails.
+   * Every weight above is read against it, so changing it moves the whole
+   * composition together.
+   */
+  aspect: string;
+  /** The ornament tile, repeated down both rails. Square artwork. */
+  ornament: ImageMetadata;
+  /** Section landmark label. */
+  ariaLabel?: string;
+}
+const { rows, aspect, ornament, ariaLabel = "Galería" } = Astro.props;
+
+const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
+
+/**
+ * The composition's three shares, as fractions of the section's full width.
+ * Read off the artboard: rails of 46 either side of a 552 stage, with 3 of air
+ * between each rail and the pictures, over a 646 total.
+ *
+ * They live here as numbers, not only in the stylesheet, because two things
+ * below are derived from them — the tile count and each picture's `sizes` — and
+ * a second copy of 7.12 in a comment is how those quietly stop agreeing.
+ */
+const RAIL_SHARE = 46 / 646;
+const GAP_SHARE = 3 / 646;
+const STAGE_SHARE = 1 - 2 * (RAIL_SHARE + GAP_SHARE);
+
+/**
+ * How many ornament tiles fit down a rail.
+ *
+ * A tile is square and as wide as its rail, so the count is the stage's height
+ * over the rail's width — and because EVERY length here is a share of the same
+ * total, that is a pure number: it does not move with the viewport. For a 552 ×
+ * 655 stage it comes out at 14.2.
+ *
+ * Rounding it and handing the rail `100% / tiles` is what keeps the column from
+ * ending on a sliced tile. The cost is that each tile is stretched off square by
+ * the rounding — here 1.6%, on a pattern of concentric squares, which is not
+ * visible. A stage whose ratio landed near .5 would stretch about 3.5%, still
+ * under what reads as distortion; past that the honest fix is the stage's ratio,
+ * not this number.
+ */
+const [aspectW, aspectH] = aspect.split("/").map((n) => parseFloat(n.trim()));
+const tiles = Math.max(
+  1,
+  Math.round((STAGE_SHARE / RAIL_SHARE) * (aspectH / aspectW)),
+);
+
+/**
+ * The widest the stage is ever rendered, in CSS px.
+ *
+ * The container caps at `--container-8xl` (88rem = 1408) less `desktop:px-12`
+ * on both sides, so the content box stops growing at 1312 and the stage takes
+ * its share of that. Past that viewport the container centres and nothing grows,
+ * which is what makes this a real ceiling rather than a guess — and what lets
+ * `sizes` state a px value there instead of a vw that would keep climbing.
+ *
+ * Per cell, because a cell's width is its SHARE of the stage, and the shares
+ * here run from about a fifth to three quarters. One `sizes` for all of them
+ * would either starve the big cells or ship the small ones four times the pixels
+ * they can show.
+ */
+const CONTENT_MAX = 1408 - 2 * 48;
+const STAGE_MAX = Math.round(CONTENT_MAX * STAGE_SHARE);
+
+/** Share of the stage's width this item's weight buys it, 0–1. */
+const shareOf = (weight: number, rowSpan: number) => weight / rowSpan;
+---
+
+{
+  /* The standard page container, so the rails start on the same content edge as
+    every other section's text.
+
+    It is a CAP and not only an alignment. The stage's ratio makes this
+    composition about 1.19× as tall as it is wide, so an uncapped full-bleed
+    gallery is the one section whose height grows without limit: at a 1920
+    viewport it ran 1918px tall, half again the screen. `max-w-*` is what keeps
+    it a picture on the page rather than a room the reader walks through. */
+}
+<section class="fg-section py-section" aria-label={ariaLabel}>
+  <div
+    class="fg mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12"
+    style={`--fg-ornament:url(${ornament.src});--fg-tiles:${tiles}`}
+  >
+    {
+      /* The rails are DECORATION: the pattern restates in ornament what the
+          section already is, so they carry no alt and no landmark. They are
+          drawn as a repeating background rather than a column of elements so the
+          tile count follows the stage's height on its own — nothing to keep in
+          sync when a row is added or a weight changes. */
+    }
+    <div class="fg-rail" aria-hidden="true"></div>
+
+    <div class="fg-stage" style={`--fg-aspect:${aspect}`}>
+      {
+        rows.map((row) => {
+          const span = sum(row.items.map((i) => i.weight ?? 1));
+          return (
+            <div class="fg-row" style={`--fg-row-weight:${row.weight ?? 1}`}>
+              {row.items.map((item) => {
+                const share = shareOf(item.weight ?? 1, span);
+                const cap = Math.round(share * STAGE_MAX);
+                // Clamped to the source and de-duplicated: the art is already
+                // cut to roughly this cell, so 2× often lands past the file's
+                // own width, and Astro will not invent pixels it doesn't have.
+                const widths = [
+                  ...new Set(
+                    [cap, Math.round(cap * 1.5), cap * 2].map((w) =>
+                      Math.min(w, item.src.width),
+                    ),
+                  ),
+                ];
+                return (
+                  <figure
+                    class="fg-cell"
+                    style={`--fg-cell-weight:${item.weight ?? 1}`}
+                  >
+                    <Image
+                      src={item.src}
+                      alt={item.alt}
+                      widths={widths}
+                      sizes={`(min-width: 1408px) ${cap}px, ${(share * STAGE_SHARE * 100).toFixed(1)}vw`}
+                      loading="lazy"
+                    />
+                  </figure>
+                );
+              })}
+            </div>
+          );
+        })
+      }
+
+      {
+        /* The inset rule, painted OVER the pictures. It is one rectangle across
+            the whole stage, so it crosses the gaps between cells — where it runs
+            on the cream field and simply disappears, which is what the artboard
+            shows. Decorative, and it must never eat a click. */
+      }
+      <span class="fg-frame" aria-hidden="true"></span>
+    </div>
+
+    <div class="fg-rail" aria-hidden="true"></div>
+  </div>
+</section>
+
+<style>
+  /* ── The numbers, all of them read off the artboard ───────────────────────
+     Measured in the artboard's own px at the width it was exported:
+
+       rail            46        ornament column, each side
+       rail gap         3        rail → stage
+       stage          552 × 655  the pictures
+       cell gap        10        between pictures, both axes
+       frame inset     22        from the stage's edge, uniform
+
+     Everything below is one of those five numbers over the composition's total
+     width (646) or over the stage's own box. Nothing here is a pixel value, so
+     the whole thing scales as one picture — see the component header. */
+  /* The section runs edge to edge. `overflow-x: clip` is a backstop: the rails
+     and the stage add up to 100% exactly, and a sub-pixel rounding at some
+     viewport should never be able to give the PAGE a horizontal scrollbar. */
+  .fg-section {
+    overflow-x: clip;
+  }
+
+  .fg {
+    display: flex;
+    align-items: stretch;
+    gap: 0.46%; /* 3 / 646 */
+  }
+
+  /* 46 / 646. `flex: 0 0` because the rail's width is the design, not slack:
+     letting it flex would re-proportion the ornament against the pictures. */
+  .fg-rail {
+    flex: 0 0 7.12%;
+    background-image: var(--fg-ornament);
+    background-repeat: repeat-y;
+    /* The tile is the rail's full width by an EXACT fraction of its height, so
+       the column always ends on a whole tile. `100% auto` would square the tile
+       to the rail instead — truer to the artwork, but the rail's height is set
+       by the stage's ratio and almost never divides evenly, so the last tile
+       came out sliced through the middle of its outermost ring. The stretch that
+       buys this is computed in the frontmatter; see `tiles` there. */
+    background-size: 100% calc(100% / var(--fg-tiles));
+    background-position: top center;
+  }
+
+  .fg-stage {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    aspect-ratio: var(--fg-aspect);
+    display: flex;
+    flex-direction: column;
+    /* 10 / 655 — a row gap resolves against the stage's HEIGHT, which the
+       aspect-ratio makes a definite number. */
+    gap: 1.53%;
+  }
+
+  .fg-row {
+    display: flex;
+    /* The row's share of the stage's height. `min-height: 0` so a tall picture
+       can't push the row past the share its weight bought. */
+    flex: var(--fg-row-weight) 1 0;
+    min-height: 0;
+    /* 10 / 552 — a column gap resolves against the stage's WIDTH. */
+    gap: 1.81%;
+  }
+
+  .fg-cell {
+    /* The cell's share of the row's width. `flex-basis: 0` is what makes the
+       weights proportional rather than additive on top of the pictures' own
+       widths. */
+    flex: var(--fg-cell-weight) 1 0;
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  .fg-cell :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* 22 / 552 of the width. Written as TWO percentages because the inset is one
+     uniform distance in px and the two axes resolve it against different
+     lengths: top/bottom against the stage's height (655), left/right against its
+     width (552). 22/655 = 3.36%, 22/552 = 3.99%. Collapsing them to one number
+     would square the corners against the wrong edge and the frame would read as
+     crooked on a wide screen. */
+  .fg-frame {
+    position: absolute;
+    inset: 3.36% 3.99%;
+    border: 1px solid rgb(255 255 255 / 0.85);
+    pointer-events: none;
+  }
+</style>

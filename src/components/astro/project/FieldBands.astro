@@ -1,0 +1,64 @@
+---
+/**
+ * FieldBands — a full-bleed strip of colour fields cut by the page's own ground.
+ *
+ * It is the same motif `VarietyBands` draws inside its canvas, and deliberately
+ * not the same component: there the bands are one layer of a composition that
+ * also holds phones, bottles and a heading, positioned against a canvas with a
+ * fixed ratio. Here they are the whole thing, standing in normal flow with no
+ * ratio of their own — their heights come from the row list and the width of the
+ * viewport. Folding this into that one would mean giving it a second layout mode
+ * for the sake of thirteen lines.
+ *
+ * `ground` rows carry no colour at all. The page shows through them, which is
+ * what makes the stack read as cuts in a continuous field rather than as stripes
+ * laid on top of one, and it is why the rows are real tracks instead of a `gap`.
+ *
+ * Heights are given in the artboard's own units and resolved as a share of the
+ * section's WIDTH, so the strip keeps its proportion against the page at any
+ * viewport — the same reasoning as every other number on this project's pages.
+ */
+interface Row {
+  /** Height, in the artboard's units. */
+  h: number;
+  kind: "field" | "ground";
+}
+interface Props {
+  /** One colour per column, left to right. */
+  fields: string[];
+  rows: Row[];
+  /**
+   * The width those `h` units are measured against — the artboard's own width.
+   * A row of 144 against a 1920 artboard draws at 7.5% of the section's width.
+   */
+  unitWidth: number;
+}
+const { fields, rows, unitWidth } = Astro.props;
+---
+
+<div class="fb" aria-hidden="true" style={`--fb-cols:${fields.length}`}>
+  {
+    rows.map((row) => (
+      <div class="fb-row" style={`aspect-ratio:${unitWidth} / ${row.h}`}>
+        {row.kind === "field" &&
+          fields.map((f) => <span style={`background:${f}`} />)}
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  .fb {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* `aspect-ratio` rather than a percentage height: a percentage height resolves
+     against the PARENT'S height, which here is auto. The ratio takes the row's
+     full width and turns the artboard's unit into a real one. */
+  .fb-row {
+    display: grid;
+    grid-template-columns: repeat(var(--fb-cols), 1fr);
+    width: 100%;
+  }
+</style>
