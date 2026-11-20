@@ -1,0 +1,161 @@
+---
+/**
+ * PhotoBento — a bento of photographs laid out on a named grid, where a piece
+ * may span rows, columns, or both.
+ *
+ * The span is what earns this its own component. `Mosaic` is row-based: a row
+ * levels to one height and splits its width, so nothing can reach down into the
+ * row below. `ColumnCollage` is a masonry of EQUAL columns, each a single stack,
+ * so nothing can sit beside its neighbour inside a column. Nacida y Criada's
+ * gallery needs both at once — a portrait of Buenos Aires holding two rows while
+ * a pair of bar shots share one cell beside it — and neither model can say that.
+ *
+ * So the layout is declared the way a designer draws it: `areas` is a literal
+ * `grid-template-areas` string, one line per row, and each item names the area
+ * it occupies. The markup therefore CONTAINS a picture of the composition, which
+ * is the one form of this that stays readable when a piece moves.
+ *
+ * Column and row tracks are passed as `fr` lists in the artboard's own units, so
+ * they can be read back against it rather than normalised to something tidier.
+ * `aspect` then fixes the whole thing's proportion, and every track resolves
+ * against it — change the ratio and the composition moves together.
+ *
+ * Below `tablet` the grid is abandoned: the pieces stack full width in DOM
+ * order, each at its own ratio. A nine-cell bento whose narrowest track is an
+ * eighth of the width cannot survive a phone — there is no composition left at
+ * 40px a cell, only a queue — and every other collage on the site makes the same
+ * call.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Item {
+  src: ImageMetadata;
+  alt: string;
+  /** The grid area this piece fills. Must appear in `areas`. */
+  area: string;
+}
+interface Props {
+  items: Item[];
+  /**
+   * A `grid-template-areas` value: one quoted row per line, naming an area per
+   * column track. Every name here needs an item, and every item an area.
+   */
+  areas: string;
+  /** Column tracks, e.g. "72fr 61fr 51fr 68fr 136fr". */
+  columns: string;
+  /** Row tracks, e.g. "91fr 91fr 92fr". */
+  rows: string;
+  /** The bento's proportion, e.g. "408 / 286". Only read from `tablet` up. */
+  aspect: string;
+  /** Section landmark label. */
+  ariaLabel?: string;
+}
+const {
+  items,
+  areas,
+  columns,
+  rows,
+  aspect,
+  ariaLabel = "Galería",
+} = Astro.props;
+
+/**
+ * Every track becomes `minmax(0, Nfr)`. A bare `fr` is `minmax(auto, Nfr)`, and
+ * that `auto` floors the track at its content's min-content size — for a
+ * photograph, its intrinsic width. An 874px source in a track worth an eighth of
+ * the bento would hold the whole grid open past its container, and `max-width`
+ * on the image does not prevent it: the floor is the grid item's automatic
+ * minimum size, decided before the image is asked to shrink.
+ */
+const floorTracks = (tracks: string) =>
+  tracks
+    .trim()
+    .split(/\s+/)
+    .map((t) => `minmax(0, ${t})`)
+    .join(" ");
+
+// The row gap has to be the same DISTANCE as the column gap, but percentages
+// resolve against the height on one axis and the width on the other. The ratio
+// is what converts between them, so it is read from `aspect` rather than
+// repeated as a number in the stylesheet.
+const [aspectW, aspectH] = aspect.split("/").map((n) => parseFloat(n.trim()));
+const gapRatio = (aspectW / aspectH).toFixed(4);
+---
+
+<section class="py-section" aria-label={ariaLabel}>
+  <div class="mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12">
+    <div
+      class="pb-grid"
+      style={`--pb-areas:${areas};--pb-cols:${floorTracks(columns)};--pb-rows:${floorTracks(rows)};--pb-aspect:${aspect};--pb-ar:${gapRatio}`}
+    >
+      {
+        items.map((item) => (
+          <figure class="pb-cell" style={`--pb-area:${item.area}`}>
+            <Image
+              src={item.src}
+              alt={item.alt}
+              widths={[Math.round(item.src.width / 2), item.src.width]}
+              sizes="(min-width: 640px) 50vw, 100vw"
+              loading="lazy"
+            />
+          </figure>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Stacked, below tablet: the grid is off and every piece is one full-width
+     block at its own ratio, in DOM order. */
+  .pb-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--pb-gap);
+    /* The gap, as a share of the bento's width — 6 of the artboard's 408. Both
+       axes get the same number, so a column gap and a row gap read alike even
+       though percentages resolve against different lengths; the row gap is
+       converted through the aspect ratio in the grid rule below. */
+    --pb-gap: 1.47%;
+  }
+
+  .pb-cell {
+    margin: 0;
+    overflow: hidden;
+  }
+
+  .pb-cell :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @media (width >= 640px) {
+    .pb-grid {
+      display: grid;
+      /* `grid-template-areas` cannot be read from a custom property as a bare
+         token list — it needs the quoted rows the page passes in, which is why
+         `--pb-areas` carries them already quoted. */
+      grid-template-areas: var(--pb-areas);
+      /* Both track lists arrive already wrapped in `minmax(0, …)` — see
+         `floorTracks` in the frontmatter for why a bare `fr` is not safe here. */
+      grid-template-columns: var(--pb-cols);
+      grid-template-rows: var(--pb-rows);
+      aspect-ratio: var(--pb-aspect);
+      column-gap: var(--pb-gap);
+      /* The same DISTANCE as the column gap, expressed against the height: the
+         aspect ratio makes that a known quantity. `gap: 1.47%` on both axes
+         would otherwise draw a visibly shorter row gap on a composition wider
+         than it is tall. */
+      row-gap: calc(var(--pb-gap) * var(--pb-ar));
+    }
+
+    .pb-cell {
+      grid-area: var(--pb-area);
+      min-width: 0;
+      min-height: 0;
+    }
+  }
+</style>

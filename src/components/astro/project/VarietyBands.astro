@@ -1,0 +1,300 @@
+---
+/**
+ * VarietyBands — the page's one full composition: three vertical fields, one per
+ * variety, cut across by a stack of bands and a line of display type.
+ *
+ * It is a PROPORTIONAL CANVAS, the same device `MockupStage` and `WebShowcase`
+ * use and for the same reason: the canvas carries an `aspect-ratio` and every
+ * band, phone and bottle is placed as a percentage of it, so the whole thing
+ * scales as one picture instead of the pieces drifting apart at some viewport in
+ * between. Nothing here is a pixel value, and the numbers below are the
+ * artboard's own units (452 across, 990 down) so they can be read back against
+ * it rather than normalised to something tidier.
+ *
+ * The canvas is kept at EVERY size rather than restacking on a phone. The three
+ * fields ARE the argument this section makes — one beer, one landscape, one
+ * colour — and a stack turns that argument into a list. The pieces get small;
+ * they do not stop being a composition, which is the trade the icon chequer
+ * makes too.
+ *
+ * Reading order is the fields': each variety's phone, name and bottle are one
+ * group in the markup, so assistive tech gets Golden, then Honey, then IPA,
+ * rather than three rows of unrelated pictures.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Variety {
+  /** The variety's name, set large and turned on its side behind the bottle. */
+  name: string;
+  /** The field this variety owns. */
+  field: string;
+  /** The name's ink — the dark relative of `field` in the brand palette. */
+  ink: string;
+  phone: ImageMetadata;
+  phoneAlt: string;
+  bottle: ImageMetadata;
+  bottleAlt: string;
+}
+interface Props {
+  varieties: [Variety, Variety, Variety];
+  /** The crest that straddles the heading band's top edge. */
+  crest: ImageMetadata;
+  /** The line of display type inside the band. */
+  heading: string;
+  /** Ink for the heading. */
+  headingInk: string;
+  /** CSS font-family for the heading. */
+  headingFont: string;
+  /** CSS font-family for the names set behind the bottles. */
+  nameFont: string;
+  /**
+   * The band's tint, laid over the three fields. The gaps between bands take no
+   * colour at all — the page's own ground shows through them, which is what
+   * makes the stack read as cuts in a field rather than stripes painted on it.
+   */
+  bandTint: string;
+  /** Section landmark label. */
+  ariaLabel?: string;
+}
+const {
+  varieties,
+  crest,
+  heading,
+  headingInk,
+  headingFont,
+  nameFont,
+  bandTint,
+  ariaLabel = "Las tres variedades",
+} = Astro.props;
+
+/**
+ * The band stack, top to bottom, in the artboard's own units.
+ *
+ * `field` is the variety's colour; `tint` is that colour under the heading
+ * band's wash; `ground` is NOT a colour at all — the row is left unpainted so
+ * the page's own field shows through it, which is what makes the stack read as
+ * cuts in a continuous field rather than as stripes laid on top of one.
+ *
+ * Reading it down: the field the phones hang over, a rule set (thin cut, a
+ * stripe of the field, a wider cut), the heading band, the same rule set
+ * mirrored, the tall field the bottles stand in, one more rule set, and a short
+ * closing field.
+ */
+const ROWS = [
+  { h: 142, kind: "field" },
+  { h: 4, kind: "ground" },
+  { h: 9, kind: "field" },
+  { h: 8, kind: "ground" },
+  { h: 97, kind: "tint" },
+  { h: 8, kind: "ground" },
+  { h: 9, kind: "field" },
+  { h: 4, kind: "ground" },
+  { h: 467, kind: "field" },
+  { h: 8, kind: "ground" },
+  { h: 9, kind: "field" },
+  { h: 4, kind: "ground" },
+  { h: 36, kind: "field" },
+] as const;
+
+const gridRows = ROWS.map((r) => `${r.h}fr`).join(" ");
+
+// A tint is the wash OVER the field, which needs two layers in one declaration:
+// `linear-gradient` of a flat colour is the only way to stack a translucent
+// sheet on a solid background without a second element.
+const cellBg = (kind: string, field: string) =>
+  kind === "ground"
+    ? "none"
+    : kind === "tint"
+      ? `linear-gradient(${bandTint}, ${bandTint}), ${field}`
+      : field;
+---
+
+<section class="py-section" aria-label={ariaLabel}>
+  <div class="vb">
+    {
+      /* The bands — see ROWS in the frontmatter for what the stack is. Every row
+        is three cells, one per variety, so a "band" is never a single colour:
+        it is the three fields continuing through it. */
+    }
+    <div class="vb-bands" aria-hidden="true" style={`--vb-rows:${gridRows}`}>
+      {
+        ROWS.map((row) =>
+          varieties.map((v) => (
+            <span style={`background:${cellBg(row.kind, v.field)}`} />
+          )),
+        )
+      }
+    </div>
+
+    {/* Each variety's own pieces, grouped so the reading order is by beer. */}
+    {
+      varieties.map((v, i) => (
+        <div
+          class="vb-variety"
+          style={`--vb-col:${i + 1};--vb-ink:${v.ink};--vb-name-font:${nameFont}`}
+        >
+          <Image
+            class="vb-phone"
+            src={v.phone}
+            alt={v.phoneAlt}
+            loading="lazy"
+          />
+          <span class="vb-name" aria-hidden="true">
+            {v.name}
+          </span>
+          <Image
+            class="vb-bottle"
+            src={v.bottle}
+            alt={v.bottleAlt}
+            loading="lazy"
+          />
+        </div>
+      ))
+    }
+
+    {/* The crest sits ON the band's top edge, half in and half out. */}
+    <img class="vb-crest" src={crest.src} alt="" loading="lazy" />
+
+    <h2
+      class="vb-heading"
+      style={`--vb-heading-ink:${headingInk};--vb-heading-font:${headingFont}`}
+    >
+      {heading}
+    </h2>
+  </div>
+</section>
+
+<style>
+  /* ── The artboard, in its own units ───────────────────────────────────────
+     canvas        452 × 990, measured from the top of the phones
+     fields begin  185 down
+     bands         142 · 4 · 9 · 8 · 97 · 8 · 9 · 4 · 467 · 8 · 9 · 4 · 36
+     phone         129 wide (86% of a 150.67 column), 265 tall
+     bottle         68% of a column, standing on the tall field's floor
+     heading       106.67 of the artboard's 1920 → 5.57% of the canvas
+     Everything below is one of those over 452 or over 990. */
+  .vb {
+    position: relative;
+    aspect-ratio: 452 / 990;
+    width: 100%;
+    /* Makes `cqw` below mean "percent of this canvas's width". A percentage
+       font-size would resolve against the PARENT'S FONT SIZE, not the box, so
+       the two type sizes here — both of which are read off the artboard as a
+       share of its width — need a real width unit. `inline-size` containment
+       touches the inline axis only, so the aspect-ratio above still sets the
+       height. */
+    container-type: inline-size;
+  }
+
+  /* The band stack starts 185 down and runs to the floor. `fr` rows split that
+     height by the artboard's own numbers. */
+  .vb-bands {
+    position: absolute;
+    inset: 18.69% 0 0; /* 185 / 990 */
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    /* Thirteen rows, split by the artboard's own numbers — see ROWS. */
+    grid-template-rows: var(--vb-rows);
+    /* No gap: the ground rows ARE the gaps, and they are real tracks so the
+       stack's proportions stay one list of numbers instead of half rows and
+       half gaps. */
+    gap: 0;
+  }
+
+  .vb-variety {
+    position: absolute;
+    inset: 0;
+    /* The column this variety owns, as a third of the canvas. */
+    --vb-left: calc((var(--vb-col) - 1) * 33.333%);
+    --vb-width: 33.333%;
+    pointer-events: none;
+  }
+
+  .vb-phone,
+  .vb-bottle,
+  .vb-name {
+    position: absolute;
+  }
+
+  /* 129 of a 150.67 column, hung from the canvas's top edge so the phones stand
+     above the field and overlap it. */
+  .vb-phone {
+    top: 0;
+    left: calc(var(--vb-left) + (var(--vb-width) - 28.56%) / 2);
+    width: 28.56%; /* 129 / 452 */
+    height: auto;
+  }
+
+  /* Standing on the tall field's floor, which is the closing rule set plus the
+     short field up from the canvas bottom. Centred in its column. */
+  .vb-bottle {
+    bottom: 5.76%; /* (8 + 9 + 4 + 36) / 990 */
+    left: calc(var(--vb-left) + (var(--vb-width) - 22.6%) / 2);
+    width: 22.6%; /* 102 / 452 */
+    height: auto;
+  }
+
+  /* The name, turned on its side and set in the project's condensed face. It is
+     DECORATION — the bottle in front of it already carries the word on its
+     label — so it is hidden from the a11y tree rather than read twice.
+
+     `writing-mode` rather than a transform alone: the glyphs then lay themselves
+     out along the vertical axis and the box the text occupies is a real box, so
+     it can be positioned against the column instead of guessed at after
+     rotation. The 180° turn is what makes it read bottom-to-top.
+
+     Read off the artboard, where most of the word is BEHIND the bottle: it
+     hangs from the top of the field, cap height about 53 units of a 150 column,
+     starting 8% in from the column's left edge. The size follows from that cap —
+     Agency Gothic CT caps are about 0.72 em, so 53 of cap is ~74 of font — and
+     the three names are set at ONE size with no tracking, which is why IPA comes
+     out shorter than GOLDEN rather than being stretched to match it. */
+  .vb-name {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    top: 53.7%; /* (566 - 34) / 990 */
+    left: calc(var(--vb-left) + var(--vb-width) * 0.08);
+    color: var(--vb-ink);
+    font-family: var(--vb-name-font);
+    font-size: 16.4cqw; /* 74 / 452 of the canvas width */
+    font-weight: 700;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  /* Straddling the heading band's top edge, centred on the canvas. */
+  .vb-crest {
+    position: absolute;
+    top: 30.4%; /* (335 - 34) / 990 */
+    left: 50%;
+    width: 36.7%; /* 166 / 452 */
+    height: auto;
+    transform: translateX(-50%);
+  }
+
+  /* Inside the tinted band, centred both ways. The band runs from 35.15% to
+     44.95% of the canvas height; the heading is centred in what is left of it
+     once the crest has taken the top. */
+  .vb-heading {
+    position: absolute;
+    top: 35.15%; /* (382 - 34) / 990 */
+    height: 9.8%; /* 97 / 990 */
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0 6%;
+    color: var(--vb-heading-ink);
+    font-family: var(--vb-heading-font);
+    font-size: 5.57cqw; /* 106.67 of the artboard's 1920 */
+    font-weight: 400;
+    line-height: 1.12;
+    text-align: center;
+    text-wrap: balance;
+  }
+</style>

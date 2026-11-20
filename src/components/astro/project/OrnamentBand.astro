@@ -1,0 +1,52 @@
+---
+/**
+ * OrnamentBand — a full-bleed strip of a brand ornament, repeated across the
+ * width. Used in pairs to close a section's field top and bottom, the way a
+ * border closes a plate.
+ *
+ * It is DECORATION, not content: the pattern restates what the field already
+ * says, so the image is a background, the element is a plain div and it carries
+ * `aria-hidden`. A `<section>` here would add a landmark with no accessible
+ * name, and a landmark is a promise that there is something inside worth
+ * navigating to — the same call `TextureBand` makes.
+ *
+ * The distinction from `TextureBand` is that this one REPEATS. That one takes
+ * artwork already drawn at the full width of the band and stretches it to fit;
+ * feeding it a single 102px tile would smear one square across the viewport.
+ *
+ * `background-repeat: round` is what keeps the strip from ending on a sliced
+ * tile at an arbitrary viewport: the browser scales the tile so a whole number
+ * fits, which is the same thing `FramedGallery` computes by hand for its rails —
+ * it can do the arithmetic because its rail's height is a known multiple of its
+ * own width, and a viewport is not.
+ */
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  /** The ornament tile, repeated across. Square artwork. */
+  image: ImageMetadata;
+}
+const { image } = Astro.props;
+---
+
+<div
+  class="ornament-band"
+  aria-hidden="true"
+  style={`--ornament:url(${image.src})`}
+>
+</div>
+
+<style>
+  /* The height IS the tile's size, since `background-size: auto 100%` squares
+     the tile to the band. Fluid rather than fixed so the ornament keeps its
+     proportion against the page at every width — on a phone it settles at a
+     floor where the concentric squares still read as a pattern rather than as
+     noise, and it stops growing before it turns into a third section. */
+  .ornament-band {
+    height: clamp(2.5rem, 6.5vw, 6rem);
+    background-image: var(--ornament);
+    background-size: auto 100%;
+    background-repeat: round no-repeat;
+    background-position: center;
+  }
+</style>

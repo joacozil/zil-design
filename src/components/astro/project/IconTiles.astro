@@ -1,0 +1,135 @@
+---
+/**
+ * IconTiles — an icon set shown as a chequerboard of filled tiles, with a short
+ * block of copy naming it above.
+ *
+ * Deliberately NOT `IconGrid`. That one sets the icons on the page's own ground
+ * with the copy beside them, which is right when the marks are the deliverable
+ * and the grid is just how you count them. Here the FIELD is the deliverable
+ * too: the icons are drawn in the surface colour, so they do not exist off a
+ * tile, and the two brand colours alternating square by square is the pattern
+ * the set was made to sit in. A component that cannot express a field cannot
+ * express that.
+ *
+ * The tiles are flush — no gap. The chequer is what separates one from the next,
+ * and a gap would turn a continuous band into nine floating cards.
+ *
+ * THE COLUMN COUNT MUST BE ODD. The chequer is assigned as `index % 2`, which
+ * equals `(row + column) % 2` only while the row length is odd; with an even
+ * count every column would come out a single colour, striped rather than
+ * chequered. The grid below is five columns at every size for that reason and
+ * one more — see the note on it.
+ *
+ * The copy above is the same small-uppercase-label-over-a-muted-paragraph
+ * pattern every other captioned section on a project page uses.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Icon {
+  src: ImageMetadata;
+  /** Names what the icon depicts — these are content, not decoration. */
+  alt: string;
+}
+interface Props {
+  label: string;
+  body?: string;
+  /** The set, in reading order. The chequer follows this order. */
+  icons: Icon[];
+  /**
+   * The two field colours, alternating. The icons are drawn in the surface
+   * colour, so both have to be dark enough to carry them.
+   */
+  colors: [string, string];
+  /** Section landmark label. */
+  ariaLabel?: string;
+}
+const { label, body, icons, colors, ariaLabel } = Astro.props;
+---
+
+<section class="py-section" aria-label={ariaLabel ?? label}>
+  <div class="mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12">
+    <div class="mb-12 tablet:mb-16">
+      <h2 class="text-p-sm font-bold tracking-wider text-text uppercase">
+        {label}
+      </h2>
+      {body && <p class="mt-4 max-w-md text-p-sm text-muted">{body}</p>}
+    </div>
+
+    <ul class="it-grid">
+      {
+        icons.map((icon, i) => (
+          <li class="it-tile" style={`--it-field:${colors[i % 2]}`}>
+            <Image src={icon.src} alt={icon.alt} loading="lazy" />
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  /* Five columns at EVERY size, which is not the usual call and is deliberate.
+     Dropping to three on a phone is what you would reach for, and it leaves the
+     tenth tile alone on a fourth row with two empty cells beside it — a block
+     that reads as unfinished rather than as a set. Ten tiles only come out
+     square at five columns or at two, and two is even, which turns the chequer
+     into stripes (see the header). So the block keeps its shape and the tiles
+     get small on a phone instead, where they read as the pattern they are. */
+  .it-grid {
+    display: grid;
+    /* `minmax(0, 1fr)` and NOT `1fr`. A bare `1fr` is `minmax(auto, 1fr)`, and
+       that `auto` floors each column at its content's min-content width — which
+       here is the icon's own intrinsic width (the marks are drawn at 162–251px)
+       plus this tile's padding. Five of those add up to more than the container,
+       so the grid stopped being five equal shares and ran off the right edge
+       while the left stayed on the gutter. `max-width: 100%` on the image does
+       not prevent it: the floor is the grid item's automatic minimum size, which
+       is decided before the image is asked to shrink. */
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    /* Clips the 1px bleed each tile paints to close the seams — see the tile. */
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Square, and the square is load-bearing: the icons are drawn at five
+     different ratios, so only a constant tile makes the set read as one system
+     rather than as nine differently-shaped labels. */
+  .it-tile {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1;
+    /* `min-height: 0` — without it the square is only a suggestion. A grid
+       item's automatic minimum size is its MIN-CONTENT height, and an image's
+       min-content height is its intrinsic one (a percentage `max-height` is
+       ignored while that is being measured), so any mark taller than the padded
+       box pushed its tile past the ratio. Only the menu notebook is tall enough
+       to do it, which is why two tiles out of ten hung lower than their row. */
+    min-height: 0;
+    padding: 18%;
+    background-color: var(--it-field);
+    /* The tiles are flush, and a container width that does not divide by five
+       lands their edges on fractional pixels — the browser then rounds each box
+       on its own and leaves a hairline of the page showing between them, which
+       on this chequer reads as a cream grid nobody drew.
+       Each tile paints a 1px ring of its OWN colour just outside its box, so
+       whatever strip its neighbour's background does not reach is filled. The
+       ring that spills INTO the neighbour is harmless: a later sibling paints
+       over an earlier one, and the grid clips the outermost edge. */
+    box-shadow: 0 0 0 1px var(--it-field);
+  }
+
+  /* Each mark keeps its own proportions inside the padded square — contained,
+     never stretched to the tile. `max-height` is what makes the tall marks (the
+     menu notebook, the pair of figures) sit at the same optical size as the wide
+     ones (the flag, the plate) instead of overflowing their padding. */
+  .it-tile :global(img) {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+  }
+</style>
