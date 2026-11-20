@@ -7,6 +7,7 @@ import netValue from "../assets/img/net-value.avif";
 import vibra from "../assets/img/vibra.avif";
 import merienda from "../assets/img/merienda.webp";
 import nacidaYCriada from "../assets/img/nacida-y-criada.webp";
+import combustion from "../assets/img/combustion.webp";
 
 /**
  * The project roster — the single source of truth shared by the homepage slider
@@ -64,5 +65,11 @@ export const projects: ProjectEntry[] = [
     name: "Merienda",
     category: "Social Media",
     slug: "merienda",
+  },
+  {
+    img: combustion,
+    name: "Combustion",
+    category: "Social Media",
+    slug: "combustion",
   },
 ];
