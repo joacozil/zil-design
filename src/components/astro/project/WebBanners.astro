@@ -1,0 +1,240 @@
+---
+/**
+ * WebBanners — the campaign as it reached the shop: a caption and a store
+ * mockup, then the banners themselves laid out at their own proportions.
+ *
+ * On the brand's own VIOLETA field, full bleed. The field is the point: these
+ * are the pieces that carry the campaign onto a page the brand does not design,
+ * so the section states its ground rather than borrowing the page's.
+ *
+ * Two beats, and they are measured differently on purpose:
+ *
+ *   1. The head sits in the CONTENT COLUMN, except the mockup, which runs off
+ *      the right edge. A store screenshot has no edge worth showing — cropping
+ *      it at the page says "this continues" where a fitted one would say "this
+ *      is a picture of a screen".
+ *   2. The banners are FULL BLEED with a hairline inset, the same device Mosaic
+ *      uses: they are artwork with their own borders, so the page's gutter would
+ *      only add a second frame around a frame.
+ *
+ * Every vertical measurement is a share of the content column — see the numbers
+ * at the head of the stylesheet.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Piece {
+  src: ImageMetadata;
+  alt: string;
+}
+interface Props {
+  label: string;
+  body: string;
+  /** The store mockup. Bleeds off the section's right edge. */
+  mockup: Piece;
+  /**
+   * The top row: a wide banner and a narrow one, which level to a common
+   * height. Their WEIGHTS are their own aspect ratios, which is what makes them
+   * level exactly — a row of `natural`-fit images is only flush when each one's
+   * share of the width is proportional to its ratio.
+   */
+  row: [Piece, Piece];
+  /** The full-width banner under the row. */
+  wide: Piece;
+  /** The field this section stands on. */
+  field: string;
+  /** Section landmark label. */
+  ariaLabel?: string;
+}
+const {
+  label,
+  body,
+  mockup,
+  row,
+  wide,
+  field,
+  ariaLabel = "Banners web",
+} = Astro.props;
+
+const weights = row.map((p) => p.src.width / p.src.height);
+---
+
+<section
+  class="web-banners"
+  aria-label={ariaLabel}
+  style={`--wb-field:${field}`}
+>
+  <div class="wb-inner">
+    <div class="wb-head">
+      <div class="wb-caption">
+        <h3 class="text-p-sm font-bold tracking-wider uppercase">{label}</h3>
+        <p class="mt-4 max-w-md text-p text-pretty">{body}</p>
+      </div>
+      {
+        /* The mockup is wider than the column it sits in — 143% of it — so it
+          runs past the page's right edge, where the section clips it. Stated as
+          a percentage of the column rather than a width of the page, so the
+          crop keeps the same proportion of the picture at every viewport. */
+      }
+      <div class="wb-mockup">
+        <Image src={mockup.src} alt={mockup.alt} loading="lazy" sizes="60vw" />
+      </div>
+    </div>
+  </div>
+
+  <div class="wb-banners">
+    <div class="wb-row">
+      {
+        row.map((p, i) => (
+          <Image
+            class="wb-banner"
+            style={`--w:${weights[i]}`}
+            src={p.src}
+            alt={p.alt}
+            loading="lazy"
+            sizes={`(min-width: 640px) ${Math.round((weights[i] / (weights[0] + weights[1])) * 100)}vw, 100vw`}
+          />
+        ))
+      }
+    </div>
+    <Image
+      class="wb-banner wb-banner--wide"
+      src={wide.src}
+      alt={wide.alt}
+      loading="lazy"
+      sizes="100vw"
+    />
+  </div>
+</section>
+
+<style>
+  /* ── The artboard, in its own units ──────────────────────────────────────
+     page            1920 wide; content column 1494 of it
+     field top → mockup   112 of the column
+     mockup       starts 40.9% across the column, 84.4% of it wide
+     mockup → banners     148
+     banner inset / gaps  25 (the hairline the row and the field share)
+     Shares of the column unless they say otherwise. */
+  .web-banners {
+    --wb-gap: clamp(0.5rem, 1.1vw, 1rem);
+    --wb-pad: 1.5rem;
+    --wb-content: calc(min(100cqw, var(--container-8xl)) - 2 * var(--wb-pad));
+
+    container-type: inline-size;
+    padding-top: calc(var(--wb-content) * 0.072);
+    padding-bottom: var(--wb-gap);
+    background-color: var(--wb-field);
+
+    /* The field's own inks. The section redeclares the aliases rather than
+       colouring each child, so the caption inside goes on reading `text` and
+       simply resolves it against this ground — the same device Merienda's Bordo
+       half uses. Both inks are white here: a grey secondary on a saturated
+       violet reads as dirt, not as a step down. */
+    --color-text: #ffffff;
+    --color-muted: #ffffff;
+    color: var(--color-text);
+
+    /* The mockup runs past the right edge. `clip` rather than `hidden` so the
+       section does not become a scroll container. */
+    overflow: clip;
+  }
+
+  .wb-inner {
+    margin-inline: auto;
+    width: 100%;
+    max-width: var(--container-8xl);
+    padding-inline: var(--wb-pad);
+  }
+
+  /* Mobile: the caption leads and the mockup follows it, both at full width —
+     the bleed is a desktop idea, and on a phone it would eat most of a picture
+     that is already small. */
+  .wb-mockup img {
+    width: 100%;
+    height: auto;
+  }
+
+  /* On a phone the caption and the mockup are one above the other, and without
+     this the picture starts flush against the last line of copy and reads as
+     part of it. From `tablet` up the head is a two-column grid and the columns
+     already stand apart, so the margin goes away with the stack. It is the
+     section's own strip token, the same one the banners are spaced by, so the
+     break rhymes with the grid below it. */
+  .wb-mockup {
+    margin-top: var(--spacing-section-tight);
+  }
+
+  .wb-banners {
+    padding-inline: var(--wb-gap);
+  }
+
+  /* The two banners share a row at EVERY width, split by their own aspect
+     ratios — see `.wb-banner`. Not two equal columns and not a stack:
+     - Equal columns squash the wide banner and stretch the narrow one, so the
+       pair stops being the same height and the row reads as a mistake.
+     - Stacked, the narrow banner goes full width and comes out taller than the
+       viewport, and the section reads as three loose blocks.
+     The artboard is two rows — the pair, then the wide one — and that holds on
+     a phone, where the row lands about 106px tall. Small, but it is still the
+     layout, which is what the pieces are being shown in. */
+  .wb-row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--wb-gap);
+    margin-top: calc(var(--wb-content) * 0.098);
+  }
+
+  /* Each banner's share of the row is its OWN aspect ratio, which is what
+     levels the pair: a row of images at their natural ratios comes out flush
+     only when each one's share of the width is proportional to its ratio. */
+  .wb-banner {
+    flex: var(--w) 1 0;
+    width: auto;
+    height: auto;
+    /* A flex item's `min-width` defaults to its CONTENT size, and an image's
+       content size is its intrinsic width — 2400px here — so without this the
+       two banners refuse to shrink, keep their natural widths and overflow the
+       row instead of splitting it by weight. */
+    min-width: 0;
+  }
+
+  /* The wide one is its own row, so it takes the whole width rather than a
+     share of one. */
+  .wb-banner--wide {
+    flex: none;
+    width: 100%;
+    margin-top: var(--wb-gap);
+  }
+
+  @media (min-width: 40rem) {
+    .web-banners {
+      --wb-pad: 2rem;
+    }
+
+    /* Caption and mockup side by side, split where the artboard puts the
+       mockup's left edge: 40.9% of the column. */
+    .wb-head {
+      display: grid;
+      grid-template-columns: 40.9% 1fr;
+      align-items: center;
+    }
+
+    /* 84.4% of the content column, stated as a share of the 59.1% column it
+       lives in — the two always agree because both come from the same split. */
+    .wb-mockup img {
+      width: 142.8%;
+      max-width: none;
+    }
+
+    .wb-mockup {
+      margin-top: 0;
+    }
+
+  }
+
+  @media (min-width: 64rem) {
+    .web-banners {
+      --wb-pad: 3rem;
+    }
+  }
+</style>

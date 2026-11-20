@@ -1,0 +1,477 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/astro/Header.astro";
+import Footer from "../../components/astro/Footer.astro";
+import ProjectEnd from "../../components/astro/project/ProjectEnd.astro";
+import BackToTop from "../../components/astro/project/BackToTop.astro";
+import ProjectHeroImage from "../../components/astro/project/ProjectHeroImage.astro";
+import ProjectBrief from "../../components/astro/project/ProjectBrief.astro";
+import ConceptCircles from "../../components/astro/project/ConceptCircles.astro";
+import LogoGrid from "../../components/astro/project/LogoGrid.astro";
+import ColorPalette from "../../components/astro/project/ColorPalette.astro";
+import TypeSpecimen from "../../components/astro/project/TypeSpecimen.astro";
+import ColumnCollage from "../../components/astro/project/ColumnCollage.astro";
+import postPantalon from "../../assets/combustion/post-pantalon-salacia.webp";
+import fotoCalleNoche from "../../assets/combustion/foto-calle-noche.webp";
+import fotoGrupoDia from "../../assets/combustion/foto-grupo-dia.webp";
+import postUltimasHoras from "../../assets/combustion/post-ultimas-horas.webp";
+import SocialBoard from "../../components/astro/project/SocialBoard.astro";
+import postCyber3x2 from "../../assets/combustion/post-cyber-3x2.webp";
+import postCyber50Off from "../../assets/combustion/post-cyber-50-off.webp";
+import feedBermudaPonto from "../../assets/combustion/feed-bermuda-ponto.webp";
+import stickerCarrito from "../../assets/combustion/sticker-carrito.svg";
+import sticker10Extra from "../../assets/combustion/sticker-10-extra.svg";
+import sticker3x2 from "../../assets/combustion/sticker-3x2.svg";
+import stickerUltimasHoras from "../../assets/combustion/sticker-ultimas-horas.svg";
+import storyComoLoDescribirias from "../../assets/combustion/story-como-lo-describirias.webp";
+import storyModoCyber from "../../assets/combustion/story-modo-cyber.webp";
+import story50Off from "../../assets/combustion/story-50-off.webp";
+import star23500 from "../../assets/combustion/star-23500.svg";
+import star41900 from "../../assets/combustion/star-41900.svg";
+import star49900 from "../../assets/combustion/star-49900.svg";
+import star27500 from "../../assets/combustion/star-27500.svg";
+import star58900 from "../../assets/combustion/star-58900.svg";
+import star40200 from "../../assets/combustion/star-40200.svg";
+import storyDudasDelTalle from "../../assets/combustion/story-dudas-del-talle.webp";
+import storyCualElegis from "../../assets/combustion/story-cual-elegis.webp";
+import storyEncontraTuOutfit from "../../assets/combustion/story-encontra-tu-outfit.webp";
+import CyberScene from "../../components/astro/project/CyberScene.astro";
+import mockupPantalonSalacia from "../../assets/combustion/mockup-pantalon-salacia.webp";
+import mockupBikiniLucima from "../../assets/combustion/mockup-bikini-lucima.webp";
+import mockupManoTelefono from "../../assets/combustion/mockup-mano-telefono.webp";
+import stickerCorazonCyber from "../../assets/combustion/sticker-corazon-cyber.svg";
+import stickerCyber50Off from "../../assets/combustion/sticker-cyber-50-off.svg";
+import stickerCyberMonday from "../../assets/combustion/sticker-cyber-monday.svg";
+import sticker3x2Sello from "../../assets/combustion/sticker-3x2-sello.svg";
+import WebBanners from "../../components/astro/project/WebBanners.astro";
+import mockupBannersWeb from "../../assets/combustion/mockup-banners-web.webp";
+import bannerWeb3x2 from "../../assets/combustion/banner-web-3x2.webp";
+import bannerMobile3x2 from "../../assets/combustion/banner-mobile-3x2.webp";
+import bannerWebPromos from "../../assets/combustion/banner-web-promos.webp";
+import StickerBoard from "../../components/astro/project/StickerBoard.astro";
+import stickerPrecio from "../../assets/combustion/sticker-precio.svg";
+import sticker10OffExtra from "../../assets/combustion/sticker-10-off-extra.svg";
+import sticker10ExtraLila from "../../assets/combustion/sticker-10-extra-lila.svg";
+import sticker3x2Lila from "../../assets/combustion/sticker-3x2-lila.svg";
+import stickerCorazonRecto from "../../assets/combustion/sticker-corazon-cyber-recto.svg";
+import sticker3x2Violeta from "../../assets/combustion/sticker-3x2-violeta.svg";
+import stickerCyberMondayRecto from "../../assets/combustion/sticker-cyber-monday-recto.svg";
+import stickerPrimaveraVerano from "../../assets/combustion/sticker-primavera-verano.svg";
+import sticker10ExtraLlamas from "../../assets/combustion/sticker-10-extra-llamas.svg";
+import stickerEnviosGratis from "../../assets/combustion/sticker-envios-gratis.svg";
+import stickerCuotas from "../../assets/combustion/sticker-cuotas.svg";
+import sticker3x2SelloRecto from "../../assets/combustion/sticker-3x2-sello-recto.svg";
+import heroImage from "../../assets/combustion/combustion-hero.webp";
+import heroImageMobile from "../../assets/combustion/combustion-hero-mobile.webp";
+import gridImage from "../../assets/combustion/combustion-grid.svg";
+import fontImage from "../../assets/combustion/combustion-font.svg";
+// IBM Plex Sans, self-hosted from Google Fonts' `latin` subset (which covers
+// every accent the Spanish copy needs) rather than linked from the Google CDN:
+// a third-party font host is a second origin the page has to reach before it can
+// paint text, and the rest of the site already self-hosts Circular.
+//
+// ONE file: Google ships IBM Plex Sans as a VARIABLE font, so Regular and Bold
+// are two instances of the same source and a single 400–700 registration covers
+// both. Same call Merienda makes for Montserrat.
+import plexVariable from "../../assets/combustion/ibm-plex-sans/IBMPlexSans-Variable.woff2?url";
+
+// @font-face can't read CSS vars for its src, so the resolved URL is
+// interpolated and injected globally (same approach as every other project page
+// that ships its own faces).
+const fontFaceCss = `
+@font-face{font-family:"IBM Plex Sans";src:url("${plexVariable}") format("woff2");font-weight:400 700;font-style:normal;font-display:swap;}
+`;
+
+/**
+ * Impact is NOT shipped as a file. It is Monotype's, bundled with macOS and
+ * Windows but not licensed for web embedding, so the page asks for the installed
+ * copy and names the usual grotesque-condensed substitutes behind it. On a
+ * machine that has none of them the specimen falls back to the site sans, which
+ * is visibly wrong but is the honest failure.
+ *
+ * It costs the page nothing elsewhere: the giant wordmark is the brand's own
+ * SVG, so Impact is only ever asked to set the specimen's own glyph rows.
+ */
+const impactStack =
+  'Impact, Haettenschweiler, "Franklin Gothic Bold", "Arial Narrow Bold", sans-serif';
+
+// Case-study content lives with the page (per-project composition).
+const meta = [
+  { label: "Cliente", value: "Combustion Love" },
+  { label: "Servicio", value: "Redes Sociales, Piezas Gráficas, Campaña Digital" },
+];
+
+const brief = [
+  {
+    title: "Proyecto",
+    body: "<strong>Combustion Love es una marca argentina de indumentaria y trajes de baño para adolescentes.</strong> Con líneas para chicas y chicos, tienda online y local en Buenos Aires, propone prendas urbanas y casuales que acompañan las tendencias de cada temporada, con una oferta pensada para un público joven que busca expresar su estilo.",
+  },
+  {
+    title: "Desafío",
+    body: "La marca necesitaba sostener una presencia constante en redes y en su tienda online, y a la vez destacarse en el Cyber Monday, una de las fechas más competitivas para el e-commerce de moda. <strong>El reto era crear una campaña con identidad propia, capaz de conectar con un público adolescente sin perder la claridad comercial de las promociones.</strong>",
+  },
+  {
+    title: "Propuesta",
+    body: "<strong>Desde Zil Design desarrollamos el contenido para redes sociales y los banners web de la marca,</strong> con historias, carruseles y publicaciones pensadas para su comunidad. Además, diseñamos de forma integral la campaña Cyber Combustion: definimos su estética, creamos los elementos gráficos y generamos las imágenes, logrando una comunicación coherente y reconocible en todos sus canales.",
+  },
+];
+
+/**
+ * Brand palette. RGB is derived from the hex in the component, so a label can
+ * never drift from its swatch.
+ *
+ * Weights are the artboard's RATIO, not its pixels. Measured down the artboard
+ * the four bands run 77 / 58 / 39 / 28 units — 2.75 : 2.07 : 1.39 : 1 — which,
+ * fed in raw, would render a band two and a half times the tallest one any other
+ * project draws. Scaled so the top band lands on the component's documented
+ * ceiling of 2, the ratio survives intact and the section still matches the rest
+ * of the site. See the `weight` note in ColorPalette.
+ *
+ * `dark` is the brand's own call: Lila takes a white label on the artboard even
+ * though it is the lightest of the four, so the two violets read as one pair.
+ */
+const palette = [
+  { name: "Lila Combustion", main: { hex: "#D7A5EB", dark: true }, weight: 2 },
+  { name: "Violeta Combustion", main: { hex: "#420A58", dark: true }, weight: 1.5 },
+  { name: "Blanco", main: { hex: "#FFFFFF" }, weight: 1 },
+  { name: "Negro", main: { hex: "#000000", dark: true }, weight: 0.75 },
+];
+---
+
+<style is:global set:html={fontFaceCss}></style>
+
+<Layout
+  title="Combustion — Zil Design"
+  description="Caso de estudio: contenido para redes sociales, piezas gráficas y la campaña Cyber Combustion para Combustion Love."
+>
+  <Header />
+  <main class="project-combustion">
+    {
+      /* The key art already carries the wordmark at full height, so the hero is
+        JUST the artwork — ProjectHeroImage, not the variants that composite a
+        separate `logo`. Both cuts ship: the landscape frame is 2:1 and would
+        read as a thin strip across the middle of a phone. */
+    }
+    <ProjectHeroImage
+      image={heroImage}
+      mobileImage={heroImageMobile}
+      imageAlt="El logotipo de Combustion sobre fondo violeta, junto a la tienda online y las historias de la campaña Cyber Combustion en un monitor y un teléfono"
+      title="Combustion"
+    />
+    <ProjectBrief meta={meta} blocks={brief} />
+    {
+      /* `stroke` DEPARTS from the usual rule that the rings take the colour the
+        LogoGrid artwork draws its rules in. That artwork rules its construction
+        box in Violeta (#420A58), but the artboard draws these rings in Lila —
+        measured off it at rgb(221,180,239), which no amount of hairline fading
+        gets out of Violeta. Lila is also the colour the brand's own type
+        artboard rules ITS baselines in, so the rings are consistent with the
+        page they sit in rather than with the swatch below them.
+
+        `gridWidth` still comes from the grid, which is what matches the ring's
+        WEIGHT to the artwork's rules at any viewport. */
+    }
+    <ConceptCircles
+      words={["Juvenil", "Versátil", "Descontracturada", "Trendy", "Auténtica"]}
+      stroke="#D7A5EB"
+      fontFamily='"IBM Plex Sans", sans-serif'
+      gridWidth={gridImage.width}
+    />
+    <LogoGrid
+      image={gridImage}
+      alt="El logotipo de Combustion dentro de su grilla de construcción, con los dos bloques lilas en las esquinas opuestas"
+    />
+    <ColorPalette colors={palette} />
+    {
+      /* TWO specimens, as the artboard has them: the display face on the left
+        and the text face on the right.
+
+        `specimens` rather than regularUrl/boldUrl because this is a two-family
+        system and because the frontmatter already registers IBM Plex Sans — the
+        default path would emit a second @font-face per weight and hard-code
+        format("opentype") against a file that is woff2.
+
+        The Plex block is labelled "Regular, Bold" and set in Regular, which is
+        the artboard's own call: the system uses both weights but shows the
+        glyphs once. Impact has one upright cut, so its label names it. */
+    }
+    <TypeSpecimen
+      name="Impact"
+      fontFamily="Impact"
+      wordmarkImage={fontImage}
+      specimens={[
+        {
+          label: "Impact - Regular",
+          fontFamily: impactStack,
+          fontWeight: 400,
+        },
+        {
+          label: "IBM Plex Sans - Regular, Bold",
+          fontFamily: '"IBM Plex Sans", sans-serif',
+          fontWeight: 400,
+        },
+      ]}
+    />
+    {
+      /* The campaign's pieces, two columns of two.
+
+        ColumnCollage, not Mosaic: the columns split at DIFFERENT heights — the
+        tall post sits over the short photo on the left and the order inverts on
+        the right — which is a masonry, and Mosaic levels every row to one
+        height. The two columns come out flush at the bottom because the ratios
+        balance: each column is one 3:4 piece over (or under) one ~1:1.08 photo,
+        so both add up to the same stack.
+
+        The photos were CUT to their cell's ratio before they got here, the same
+        call Merienda's gallery makes. Both are tall phone-native shots — 1:1.78
+        and 1:1.97 — and the artboard shows them at roughly 1:1.08, so leaving
+        them at their own ratio would have the collage stop matching the artboard
+        while `object-cover` threw the difference away anyway. Cutting them once,
+        at the anchor the artboard uses, is what keeps the figures whole: the
+        night shot is centred on the four of them, the daylight one hangs from
+        the top and cuts at the knees.
+
+        No caption: the artboard gives this set none, and neither does Vibra's. */
+    }
+    <ColumnCollage
+      ariaLabel="Piezas de la campaña Cyber Combustion"
+      mobile="columns"
+      columns={[
+        [
+          {
+            src: postPantalon,
+            alt: "Pieza de la campaña: el pantalón Salacia sobre una playa con palmeras, con el precio rebajado de $62.200 a $49.900",
+            stackOrder: 1,
+          },
+          {
+            src: fotoGrupoDia,
+            alt: "Tres adolescentes charlando en la calle a la luz del día, con prendas de la marca",
+            stackOrder: 3,
+          },
+        ],
+        [
+          {
+            src: fotoCalleNoche,
+            alt: "Cuatro adolescentes de pie en una peatonal de noche, con prendas de la marca",
+            stackOrder: 2,
+          },
+          {
+            src: postUltimasHoras,
+            alt: "Pieza de la campaña: «Últimas horas», con una llave de luz entre llamas sobre fondo lila y la bajada «Entrá a la tienda antes que termine»",
+            stackOrder: 4,
+          },
+        ],
+      ]}
+    />
+    {
+      /* The social output, and the page's change of ground. Everything from
+        here down is on Lila — the campaign's own field — and the field RISES
+        BEHIND the feed row rather than starting at a seam between sections,
+        which is why this is one component and not four. See SocialBoard.
+
+        The six price bursts are whole artwork: the first and last are centred
+        on the screen's edges and the band clips them, which is why they read as
+        halves. Passing pre-cut halves instead would bake the cut in at one
+        width. */
+    }
+    {
+      /* TODO — `body` is PLACEHOLDER. The artboard's paragraph is seven lines
+        at about 9px, which does not survive the export: the label reads
+        "REDES SOCIALES" and the copy under it does not resolve at any zoom.
+        What is here was written to the right length and subject so the layout
+        can be judged; replace it with the artboard's own text. */
+    }
+    <SocialBoard
+      label="Redes sociales"
+      body="Diseñamos las piezas de contenido, historias y parrilla para la comunicación de la marca. Pensamos el sistema de publicaciones para que cada pieza funcione sola y en conjunto, sosteniendo la presencia en redes y acompañando los lanzamientos de cada temporada."
+      field="#d7a5eb"
+      feed={[
+        {
+          src: postCyber3x2,
+          alt: "Publicación de la campaña: cuatro adolescentes caminando por la calle, con el sello 3x2 en productos seleccionados",
+        },
+        {
+          src: postCyber50Off,
+          alt: "Publicación de la campaña: un adolescente con riñonera cruzada y el sello «Hasta 50% off»",
+        },
+        {
+          src: feedBermudaPonto,
+          alt: "El perfil de Combustion en el teléfono, con la publicación de la bermuda Ponto abierta",
+        },
+      ]}
+      stickers={{
+        cart: {
+          src: stickerCarrito,
+          alt: "Ilustración de un carrito de compras sobre un destello",
+        },
+        badge: {
+          src: sticker10Extra,
+          alt: "Sello: 10% extra en contado o transferencia",
+        },
+        banner: {
+          src: sticker3x2,
+          alt: "Cartel: 3x2 en productos seleccionados",
+        },
+        pill: { src: stickerUltimasHoras, alt: "Sello: últimas horas" },
+      }}
+      stories={[
+        {
+          src: storyComoLoDescribirias,
+          alt: "Historia de la campaña: «¿Cómo lo describirías?», con las opciones canchero y cómodo",
+        },
+        {
+          src: storyModoCyber,
+          alt: "Historia de la campaña: «Modo cyber», con los beneficios de hasta 50% off, 3x2, 3 a 6 cuotas y 10% off",
+        },
+        {
+          src: story50Off,
+          alt: "Historia de la campaña: un adolescente en un bowling, con el sello «Hasta 50% off»",
+        },
+      ]}
+      closing={[
+        {
+          src: storyDudasDelTalle,
+          alt: "Historia de la campaña: «¿Te gusta la prenda pero dudás del talle?», con una adolescente de pantalón ancho terracota",
+        },
+        {
+          src: storyCualElegis,
+          alt: "Historia de la campaña: «¿Cuál elegís?», con una encuesta entre cuatro looks",
+        },
+        {
+          src: storyEncontraTuOutfit,
+          alt: "Historia de la campaña: «Encontrá tu outfit en Combustion», con un adolescente de remera negra en la calle",
+        },
+      ]}
+      stars={[
+        { src: star23500, alt: "" },
+        { src: star41900, alt: "" },
+        { src: star49900, alt: "" },
+        { src: star27500, alt: "" },
+        { src: star58900, alt: "" },
+        { src: star40200, alt: "" },
+      ]}
+    >
+      {
+        /* The campaign's closing picture, slotted INTO the board so it stands on
+          the same field — the artboard runs Lila straight through from the feed
+          row down to the hand at the foot of this scene, with no seam. */
+      }
+      <CyberScene
+        phone={{
+          src: mockupPantalonSalacia,
+          alt: "Un teléfono inclinado con la publicación del pantalón Salacia y el precio rebajado",
+        }}
+        phoneWide={{
+          src: mockupBikiniLucima,
+          alt: "Un teléfono inclinado con la publicación de la bikini Lucima",
+        }}
+        hand={{
+          src: mockupManoTelefono,
+          alt: "Una mano sosteniendo un teléfono con una publicación de la campaña",
+        }}
+        heart={{ src: stickerCorazonCyber, alt: "" }}
+        banner={{ src: stickerCyber50Off, alt: "" }}
+        pill={{ src: stickerCyberMonday, alt: "" }}
+        seal={{ src: sticker3x2Sello, alt: "" }}
+      />
+    </SocialBoard>
+    {
+      /* The shop. It changes ground again — from the campaign's Lila to the
+        brand's Violeta — which is the artboard's own call and the reason this
+        section carries its own field rather than inheriting the page's white.
+        It butts straight against the board above it, with no white between. */
+    }
+    <WebBanners
+      label="Banners web"
+      body="Diseñamos los banners de la tienda online para el Cyber Combustion, con un banner principal «Modo Cyber» que reúne todas las promociones y piezas con escenas de festival, playa y ciudad. Así trasladamos la estética de la campaña a la web y ordenamos la oferta de un vistazo."
+      field="#420a58"
+      mockup={{
+        src: mockupBannersWeb,
+        alt: "La tienda online de Combustion en un monitor y un teléfono, con el banner Modo Cyber y sus promociones",
+      }}
+      row={[
+        {
+          src: bannerWeb3x2,
+          alt: "Banner web: cuatro adolescentes en un festival, con el sello 3x2 en productos seleccionados",
+        },
+        {
+          src: bannerMobile3x2,
+          alt: "Banner mobile: cuatro adolescentes en la playa, con el sello 3x2 en productos seleccionados",
+        },
+      ]}
+      wide={{
+        src: bannerWebPromos,
+        alt: "Banner web Modo Cyber: hasta 50% off, 3x2 en productos seleccionados, 3 a 6 cuotas sin interés, 10% off en contado o transferencia y envíos gratis a todo el país",
+      }}
+    />
+    {
+      /* The kit itself. Two of its fourteen marks are files this page already
+        ships — the «hasta 50% off» banner and the «últimas horas» pill, which
+        the Cyber Monday scene and the social board use — so they are imported
+        again rather than exported twice. */
+    }
+    <StickerBoard
+      label="Elementos gráficos"
+      body="Desarrollamos un sistema de contenido para redes sociales orientado a comunicar con claridad, fortalecer la identidad de la marca y mantener una presencia consistente. Cada pieza fue diseñada para captar la atención, transmitir el mensaje de forma inmediata y generar una comunicación más efectiva."
+      stickers={{
+        precio: { src: stickerPrecio, alt: "" },
+        offExtra: { src: sticker10OffExtra, alt: "" },
+        diezExtraLila: { src: sticker10ExtraLila, alt: "" },
+        tresPorDosLila: { src: sticker3x2Lila, alt: "" },
+        corazon: { src: stickerCorazonRecto, alt: "" },
+        tresPorDosVioleta: { src: sticker3x2Violeta, alt: "" },
+        pill: { src: stickerCyberMondayRecto, alt: "" },
+        cincuenta: { src: stickerCyber50Off, alt: "" },
+        primavera: { src: stickerPrimaveraVerano, alt: "" },
+        diezExtraLlamas: { src: sticker10ExtraLlamas, alt: "" },
+        envios: { src: stickerEnviosGratis, alt: "" },
+        cuotas: { src: stickerCuotas, alt: "" },
+        selloTresPorDos: { src: sticker3x2SelloRecto, alt: "" },
+        ultimasHoras: { src: stickerUltimasHoras, alt: "" },
+      }}
+    />
+    <ProjectEnd current="combustion" />
+  </main>
+  <Footer />
+  <BackToTop />
+</Layout>
+
+<style>
+  /* Scoped project theme — remaps ONLY the semantic colour aliases within this
+     page's subtree, so Combustion's branding can never leak into global scope.
+     Everything structural (type scale, spacing rhythm, breakpoints) stays on the
+     global tokens.
+
+     Violeta is the structural voice — it fills the hero, rules the construction
+     grid and draws the giant wordmark — so it is `primary`; Lila is the campaign
+     colour, the brand's accent, and what the concept rings are drawn in.
+
+     The field is WHITE, the same call Merienda and Nacida y Criada make: the
+     palette's third band IS white, the bands are drawn edge to edge with no
+     outline, and the brief and specimen sections sit on white on the artboard. */
+  .project-combustion {
+    --color-primary: #420a58; /* Violeta Combustion */
+    --color-accent: #d7a5eb; /* Lila Combustion */
+
+    --color-surface: #ffffff;
+    --color-text: #000000; /* the artboard sets labels and headings in black */
+    --color-muted: #6b6b6b; /* secondary copy */
+    --color-border: #ead9f4; /* a hairline a shade under Lila */
+
+    background-color: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  /* No rule between the brief's meta list and its Proyecto / Desafío / Propuesta
+     triad — the artboard doesn't have one, the same call Merienda, Vibra and
+     Nacida y Criada make. ProjectBrief draws a full-bleed hairline there for the
+     older projects.
+
+     The margin is kept: it is the gap between the two beats, and only the LINE
+     is being removed. `:global()` is required because the <hr> is ProjectBrief's
+     own markup, which Astro's scoping can't reach from here — the parent still
+     carries this page's scope hash, so nothing leaks to another project. */
+  .project-combustion :global(hr) {
+    border-top-width: 0;
+  }
+</style>

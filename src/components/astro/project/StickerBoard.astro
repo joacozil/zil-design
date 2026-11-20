@@ -1,0 +1,260 @@
+---
+/**
+ * StickerBoard — the campaign's graphic system laid out as the SET it is:
+ * fourteen pieces scattered across the page with the copy sitting in the middle
+ * of them.
+ *
+ * The scatter is the argument. These are not illustrations of a system, they
+ * ARE the system — the same marks the posts, the stories and the banners were
+ * built from — so the section shows them loose and at their own sizes rather
+ * than lined up in a grid, which would turn a kit into a catalogue.
+ *
+ * A PROPORTIONAL CANVAS from `tablet` up, the device MockupStage, VarietyBands
+ * and CyberScene use: every piece is placed as a percentage of one box whose
+ * ratio is the artboard's, so the whole arrangement scales as one picture and
+ * the near-misses the composition is built on — the burst almost touching the
+ * banner, the seal tucked under the pill — hold at every width.
+ *
+ * ON A PHONE THE SCATTER IS DROPPED, not shrunk. Fourteen pieces across 375px
+ * puts the smallest of them under 30px, which is below the size its type can be
+ * read at, and a scatter that can't be read is just noise. So the phone gets a
+ * SUBSET — the eight pieces that carry the campaign's own words — in a simple
+ * centred flow, and the copy above them. Which eight is a judgement recorded in
+ * `SLOTS` below, not a rule.
+ */
+import type { ImageMetadata } from "astro";
+
+interface Sticker {
+  src: ImageMetadata;
+  /** Empty: every one of these carries its own words in the artwork. */
+  alt: string;
+}
+interface Props {
+  label: string;
+  body: string;
+  /** The set, by name. See `SLOTS` for where each one sits. */
+  stickers: Record<string, Sticker>;
+  /** Section landmark label. */
+  ariaLabel?: string;
+}
+const { label, body, stickers, ariaLabel = "Elementos gráficos" } = Astro.props;
+
+/**
+ * The fourteen pieces, in the artboard's own geometry.
+ *
+ * `left` and `width` are shares of the canvas's WIDTH, `top` of its HEIGHT; the
+ * canvas is 823 × 485 of the artboard and each number below is one of its
+ * measurements over those. No piece is given a height — each keeps its own
+ * artwork's ratio, which is what holds the set's relative sizes together.
+ *
+ * `phone` marks the eight that survive on a phone. They were picked for what
+ * they SAY — the offers and the season — over the ones that only repeat a mark
+ * already shown elsewhere on the page (the two round seals, the second 3x2, the
+ * bare pill), so the phone gets the system's voice rather than a thinned-out
+ * version of its texture.
+ *
+ * Reading order is the artboard's, left to right and top to bottom, which is
+ * also the order the phone stacks them in.
+ */
+type Slot = {
+  key: string;
+  /** Desktop: share of the canvas's width / height. */
+  left: number;
+  top: number;
+  width: number;
+  /** Which side of the copy it sits on — see the phone layout below. */
+  band: "above" | "below";
+  /** Phone: its own place in that band's canvas. Omit to drop it on a phone. */
+  phone?: { left: number; top: number; width: number };
+};
+const SLOTS: Slot[] = [
+  { key: "precio", left: 24.79, top: 0, width: 18.1, band: "above", phone: { left: 4, top: 0, width: 36 } },
+  { key: "offExtra", left: 48.48, top: 5.36, width: 22.11, band: "above", phone: { left: 43, top: 8, width: 54 } },
+  { key: "diezExtraLila", left: 81.9, top: 6.39, width: 7.78, band: "above" },
+  { key: "tresPorDosLila", left: 5.83, top: 15.05, width: 12.27, band: "above" },
+  { key: "corazon", left: 67.56, top: 22.27, width: 10.57, band: "above", phone: { left: 12, top: 56, width: 22 } },
+  { key: "tresPorDosVioleta", left: 81.65, top: 31.96, width: 12.52, band: "above", phone: { left: 52, top: 50, width: 34 } },
+  { key: "pill", left: 21.75, top: 37.73, width: 8.99, band: "above" },
+  { key: "cincuenta", left: 5.47, top: 47.01, width: 16.28, band: "below", phone: { left: 2, top: 1.8, width: 32 } },
+  { key: "primavera", left: 70.35, top: 49.48, width: 18.47, band: "below", phone: { left: 44, top: 7.1, width: 52 } },
+  { key: "diezExtraLlamas", left: 31.35, top: 61.03, width: 8.75, band: "below" },
+  { key: "envios", left: 59.66, top: 68.04, width: 32.08, band: "below", phone: { left: 8, top: 69.6, width: 80 } },
+  { key: "cuotas", left: 37.18, top: 83.92, width: 21.14, band: "below", phone: { left: 40, top: 42.9, width: 56 } },
+  { key: "selloTresPorDos", left: 16.16, top: 85.57, width: 8.75, band: "below" },
+  { key: "ultimasHoras", left: 69.38, top: 86.8, width: 18.1, band: "below" },
+];
+/**
+ * A piece's two placements, as custom properties: `--l/--t/--w` for the wide
+ * canvas and `--ml/--mt/--mw` for its band on a phone. The stylesheet picks
+ * which pair it reads; a piece with no phone placement is hidden there, so its
+ * mobile values are never used.
+ */
+const place = (s: Slot) =>
+  `--l:${s.left}%;--t:${s.top}%;--w:${s.width}%;` +
+  `--ml:${s.phone?.left ?? 0}%;--mt:${s.phone?.top ?? 0}%;--mw:${s.phone?.width ?? 0}%`;
+---
+
+<section class="sticker-board py-section" aria-label={ariaLabel}>
+  <div class="sb2-canvas">
+    {
+      /* The pieces are grouped by the side of the copy they sit on, because the
+        PHONE needs that grouping — each band is its own small canvas there,
+        with the copy between them. On a wide screen the bands go
+        `display: contents`, which drops the wrappers out of the box tree so
+        every piece is positioned against the one canvas again. */
+    }
+    <div class="sb2-band sb2-band--above">
+      {
+        SLOTS.filter((s) => s.band === "above").map((slot) =>
+          stickers[slot.key] ? (
+            <img
+              class:list={["sb2-piece", !slot.phone && "sb2-piece--wide-only"]}
+              style={place(slot)}
+              src={stickers[slot.key].src.src}
+              alt={stickers[slot.key].alt}
+              loading="lazy"
+            />
+          ) : null,
+        )
+      }
+    </div>
+
+    {
+      /* The copy sits in the MIDDLE of the set at every width — on a wide
+        screen in the clear the scatter is built around, on a phone between the
+        two bands. It is in the source BETWEEN them, so visual order and reading
+        order agree with no reordering anywhere. */
+    }
+    <div class="sb2-caption">
+      <h3 class="text-p-sm font-bold tracking-wider text-text uppercase">
+        {label}
+      </h3>
+      <p class="mt-4 text-p-sm text-pretty text-muted">{body}</p>
+    </div>
+
+    <div class="sb2-band sb2-band--below">
+      {
+        SLOTS.filter((s) => s.band === "below").map((slot) =>
+          stickers[slot.key] ? (
+            <img
+              class:list={["sb2-piece", !slot.phone && "sb2-piece--wide-only"]}
+              style={place(slot)}
+              src={stickers[slot.key].src.src}
+              alt={stickers[slot.key].alt}
+              loading="lazy"
+            />
+          ) : null,
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ── Phone ───────────────────────────────────────────────────────────────
+     The scatter is kept, at a geometry of its own: four pieces above the copy
+     and four below it, each band its own small canvas, so the copy sits IN the
+     set rather than on top of a pile of it. The bands' ratios (375 × 220 and
+     375 × 280) and the places inside them are a phone composition, not the
+     artboard's squeezed — the artboard is 1.7 times wider than tall and nothing
+     survives being folded into a portrait of it.
+
+     The other six pieces are dropped. Fourteen across 375px puts the smallest
+     under 30px, below the size its own type can be read at. */
+  .sb2-canvas {
+    margin-inline: auto;
+    width: 100%;
+    max-width: var(--container-8xl);
+    padding-inline: 1.5rem;
+  }
+
+  .sb2-band {
+    position: relative;
+    width: 100%;
+  }
+
+  /* The four pieces sit on a DIAGONAL — burst top left, the offer bar top
+     right, the heart bottom left, the 3x2 bottom right — so the band reads as
+     a ring with air in the middle instead of two columns with a hole under the
+     shorter one. The ratios are the artwork's, so the two big marks (the burst
+     and the bar) are diagonally opposite and the two small ones fill the
+     corners they leave. */
+  .sb2-band--above {
+    aspect-ratio: 375 / 250;
+  }
+
+  .sb2-band--below {
+    aspect-ratio: 375 / 280;
+  }
+
+  .sb2-caption {
+    margin-block: 2rem;
+    text-align: center;
+  }
+
+  .sb2-caption p {
+    margin-inline: auto;
+    max-width: 32rem;
+  }
+
+  .sb2-piece {
+    position: absolute;
+    top: var(--mt);
+    left: var(--ml);
+    width: var(--mw);
+    height: auto;
+  }
+
+  .sb2-piece--wide-only {
+    display: none;
+  }
+
+  @media (min-width: 40rem) {
+    /* ── The artboard, in its own units ────────────────────────────────────
+       canvas    823 × 485 of the page, which is the scatter's own bounding box
+       copy      x 317 → 504, y 180 of the canvas
+       Every piece's left / top / width is on the element, from SLOTS. */
+    .sb2-canvas {
+      position: relative;
+      aspect-ratio: 823 / 485;
+      max-width: none;
+      padding-inline: 0;
+    }
+
+    /* The bands drop out of the box tree, so every piece is positioned against
+       the ONE canvas again and the artboard's scatter resolves as measured.
+       `display: contents` is doing real work here, not tidying: without it each
+       piece would resolve its percentages against its band instead. */
+    .sb2-band {
+      display: contents;
+    }
+
+    .sb2-caption {
+      position: absolute;
+    }
+
+    .sb2-piece {
+      top: var(--t);
+      left: var(--l);
+      width: var(--w);
+    }
+
+    .sb2-piece--wide-only {
+      display: block;
+    }
+
+    /* The clear middle the scatter is built around. Its box is the artboard's;
+       the type inside it is the page's own scale, so the copy stays readable
+       while the pieces around it scale with the canvas. */
+    .sb2-caption {
+      top: 37.11%;
+      left: 38.52%;
+      width: 22.72%;
+      margin-block: 0;
+    }
+
+    .sb2-caption p {
+      max-width: none;
+    }
+  }
+</style>

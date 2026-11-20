@@ -1,0 +1,151 @@
+---
+/**
+ * CyberScene — the campaign's closing picture: three photographed mockups set at
+ * an angle, with the Cyber Monday sticker set thrown across them.
+ *
+ * A PROPORTIONAL CANVAS, the device MockupStage, VarietyBands and SocialBoard's
+ * own sticker cluster use. Every piece is placed as a percentage of one box
+ * whose ratio is the artboard's, so the whole thing scales as a single picture:
+ * the heart stays tucked into the first phone's corner and the seal stays in the
+ * channel between the second phone and the hand, instead of the overlaps coming
+ * apart as the page widens.
+ *
+ * The canvas is the PAGE, not the content column — the hand runs off the left
+ * edge, which is the composition's one bleed and the reason it reads as a scene
+ * rather than a row of objects. Every number below is therefore a share of the
+ * page's 1920, taken from the artboard's own measurements.
+ *
+ * It is kept at every size rather than restacking on a phone, the same trade
+ * VarietyBands makes: the overlaps ARE the composition, and a stack turns a
+ * scene into an inventory. The pieces get small; they do not stop being a scene.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Piece {
+  src: ImageMetadata;
+  /** Empty for the stickers — their words are already in the artwork. */
+  alt: string;
+}
+interface Props {
+  /** The phone standing at the top left, showing a product post. */
+  phone: Piece;
+  /** The second phone, lower and to the right. */
+  phoneWide: Piece;
+  /** The hand holding a third phone; bleeds off the canvas's left edge. */
+  hand: Piece;
+  /** Flaming heart, tucked into the first phone's top-right corner. */
+  heart: Piece;
+  /** The tall "hasta 50% off" banner. */
+  banner: Piece;
+  /** The "Cyber Monday" pill, low on the left. */
+  pill: Piece;
+  /** The round 3x2 seal. */
+  seal: Piece;
+  /** Section landmark label. */
+  ariaLabel?: string;
+}
+const {
+  phone,
+  phoneWide,
+  hand,
+  heart,
+  banner,
+  pill,
+  seal,
+  ariaLabel = "Campaña Cyber Combustion",
+} = Astro.props;
+---
+
+<section class="cyber-scene" aria-label={ariaLabel}>
+  <div class="cs-canvas">
+    <Image class="cs-phone" src={phone.src} alt={phone.alt} loading="lazy" sizes="40vw" />
+    <img class="cs-heart" src={heart.src.src} alt={heart.alt} loading="lazy" />
+    <img class="cs-banner" src={banner.src.src} alt={banner.alt} loading="lazy" />
+    <Image
+      class="cs-phone-wide"
+      src={phoneWide.src}
+      alt={phoneWide.alt}
+      loading="lazy"
+      sizes="45vw"
+    />
+    <img class="cs-pill" src={pill.src.src} alt={pill.alt} loading="lazy" />
+    <Image class="cs-hand" src={hand.src} alt={hand.alt} loading="lazy" sizes="55vw" />
+    <img class="cs-seal" src={seal.src.src} alt={seal.alt} loading="lazy" />
+  </div>
+</section>
+
+<style>
+  /* ── The artboard, in its own units ──────────────────────────────────────
+     page      1920 wide; the canvas is 1920 × 2079 of it (687 × 744 as exported)
+     phone     x 67 / y 39, w 273        heart   x 274 / y 0,   w 105
+     banner    x 441 / y 17, w 177       wide    x 308 / y 239, w 306
+     pill      x 84 / y 356, w 105       hand    x 0 / bottom 0, w 366
+     seal      x 393 / y 539, w 95
+     Each `left` and `width` below is one of those over 687, each `top` over 744.
+     Heights are never given: every piece keeps its own artwork's ratio, which is
+     what holds the overlaps together. */
+  .cyber-scene {
+    /* The gap from the row above, as a share of the CONTENT column the rest of
+       the board is measured against — not of this canvas, which is wider. The
+       artboard puts 39 units between them against a 549-unit column. */
+    margin-top: calc(var(--sb-content, 100%) * 0.071);
+  }
+
+  .cs-canvas {
+    position: relative;
+    aspect-ratio: 687 / 744;
+    width: 100%;
+  }
+
+  .cs-canvas :global(img) {
+    position: absolute;
+    height: auto;
+  }
+
+  .cs-phone {
+    top: 5.24%;
+    left: 9.75%;
+    width: 39.74%;
+  }
+
+  /* Hung from the canvas's top edge, where its topmost flame is. */
+  .cs-heart {
+    top: 0;
+    left: 39.88%;
+    width: 15.28%;
+  }
+
+  .cs-banner {
+    top: 2.28%;
+    left: 64.19%;
+    width: 25.76%;
+  }
+
+  .cs-phone-wide {
+    top: 32.12%;
+    left: 44.83%;
+    width: 44.54%;
+  }
+
+  .cs-pill {
+    top: 47.85%;
+    left: 12.23%;
+    width: 15.28%;
+  }
+
+  /* The one BLEED. It is laid against the canvas's left edge and its foot, so
+     the scene ends where the hand does and the field above it closes on the same
+     line — which is why the board below it carries no bottom padding. */
+  .cs-hand {
+    bottom: 0;
+    left: 0;
+    width: 53.28%;
+  }
+
+  .cs-seal {
+    top: 72.45%;
+    left: 57.21%;
+    width: 13.83%;
+  }
+</style>

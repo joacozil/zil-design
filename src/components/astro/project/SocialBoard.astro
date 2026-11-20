@@ -1,0 +1,516 @@
+---
+/**
+ * SocialBoard — the campaign's social output as ONE board: a feed row that
+ * straddles the page's change of ground, then the brand's sticker set, the
+ * stories and the price bursts, all on the field the campaign owns.
+ *
+ * It is a single section rather than four, because the artboard's whole argument
+ * is that the change of ground happens UNDER the feed row — the field rises
+ * behind the mockups, not between them — and that can only be stated by one
+ * element that owns both the row and the field. Splitting it into four sections
+ * would put a `py-section` gap at each seam and the field would start at a
+ * boundary instead of mid-row.
+ *
+ * Everything below is a SHARE, never a length: the artboard is 1920 wide with a
+ * 1494-unit content column, and each number here is one of its measurements over
+ * that column, so the composition scales as one picture. Percentage margins and
+ * paddings resolve against the INLINE size, which is what makes a vertical gap
+ * written as a percentage track the width the way the artboard does.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Piece {
+  src: ImageMetadata;
+  alt: string;
+}
+interface Sticker {
+  src: ImageMetadata;
+  /** Empty for a sticker the copy beside it already names. */
+  alt: string;
+}
+interface Props {
+  /** Small uppercase label over the paragraph — the page's usual caption voice. */
+  label: string;
+  body: string;
+  /**
+   * The feed row, left to right. The LAST piece is the tall one: the row is
+   * bottom-aligned, so it grows upward past the caption instead of pushing the
+   * row down. Pass the two flat post cards first and the phone last.
+   */
+  feed: [Piece, Piece, Piece];
+  /** The brand's sticker set, placed on their own canvas — see `.sb-stickers`. */
+  stickers: {
+    cart: Sticker;
+    badge: Sticker;
+    banner: Sticker;
+    pill: Sticker;
+  };
+  /** The three story mockups, left to right. */
+  stories: [Piece, Piece, Piece];
+  /**
+   * A second row of three, below the price bursts. Optional because the bursts
+   * are what close the board when there is no second row — the artboard puts
+   * one there, and the row is a repeat of the first in every respect but its
+   * place in the stack.
+   */
+  closing?: [Piece, Piece, Piece];
+  /**
+   * The price bursts, left to right. The FIRST and LAST are centred on the
+   * screen's own edges and run off them, so half of each is outside the page —
+   * which is what the artboard shows. They are whole artwork, not pre-cut
+   * halves: the band clips them, so the cut lands exactly on the edge at any
+   * viewport instead of being baked into the file at one width.
+   */
+  stars: Sticker[];
+  /** The field this board changes to, mid-feed-row. */
+  field: string;
+  /** Section landmark label. */
+  ariaLabel?: string;
+}
+const {
+  label,
+  body,
+  feed,
+  stickers,
+  stories,
+  closing,
+  stars,
+  field,
+  ariaLabel = "Redes sociales",
+} = Astro.props;
+
+// The tall feed piece's ratio, used below to work out where the field starts.
+// Read off the artwork rather than assumed, so a re-export at another size can't
+// silently move the seam.
+const tallAspect = feed[2].src.width / feed[2].src.height;
+---
+
+<section class="social-board" aria-label={ariaLabel}>
+  {
+    /* THE SEAM. The field begins 46.2% up the tall piece — measured off the
+      artboard, where the phone runs 144 units and the ground changes 66.5 of
+      them from its foot.
+
+      It is anchored to the PIECE, not to this wrapper: the wrapper's height
+      also carries the caption, whose own height depends on how its copy wraps,
+      so a percentage of the wrapper would move the seam every time the text
+      reflowed. The piece's height is `column width ÷ its ratio`, which is pure
+      geometry, so the seam lands on the same point of the artwork at every
+      viewport.
+
+      `--col` repeats the grid's own track calculation. A grid track can't be
+      read back out in CSS, so the one place it could drift is here; both are
+      derived from `--gap` so they move together. */
+  }
+  <div class="sb-feed-wrap">
+    <div
+      class="sb-field"
+      aria-hidden="true"
+      style={`--sb-field:${field};--sb-tall-aspect:${tallAspect}`}
+    >
+    </div>
+    <div class="sb-inner">
+      <div class="sb-feed">
+        <div class="sb-caption">
+          <h3 class="text-p-sm font-bold tracking-wider text-text uppercase">
+            {label}
+          </h3>
+          <p class="mt-4 text-p text-pretty text-muted">{body}</p>
+        </div>
+        {
+          feed.map((p, i) => (
+            <Image
+              class:list={["sb-piece", i === 2 && "sb-piece--tall"]}
+              src={p.src}
+              alt={p.alt}
+              loading="lazy"
+              sizes="(min-width: 640px) 30vw, 100vw"
+            />
+          ))
+        }
+      </div>
+    </div>
+  </div>
+
+  <div
+    class:list={["sb-ground", Astro.slots.has("default") && "sb-ground--flush"]}
+    style={`--sb-field:${field}`}
+  >
+    <div class="sb-inner">
+      {
+        /* The sticker set as a PROPORTIONAL CANVAS — the device MockupStage and
+          VarietyBands use. The four pieces are placed as percentages of a box
+          the artboard measures at 223 × 86 of its content column, so they keep
+          their overlaps (the pill tucks under the cart's burst and reaches
+          across to the banner) instead of drifting apart as the page widens.
+
+          Each one is given only a LEFT and a WIDTH; its height follows from its
+          own artwork, which is what keeps the four at their drawn proportions. */
+      }
+      <div class="sb-stickers">
+        <img class="sb-cart" src={stickers.cart.src.src} alt={stickers.cart.alt} loading="lazy" />
+        <img class="sb-badge" src={stickers.badge.src.src} alt={stickers.badge.alt} loading="lazy" />
+        <img class="sb-banner" src={stickers.banner.src.src} alt={stickers.banner.alt} loading="lazy" />
+        <img class="sb-pill" src={stickers.pill.src.src} alt={stickers.pill.alt} loading="lazy" />
+      </div>
+
+      <div class="sb-stories">
+        {
+          stories.map((p) => (
+            <Image
+              class="sb-piece"
+              src={p.src}
+              alt={p.alt}
+              loading="lazy"
+              sizes="(min-width: 640px) 30vw, 100vw"
+            />
+          ))
+        }
+      </div>
+    </div>
+
+    {
+      /* The bursts run FULL BLEED at an even pitch, the first and last centred
+        ON the page edge — which is why those two read as halves. The band
+        clips them rather than shipping pre-cut artwork, so the cut follows the
+        edge at every viewport.
+
+        Absolute placement rather than a flex row because the bursts OVERLAP by
+        design — their points cross — and any gap-based layout would have to be
+        given a negative gap to get them back. */
+    }
+    <div class="sb-stars" aria-hidden="true">
+      {
+        stars.map((s, i) => (
+          <img
+            class="sb-star"
+            style={`--sb-star-x:${(i / (stars.length - 1)) * 100}%`}
+            src={s.src.src}
+            alt=""
+            loading="lazy"
+          />
+        ))
+      }
+    </div>
+
+    {
+      closing && (
+        <div class="sb-inner">
+          <div class="sb-stories sb-stories--closing">
+            {closing.map((p) => (
+              <Image
+                class="sb-piece"
+                src={p.src}
+                alt={p.alt}
+                loading="lazy"
+                sizes="(min-width: 640px) 30vw, 100vw"
+              />
+            ))}
+          </div>
+        </div>
+      )
+    }
+
+    {
+      /* Anything that closes the board on the SAME field — the campaign scene.
+        A slot rather than another prop because what goes here is a composition
+        of its own, with its own canvas and its own numbers; the board's job is
+        only to hand it the ground to stand on. It is OUTSIDE `.sb-inner` so a
+        full-bleed piece can reach the screen's edges. */
+    }
+    <slot />
+  </div>
+</section>
+
+<style>
+  /* ── The artboard, in its own units ──────────────────────────────────────
+     page            1920 wide
+     content column  1494 (x 247 → 1741), i.e. the board's own 100%
+     feed gap        40 of the column
+     caption → cards 155 of the column
+     feed → stickers 101
+     stickers        223 × 86 of the column  (its own canvas)
+     stickers → rows 108
+     stories → stars 108
+     burst           20.5% of the PAGE, pitch 20%
+     Everything below is one of those over 1494, except the bursts, which are
+     over the page because they are full bleed. */
+  .social-board {
+    /* Top half only: the board's foot is the field's own padding, below. */
+    padding-top: var(--spacing-section);
+
+    /* The content column's resolved WIDTH, stated once. Several numbers below
+       are shares of it from blocks that are not inside it — the full-bleed
+       field and the burst band — where a bare percentage would resolve against
+       the viewport instead. Percentage MARGINS inside `.sb-inner` already
+       resolve against this, so those stay written as percentages. */
+    --sb-pad: 1.5rem;
+    --sb-content: calc(min(100cqw, var(--container-8xl)) - 2 * var(--sb-pad));
+
+    /* `cqw`, not `%`. The seam's height below is derived from this, and a
+       percentage inside a HEIGHT resolves against the containing block's
+       height, not its width — which silently made the field four times too
+       tall. A container query unit is a length tied to the inline size, so it
+       means the same thing in both properties. */
+    container-type: inline-size;
+  }
+
+  /* The shared content column, repeated rather than imported because this
+     component places full-bleed layers either side of it.
+
+     `position: relative` is load-bearing: the field below is absolutely
+     positioned, and a positioned element paints above a static one whatever the
+     source order, so without this the field would cover the feed row it is
+     meant to sit behind. */
+  .sb-inner {
+    position: relative;
+    z-index: 1;
+    margin-inline: auto;
+    width: 100%;
+    max-width: var(--container-8xl);
+    padding-inline: var(--sb-pad);
+  }
+
+  .sb-feed-wrap {
+    position: relative;
+  }
+
+  /* The field, rising behind the feed row. It is laid against the wrapper's
+     FOOT and given a height, so it meets the ground below it with no seam
+     whatever the row above resolves to. */
+  .sb-field {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 0;
+    /* One column of the row below, then the tall piece's height from it. The
+       row's two gaps are 2.7% of the content column each, so a column is
+       (1 − 2 × 0.027) ÷ 3 of it — at EVERY width, because the row keeps its
+       three columns on a phone too. Computing this from the full content width
+       (as it did while the phone stacked) made the field three times too tall
+       and ran it up through the caption. */
+    --col: calc(var(--sb-content) * 0.31533);
+    height: calc(var(--col) / var(--sb-tall-aspect) * 0.462);
+    background-color: var(--sb-field);
+  }
+
+  /* The gap from the feed row down to the stickers is the ground's own TOP
+     PADDING, not a margin on the first thing inside it. A top margin on a first
+     child collapses out through a parent that has no padding or border there,
+     which took the ground itself 89px down the page and left a white stripe
+     between the field and it. Padding keeps the space inside the colour. */
+  .sb-ground {
+    padding-top: calc(var(--sb-content) * 0.068);
+    padding-bottom: var(--spacing-section);
+    background-color: var(--sb-field);
+  }
+
+  /* A slotted closer owns the board's foot. The campaign scene ends on its own
+     bleed — a hand laid against the bottom of its canvas — so a padding here
+     would leave a band of empty field under it that the artboard does not have.
+     The space below the board is then the NEXT section's own half of the gap,
+     which is the rhythm rule working as intended. */
+  .sb-ground--flush {
+    padding-bottom: 0;
+  }
+
+  .sb-feed,
+  .sb-stories {
+    display: grid;
+    gap: calc(var(--sb-content) * 0.027);
+  }
+
+  /* The feed row KEEPS its three columns on a phone. What this section argues
+     is the grid — three pieces that belong to one feed — and stacked they
+     become three unrelated pictures 6000px tall, where a reader never sees the
+     consistency that is the point. At 375px each piece lands around 101px,
+     which is small but still legibly a post. */
+  .sb-feed {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    row-gap: calc(var(--sb-content) * 0.104);
+    align-items: end;
+  }
+
+  /* On a phone the caption leads across the whole row instead of taking a
+     column: a third of 375px is a 100px ribbon of text, and the copy stops
+     being readable long before the mockups beside it stop being legible. */
+  .sb-caption {
+    grid-column: 1 / -1;
+  }
+
+  /* The stories run as a horizontal SLIDER on a phone: two and a half visible,
+     the third cut against the screen's edge. The half piece is the whole
+     affordance — no arrows, no dots.
+
+     The negative margin plus matching padding is what makes it full bleed while
+     still STARTING on the content edge: the first story begins at the gutter,
+     the third is cut by the screen, and at the end of the scroll the last one
+     closes against the right gutter. */
+  .sb-stories {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline-start: var(--sb-pad);
+    margin-inline: calc(-1 * var(--sb-pad));
+    padding-inline: var(--sb-pad);
+    scrollbar-width: none;
+  }
+
+  .sb-stories::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sb-stories > :global(*) {
+    flex: 0 0
+      calc(
+        (100vw - var(--sb-pad) - 2 * calc(var(--sb-content) * 0.027)) / 2.5
+      );
+    scroll-snap-align: start;
+    /* A flex item's automatic minimum size is its CONTENT size, and for an
+       image carrying `width: 100%` that resolves to the whole row — which
+       floors every story at full width and throws the basis above away. The
+       slider only exists once this floor is removed. */
+    min-width: 0;
+  }
+
+  .sb-piece {
+    width: 100%;
+    height: auto;
+  }
+
+  /* The sticker canvas. Its ratio is the artboard's, so the box the four pieces
+     are placed in keeps its shape and they keep their relationships. */
+  .sb-stickers {
+    position: relative;
+    aspect-ratio: 223 / 86;
+    width: 100%;
+  }
+
+  .sb-stickers img {
+    position: absolute;
+    height: auto;
+  }
+
+  .sb-cart {
+    top: 2.3%;
+    left: 0;
+    width: 30%;
+  }
+  .sb-badge {
+    top: 0;
+    left: 41.3%;
+    width: 17.9%;
+  }
+  .sb-banner {
+    top: 2.3%;
+    left: 69.5%;
+    width: 30.9%;
+  }
+  .sb-pill {
+    top: 77.9%;
+    left: 30.5%;
+    width: 37.7%;
+  }
+
+  .sb-stories {
+    margin-top: 7.2%;
+  }
+
+  /* The closing row sits a little tighter under the bursts than the first row
+     does under the stickers — 6.3% against 7.2% — because the bursts' points
+     already reach into the space above it. The artboard's own numbers. */
+  .sb-stories--closing {
+    margin-top: 6.3%;
+  }
+
+  /* The burst band. Its height is one burst, and a burst is square, so the band
+     is `burst width` tall — stated once, on the band, and read by the stars. */
+  .sb-stars {
+    --sb-burst: 20.5%;
+    position: relative;
+    height: 0;
+    /* A share of the CONTENT column, like every other gap on this board — the
+       band itself is full bleed, so a bare percentage here would be measured
+       against the page and the gap would grow with the margins. */
+    margin-top: calc(var(--sb-content) * 0.072);
+    padding-top: var(--sb-burst);
+    /* The two end bursts hang half outside the page. `clip` rather than
+       `hidden` because `hidden` makes the band a scroll container, which both
+       lets the overflow be scrolled to and stops `position: sticky` working in
+       any ancestor. The band's own height is one burst, so nothing is lost
+       vertically. */
+    overflow: clip;
+  }
+
+  .sb-star {
+    position: absolute;
+    top: 0;
+    left: var(--sb-star-x);
+    width: var(--sb-burst);
+    height: auto;
+    transform: translateX(-50%);
+  }
+
+  @media (min-width: 40rem) {
+    .social-board {
+      --sb-pad: 2rem;
+    }
+
+    /* The feed row: three equal columns, two rows. The caption takes the first
+       cell and the two flat cards sit under it; the tall piece spans BOTH rows
+       and is pinned to the row's foot, so it grows upward and ends up standing
+       beside the caption — which is exactly where the artboard puts it.
+
+       `align-items: end` is the whole alignment rule here: the pieces are
+       different heights and what they share is a floor, not a ceiling. */
+    .sb-feed {
+      grid-template-rows: auto auto;
+      /* A percentage `row-gap` resolves against the grid's BLOCK size, which is
+         auto here and therefore zero — so this one is written against the
+         content column like the rest of the board's vertical measurements. */
+      row-gap: calc(var(--sb-content) * 0.104);
+      align-items: end;
+    }
+
+    .sb-caption {
+      grid-area: 1 / 1;
+      align-self: start;
+    }
+
+    .sb-feed > .sb-piece:nth-of-type(1) {
+      grid-area: 2 / 1;
+    }
+    .sb-feed > .sb-piece:nth-of-type(2) {
+      grid-area: 2 / 2;
+    }
+    .sb-feed > .sb-piece--tall {
+      grid-area: 1 / 3 / 3 / 4;
+    }
+
+    /* Undo the phone slider explicitly. Its selector is no weaker than this
+       one, so leaving any of these out leaves the row scrolling on a desktop. */
+    .sb-stories {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      overflow-x: visible;
+      scroll-snap-type: none;
+      margin-inline: 0;
+      padding-inline: 0;
+    }
+
+    .sb-stories > :global(*) {
+      flex: none;
+    }
+
+  }
+
+  @media (min-width: 64rem) {
+    .social-board {
+      --sb-pad: 3rem;
+    }
+  }
+</style>
