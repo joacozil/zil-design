@@ -20,11 +20,18 @@
  * `aspect` then fixes the whole thing's proportion, and every track resolves
  * against it — change the ratio and the composition moves together.
  *
- * Below `tablet` the grid is abandoned: the pieces stack full width in DOM
- * order, each at its own ratio. A nine-cell bento whose narrowest track is an
- * eighth of the width cannot survive a phone — there is no composition left at
- * 40px a cell, only a queue — and every other collage on the site makes the same
- * call.
+ * Below `tablet` there are two calls, and which one is right depends on the
+ * bento. By default the grid is abandoned and the pieces stack full width in DOM
+ * order: a nine-cell bento whose narrowest track is an eighth of the width
+ * cannot survive a phone — there is no composition left at 40px a cell, only a
+ * queue.
+ *
+ * A stack of nine photographs is also a queue, though, and a long one. So a
+ * page can pass a SECOND composition (`areasMobile` and friends) — the same
+ * pieces redrawn for two columns — and the grid stays on all the way down,
+ * running edge to edge. It is a real composition, not a reflow: the two share
+ * nothing but the pieces, and the mobile one is drawn against the portrait
+ * ratios a phone actually has room for.
  */
 import { Image } from "astro:assets";
 import type { ImageMetadata } from "astro";
@@ -48,6 +55,17 @@ interface Props {
   rows: string;
   /** The bento's proportion, e.g. "408 / 286". Only read from `tablet` up. */
   aspect: string;
+  /**
+   * The composition BELOW `tablet`, as the same four values. Pass all four or
+   * none: a mobile `areas` naming tracks the mobile lists do not declare is the
+   * one way this silently draws the wrong grid.
+   *
+   * Omit them and the pieces stack full width instead — see the header.
+   */
+  areasMobile?: string;
+  columnsMobile?: string;
+  rowsMobile?: string;
+  aspectMobile?: string;
   /** Section landmark label. */
   ariaLabel?: string;
 }
@@ -57,8 +75,17 @@ const {
   columns,
   rows,
   aspect,
+  areasMobile,
+  columnsMobile,
+  rowsMobile,
+  aspectMobile,
   ariaLabel = "Galería",
 } = Astro.props;
+
+/** Whether a second, phone-sized composition was passed — all four or nothing. */
+const hasMobileGrid = Boolean(
+  areasMobile && columnsMobile && rowsMobile && aspectMobile,
+);
 
 /**
  * Every track becomes `minmax(0, Nfr)`. A bare `fr` is `minmax(auto, Nfr)`, and
@@ -79,15 +106,32 @@ const floorTracks = (tracks: string) =>
 // resolve against the height on one axis and the width on the other. The ratio
 // is what converts between them, so it is read from `aspect` rather than
 // repeated as a number in the stylesheet.
-const [aspectW, aspectH] = aspect.split("/").map((n) => parseFloat(n.trim()));
-const gapRatio = (aspectW / aspectH).toFixed(4);
+const ratioOf = (a: string) => {
+  const [w, h] = a.split("/").map((n) => parseFloat(n.trim()));
+  return (w / h).toFixed(4);
+};
+const gapRatio = ratioOf(aspect);
+// The mobile composition is a different shape, so its row gap converts through
+// its OWN ratio — reusing the desktop number would draw a row gap three times
+// the column gap on a portrait grid.
+const gapRatioMobile = hasMobileGrid ? ratioOf(aspectMobile!) : gapRatio;
 ---
 
 <section class="py-section" aria-label={ariaLabel}>
   <div class="mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12">
     <div
-      class="pb-grid"
-      style={`--pb-areas:${areas};--pb-cols:${floorTracks(columns)};--pb-rows:${floorTracks(rows)};--pb-aspect:${aspect};--pb-ar:${gapRatio}`}
+      class:list={["pb-grid", hasMobileGrid && "pb-grid--m"]}
+      style={[
+        `--pb-areas:${areas}`,
+        `--pb-cols:${floorTracks(columns)}`,
+        `--pb-rows:${floorTracks(rows)}`,
+        `--pb-aspect:${aspect}`,
+        `--pb-ar:${gapRatio}`,
+        hasMobileGrid &&
+          `--pb-areas-m:${areasMobile};--pb-cols-m:${floorTracks(columnsMobile!)};--pb-rows-m:${floorTracks(rowsMobile!)};--pb-aspect-m:${aspectMobile};--pb-ar-m:${gapRatioMobile}`,
+      ]
+        .filter(Boolean)
+        .join(";")}
     >
       {
         items.map((item) => (
@@ -96,7 +140,7 @@ const gapRatio = (aspectW / aspectH).toFixed(4);
               src={item.src}
               alt={item.alt}
               widths={[Math.round(item.src.width / 2), item.src.width]}
-              sizes="(min-width: 640px) 50vw, 100vw"
+              sizes={hasMobileGrid ? "50vw" : "(min-width: 640px) 50vw, 100vw"}
               loading="lazy"
             />
           </figure>
@@ -132,6 +176,30 @@ const gapRatio = (aspectW / aspectH).toFixed(4);
     object-fit: cover;
   }
 
+  /* The phone-sized composition, when a page passed one. It is the same rules
+     as the grid below, pointed at the mobile custom properties — and it runs
+     EDGE TO EDGE: the bento pulls out of the container by the page gutter,
+     because at 375px a 24px margin either side costs an eighth of the picture
+     and the grid's narrow tracks are the first thing to pay it. From `tablet`
+     up the margin goes back and the gallery sits on the content edge like every
+     other section. */
+  .pb-grid--m {
+    display: grid;
+    grid-template-areas: var(--pb-areas-m);
+    grid-template-columns: var(--pb-cols-m);
+    grid-template-rows: var(--pb-rows-m);
+    aspect-ratio: var(--pb-aspect-m);
+    column-gap: var(--pb-gap);
+    row-gap: calc(var(--pb-gap) * var(--pb-ar-m));
+    margin-inline: calc(-1 * var(--gutter));
+  }
+
+  .pb-grid--m .pb-cell {
+    grid-area: var(--pb-area);
+    min-width: 0;
+    min-height: 0;
+  }
+
   @media (width >= 640px) {
     .pb-grid {
       display: grid;
@@ -156,6 +224,18 @@ const gapRatio = (aspectW / aspectH).toFixed(4);
       grid-area: var(--pb-area);
       min-width: 0;
       min-height: 0;
+    }
+
+    /* The mobile composition stops here — ratio, tracks and bleed all hand back
+       to the rules above, which the cascade would otherwise leave half applied
+       (`--pb-aspect-m` outlives its grid). */
+    .pb-grid--m {
+      grid-template-areas: var(--pb-areas);
+      grid-template-columns: var(--pb-cols);
+      grid-template-rows: var(--pb-rows);
+      aspect-ratio: var(--pb-aspect);
+      row-gap: calc(var(--pb-gap) * var(--pb-ar));
+      margin-inline: 0;
     }
   }
 </style>

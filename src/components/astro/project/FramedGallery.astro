@@ -45,12 +45,32 @@ interface Props {
    * composition together.
    */
   aspect: string;
+  /**
+   * The stage's ratio BELOW `tablet`, where the composition runs edge to edge.
+   * At a phone's width the desktop ratio leaves the pictures too small to read:
+   * the stage is only ~86% of 375px, so a 552/655 canvas lands about 330px tall
+   * and each cell is a thumbnail. A taller canvas buys height the phone has to
+   * spare — the page scrolls either way — without touching the weights, so the
+   * composition stays the same picture, just a bigger one.
+   *
+   * Defaults to `aspect`, i.e. no mobile-specific stage.
+   */
+  aspectMobile?: string;
   /** The ornament tile, repeated down both rails. Square artwork. */
   ornament: ImageMetadata;
   /** Section landmark label. */
   ariaLabel?: string;
 }
-const { rows, aspect, ornament, ariaLabel = "Galería" } = Astro.props;
+const {
+  rows,
+  aspect,
+  aspectMobile,
+  ornament,
+  ariaLabel = "Galería",
+} = Astro.props;
+
+/** The ratio the stage actually carries below `tablet`. */
+const mobileAspect = aspectMobile ?? aspect;
 
 const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
 
@@ -82,11 +102,15 @@ const STAGE_SHARE = 1 - 2 * (RAIL_SHARE + GAP_SHARE);
  * under what reads as distortion; past that the honest fix is the stage's ratio,
  * not this number.
  */
-const [aspectW, aspectH] = aspect.split("/").map((n) => parseFloat(n.trim()));
-const tiles = Math.max(
-  1,
-  Math.round((STAGE_SHARE / RAIL_SHARE) * (aspectH / aspectW)),
-);
+const tileCount = (ratio: string) => {
+  const [w, h] = ratio.split("/").map((n) => parseFloat(n.trim()));
+  return Math.max(1, Math.round((STAGE_SHARE / RAIL_SHARE) * (h / w)));
+};
+const tiles = tileCount(aspect);
+// The mobile stage is taller, so its rails hold MORE tiles — counted from the
+// ratio they actually run at, or the column ends on a sliced tile exactly the
+// way the desktop count exists to prevent.
+const tilesMobile = tileCount(mobileAspect);
 
 /**
  * The widest the stage is ever rendered, in CSS px.
@@ -121,8 +145,8 @@ const shareOf = (weight: number, rowSpan: number) => weight / rowSpan;
 }
 <section class="fg-section py-section" aria-label={ariaLabel}>
   <div
-    class="fg mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12"
-    style={`--fg-ornament:url(${ornament.src});--fg-tiles:${tiles}`}
+    class="fg mx-auto w-full max-w-8xl tablet:px-8 desktop:px-12"
+    style={`--fg-ornament:url(${ornament.src});--fg-tiles:${tiles};--fg-tiles-mobile:${tilesMobile}`}
   >
     {
       /* The rails are DECORATION: the pattern restates in ornament what the
@@ -133,7 +157,10 @@ const shareOf = (weight: number, rowSpan: number) => weight / rowSpan;
     }
     <div class="fg-rail" aria-hidden="true"></div>
 
-    <div class="fg-stage" style={`--fg-aspect:${aspect}`}>
+    <div
+      class="fg-stage"
+      style={`--fg-aspect:${aspect};--fg-aspect-mobile:${mobileAspect}`}
+    >
       {
         rows.map((row) => {
           const span = sum(row.items.map((i) => i.weight ?? 1));
@@ -223,7 +250,7 @@ const shareOf = (weight: number, rowSpan: number) => weight / rowSpan;
        by the stage's ratio and almost never divides evenly, so the last tile
        came out sliced through the middle of its outermost ring. The stretch that
        buys this is computed in the frontmatter; see `tiles` there. */
-    background-size: 100% calc(100% / var(--fg-tiles));
+    background-size: 100% calc(100% / var(--fg-tiles-mobile, var(--fg-tiles)));
     background-position: top center;
   }
 
@@ -231,7 +258,7 @@ const shareOf = (weight: number, rowSpan: number) => weight / rowSpan;
     position: relative;
     flex: 1 1 auto;
     min-width: 0;
-    aspect-ratio: var(--fg-aspect);
+    aspect-ratio: var(--fg-aspect-mobile, var(--fg-aspect));
     display: flex;
     flex-direction: column;
     /* 10 / 655 — a row gap resolves against the stage's HEIGHT, which the
@@ -277,5 +304,22 @@ const shareOf = (weight: number, rowSpan: number) => weight / rowSpan;
     inset: 3.36% 3.99%;
     border: 1px solid rgb(255 255 255 / 0.85);
     pointer-events: none;
+  }
+
+  /* Below `tablet` the composition is EDGE TO EDGE and runs on its own taller
+     ratio — see `aspectMobile`. The container drops its side padding there (the
+     class list carries none unprefixed), so the ornament rails finish against
+     the screen rather than inside a 24px gutter: at a phone's width that gutter
+     costs 13% of the picture and reads as a frame around the frame.
+
+     From `tablet` up the gallery goes back to the page's own container edge,
+     which is where its header says the rails belong. */
+  @media (width >= 640px) {
+    .fg-stage {
+      aspect-ratio: var(--fg-aspect);
+    }
+    .fg-rail {
+      background-size: 100% calc(100% / var(--fg-tiles));
+    }
   }
 </style>

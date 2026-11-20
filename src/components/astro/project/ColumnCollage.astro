@@ -74,6 +74,29 @@ interface Props {
    * pieces laid out. Its artboard sets them about 34px apart at a desktop width.
    */
   gap?: string;
+  /**
+   * What the collage does BELOW `tablet`, where three columns of a desktop
+   * composition are each a third of a phone.
+   *
+   * `stack` (the default) collapses them to one full-width column, ordered by
+   * `stackOrder`. Right for a collage of flat artwork, which becomes unreadable
+   * at a third of a phone's width.
+   *
+   * `columns` keeps the grid. For a set whose subject IS the grid: Merienda's
+   * feed is nine phone-and-post pieces, and stacked at full width they run
+   * nearly 6000px, so the section that says "a consistent feed" is read one
+   * piece at a time and the consistency is the one thing the reader never sees.
+   *
+   * `slider` turns the columns into a horizontal scroller that shows two and a
+   * half pieces. For a set of FEW tall pieces — three phone-height menus stack
+   * to 2400px and keep nothing but their own order; side by side at a third of
+   * the screen they are unreadable. The half piece is the affordance: it is what
+   * tells a reader the row continues, with no arrows or dots to maintain.
+   *
+   * `stackOrder` applies to `stack` only; the other two keep each piece in its
+   * own column.
+   */
+  mobile?: "stack" | "columns" | "slider";
 }
 const {
   columns,
@@ -83,12 +106,19 @@ const {
   captionAlign = "start",
   align = "start",
   gap,
+  mobile = "stack",
 } = Astro.props;
 
 // The `sizes` hint has to know how many columns share the row, or a three-column
 // collage asks for images at half the container and ships 1.5× the pixels it can
 // show. Below the breakpoint every column is the full width, whatever the count.
 const colVw = Math.round(100 / columns.length);
+// Below the breakpoint the column's width depends on what `mobile` does with
+// it: its same share when the columns are kept, a full screen when they stack,
+// and a 2.5th of one in the slider (where the hint can stay a round number —
+// `sizes` only has to be close enough to pick the right source).
+const mobileVw = mobile === "columns" ? colVw : mobile === "slider" ? 40 : 100;
+const sizes = `(min-width: 640px) ${colVw}vw, ${mobileVw}vw`;
 ---
 
 <section class="py-section" aria-label={ariaLabel}>
@@ -109,7 +139,12 @@ const colVw = Math.round(100 / columns.length);
       )
     }
     <div
-      class:list={["cc", align === "center" && "cc--center"]}
+      class:list={[
+        "cc",
+        align === "center" && "cc--center",
+        mobile === "columns" && "cc--keep",
+        mobile === "slider" && "cc--slider",
+      ]}
       style={gap ? `--gap:${gap}` : undefined}
     >
       {
@@ -122,7 +157,7 @@ const colVw = Math.round(100 / columns.length);
                 src={it.src}
                 alt={it.alt}
                 widths={[640, 960, 1280]}
-                sizes={`(min-width: 640px) ${colVw}vw, 100vw`}
+                sizes={sizes}
                 loading="lazy"
               />
             ))}
@@ -158,6 +193,74 @@ const colVw = Math.round(100 / columns.length);
     order: var(--order, 0);
   }
 
+  /* `mobile="columns"` — the row layout, unconditionally. It repeats the rules in
+     the breakpoint below rather than hoisting them out of it, because the two
+     are different layouts and not one with an override: the stacked case needs
+     `display: contents` and `order` to interleave the columns, which the row
+     case must not inherit. The page's two breakpoints are untouched. */
+  .cc--keep {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  .cc--keep.cc--center {
+    align-items: center;
+  }
+  .cc--keep .cc-col {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+    gap: var(--gap);
+  }
+  .cc--keep .cc-img {
+    order: 0;
+  }
+
+  /* `mobile="slider"` — the columns as a horizontal scroller, two and a half
+     pieces wide.
+
+     FULL-BLEED, BUT STILL ON THE CONTENT EDGE. The track pulls out of the
+     container by the page gutter and puts it back as its own padding, so the
+     first piece starts exactly where the caption above it does and the row runs
+     to the true screen edge. `var(--gutter)` rather than a repeat of the
+     container's `px-6`: the token already is that distance, at all three sizes.
+
+     2.5 pieces is the whole interaction. A reader sees two and a HALF, and the
+     half is what says the row continues — no arrows, no dots, nothing to keep
+     in sync with a count. Snapping to `start` lands each piece back on the
+     content edge.
+
+     The scrollbar is hidden because the half piece already states the
+     affordance, and a 15px bar under three phone mockups reads as chrome the
+     composition did not ask for. */
+  .cc--slider {
+    flex-direction: row;
+    align-items: flex-start;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline-start: var(--gutter);
+    margin-inline: calc(-1 * var(--gutter));
+    padding-inline: var(--gutter);
+    scrollbar-width: none;
+  }
+  .cc--slider::-webkit-scrollbar {
+    display: none;
+  }
+  .cc--slider .cc-col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+    /* The visible track is the screen less ONE gutter — the leading one. Two
+       pieces and two gaps sit inside it, and the third takes what is left. */
+    flex: 0 0 calc((100vw - var(--gutter) - 2 * var(--gap)) / 2.5);
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+  .cc--slider .cc-img {
+    order: 0;
+  }
+
   @media (width >= 640px) {
     .cc {
       flex-direction: row;
@@ -181,6 +284,19 @@ const colVw = Math.round(100 / columns.length);
     }
     .cc-img {
       order: 0;
+    }
+    /* The slider is a MOBILE layout: from here up the collage is the ordinary
+       row again, so the track's scrolling, its bleed and its fixed column width
+       are all undone — the last of those explicitly, since `.cc--slider .cc-col`
+       outranks the `.cc-col` above it. */
+    .cc--slider {
+      overflow-x: visible;
+      scroll-snap-type: none;
+      margin-inline: 0;
+      padding-inline: 0;
+    }
+    .cc--slider .cc-col {
+      flex: 1;
     }
   }
 </style>

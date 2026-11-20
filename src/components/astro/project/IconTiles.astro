@@ -14,11 +14,12 @@
  * The tiles are flush — no gap. The chequer is what separates one from the next,
  * and a gap would turn a continuous band into nine floating cards.
  *
- * THE COLUMN COUNT MUST BE ODD. The chequer is assigned as `index % 2`, which
- * equals `(row + column) % 2` only while the row length is odd; with an even
- * count every column would come out a single colour, striped rather than
- * chequered. The grid below is five columns at every size for that reason and
- * one more — see the note on it.
+ * THE CHEQUER DEPENDS ON THE COLUMN COUNT, so it is assigned in the stylesheet
+ * and not in the markup. `index % 2` equals `(row + column) % 2` only while the
+ * row length is ODD; the grid is two columns on a phone and five from `tablet`
+ * up, so the even case needs its own four-tile cycle or every column comes out
+ * a single colour, striped rather than chequered. Each tile carries both field
+ * colours and picks one by position — see the notes on the grid.
  *
  * The copy above is the same small-uppercase-label-over-a-muted-paragraph
  * pattern every other captioned section on a project page uses.
@@ -55,11 +56,20 @@ const { label, body, icons, colors, ariaLabel } = Astro.props;
       </h2>
       {body && <p class="mt-4 max-w-md text-p-sm text-muted">{body}</p>}
     </div>
+  </div>
 
-    <ul class="it-grid">
+  {
+    /* The grid is OUTSIDE the container on purpose: below `tablet` it runs edge
+      to edge, where the gutter would otherwise cost a sixth of a two-column
+      tile. From `tablet` up it takes the container's own width back — see the
+      stylesheet. Each tile carries BOTH field colours and picks one by
+      position, because the chequer's rule changes with the column count. */
+  }
+  <div class="it-bleed">
+    <ul class="it-grid" style={`--it-a:${colors[0]};--it-b:${colors[1]}`}>
       {
-        icons.map((icon, i) => (
-          <li class="it-tile" style={`--it-field:${colors[i % 2]}`}>
+        icons.map((icon) => (
+          <li class="it-tile">
             <Image src={icon.src} alt={icon.alt} loading="lazy" />
           </li>
         ))
@@ -69,13 +79,24 @@ const { label, body, icons, colors, ariaLabel } = Astro.props;
 </section>
 
 <style>
-  /* Five columns at EVERY size, which is not the usual call and is deliberate.
-     Dropping to three on a phone is what you would reach for, and it leaves the
-     tenth tile alone on a fourth row with two empty cells beside it — a block
-     that reads as unfinished rather than as a set. Ten tiles only come out
-     square at five columns or at two, and two is even, which turns the chequer
-     into stripes (see the header). So the block keeps its shape and the tiles
-     get small on a phone instead, where they read as the pattern they are. */
+  /* The grid runs full-bleed below `tablet` and takes the page's own content
+     edge back from there up. `var(--gutter)` rather than the container classes
+     because this element is full-width: the token already resolves to the same
+     edge the padded container lands on, at all three sizes. */
+  .it-bleed {
+    padding-inline: 0;
+  }
+
+  /* TWO columns on a phone, five from `tablet` up.
+     Ten tiles only come out as a full rectangle at five columns or at two, and
+     those are the two the block uses — at five a phone's tile is 65px, small
+     enough that the marks stop being readable as drawings; at two it is a third
+     of the screen and the set reads as the pattern it is.
+     The cost is that TWO IS EVEN, and the chequer cannot then be `index % 2` —
+     that is `(row + column) % 2` only while the row length is odd, so an even
+     count comes out as vertical stripes. Hence the colours are assigned by
+     position in the stylesheet, once per column count, instead of being written
+     onto each tile in the markup. */
   .it-grid {
     display: grid;
     /* `minmax(0, 1fr)` and NOT `1fr`. A bare `1fr` is `minmax(auto, 1fr)`, and
@@ -86,12 +107,24 @@ const { label, body, icons, colors, ariaLabel } = Astro.props;
        while the left stayed on the gutter. `max-width: 100%` on the image does
        not prevent it: the floor is the grid item's automatic minimum size, which
        is decided before the image is asked to shrink. */
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     /* Clips the 1px bleed each tile paints to close the seams — see the tile. */
     overflow: hidden;
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+
+  /* The chequer at TWO columns, as rows of A B / B A: tiles 1 and 4 of every
+     four take the first colour, 2 and 3 the second. Written out rather than
+     derived because `nth-child` cannot do arithmetic on the column count. */
+  .it-tile:nth-child(4n + 1),
+  .it-tile:nth-child(4n + 4) {
+    --it-field: var(--it-a);
+  }
+  .it-tile:nth-child(4n + 2),
+  .it-tile:nth-child(4n + 3) {
+    --it-field: var(--it-b);
   }
 
   /* Square, and the square is load-bearing: the icons are drawn at five
@@ -131,5 +164,24 @@ const { label, body, icons, colors, ariaLabel } = Astro.props;
     height: auto;
     max-width: 100%;
     max-height: 100%;
+  }
+
+  /* From `tablet` up: five columns, the grid back on the page's content edge,
+     and the chequer back to its odd-row-length rule — with an odd row length
+     `index % 2` IS `(row + column) % 2`, so plain odd/even chequers correctly
+     and the four-tile cycle above would not. */
+  @media (width >= 640px) {
+    .it-bleed {
+      padding-inline: var(--gutter);
+    }
+    .it-grid {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+    .it-tile:nth-child(odd) {
+      --it-field: var(--it-a);
+    }
+    .it-tile:nth-child(even) {
+      --it-field: var(--it-b);
+    }
   }
 </style>

@@ -48,9 +48,20 @@ const { fields, rows, unitWidth } = Astro.props;
 </div>
 
 <style>
+  /* HALF THE GAP, on the top edge only.
+     The strip is artwork in normal flow, not a flow section: it carries no
+     `py-section`, because padding of its own would push the page's ground
+     between its rows and break the cut. So the neighbour above it would be
+     facing a section with no padding at all, and the gap over the strip came
+     out half the one under the section above it — 80px against 160 on a phone.
+     Taking the section token as a top padding gives that neighbour the half it
+     expects, and the strip still has none of its own on the inside.
+     Nothing on the bottom edge on purpose: the last field is drawn running off
+     the end of the page, which is what the artboard shows. */
   .fb {
     display: flex;
     flex-direction: column;
+    padding-block-start: var(--spacing-section);
   }
 
   /* `aspect-ratio` rather than a percentage height: a percentage height resolves

@@ -243,6 +243,16 @@ const palette = [
           "brindis  vaso     baires baires barra"
           "desierto desierto mano   ciudad barra"
         `}
+        aspectMobile="200 / 643"
+        columnsMobile="1fr 1fr"
+        rowsMobile="137fr 140fr 140fr 68fr 158fr"
+        areasMobile={`
+          "iguazu    iguazu"
+          "baires    brindis"
+          "vaso      barra"
+          "patagonia desierto"
+          "mano      ciudad"
+        `}
         items={[
           {
             area: "iguazu",
@@ -308,6 +318,7 @@ const palette = [
       <ColumnCollage
         ariaLabel="Redes sociales"
         label="Redes sociales"
+        mobile="columns"
         body="Desarrollamos un sistema de contenido para redes sociales orientado a comunicar con claridad, fortalecer la identidad de la marca y mantener una presencia consistente. Cada pieza fue diseñada para captar la atención, transmitir el mensaje de forma inmediata y generar una comunicación más efectiva."
         align="center"
         gap="clamp(0.75rem, 2.4vw, 2.125rem)"
@@ -405,6 +416,7 @@ const palette = [
       }
       <ColumnCollage
         ariaLabel="La invitación"
+        mobile="slider"
         gap="clamp(0.75rem, 2.2vw, 1.25rem)"
         columns={[
           [
