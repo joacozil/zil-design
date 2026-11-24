@@ -165,7 +165,7 @@ const place = (s: Slot) =>
     margin-inline: auto;
     width: 100%;
     max-width: var(--container-8xl);
-    padding-inline: 1.5rem;
+    padding-inline: var(--sb2-pad, 1.5rem);
   }
 
   .sb2-band {
@@ -192,9 +192,18 @@ const place = (s: Slot) =>
     text-align: center;
   }
 
+  /* 26rem, just under the `max-w-md` the page's other captions take. This one
+     is CENTRED rather than set against a left edge, and a centred block of six
+     or seven lines wants a shorter measure to hold together: both of its edges
+     are ragged, so the eye has nothing straight to return to at the start of
+     each line.
+
+     It holds at EVERY width, including the wide canvas. The 22.72% box the
+     copy sits in there is not a cap — it is a share, so on a wide monitor it
+     grows past any measure: at a 2100px viewport it resolves to 479px. */
   .sb2-caption p {
     margin-inline: auto;
-    max-width: 32rem;
+    max-width: 26rem;
   }
 
   .sb2-piece {
@@ -209,7 +218,22 @@ const place = (s: Slot) =>
     display: none;
   }
 
+  /* The bands run through the tablet, so they take the container's own gutter
+     step there — the one every other section on the page steps to. */
   @media (min-width: 40rem) {
+    .sticker-board {
+      --sb2-pad: 2rem;
+    }
+  }
+
+  /* The two bands carry the TABLET too, not just the phone. The scatter is a
+     landscape composition — 1.7 times wider than tall — so at a tablet's width
+     the canvas is only ~400px tall, and the copy, which does not scale with it,
+     runs straight out of its box and over the stickers. Measured at 700px: a
+     373px block of text in a 413px canvas, 114px of it on top of the artwork.
+     The scatter therefore waits for `desktop`, where the canvas is tall enough
+     to hold the copy it was composed around. */
+  @media (min-width: 64rem) {
     /* ── The artboard, in its own units ────────────────────────────────────
        canvas    823 × 485 of the page, which is the scatter's own bounding box
        copy      x 317 → 504, y 180 of the canvas
@@ -251,10 +275,6 @@ const place = (s: Slot) =>
       left: 38.52%;
       width: 22.72%;
       margin-block: 0;
-    }
-
-    .sb2-caption p {
-      max-width: none;
     }
   }
 </style>

@@ -4,11 +4,12 @@
  * (landscape from tablet up, a portrait cut on mobile) pinned to the viewport,
  * with nothing composited on top.
  *
- * The pair swaps at TABLET, not desktop. The portrait cut exists for the one case
- * a landscape frame can't serve — a tall, narrow phone screen. A tablet is
- * already wide enough for the landscape frame, and feeding it the portrait cut
- * instead means `cover` has to throw away most of that cut's height, which crops
- * into the composition.
+ * The pair swaps at DESKTOP. The hero is pinned to the viewport, so what decides
+ * which cut serves is the FRAME'S OWN shape, not the device's name: a tablet
+ * held upright is a portrait frame, and a landscape cut dropped into it has to
+ * throw away most of its width to `cover`, which crops the composition in from
+ * both sides — exactly the failure the portrait cut exists to avoid. The
+ * landscape cut therefore waits until the frame is itself landscape.
  *
  * The third hero shape. `ProjectHero` pins a small lockup into the corner of a
  * mockup and `ProjectHeroCover` centres a large one; both take a separate `logo`
@@ -57,16 +58,16 @@ const stackImage = mobileImage ?? image;
     loading="eager"
     fetchpriority="high"
     sizes="100vw"
-    class="absolute inset-0 h-full w-full object-cover object-bottom tablet:hidden"
+    class="absolute inset-0 h-full w-full object-cover object-bottom desktop:hidden"
   />
 
-  {/* Tablet and up: the landscape cut takes over. Decorative — see above. */}
+  {/* Desktop: the landscape cut takes over. Decorative — see above. */}
   <Image
     src={image}
     alt=""
     loading="eager"
     fetchpriority="high"
     sizes="100vw"
-    class="absolute inset-0 hidden h-full w-full object-cover tablet:block"
+    class="absolute inset-0 hidden h-full w-full object-cover desktop:block"
   />
 </section>

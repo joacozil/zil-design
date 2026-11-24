@@ -210,6 +210,17 @@ const weights = row.map((p) => p.src.width / p.src.height);
     .web-banners {
       --wb-pad: 2rem;
     }
+  }
+
+  /* The head waits for DESKTOP to split in two. The copy takes 40.9% of the
+     column and the mockup, which is 142.8% of what is left, runs off the page
+     — at a tablet's width that leaves the paragraph in a 250px gutter beside a
+     picture whose own detail is already too small to read, and the pair reads
+     as cramped rather than as one spread. Stacked, both get the full column. */
+  @media (min-width: 64rem) {
+    .web-banners {
+      --wb-pad: 3rem;
+    }
 
     /* Caption and mockup side by side, split where the artboard puts the
        mockup's left edge: 40.9% of the column. */
@@ -228,13 +239,6 @@ const weights = row.map((p) => p.src.width / p.src.height);
 
     .wb-mockup {
       margin-top: 0;
-    }
-
-  }
-
-  @media (min-width: 64rem) {
-    .web-banners {
-      --wb-pad: 3rem;
     }
   }
 </style>
