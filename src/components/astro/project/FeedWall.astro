@@ -1,0 +1,304 @@
+---
+/**
+ * FeedWall — the campaign's whole output as one wall: eighteen pieces laid on a
+ * field that travels from the chocolate's brown to the coffee's caramel to the
+ * dulce de leche's orange, with each day's own word repeated behind its stretch.
+ *
+ * Three things make this one component rather than a grid of images:
+ *
+ *   1. The ALTERNATION. The pieces are a story and a post, a story and a post,
+ *      all the way down, and the wall simply deals them into its columns — so a
+ *      row reads story / post / story, the next post / story / post, and the
+ *      pattern falls out of the order instead of being typed per row.
+ *   2. The ROW AXIS. Stories are taller than posts, and every piece in a row is
+ *      centred on one line rather than hung from a shared top. That is what
+ *      makes the taller pieces rise past the shorter ones in both directions and
+ *      the wall read as woven rather than stacked.
+ *   3. The FIELD and the WORDS travel together. The gradient is one fill across
+ *      the whole wall, and the word behind it changes at each third — so the
+ *      colour and the name arrive at the same moment, which is the point the
+ *      artboard is making.
+ *
+ * TWO compositions. Three columns at `desktop`, two below it — eighteen pieces
+ * over two columns is nine whole rows, so the wall ends even either way and
+ * nothing has to be dropped to make it fit. Everything is a share of the wall's
+ * WIDTH, heights included; nothing below is a length.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Piece {
+  src: ImageMetadata;
+  alt: string;
+}
+interface Zone {
+  /** The day's name, repeated behind its third of the wall. */
+  word: ImageMetadata;
+}
+interface Props {
+  /** The field, as a CSS gradient. One fill for the whole wall. */
+  field: string;
+  /**
+   * The pieces in reading order, starting with a story. The wall assumes they
+   * alternate story / post: that is what produces the artboard's zigzag.
+   */
+  pieces: Piece[];
+  /** The three days, in the order their thirds appear. */
+  zones: Zone[];
+  /** How visible the repeated words are against the field. */
+  wordOpacity?: number;
+  /**
+   * How far the wall is LIFTED over the section above it, as a share of its
+   * width. Its field starts where the lift ends, so the strip the wall gains is
+   * transparent and whatever the section above lets fall into it — here, the
+   * splashes under the chocolate and the coffee — shows through, with the first
+   * mockups standing on top of them.
+   */
+  lift?: number;
+  /** Section landmark label. */
+  ariaLabel?: string;
+}
+const {
+  field,
+  pieces,
+  zones,
+  wordOpacity = 0.25,
+  lift = 0,
+  ariaLabel = "Publicaciones",
+} = Astro.props;
+
+/* ── The artboard, in its own units ──────────────────────────────────────────
+   page        482 wide
+   columns     centres at 89.75 / 241 / 392.75 — pitch 151.5
+   story       126 wide (1070 × 2172 artwork)
+   post        107.5 wide (865 × 1370 artwork)
+   rows        pitch 240, every piece centred on the row's line
+   words       ~600 wide, centred; the leading is the word's own height times
+               the factor the opening band already established
+   Divided through by 482 below. */
+const STORY_RATIO = 1070 / 2172;
+const POST_RATIO = 865 / 1370;
+
+/** The leading each word takes, as a multiple of its own height. The opening
+ *  band measured these off the artboard; the wall sets them again at its own
+ *  scale, so the three stacks stay as they were drawn. */
+const LEADING = [1.302, 1.086, 1.434];
+
+type Layout = {
+  /** Column centres, as shares of the wall's width. */
+  cols: number[];
+  /** Piece widths. */
+  story: number;
+  post: number;
+  /** The distance between two row lines. */
+  pitch: number;
+  /** How wide a word is set. */
+  word: number;
+  /** The field showing under the last row. */
+  tail: number;
+};
+
+const WIDE: Layout = {
+  cols: [18.6, 50, 81.4],
+  story: 26.14,
+  post: 22.3,
+  pitch: 49.79,
+  word: 69,
+  tail: 7.1,
+};
+
+/** Two columns below `desktop`: at three the pieces land near a third of a
+ *  phone's width each, which is a contact sheet and not a wall. */
+const NARROW: Layout = {
+  cols: [26.5, 73.5],
+  story: 44,
+  post: 37.55,
+  pitch: 83.8,
+  word: 90,
+  tail: 11.95,
+};
+
+/** Where each piece goes, and how tall the wall ends up. */
+const plan = (l: Layout, n: number) => {
+  const rows = Math.ceil(n / l.cols.length);
+  const first = l.story / STORY_RATIO / 2; // the tallest piece's own half
+  const spots = Array.from({ length: n }, (_, i) => {
+    const row = Math.floor(i / l.cols.length);
+    /* Over an ODD number of columns a strictly alternating sequence already
+       zigzags: three columns deal story / post / story, then post / story /
+       post, which is the artboard's pattern and needs nothing added. Over an
+       EVEN number it does not — every story would land in the same column — so
+       the row's start is shifted by one to put the alternation back. */
+    const shift = l.cols.length % 2 === 0 ? row : 0;
+    const col = ((i % l.cols.length) + shift) % l.cols.length;
+    return {
+      x: l.cols[col],
+      y: first + row * l.pitch,
+      w: i % 2 === 0 ? l.story : l.post,
+    };
+  });
+  return { spots, height: first * 2 + (rows - 1) * l.pitch + l.tail };
+};
+
+const wall = plan(WIDE, pieces.length);
+const narrow = plan(NARROW, pieces.length);
+
+/**
+ * A word stack: how it is set, and the leading that lets a WHOLE number of rows
+ * fill its third exactly.
+ *
+ * The leading above is the artboard's, but a third of the wall is not a whole
+ * number of those rows — so a stack laid at it runs off the end of its third
+ * and the seam cuts a word in half. Snapping the leading to the nearest fit
+ * keeps every word whole and leaves a normal gap at the seam, and the change it
+ * makes to the rhythm is a few per cent of a line.
+ */
+const stack = (word: ImageMetadata, i: number, l: Layout, bandHeight: number) => {
+  const height = (l.word * word.height) / word.width;
+  const zone = bandHeight / 3;
+  let rows = Math.max(1, Math.round(zone / (height * LEADING[i])));
+  while (rows > 1 && zone / rows < height) rows -= 1;
+  const pitch = zone / rows;
+  return { gap: pitch - height, top: i * zone, zone, rows };
+};
+---
+
+<section
+  class="fw"
+  style={`--fw-field:${field};--fw-ar:${100 / wall.height};--fw-ar-narrow:${100 / narrow.height};--fw-word:${WIDE.word}%;--fw-word-narrow:${NARROW.word}%;--fw-word-opacity:${wordOpacity};--fw-lift:${lift}%;--fw-lift-q:${lift}cqw`}
+  aria-label={ariaLabel}
+>
+  <div class="fw-stage">
+    <div class="fw-field" aria-hidden="true"></div>
+    {
+      zones.map((z, i) => {
+        const w = stack(z.word, i, WIDE, wall.height);
+        const n = stack(z.word, i, NARROW, narrow.height);
+        return (
+          <div
+            class="fw-words"
+            aria-hidden="true"
+            style={`--g:${w.gap}cqw;--t:${w.top}cqw;--zh:${w.zone}cqw;--ng:${n.gap}cqw;--nt:${n.top}cqw;--nzh:${n.zone}cqw`}
+          >
+            {Array.from({ length: Math.max(w.rows, n.rows) }).map(() => (
+              <img src={z.word.src} alt="" loading="lazy" />
+            ))}
+          </div>
+        );
+      })
+    }
+
+    {
+      pieces.map((p, i) => (
+        <Image
+          class="fw-piece"
+          style={`--x:${wall.spots[i].x}%;--y:${wall.spots[i].y}cqw;--w:${wall.spots[i].w}%;--nx:${narrow.spots[i].x}%;--ny:${narrow.spots[i].y}cqw;--nw:${narrow.spots[i].w}%`}
+          src={p.src}
+          alt={p.alt}
+          loading="lazy"
+          sizes="(min-width: 1024px) 27vw, 45vw"
+        />
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .fw {
+    position: relative;
+    /* Over the section above, and pulled up into it. The field below starts at
+       the lift, so this overlap is clear and the section above shows through
+       it — while everything in here paints on top. */
+    z-index: 3;
+    margin-top: calc(-1 * var(--fw-lift));
+    overflow: clip;
+  }
+
+  /* The field, as its own layer rather than the section's background: a
+     background would fill the lifted strip too, and the whole point of the
+     strip is that it is see-through. */
+  .fw-field {
+    position: absolute;
+    /* `cqw`, not the percentage the margin uses: a percentage `top` resolves
+       against this box's HEIGHT, which is three times the wall's width. */
+    top: var(--fw-lift-q);
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+    background: var(--fw-field);
+  }
+
+  /* The wall's height is its own ratio, not a `cqw` length: `cqw` here would
+     have to query this very element, and an element is never its own container
+     — the query would escape to the viewport and the wall would miss the page's
+     gutters. Its children measure in `cqw` against it, which is what the ratio
+     makes possible. */
+  .fw-stage {
+    position: relative;
+    container-type: inline-size;
+    aspect-ratio: var(--fw-ar-narrow);
+  }
+
+  .fw-words,
+  .fw-piece {
+    position: absolute;
+  }
+
+  /* A day's name, repeated down its third of the wall. The stack is cut to the
+     third it belongs to, so the word changes at the same line the field does. */
+  .fw-words {
+    display: flex;
+    flex-direction: column;
+    left: 50%;
+    top: var(--nt);
+    width: var(--fw-word-narrow);
+    height: var(--nzh);
+    transform: translateX(-50%);
+    row-gap: var(--ng);
+    overflow: clip;
+    z-index: 0;
+    opacity: var(--fw-word-opacity);
+  }
+
+  .fw-words img {
+    width: 100%;
+    height: auto;
+    /* A flex item's automatic minimum is its content size, and an image's is
+       its intrinsic width — without this floor the stack runs at the SVG's own
+       width and overflows. */
+    min-width: 0;
+    flex-shrink: 0;
+  }
+
+  /* Every piece is placed by its CENTRE, on its column's line and its row's.
+     The translate is what makes that true for pieces of two different sizes
+     without either one needing to know the other's height. */
+  .fw-piece {
+    left: var(--nx);
+    top: var(--ny);
+    width: var(--nw);
+    height: auto;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+  }
+
+  @media (min-width: 64rem) {
+    .fw-stage {
+      aspect-ratio: var(--fw-ar);
+    }
+
+    .fw-words {
+      top: var(--t);
+      width: var(--fw-word);
+      height: var(--zh);
+      row-gap: var(--g);
+    }
+
+    .fw-piece {
+      left: var(--x);
+      top: var(--y);
+      width: var(--w);
+    }
+  }
+</style>

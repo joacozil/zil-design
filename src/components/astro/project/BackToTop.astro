@@ -12,8 +12,8 @@
 interface Props {
   /**
    * Colour of the arrow and the focus ring. Defaults to the page surface, which
-   * reads as the arrow being cut OUT of the accent disc — right on a project whose
-   * field is light. A project on a DARK field has to pass something else, or the
+   * reads as the arrow being cut OUT of the primary disc — right on a project
+   * whose field is light. A project on a DARK field has to pass something else, or the
    * arrow comes out near-black on its own accent colour and the focus ring
    * disappears into the page.
    */
@@ -57,7 +57,7 @@ const { ink = "var(--color-surface)" } = Astro.props;
     height: 3rem;
     border-radius: 9999px;
 
-    background-color: var(--color-accent);
+    background-color: var(--color-primary);
     color: var(--btt-ink);
     box-shadow: 0 6px 20px rgb(0 0 0 / 0.18);
     cursor: pointer;

@@ -1,0 +1,142 @@
+---
+/**
+ * DiagonalHero — a photograph cut by a diagonal, with a flat brand field on the
+ * other side of the cut and the lockup standing in it.
+ *
+ * The cut is the composition: it is what turns a food photograph into a brand
+ * page, and it is why the lockup needs no box, no scrim and no drop shadow to
+ * be legible — it sits on the brand's own colour.
+ *
+ * The cut TURNS at the breakpoint, and that is deliberate. On a landscape frame
+ * it runs top-left to bottom-right, leaving a wedge on the right wide enough to
+ * hold the lockup beside the food. A phone's frame has no width to give a
+ * wedge, so the same cut becomes a shallow slope across the top: the field
+ * becomes a header strip, the photograph keeps the whole lower frame, and the
+ * lockup stays on colour either way.
+ *
+ * Both are one `clip-path` over a full-bleed photograph — not two images, not a
+ * gradient, and nothing baked into the picture, so the angle can be retuned and
+ * the lockup stays type at any width.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  /** The photograph, cover-fitted to the pinned viewport. */
+  image: ImageMetadata;
+  /** Describes the photograph for readers who can't see it. */
+  imageAlt: string;
+  /** Where the photograph is anchored while it is cover-fitted. */
+  imagePosition?: string;
+  /** Same, on mobile — the frame turns portrait and the crop changes with it. */
+  imagePositionMobile?: string;
+  /** The brand field on the far side of the cut. */
+  field: string;
+  /** The lockup standing in the field. SVG, set at the frame's own scale. */
+  logo: ImageMetadata;
+  /** Project name — the page's <h1>, carried visually by the lockup. */
+  title: string;
+}
+
+const {
+  image,
+  imageAlt,
+  imagePosition = "center",
+  imagePositionMobile,
+  field,
+  logo,
+  title,
+} = Astro.props;
+---
+
+<section class="dh" style={`--field:${field}`}>
+  <Image
+    class="dh-photo"
+    src={image}
+    alt={imageAlt}
+    loading="eager"
+    fetchpriority="high"
+    sizes="100vw"
+    style={`--pos:${imagePosition};--pos-m:${imagePositionMobile ?? imagePosition}`}
+  />
+
+  {/* The cut. One layer, clipped — see the artboard numbers in the styles. */}
+  <div class="dh-field" aria-hidden="true"></div>
+
+  {
+    /* The lockup IS the page heading: its `alt` carries the project name, so the
+      document exposes one real <h1> and the picture's own `alt` stays a
+      description of the photograph. */
+  }
+  <h1 class="dh-logo">
+    <img src={logo.src} alt={title} />
+  </h1>
+</section>
+
+<style>
+  /* ── The artboard ───────────────────────────────────────────────────────────
+     MOBILE (2160 × 3840): the field is a strip across the top, its lower edge
+     sloping from 28.05% of the height at the left to 47.72% at the right. The
+     lockup is centred in it, 47.1% of the width, its top at 16.48%.
+
+     DESKTOP (3840 × 2195): the field is the wedge right of a line from 35.6% of
+     the width at the top to 88.28% at the foot. The lockup is 28.54% of the
+     width, its left edge at 64.06% and its top at 19.73%. */
+  .dh {
+    position: relative;
+    min-height: 100svh;
+    width: 100%;
+    overflow: hidden;
+    background-color: var(--field);
+  }
+
+  .dh-photo {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    object-position: var(--pos-m);
+  }
+
+  .dh-field {
+    position: absolute;
+    inset: 0;
+    background-color: var(--field);
+    clip-path: polygon(0 0, 100% 0, 100% 47.72%, 0 28.05%);
+  }
+
+  .dh-logo {
+    position: absolute;
+    top: 16.48%;
+    left: 50%;
+    margin: 0;
+    translate: -50% 0;
+    width: 47.1%;
+  }
+
+  .dh-logo img {
+    display: block;
+    height: auto;
+    width: 100%;
+  }
+
+  @media (min-width: 40rem) {
+    .dh-photo {
+      object-position: var(--pos);
+    }
+
+    /* The wedge: the cut runs to the foot of the frame, so the field keeps the
+       whole right edge and the photograph keeps the whole left one. */
+    .dh-field {
+      clip-path: polygon(35.6% 0, 100% 0, 100% 100%, 88.28% 100%);
+    }
+
+    .dh-logo {
+      top: 19.73%;
+      left: 64.06%;
+      translate: 0 0;
+      width: 28.54%;
+    }
+  }
+</style>

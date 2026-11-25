@@ -1,0 +1,536 @@
+---
+/**
+ * RayShowcase — the brand's photography and its social mockups, with the
+ * campaign's ray texture rising behind both.
+ *
+ * One component rather than two sections because of where the texture starts:
+ * HALFWAY UP THE GALLERY, not at a seam between sections. Only an element that
+ * owns the gallery and the stage below it can place that edge, which is the
+ * same reason Combustion's SocialBoard owns its feed row and its field.
+ *
+ * The gallery is three weighted rows — 3 photos, 1 full-width, 3 photos — cut to
+ * their cells, because what it shows is a BODY of work: the cells are read as a
+ * block, and a block only holds if its rows are flush.
+ *
+ * The stage below is a PROPORTIONAL CANVAS on a wide screen, the device
+ * MockupStage and CyberScene use: the phones and the copy are placed as
+ * percentages of one box, so the hand stays in the channel the two captions
+ * leave it. Below `desktop` the canvas is dropped and the pieces stack — a
+ * caption absolutely placed in a canvas does not scale with it, which is how
+ * the same device broke on Combustion's sticker board at tablet width.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Photo {
+  src: ImageMetadata;
+  alt: string;
+  /** Share of its row's width. The artboard's own measurement. */
+  weight: number;
+}
+interface Caption {
+  label: string;
+  body: string;
+}
+interface Props {
+  /** Three photos across the top row. */
+  rowTop: [Photo, Photo, Photo];
+  /** The single wide photo that bands the gallery. */
+  band: Photo;
+  /** Three photos across the bottom row. */
+  rowBottom: [Photo, Photo, Photo];
+  /** The ray texture. It rises from the gallery's waist to the section's foot. */
+  rays: ImageMetadata;
+  /** The pair of tilted phones, as one piece of artwork. */
+  phones: { src: ImageMetadata; alt: string };
+  /** The hand holding a phone. Its artwork is already cut at the wrist. */
+  hand: { src: ImageMetadata; alt: string };
+  /** The caption beside the phones, and the one beside the hand. */
+  campaigns: Caption;
+  social: Caption;
+  /** The field the caption labels are set on. */
+  labelField: string;
+  /** Section landmark label. */
+  ariaLabel?: string;
+}
+const {
+  rowTop,
+  band,
+  rowBottom,
+  rays,
+  phones,
+  hand,
+  campaigns,
+  social,
+  labelField,
+  ariaLabel = "Piezas y redes sociales",
+} = Astro.props;
+
+// Row heights as a share of the GALLERY's width — the artboard's 180 / 93 / 188
+// over its 538. Stated here so the markup and the stylesheet read the same
+// numbers.
+const ROWS = { top: "538 / 180", band: "538 / 93", bottom: "538 / 188" };
+const sizesFor = (w: number, total: number) =>
+  `(min-width: 640px) ${Math.round((w / total) * 89)}vw, ${Math.round((w / total) * 100)}vw`;
+const topTotal = rowTop.reduce((n, p) => n + p.weight, 0);
+const bottomTotal = rowBottom.reduce((n, p) => n + p.weight, 0);
+---
+
+<section class="ws" aria-label={ariaLabel}>
+  {
+    /* The texture. Its top edge is HALF THE GALLERY down — stated as a share of
+      the section's own width, because the gallery's height is its width times a
+      fixed ratio and nothing else. `cover` from the top keeps the burst's
+      centre where the artboard has it; the artwork's own transparent margin is
+      what makes the rays fade in a little below this edge rather than at it. */
+  }
+  <div class="ws-rays" style={`--ws-rays:url("${rays.src}")`} aria-hidden="true">
+  </div>
+
+  <div class="ws-gallery">
+    <div class="ws-row" style={`--ar:${ROWS.top}`}>
+      {
+        rowTop.map((p) => (
+          <Image
+            class="ws-photo"
+            style={`--w:${p.weight}`}
+            src={p.src}
+            alt={p.alt}
+            loading="lazy"
+            sizes={sizesFor(p.weight, topTotal)}
+          />
+        ))
+      }
+    </div>
+    <div class="ws-row ws-row--band" style={`--ar:${ROWS.band}`}>
+      <Image
+        class="ws-photo"
+        style="--w:1"
+        src={band.src}
+        alt={band.alt}
+        loading="lazy"
+        sizes="(min-width: 640px) 89vw, 100vw"
+      />
+    </div>
+    <div class="ws-row" style={`--ar:${ROWS.bottom}`}>
+      {
+        rowBottom.map((p) => (
+          <Image
+            class="ws-photo"
+            style={`--w:${p.weight}`}
+            src={p.src}
+            alt={p.alt}
+            loading="lazy"
+            sizes={sizesFor(p.weight, bottomTotal)}
+          />
+        ))
+      }
+    </div>
+  </div>
+
+  {
+    /* The stage. Reading order is the artboard's: the phones, the campaign
+      caption that names them, then the hand and the social caption. */
+  }
+  <div class="ws-stage">
+    <Image
+      class="ws-phones"
+      src={phones.src}
+      alt={phones.alt}
+      loading="lazy"
+      sizes="(min-width: 1024px) 54vw, 90vw"
+    />
+    <Image
+      class="ws-hand"
+      src={hand.src}
+      alt={hand.alt}
+      loading="lazy"
+      sizes="(min-width: 1024px) 36vw, 70vw"
+    />
+
+    {
+      /* The two captions sit in the CONTENT COLUMN, not on the canvas. The
+        mockups are a full-bleed composition and scale with the page; the copy
+        is read, so it keeps the measure the rest of the site reads at. Placed
+        on the canvas their 26% grew with it — at a 1920 viewport that is a
+        497px line running past the column's own right edge. */
+    }
+    <div class="ws-captions">
+      <div class="ws-caption ws-caption--campaigns">
+        <h3 class="ws-label" style={`--ws-label-field:${labelField}`}>
+          {campaigns.label}
+        </h3>
+        <p class="mt-4 text-p-sm text-pretty text-muted">{campaigns.body}</p>
+      </div>
+      <div class="ws-caption ws-caption--social">
+        <h3 class="ws-label" style={`--ws-label-field:${labelField}`}>
+          {social.label}
+        </h3>
+        <p class="mt-4 text-p-sm text-pretty text-muted">{social.body}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ── The artboard, in its own units ──────────────────────────────────────
+     page       599 wide
+     gallery    x 32 → 570 (538), rows 180 / 93 / 188, gaps 4
+     texture    from the gallery's waist down to the section's foot, full bleed
+     stage      599 × 582, starting 4 units under the gallery
+     phones     x 56 / y 50 of the stage, 53.6% of the page
+     hand       x 378, foot on the section's own foot, 35.9%
+     captions   campaigns at 67.6% / 33.2%, social at 10.2% / 78.2%
+     Shares of the section's width unless they say otherwise. */
+  .ws {
+    /* The gallery's width, which the burst is placed against: it is the page's
+       container, so it stops growing at the cap. Everything the rays measure
+       runs through this one value. */
+    --ws-gallery-w: min(100cqw - 3rem, var(--container-8xl));
+    position: relative;
+    /* A stacking context, so everything here paints as ONE layer and a later
+       section can cover the hand that runs past the foot — see `.ws-hand`. */
+    z-index: 0;
+    container-type: inline-size;
+    padding-top: var(--spacing-section);
+    overflow-x: clip;
+  }
+
+  /* Whatever follows this section paints OVER it, which is what lets the hand
+     emerge from behind the next band instead of sitting on top of it. The next
+     section needs a background of its own for that to show, which the artboard's
+     does. */
+  .ws + :global(*) {
+    position: relative;
+    z-index: 1;
+  }
+
+  .ws-rays {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+    /* Off below `desktop`. The burst is a composition's backdrop — it belongs
+       behind the mockups, converging on one of them — and once those stack in
+       a single column there is no composition left for it to sit behind: it
+       becomes a texture competing with the photographs. The whole thing is
+       dropped rather than re-aimed, because a backdrop with nothing to back is
+       not worth the bytes. */
+    display: none;
+    /* A BACKGROUND, not an `<img>`. A replaced element with `height: auto`
+       takes its intrinsic height and ignores `bottom`, so the box came out at
+       zero — and a lazily loaded image with no layout size never starts
+       loading, which is why the texture was missing rather than merely
+       mis-sized. A background has no intrinsic size to resolve, so top and
+       bottom simply stretch it. */
+    background-image: var(--ws-rays);
+    background-position: top center;
+    background-repeat: no-repeat;
+    background-size: 100% auto;
+  }
+
+  @media (min-width: 64rem) {
+    /* The burst's CENTRE belongs behind the right-hand phone of the first
+       group, so the rays read as coming out from behind it rather than from a
+       point of their own in open field.
+
+       The artwork converges at exactly its own middle (960, 2252.5 of
+       1920 × 4505), and at `background-size: 100% auto` the image is as wide as
+       this box — so its centre sits 50cqw right of and 117.32cqw below wherever
+       the image's corner is put. Placing the corner at the target less those
+       two is what lands the convergence on the phone.
+
+       The target, in shares of the section's width:
+         x  12.65 (the group's left) + 47 × 0.751 (that phone's centre in the
+            artwork) = 47.95
+         y  39.63 (the stage's top, below this box's own) + 12.08 (the group's
+            top) + 47 × 0.4623 = 73.43 */
+    .ws-rays {
+      display: block;
+      /* Half the gallery, which is three bands here: its height is its width
+         times 469/538, so half of it is 0.436 of that width. A LENGTH, not a
+         `cqw` share, because the gallery stops growing at the container's cap
+         and the section does not. */
+      top: calc(var(--spacing-section) + 0.436 * var(--ws-gallery-w));
+
+      /* …and the burst's own y runs from the same place: the stage's top is a
+         whole gallery plus the artboard's 0.67 gap below this box's own start,
+         then the group's top (12.08) and that phone's centre in the artwork
+         (47 × 0.4623) — 34.48cqw in all. */
+      background-position: calc(47.95cqw - 50cqw)
+        calc(0.436 * var(--ws-gallery-w) + 34.48cqw - 117.32cqw);
+    }
+  }
+
+  /* The gallery takes the PAGE's container — the same measure every other
+     project's gallery is set to. The artboard's own 5.3% inset lines up with
+     nothing else on the site, and a gallery is the kind of block a reader
+     expects to find on the page's own margins. */
+  .ws-gallery {
+    margin-inline: auto;
+    width: 100%;
+    max-width: var(--container-8xl);
+    padding-inline: 1.5rem;
+  }
+
+  /* ── Phone and tablet: two columns ───────────────────────────────────────
+     The artboard's rows are seven photos across three bands; held at a phone's
+     width each one lands near a hundred pixels, which is a contact sheet and
+     not a gallery. So the bands hand their photos straight to a two-column grid
+     — `display: contents`, so nothing has to be re-marked-up — and the rows
+     re-form on their own from the order.
+
+     The odd one out of each trio takes the full width rather than leaving a
+     hole, and the band, which is one photo of its own, does the same; both get
+     a ratio of their own there, since the artboard's 5.8:1 band would come to
+     sixty pixels tall. */
+  .ws-gallery {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.74%;
+  }
+
+  .ws-row {
+    display: contents;
+  }
+
+  .ws-photo {
+    /* A flex item's automatic minimum is its content size, and a photo's content
+       is its intrinsic width — without this floor removed the row refuses to
+       split by weight. A grid track's is the same, and so is its cure. */
+    min-width: 0;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+  }
+
+  .ws-row > .ws-photo:last-child {
+    grid-column: 1 / -1;
+    aspect-ratio: 3 / 2;
+  }
+
+  .ws-row--band > .ws-photo {
+    grid-column: 1 / -1;
+    aspect-ratio: 16 / 7;
+  }
+
+  /* ── Phone and tablet ────────────────────────────────────────────────────
+     The stage stacks. The canvas below is a desktop composition: the captions
+     are absolutely placed in it and their type does not scale with it, so at a
+     tablet's width the copy runs over the mockups. */
+  .ws-stage {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-section-tight);
+    margin-inline: auto;
+    /* A FULL step off the gallery, where the inner gaps are the tight one. The
+       gallery and the stage are two beats of the section; caption and mockup
+       are halves of one. Same gap for both and the first caption reads as the
+       gallery's own caption instead of the start of what follows. */
+    margin-top: var(--spacing-section);
+    width: 100%;
+    max-width: var(--container-8xl);
+    padding-inline: 1.5rem;
+  }
+
+  .ws-phones {
+    width: 100%;
+    height: auto;
+  }
+
+  /* The hand's artwork is cut down its right side — the arm is meant to carry
+     on off the page — so stacked at the stage's own width that cut shows as a
+     sliced forearm. Run it PAST the right edge instead, where `overflow-x:
+     clip` on the section takes the cut off screen.
+
+     The width follows from that: the phone sits 38.3% across the artwork, so
+     putting its centre on the stage's centre while the right edge runs 10%
+     over needs (0.5 + 0.10) ÷ 0.617 of the stage — which also makes the whole
+     thing a shade smaller, and the phone lands centred rather than left of it. */
+  .ws-hand {
+    align-self: flex-end;
+    margin-right: -10%;
+    width: 97.24%;
+    height: auto;
+  }
+
+  /* On a phone the two captions are just part of the stack — and the stack
+     reads caption, mockup, caption, mockup, so each piece of copy introduces
+     the pictures it is about instead of both pictures arriving first and both
+     captions after. The DOM keeps the canvas's order (the mockups together,
+     the captions together) because that is what the desktop composition needs;
+     `order` is what re-reads it for a single column, and it goes inert the
+     moment the pieces are absolutely placed. */
+  .ws-captions {
+    display: contents;
+  }
+
+  .ws-caption--campaigns {
+    order: 1;
+  }
+
+  .ws-phones {
+    order: 2;
+  }
+
+  .ws-caption--social {
+    order: 3;
+  }
+
+  .ws-hand {
+    order: 4;
+  }
+
+  .ws-caption p {
+    max-width: 24rem;
+  }
+
+  .ws-label {
+    display: inline-block;
+    padding: 0.35em 0.7em;
+    background-color: var(--ws-label-field);
+    color: #ffffff;
+    font-size: var(--text-p-sm);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  @media (min-width: 40rem) {
+    .ws {
+      --ws-gallery-w: min(100cqw - 4rem, var(--container-8xl));
+    }
+
+    .ws-gallery,
+    .ws-stage {
+      padding-inline: 2rem;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .ws {
+      --ws-gallery-w: min(100cqw - 6rem, var(--container-8xl));
+    }
+
+    .ws-gallery {
+      padding-inline: 3rem;
+    }
+
+    /* The artboard's three bands. The row's height is a share of the GALLERY's
+       width — 180, 93 and 188 over its 538 — so they keep its proportions at
+       every viewport. `aspect-ratio` rather than a zero height and a percentage
+       padding: the padding trick leaves the row's HEIGHT at zero, and the
+       photos inside, sized at `height: 100%`, then resolve to nothing. */
+    .ws-gallery {
+      display: block;
+    }
+
+    .ws-row {
+      display: flex;
+      aspect-ratio: var(--ar);
+      gap: 0.74%;
+    }
+
+    .ws-row + .ws-row {
+      margin-top: 0.74%;
+    }
+
+    .ws-photo {
+      flex: var(--w) 1 0;
+      width: auto;
+      height: 100%;
+      aspect-ratio: auto;
+    }
+
+    .ws-row > .ws-photo:last-child,
+    .ws-row--band > .ws-photo {
+      grid-column: auto;
+      aspect-ratio: auto;
+    }
+
+    /* The stage as the artboard composes it: one canvas, everything placed on
+       it, the hand's foot on the section's own foot. */
+    .ws-stage {
+      position: relative;
+      display: block;
+      aspect-ratio: 599 / 582;
+      margin-top: 0.67%; /* the gallery's own gap, 4 of 599 */
+      /* Full bleed again: the canvas is a picture that runs to the screen's
+         edges, and the hand depends on it — only the stacked stage takes the
+         page's container, where it is a column of blocks to read. */
+      max-width: none;
+      width: 100%;
+      padding-inline: 0;
+    }
+
+    .ws-stage > :global(*) {
+      position: absolute;
+    }
+
+    /* A notch under the artboard's 53.59%, and recentred so the pair shrinks
+       on the spot rather than drifting toward its top-left corner: the artboard
+       puts its centre at 36.15% across and 39.82% down, and the `left` and
+       `top` here are that centre less half of the new size. The hand keeps the
+       artboard's own measure — at this size the two read as one scene. */
+    .ws-phones {
+      top: 12.43%;
+      left: 12.65%;
+      width: 47%;
+    }
+
+    /* Anchored to the RIGHT EDGE, not placed from the left. The artwork is cut
+       down its right side as well as across the wrist, and with a gap left
+       between it and the page that cut showed as a sliced arm. Run flush — a
+       shade past, so the cut itself falls outside — and the arm reads as
+       continuing off the page. Its foot stays ON the section's foot, where the
+       next band meets it. */
+    .ws-hand {
+      align-self: auto;
+      margin-right: 0;
+      bottom: 0;
+      right: -1%;
+      width: 35.9%;
+    }
+
+    /* The captions' own layer: the CONTENT COLUMN, laid over the canvas. The
+       mockups are placed against the page, the copy against the column, which
+       is the only way a line of text in a full-bleed composition keeps the
+       measure the rest of the site reads at. */
+    .ws-captions {
+      display: block;
+      position: absolute;
+      inset: 0;
+      margin-inline: auto;
+      /* The column's CONTENT width, not its padding box. An absolutely
+         positioned child resolves its percentages against the padding box, so
+         padding here would let a caption's right edge sit outside the column by
+         exactly the gutter. */
+      width: calc(min(100%, var(--container-8xl)) - 6rem);
+      pointer-events: none;
+    }
+
+    .ws-captions .ws-caption {
+      position: absolute;
+      pointer-events: auto;
+    }
+
+    /* Lefts and tops are the artboard's, re-measured against the column. The
+       width is capped as well as proportional: a share alone grows with the
+       page, and past a certain point a caption stops being a caption. */
+    .ws-caption--campaigns {
+      top: 33.2%;
+      left: 69.7%;
+      width: 29%;
+      max-width: 24rem;
+    }
+
+    .ws-caption--social {
+      top: 78.2%;
+      left: 5.4%;
+      width: 27.1%;
+      max-width: 24rem;
+    }
+  }
+</style>

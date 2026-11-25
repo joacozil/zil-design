@@ -96,7 +96,26 @@ interface Props {
    * `stackOrder` applies to `stack` only; the other two keep each piece in its
    * own column.
    */
-  mobile?: "stack" | "columns" | "slider";
+  mobile?: "stack" | "columns" | "slider" | "pairs";
+  /**
+   * Which column LEADS the slider, 1-based. In the row the eye reads left to
+   * right and the composition decides the order; in a track the reader slides,
+   * and the first piece is the one that has to say what this is — usually the
+   * phone. Left out, the track keeps the row's own order.
+   */
+  lead?: number;
+  /**
+   * `mobile="pairs"` only: the row PITCH, as a multiple of a column's width.
+   *
+   * Left out, each row is as tall as its tallest piece and the shorter one is
+   * centred in it — which leaves a short piece floating with half the height
+   * difference above and below, so two posts end up three times as far apart as
+   * two phones. Setting a pitch SHORTER than the tall piece lets it rise past
+   * the rows either side of it, the way the campaign walls do: every piece is
+   * then centred on an evenly spaced line and the rhythm is the same all the
+   * way down, whatever each piece's own ratio.
+   */
+  pairRatio?: number;
 }
 const {
   columns,
@@ -107,6 +126,8 @@ const {
   align = "start",
   gap,
   mobile = "stack",
+  lead,
+  pairRatio,
 } = Astro.props;
 
 // The `sizes` hint has to know how many columns share the row, or a three-column
@@ -117,12 +138,50 @@ const colVw = Math.round(100 / columns.length);
 // it: its same share when the columns are kept, a full screen when they stack,
 // and a 2.5th of one in the slider (where the hint can stay a round number —
 // `sizes` only has to be close enough to pick the right source).
-const mobileVw = mobile === "columns" ? colVw : mobile === "slider" ? 40 : 100;
+const mobileVw =
+  mobile === "columns"
+    ? colVw
+    : mobile === "slider"
+      ? 40
+      : mobile === "pairs"
+        ? 48
+        : 100;
+
+/* `mobile="pairs"` deals every piece into TWO columns below the breakpoint, so
+   an odd set leaves a hole at the foot. The last piece in the stacked order
+   steps out there rather than standing alone — which is what "a pair of
+   columns" means, and the set reads as complete either way. */
+const flat = columns.flat();
+const oddOneOut =
+  mobile === "pairs" && flat.length % 2 === 1
+    ? flat.reduce((last, it) =>
+        (it.stackOrder ?? 0) > (last.stackOrder ?? 0) ? it : last,
+      )
+    : null;
+
+/*
+ * And the pairs ZIGZAG. The stacked order alternates phone, post, phone, post,
+ * and dealt straight into two columns that puts every phone in the left one and
+ * every post in the right — a table, not a feed. Over an EVEN number of columns
+ * the row's start has to be shifted by one to put the alternation back, which is
+ * the same rule the campaign walls follow; over an odd number the sequence
+ * zigzags on its own and nothing is added.
+ */
+const pairOrder = new Map<unknown, number>();
+if (mobile === "pairs") {
+  flat
+    .filter((it) => it !== oddOneOut)
+    .sort((a, b) => (a.stackOrder ?? 0) - (b.stackOrder ?? 0))
+    .forEach((it, i) => {
+      const row = Math.floor(i / 2);
+      pairOrder.set(it, row * 2 + ((i % 2) + row) % 2 + 1);
+    });
+}
 const sizes = `(min-width: 640px) ${colVw}vw, ${mobileVw}vw`;
 ---
 
 <section class="py-section" aria-label={ariaLabel}>
-  <div class="mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12">
+  <div class="cc-wrap mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12">
     {
       label && (
         <div
@@ -144,16 +203,24 @@ const sizes = `(min-width: 640px) ${colVw}vw, ${mobileVw}vw`;
         align === "center" && "cc--center",
         mobile === "columns" && "cc--keep",
         mobile === "slider" && "cc--slider",
+        mobile === "pairs" && "cc--pairs",
       ]}
-      style={gap ? `--gap:${gap}` : undefined}
+      style={[gap ? `--gap:${gap}` : null, pairRatio ? `--pair-ratio:${pairRatio}` : null]
+        .filter(Boolean)
+        .join(";") || undefined}
     >
       {
-        columns.map((col) => (
-          <div class="cc-col">
+        columns.map((col, i) => (
+          <div class:list={["cc-col", lead === i + 1 && "cc-col--lead"]}>
             {col.map((it) => (
               <Image
-                class="cc-img"
-                style={it.stackOrder ? `--order:${it.stackOrder}` : undefined}
+                class:list={["cc-img", it === oddOneOut && "cc-img--odd"]}
+                style={[
+                  it.stackOrder ? `--order:${it.stackOrder}` : null,
+                  pairOrder.has(it) ? `--pair-order:${pairOrder.get(it)}` : null,
+                ]
+                  .filter(Boolean)
+                  .join(";") || undefined}
                 src={it.src}
                 alt={it.alt}
                 widths={[640, 960, 1280]}
@@ -172,7 +239,7 @@ const sizes = `(min-width: 640px) ${colVw}vw, ${mobileVw}vw`;
   /* One gap token for both axes, so the spacing reads uniform all around — the
      same value and the same reasoning as Mosaic's. */
   .cc {
-    --gap: clamp(0.5rem, 1.1vw, 1rem);
+    --gap: var(--gap-piece);
     display: flex;
     flex-direction: column;
     gap: var(--gap);
@@ -261,6 +328,50 @@ const sizes = `(min-width: 640px) ${colVw}vw, ${mobileVw}vw`;
     order: 0;
   }
 
+  /* The column that leads the track — see `lead`. It is only ever the slider's
+     order, so the row above the breakpoint is untouched. */
+  .cc--slider .cc-col--lead {
+    order: -1;
+  }
+
+  /* `mobile="pairs"` — the columns hand their pieces to a two-column grid, so
+     the set reads as a feed rather than as three thin strips. `display:
+     contents` on the column is what lets the pieces be the grid's own items
+     while the markup stays the row's. The order is `stackOrder`, which is the
+     artboard read row by row, so the pairs alternate the way the row does. */
+  /* The CONTAINER is the column the grid sits in, not the grid itself: an
+     element is never its own container, and `100cqw` written on the grid would
+     escape to the viewport and come back wider than the page's measure. */
+  .cc-wrap {
+    container-type: inline-size;
+  }
+
+  .cc--pairs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--gap);
+    align-items: center;
+    /* `cqw`, not a percentage: a percentage row size resolves against the
+       grid's own HEIGHT, which is what it is trying to decide. */
+    grid-auto-rows: var(--pair-row, auto);
+  }
+
+  .cc--pairs[style*="--pair-ratio"] {
+    --pair-row: calc((100cqw - var(--gap)) / 2 * var(--pair-ratio));
+  }
+
+  .cc--pairs .cc-col {
+    display: contents;
+  }
+
+  .cc--pairs .cc-img {
+    order: var(--pair-order, 0);
+  }
+
+  .cc--pairs .cc-img--odd {
+    display: none;
+  }
+
   @media (width >= 640px) {
     .cc {
       flex-direction: row;
@@ -297,6 +408,32 @@ const sizes = `(min-width: 640px) ${colVw}vw, ${mobileVw}vw`;
     }
     .cc--slider .cc-col {
       flex: 1;
+    }
+
+    .cc--slider .cc-col--lead {
+      order: 0;
+    }
+
+    /* The pairs are a MOBILE layout: from here up the collage is the ordinary
+       row again, and the piece that stepped out comes back. */
+    .cc--pairs {
+      display: flex;
+      align-items: flex-start;
+    }
+
+    .cc--pairs .cc-col {
+      display: flex;
+    }
+
+    .cc--pairs .cc-img--odd {
+      display: block;
+    }
+
+    /* And the zigzag's order goes with it — explicitly, since `.cc--pairs
+       .cc-img` outranks the `.cc-img` reset above and would otherwise reshuffle
+       the columns here. */
+    .cc--pairs .cc-img {
+      order: 0;
     }
   }
 </style>

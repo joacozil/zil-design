@@ -1,0 +1,608 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/astro/Header.astro";
+import Footer from "../../components/astro/Footer.astro";
+import ProjectEnd from "../../components/astro/project/ProjectEnd.astro";
+import BackToTop from "../../components/astro/project/BackToTop.astro";
+import DiagonalHero from "../../components/astro/project/DiagonalHero.astro";
+import ProjectBrief from "../../components/astro/project/ProjectBrief.astro";
+import ConceptCircles from "../../components/astro/project/ConceptCircles.astro";
+import LogoGrid from "../../components/astro/project/LogoGrid.astro";
+import ColorPalette from "../../components/astro/project/ColorPalette.astro";
+import TypeSpecimen from "../../components/astro/project/TypeSpecimen.astro";
+import heroPhoto from "../../assets/wendys/hero-foto.webp";
+import heroLogo from "../../assets/wendys/wendys-logo.svg";
+import gridImage from "../../assets/wendys/wendys-grid.svg";
+import walsheimFontImg from "../../assets/wendys/wendys-font-walsheim.svg";
+import freshFontImg from "../../assets/wendys/wendys-font-fresh.svg";
+import RayShowcase from "../../components/astro/project/RayShowcase.astro";
+import rayosImg from "../../assets/wendys/rayos.svg";
+import fotoManosCuadros from "../../assets/wendys/foto-manos-cuadros.webp";
+import fotoFrappe from "../../assets/wendys/foto-frappe.webp";
+import fotoPila from "../../assets/wendys/foto-pila-hamburguesas.webp";
+import fotoMesaCeleste from "../../assets/wendys/foto-mesa-celeste.webp";
+import fotoMantelRojo from "../../assets/wendys/foto-mantel-rojo.webp";
+import fotoConfeti from "../../assets/wendys/foto-confeti.webp";
+import fotoDobleCheddar from "../../assets/wendys/foto-doble-cheddar.webp";
+import mockupTelefonos from "../../assets/wendys/mockup-telefonos.webp";
+import mockupMano from "../../assets/wendys/mockup-mano.webp";
+import CampaignStage from "../../components/astro/project/CampaignStage.astro";
+import halloLogo from "../../assets/wendys/hallo-logo.svg";
+import halloWordmark from "../../assets/wendys/hallo-wordmark.webp";
+import halloLocal from "../../assets/wendys/hallo-local.webp";
+import halloPostWenbox from "../../assets/wendys/hallo-post-wenbox.webp";
+import halloPhoneTerror from "../../assets/wendys/hallo-phone-terror.webp";
+import halloPostParfait from "../../assets/wendys/hallo-post-parfait.webp";
+import PatternBand from "../../components/astro/project/PatternBand.astro";
+import cafePatron from "../../assets/wendys/cafe-patron.svg";
+import cafeGranos from "../../assets/wendys/cafe-granos.webp";
+import cafeGranosM1 from "../../assets/wendys/cafe-granos-m1.webp";
+import cafeGranosM2 from "../../assets/wendys/cafe-granos-m2.webp";
+import cafeWendia from "../../assets/wendys/cafe-wendia.svg";
+import cafeLockup from "../../assets/wendys/cafe-lockup.svg";
+import CafeStage from "../../components/astro/project/CafeStage.astro";
+import cafeLocal from "../../assets/wendys/cafe-local.webp";
+import cafeMano from "../../assets/wendys/cafe-mano.webp";
+import cafeTelefonos from "../../assets/wendys/cafe-telefonos.webp";
+import cafePost1 from "../../assets/wendys/cafe-post-1.webp";
+import cafePost2 from "../../assets/wendys/cafe-post-2.webp";
+import cafePost3 from "../../assets/wendys/cafe-post-3.webp";
+import cafePost4 from "../../assets/wendys/cafe-post-4.webp";
+import cafePost5 from "../../assets/wendys/cafe-post-5.webp";
+import IngredientsBand from "../../components/astro/project/IngredientsBand.astro";
+import festejamosTitulo from "../../assets/wendys/festejamos-titulo.svg";
+import palabraChocolate from "../../assets/wendys/festejamos-palabra-chocolate.svg";
+import palabraDdl from "../../assets/wendys/festejamos-palabra-ddl.svg";
+import palabraCafe from "../../assets/wendys/festejamos-palabra-cafe.svg";
+import festejamosChocolate from "../../assets/wendys/festejamos-chocolate.webp";
+import festejamosDdl from "../../assets/wendys/festejamos-ddl.webp";
+import festejamosCafe from "../../assets/wendys/festejamos-cafe.webp";
+import FeedWall from "../../components/astro/project/FeedWall.astro";
+import PopStage from "../../components/astro/project/PopStage.astro";
+import WebAdapt from "../../components/astro/project/WebAdapt.astro";
+import webMockup from "../../assets/wendys/web-mockup.webp";
+import qmPalabra from "../../assets/wendys/qm-palabra.svg";
+import qmCartel from "../../assets/wendys/qm-cartel.svg";
+import qmMano from "../../assets/wendys/qm-mano.webp";
+import qmLocal from "../../assets/wendys/qm-local.webp";
+import qmColganteQueso from "../../assets/wendys/qm-colgante-queso.webp";
+import qmPostres from "../../assets/wendys/qm-postres.webp";
+import qmBanner from "../../assets/wendys/qm-banner.webp";
+import fw01 from "../../assets/wendys/festejamos-01-choco-portada.webp";
+import fw02 from "../../assets/wendys/festejamos-02-choco-frappe.webp";
+import fw03 from "../../assets/wendys/festejamos-03-choco-trio.webp";
+import fw04 from "../../assets/wendys/festejamos-04-choco-latte-frio-duo.webp";
+import fw05 from "../../assets/wendys/festejamos-05-choco-latte-frio.webp";
+import fw06 from "../../assets/wendys/festejamos-06-choco-latte-caliente.webp";
+import fw07 from "../../assets/wendys/festejamos-07-cafe-promo-latte.webp";
+import fw08 from "../../assets/wendys/festejamos-08-cafe-latte-frio.webp";
+import fw09 from "../../assets/wendys/festejamos-09-cafe-latte-caliente.webp";
+import fw10 from "../../assets/wendys/festejamos-10-cafe-saborizados.webp";
+import fw11 from "../../assets/wendys/festejamos-11-cafe-portada.webp";
+import fw12 from "../../assets/wendys/festejamos-12-cafe-budin.webp";
+import fw13 from "../../assets/wendys/festejamos-13-ddl-trio.webp";
+import fw14 from "../../assets/wendys/festejamos-14-ddl-portada.webp";
+import fw15 from "../../assets/wendys/festejamos-15-ddl-latte-caliente.webp";
+import fw16 from "../../assets/wendys/festejamos-16-ddl-latte-frio.webp";
+import fw17 from "../../assets/wendys/festejamos-17-ddl-frappe.webp";
+import fw18 from "../../assets/wendys/festejamos-18-ddl-conos.webp";
+// The brand's two faces, self-hosted from the licensed desktop files — the same
+// call Clojure makes for Acumin, Gelato for Job Clarendon and Nacida y Criada
+// for Agency Gothic.
+//
+// Wendy's Fresh ships as ONE VARIABLE file with three axes (DRKM, wdth, wght),
+// which is what lets a single 42 KB download serve all four cuts the artboard
+// shows. See the two @font-face rules below for how the condensed one is asked
+// for without a second file.
+import freshVariable from "../../assets/wendys/wendys-fresh/WendysFresh-Variable.woff2?url";
+import walsheimUltraBold from "../../assets/wendys/gt-walsheim/GTWalsheim-UltraBold.woff2?url";
+
+/**
+ * Two families off ONE file. `font-stretch` is a real @font-face DESCRIPTOR,
+ * and on a variable font it restricts the `wdth` axis — so registering the same
+ * source twice, once pinned at 100% and once at 80%, gives the page a normal
+ * family and a condensed one without a second download and without any call
+ * site having to know the font is variable.
+ *
+ * 80% is the family's own `Cd` instance; its `UCd` is 75 and `SCd` is 90.
+ *
+ * @font-face can't read CSS vars for its src, so the resolved URLs are
+ * interpolated and injected globally.
+ */
+const fontFaceCss = `
+@font-face{font-family:"Wendys Fresh";src:url("${freshVariable}") format("woff2");font-weight:400 900;font-stretch:100%;font-style:normal;font-display:swap;}
+@font-face{font-family:"Wendys Fresh Cond";src:url("${freshVariable}") format("woff2");font-weight:400 900;font-stretch:80%;font-style:normal;font-display:swap;}
+@font-face{font-family:"GT Walsheim";src:url("${walsheimUltraBold}") format("woff2");font-weight:800;font-style:normal;font-display:swap;}
+`;
+
+// Case-study content lives with the page (per-project composition).
+const meta = [
+  { label: "Cliente", value: "Wendy's" },
+  {
+    label: "Servicio",
+    value: "Social Media - Piezas Para Campañas - Material POP - Cupones",
+  },
+];
+
+const brief = [
+  {
+    title: "Proyecto",
+    body: "Wendy's es una cadena internacional de comida rápida reconocida por sus icónicas hamburguesas cuadradas, su propuesta de sabor y frescura. En Argentina, conecta con su público a través de productos clásicos, lanzamientos, promociones y una comunicación descontracturada y con mucha personalidad.",
+  },
+  {
+    title: "Desafío",
+    body: "Wendy's necesitaba una propuesta de comunicación visual para acompañar sus campañas y fortalecer su presencia en redes sociales. El desafío era desarrollar piezas atractivas, mantener la identidad de marca de cada formato y adaptar los mensajes promocionales a distintos canales y puntos de contacto con el público.",
+  },
+  {
+    title: "Propuesta",
+    body: "Desde Zil Design desarrollamos campañas y contenidos para las redes sociales de Wendy's. También trabajamos en el diseño de banners, la adaptación de cupones y materiales promocionales a distintos formatos y necesidades de comunicación, manteniendo la identidad visual de la marca en cada aplicación.",
+  },
+];
+
+/**
+ * Brand palette. RGB is derived from the hex in the component, so a label can
+ * never drift from its swatch.
+ *
+ * Weights are the artboard's RATIO, scaled so the tallest lands on the
+ * component's documented ceiling of 2. Measured down the artboard the five
+ * bands run 415 / 280 / 178 / 180 / 175 units — 2.37 : 1.60 : 1.02 : 1.03 : 1 —
+ * and the bottom three are within 3% of each other, so they take one value
+ * rather than three that would read as a wobble.
+ *
+ * TODO — the artboard labels the FOURTH band "Bordó Wendy's", the same name as
+ * the third, while its hex (#FCDBD8) is a pale pink. One of the two is a slip
+ * in the artboard; it is set here as the artboard has it.
+ */
+const palette = [
+  { name: "Celeste Wendy's", main: { hex: "#029CD4", dark: true }, weight: 2 },
+  { name: "Rojo Wendy's", main: { hex: "#CD2028", dark: true }, weight: 1.35 },
+  { name: "Bordó Wendy's", main: { hex: "#A32539", dark: true }, weight: 0.85 },
+  { name: "Bordó Wendy's", main: { hex: "#FCDBD8" }, weight: 0.85 },
+  {
+    name: "Chocolate Wendy's",
+    main: { hex: "#463634", dark: true },
+    weight: 0.85,
+  },
+];
+---
+
+<style is:global set:html={fontFaceCss}></style>
+
+<Layout
+  title="Wendy's — Zil Design"
+  description="Caso de estudio: campañas, contenidos para redes sociales, piezas gráficas y material POP para Wendy's Argentina."
+>
+  <Header />
+  <main class="project-wendys">
+    {
+      /* The hero is COMPOSED here, not flattened: the photograph, the diagonal
+        field and the lockup are separate layers, so the lockup stays type at a
+        phone's width and the cut can turn with the frame. */
+    }
+    <DiagonalHero
+      image={heroPhoto}
+      imageAlt="Dos hamburguesas con cheddar y panceta sobre un mantel a cuadros rojo, rodeadas de papas fritas"
+      imagePosition="center"
+      imagePositionMobile="6% center"
+      field="#0299D4"
+      logo={heroLogo}
+      title="Wendy's"
+    />
+    <ProjectBrief meta={meta} blocks={brief} />
+    {
+      /* `stroke` is Celeste, which is also the colour the grid artwork rules
+        its construction box in — so the rings and the grid draw the literal
+        same line, which is what this component is for. `gridWidth` is what
+        makes the weight match too.
+
+        `fontScale` stays at the default: Wendy's Fresh at its normal width is
+        a plain grotesque, which is what that default is calibrated against. */
+    }
+    <ConceptCircles
+      words={["Cercanía", "Humor", "Auténtico", "Sabor", "Disfrute"]}
+      stroke="#029CD4"
+      ink="#029CD4"
+      fontFamily='"Wendys Fresh", sans-serif'
+      fontWeight={400}
+      gridWidth={gridImage.width}
+    />
+    <LogoGrid
+      image={gridImage}
+      alt="El logotipo de Wendy's dentro de su grilla de construcción, con los dos bloques celestes en las esquinas opuestas"
+    />
+    <ColorPalette colors={palette} />
+    {
+      /* TWO specimens, one per family, because this is a two-typeface system
+        and the artboard gives each its own full-width wordmark — the same
+        shape Nacida y Criada's typography section takes.
+
+        `specimens` rather than regularUrl/boldUrl on either: the frontmatter
+        already registers all three faces, and the default path would emit a
+        second @font-face per weight and hard-code format("opentype") against
+        files that are woff2. */
+    }
+    <TypeSpecimen
+      name="GT Walsheim"
+      fontFamily="GT Walsheim"
+      wordmarkImage={walsheimFontImg}
+      specimens={[
+        {
+          label: "GT Walsheim - Ultra Bold",
+          fontFamily: '"GT Walsheim", sans-serif',
+          fontWeight: 800,
+        },
+      ]}
+    />
+    {
+      /* Four cuts: two widths × two weights, which the component folds into the
+        2×2 the artboard shows. Reading order is the artboard's — across the
+        row, then down — so Regular sits beside Cond Regular and Black beside
+        Cond Black. */
+    }
+    <TypeSpecimen
+      name="Wendy's Fresh"
+      fontFamily="Wendys Fresh"
+      wordmarkImage={freshFontImg}
+      specimens={[
+        {
+          label: "Wendy's Fresh - Regular",
+          fontFamily: '"Wendys Fresh", sans-serif',
+          fontWeight: 400,
+        },
+        {
+          label: "Wendy's Fresh Cond - Regular",
+          fontFamily: '"Wendys Fresh Cond", sans-serif',
+          fontWeight: 400,
+        },
+        {
+          label: "Wendy's Fresh - Black",
+          fontFamily: '"Wendys Fresh", sans-serif',
+          fontWeight: 900,
+        },
+        {
+          label: "Wendy's Fresh Cond - Black",
+          fontFamily: '"Wendys Fresh Cond", sans-serif',
+          fontWeight: 900,
+        },
+      ]}
+    />
+    {
+      /* The photography and the social output, with the campaign's ray texture
+        rising from the gallery's waist. One section, because that edge falls
+        INSIDE the gallery and nothing that starts at a seam could place it.
+
+        The three row splits are the artboard's own measurements, used as
+        weights: 161 / 100 / 268 across the top and 97 / 108 / 329 across the
+        bottom, each over its row. */
+    }
+    <RayShowcase
+      rays={rayosImg}
+      labelField="#029cd4"
+      rowTop={[
+        {
+          src: fotoManosCuadros,
+          alt: "Dos pares de manos sosteniendo hamburguesas de Wendy's sobre un mantel a cuadros amarillo",
+          weight: 161,
+        },
+        {
+          src: fotoFrappe,
+          alt: "Un frappé de maracuyá de Wendy's entre hielo y frutas",
+          weight: 100,
+        },
+        {
+          src: fotoPila,
+          alt: "Varias hamburguesas con cheddar y panceta apiladas, sostenidas por manos con las uñas pintadas de rojo",
+          weight: 268,
+        },
+      ]}
+      band={{
+        src: fotoMesaCeleste,
+        alt: "Una mesa celeste con confeti, un vaso de Wendy's y dos manos sosteniendo hamburguesas envueltas en papel aluminio",
+        weight: 1,
+      }}
+      rowBottom={[
+        {
+          src: fotoMantelRojo,
+          alt: "Hamburguesas, papas fritas y una gaseosa sobre un mantel a cuadros rojo",
+          weight: 97,
+        },
+        {
+          src: fotoConfeti,
+          alt: "Dos manos sosteniendo hamburguesas sobre una mesa con confeti",
+          weight: 108,
+        },
+        {
+          src: fotoDobleCheddar,
+          alt: "Primer plano de una hamburguesa doble con cheddar y panceta sobre fondo rojo",
+          weight: 329,
+        },
+      ]}
+      phones={{
+        src: mockupTelefonos,
+        alt: "Dos teléfonos con publicaciones de Wendy's: «Pelirrojos y pelirrojas» y «Festejamos el día del chocolate»",
+      }}
+      hand={{
+        src: mockupMano,
+        alt: "Una mano sosteniendo un teléfono con la publicación «A veces frío, a veces caliente, siempre caramelo»",
+      }}
+      campaigns={{
+        label: "Campañas y efemérides",
+        body: "Diseñamos contenido visual para campañas y efemérides, adaptado a distintas fechas y momentos clave de la marca. Cada propuesta fue pensada para captar atención, transmitir mensajes relevantes y generar una comunicación atractiva, manteniendo la identidad y personalidad de Wendy's.",
+      }}
+      social={{
+        label: "Redes sociales",
+        body: "Desarrollamos un sistema de contenido para redes sociales orientado a comunicar con claridad, fortalecer la identidad de la marca y mantener una presencia consistente. Cada pieza fue diseñada para captar la atención, transmitir el mensaje de forma inmediata y generar una comunicación más efectiva.",
+      }}
+    />
+    {
+      /* Hallowendys. It butts straight against the section above it, which is
+        what lets the hand at that section's foot read as coming out from behind
+        this one — see the stacking note in RayShowcase.
+
+        The three pieces are the artboard's widths, used as weights: 188 and 189
+        for the two cards and 198 for the phone, which is taller and so rises
+        past them from the shared floor. */
+    }
+    <CampaignStage
+      ariaLabel="Campaña Hallowendys"
+      field="#260a00"
+      logo={{ src: halloLogo, alt: "Wendy's" }}
+      wordmark={{ src: halloWordmark, alt: "Hallowendys" }}
+      photo={{
+        src: halloLocal,
+        alt: "El mostrador de un local de Wendy's con las pantallas de la campaña Hallowendys",
+      }}
+      pieces={[
+        {
+          src: halloPostWenbox,
+          alt: "Publicación de Hallowendys: el Wen Box Duo desde $13.000 por persona",
+          weight: 188,
+        },
+        {
+          src: halloPhoneTerror,
+          alt: "Un teléfono con la publicación «Hallowendys: el terror nunca fue tan rico», con una bruja sobre fondo rojo",
+          weight: 198,
+        },
+        {
+          src: halloPostParfait,
+          alt: "Publicación de Hallowendys: el parfait de Halloween a solo $3.900",
+          weight: 189,
+        },
+      ]}
+    />
+    {
+      /* Wendy's Café. The band's own field carries the pattern, because the
+        pattern's artwork is translucent stripes with no ground of its own. */
+    }
+    <PatternBand
+      ariaLabel="Wendy's Café"
+      field="#f5eeee"
+      pattern={cafePatron}
+      art={{
+        src: cafeGranos,
+        alt: "Granos de café tostado suspendidos en el aire",
+      }}
+      artScale={0.9}
+      artStacked={{
+        top: {
+          src: cafeGranosM1,
+          alt: "Granos de café tostado suspendidos en el aire",
+        },
+        bottom: { src: cafeGranosM2, alt: "" },
+      }}
+      lockup={{ src: cafeLockup, alt: "Wendy's Café" }}
+      wordmark={{ src: cafeWendia, alt: "Wendia" }}
+    />
+    {
+      /* Wendy's Café in the shop and on the feed. It butts against the band
+        above it, which is what makes the two read as one stretch of page. */
+    }
+    <CafeStage
+      field="#fddcd9"
+      photo={{
+        src: cafeLocal,
+        alt: "El mostrador de un local de Wendy's con las pantallas de Wendy's Café",
+      }}
+      hand={{
+        src: cafeMano,
+        alt: "Una mano sosteniendo un teléfono con la promoción del día de la primavera",
+      }}
+      phones={{
+        src: cafeTelefonos,
+        alt: "Tres teléfonos con publicaciones de frappés y smoothies de Wendy's Café",
+      }}
+      posts={[
+        {
+          src: cafePost1,
+          alt: "Publicación de Wendia: café con leche con dos medialunas",
+        },
+        {
+          src: cafePost2,
+          alt: "Publicación de Wendia: un café con leche con arte en la espuma",
+        },
+        {
+          src: cafePost3,
+          alt: "Publicación de Wendia: café con leche más dos medialunas rellenas desde $3.999",
+        },
+        {
+          src: cafePost4,
+          alt: "Publicación de Wendia: un café con leche entre granos de café",
+        },
+        {
+          src: cafePost5,
+          alt: "Publicación de Wendia: café con leche con tostado porteño",
+        },
+      ]}
+    />
+    {
+      /* Festejamos — los tres días del mes, en una sola imagen. El orden de
+        capas es el del artboard: las palabras al fondo, el dulce de leche,
+        el título, y recién después el chocolate y el café. */
+    }
+    <IngredientsBand
+      ariaLabel="Festejamos"
+      field="#310e03"
+      labelField="#009bd3"
+      title={{ src: festejamosTitulo, alt: "Festejamos" }}
+      strands={[
+        {
+          key: "chocolate",
+          word: palabraChocolate,
+          piece: {
+            src: festejamosChocolate,
+            alt: "Trozos de chocolate suspendidos sobre una salpicadura",
+          },
+          label: "DÍA DEL CHOCOLATE",
+        },
+        {
+          key: "ddl",
+          word: palabraDdl,
+          piece: {
+            src: festejamosDdl,
+            alt: "Un chorro de dulce de leche cayendo",
+          },
+          label: "DÍA DEL DULCE DE LECHE",
+        },
+        {
+          key: "cafe",
+          word: palabraCafe,
+          piece: {
+            src: festejamosCafe,
+            alt: "Granos de café suspendidos sobre una salpicadura",
+          },
+          label: "DÍA DEL CAFÉ",
+        },
+      ]}
+    />
+    {
+      /* La bajada de la campaña: dieciocho piezas sobre un solo degradado que
+        va del chocolate al café y al dulce de leche, con la palabra de cada día
+        repetida detrás de su tercio. */
+    }
+    <FeedWall
+      ariaLabel="Publicaciones de Festejamos"
+      lift={2.6}
+      field="linear-gradient(180deg, #300e02 0%, #7c3e15 25%, #d2965c 55%, #af5310 100%)"
+      zones={[
+        { word: palabraChocolate },
+        { word: palabraCafe },
+        { word: palabraDdl },
+      ]}
+      pieces={[
+        { src: fw01, alt: "Historia de apertura: desde el 11 al 13.09, Festejamos el Día del Chocolate" },
+        { src: fw02, alt: "Publicación: frappé de chocolate con 30% off" },
+        { src: fw03, alt: "Historia: frappé, latte frío y latte caliente de chocolate" },
+        { src: fw04, alt: "Publicación: latte frío y latte caliente de chocolate con 30% off" },
+        { src: fw05, alt: "Historia: latte frío de chocolate a $2.800 con 30% off" },
+        { src: fw06, alt: "Publicación: latte caliente de chocolate a $3.150 con 30% off" },
+        { src: fw07, alt: "Historia: promo latte clásico con 40% off y promo latte grande con budín de limón" },
+        { src: fw08, alt: "Publicación: latte frío clásico a $2.400 con 40% off" },
+        { src: fw09, alt: "Historia: latte caliente clásico a $2.000 con 40% off" },
+        { src: fw10, alt: "Publicación: lattes fríos clásicos y saborizados" },
+        { src: fw11, alt: "Historia de apertura: desde el 01 al 04.10, Festejamos el Día del Café" },
+        { src: fw12, alt: "Publicación: latte grande con budín de limón a $5.300" },
+        { src: fw13, alt: "Historia: frappé, latte frío y latte caliente de dulce de leche" },
+        { src: fw14, alt: "Publicación de apertura: desde el 9.10 al 16.10, Festejamos el Día del Dulce de Leche" },
+        { src: fw15, alt: "Historia: latte caliente de dulce de leche a $3.150 con 30% off" },
+        { src: fw16, alt: "Publicación: latte frío de dulce de leche a $2.800 con 30% off" },
+        { src: fw17, alt: "Historia: frappé de dulce de leche a $4.000 con 30% off" },
+        { src: fw18, alt: "Publicación: conos de dulce de leche desde $999" },
+      ]}
+    />
+    {
+      /* Queso Manía: la campaña fuera de la pantalla. Arriba el material
+        dibujado sobre su propio nombre repetido; abajo, las fotos de dónde
+        terminó puesto, pegadas entre sí. */
+    }
+    <PopStage
+      ariaLabel="Queso Manía: material POP e intervenciones del espacio"
+      field="#009cd4"
+      word={qmPalabra}
+      cartel={{
+        src: qmCartel,
+        alt: "Wendy en un globo de diálogo: a ver si con estas promos se le va el capricho al niño",
+      }}
+      label="Material POP e intervenciones del espacio"
+      body="Desarrollamos materiales POP e intervenciones visuales para distintos espacios, locales y puntos de contacto con la marca. Cada propuesta fue diseñada para captar la atención y generar experiencias que acompañen y potencien la comunicación de Wendy's en el entorno físico."
+      local={{
+        src: qmLocal,
+        alt: "La fachada de un local de Wendy's con las vidrieras vestidas de Queso Manía",
+      }}
+      row={[
+        {
+          src: qmMano,
+          alt: "Una mano sosteniendo el folleto de Queso Manía dentro de un local",
+          weight: 153,
+        },
+        {
+          src: qmColganteQueso,
+          alt: "Un colgante de Queso Manía con el combo a $5.900 en un centro comercial",
+          weight: 126,
+        },
+        {
+          src: qmPostres,
+          alt: "El frente de Wendy's Postres con un cartel de piso de Queso Manía",
+          weight: 252,
+        },
+      ]}
+      banner={{
+        src: qmBanner,
+        alt: "Un banner horizontal de Queso Manía sobre el salón de un patio de comidas",
+      }}
+    />
+    {
+      /* Las piezas llevadas a la web de la marca: una sola imagen de las dos
+        pantallas sobre el campo celeste, con el estallido detrás. */
+    }
+    <WebAdapt
+      ariaLabel="Adaptación de piezas web"
+      field="#029cd4"
+      rays={rayosImg}
+      mockup={{
+        src: webMockup,
+        alt: "Los cupones de Wendy's en la web oficial, vistos en un monitor y en un teléfono",
+      }}
+      label="Adaptación de piezas web"
+      body="Realizamos la adaptación de piezas gráficas a distintos formatos digitales, asegurando la correcta aplicación en diferentes contextos y plataformas. Uno de los trabajos realizados fue el rediseño y adaptación de cupones para la web oficial de Wendy's, manteniendo la identidad visual de la marca y facilitando su comunicación y uso."
+    />
+    <ProjectEnd current="wendys" />
+    <BackToTop />
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  /* Scoped project theme — remaps ONLY the semantic colour aliases within this
+     page's subtree, so Wendy's branding can never leak into global scope.
+     Everything structural (type scale, spacing rhythm, breakpoints) stays on
+     the global tokens.
+
+     Rojo is the brand's loudest voice and what the wordmark is drawn in, so it
+     is `primary`; Celeste rules the construction grid and draws the concept
+     rings, which is the job `accent` does on every other project page. */
+  .project-wendys {
+    --color-primary: #cd2028; /* Rojo Wendy's */
+    --color-accent: #029cd4; /* Celeste Wendy's */
+
+    --color-surface: #ffffff;
+    --color-text: #000000; /* the artboard sets labels and headings in black */
+    --color-muted: #6b6b6b; /* secondary copy */
+    --color-border: #fcdbd8; /* the palette's own pale pink, as a hairline */
+
+    background-color: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  /* No rule between the brief's meta list and its Proyecto / Desafío /
+     Propuesta triad — the artboard doesn't have one, the same call Merienda,
+     Vibra, Nacida y Criada and Combustion make. ProjectBrief draws a full-bleed
+     hairline there for the older projects.
+
+     The margin is kept: it is the gap between the two beats, and only the LINE
+     is being removed. `:global()` is required because the <hr> is ProjectBrief's
+     own markup, which Astro's scoping can't reach from here — the parent still
+     carries this page's scope hash, so nothing leaks to another project. */
+  .project-wendys :global(hr) {
+    border-top-width: 0;
+  }
+</style>

@@ -1,0 +1,107 @@
+---
+/**
+ * LockupHero — the simplest of the hero shapes: a flat brand field, the
+ * wordmark, and ONE piece of artwork, side by side.
+ *
+ * Both pieces are sized as a share of the VIEWPORT'S WIDTH and centred as a
+ * pair, so the lockup and the artwork keep the artboard's relative scale at
+ * every window: nothing is measured against the other, and nothing has to be
+ * re-tuned when the window gets shorter. The row becomes a column below
+ * `desktop`. A tablet's width is not the landscape artboard's: side by side
+ * there, the wordmark drops to a quarter of the frame and the mockup's screen
+ * stops being readable, so the column holds all the way up to the width the
+ * pair was drawn for.
+ *
+ * Why not a flattened export: the wordmark is type, and type baked into a JPEG
+ * at a phone's width is type at a third of its drawn size. Composed, it is an
+ * SVG set at the share of the frame the artboard gives it.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  /** The flat brand field the pair stands on. */
+  field: string;
+  /** The wordmark. SVG, so it is set at the frame's own scale. */
+  logo: ImageMetadata;
+  /** The artwork beside it — a mockup, a product shot. */
+  art: ImageMetadata;
+  /** Describes the artwork for readers who can't see it. */
+  artAlt: string;
+  /** Project name — the page's <h1>, carried visually by the wordmark. */
+  title: string;
+}
+
+const { field, logo, art, artAlt, title } = Astro.props;
+---
+
+{
+  /* ── The artboard, as shares of the frame ──────────────────────────────────
+                       stacked           side by side
+     wordmark width    47.7% of width    26.82% of width
+     artwork width     72.9% of width    41.03% of width
+     gap               4.9% of height    4.87% of width
+     The pair is centred on both axes in each cut, so the only numbers that
+     matter are the three above. */
+}
+<section class="lh" style={`--field:${field}`}>
+  <h1 class="sr-only">{title}</h1>
+
+  <img class="lh-logo" src={logo.src} alt="" aria-hidden="true" />
+
+  <Image
+    class="lh-art"
+    src={art}
+    alt={artAlt}
+    loading="eager"
+    fetchpriority="high"
+    sizes="(min-width: 64rem) 42vw, 74vw"
+  />
+</section>
+
+<style>
+  .lh {
+    display: flex;
+    flex-direction: column;
+    min-height: 100svh;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: 4.9svh;
+    background-color: var(--field);
+    overflow: hidden;
+  }
+
+  /* Stacked, the pair's HEIGHT is what runs out first: the wordmark is taller
+     than it is wide and the mockup nearly square, so at the artboard's widths
+     the column is 1.26 frames tall. Each piece is therefore capped against the
+     viewport's height as well — the `svh` figure is the artboard share times
+     the largest width the column fits in, so the two shrink together and keep
+     their relative scale. */
+  .lh-logo {
+    display: block;
+    height: auto;
+    width: min(47.7%, 29.3svh);
+  }
+
+  .lh-art {
+    display: block;
+    height: auto;
+    width: min(72.9%, 44.9svh);
+  }
+
+  @media (min-width: 64rem) {
+    .lh {
+      flex-direction: row;
+      gap: 4.87vw;
+    }
+
+    .lh-logo {
+      width: 26.82vw;
+    }
+
+    .lh-art {
+      width: 41.03vw;
+    }
+  }
+</style>

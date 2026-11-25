@@ -81,7 +81,7 @@ const fill = "block w-full h-auto desktop:h-full desktop:object-cover";
   .collage {
     /* One token drives BOTH the gaps between images and the side inset, so the
        spacing reads uniform all around. */
-    --collage-gap: clamp(0.5rem, 1.1vw, 1rem);
+    --collage-gap: var(--gap-piece);
     display: grid;
     gap: var(--collage-gap);
     padding-inline: var(--collage-gap);

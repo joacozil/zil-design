@@ -1,0 +1,201 @@
+---
+/**
+ * BottleTrio — the three-variety hero: one column per beer, each with its own
+ * illustrated landscape, its own tint and its own bottle, on the brand's cream.
+ *
+ * The columns are exact THIRDS and they touch. Nothing separates them but the
+ * change of palette, which is the argument the piece makes: three places, one
+ * label. A gutter between them would turn a triptych into three cards.
+ *
+ * Each column is composed, not flattened, and everything inside is a share of
+ * the COLUMN, so the trio scales as one picture:
+ *
+ *   · the landscape fills the column (`cover`), anchored by `position` so the
+ *     part of the illustration the artboard chose stays in frame;
+ *   · the arc is drawn over it in the variety's tint, from `tablet` up;
+ *   · the bottle is placed by width, with its seal pinned to the bottle's own
+ *     box — so the seal rides the shoulder at every size without a second
+ *     measurement.
+ *
+ * The two cuts differ on purpose. From `tablet` the columns start together and
+ * carry the arc, as the landscape artboard does. Below it the arc goes and the
+ * landscapes STEP down instead, one against the next, because three columns in
+ * a phone's width are narrow enough that the stagger is the only thing left
+ * that tells them apart as three places rather than one striped field.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Panel {
+  /** The illustrated landscape behind the bottle. */
+  illustration: ImageMetadata;
+  /** Where the landscape is anchored while it is cover-fitted to the column. */
+  position?: string;
+  /** The bottle, a cut-out. */
+  bottle: ImageMetadata;
+  /** Describes the bottle for readers who can't see it. */
+  bottleAlt: string;
+  /** The seal, in this variety's colourway. */
+  seal?: ImageMetadata;
+  /** The variety's tint — the arc, and nothing else. */
+  tint: string;
+  /** How far this column's landscape starts below the top, on MOBILE only. */
+  offset?: string;
+}
+
+interface Props {
+  panels: Panel[];
+  /** The ground the trio stands on — the brand's cream. */
+  field?: string;
+  /** Project name — the page's <h1>, carried visually by the labels. */
+  title: string;
+}
+
+const { panels, field = "#f1eee3", title } = Astro.props;
+
+/* ── The artboard, in shares of a column ────────────────────────────────────
+   bottle      width 36.7% of the column, 83.8% of the section's height
+   seal        51.1% of the bottle's width, its centre 9.94% across the bottle
+               and 31.3% down it — i.e. riding the left shoulder
+   arc         top 4.81% of the section, 89/1000 of the column wide as a stroke
+   The arc's curve is a parabola fitted to the artboard: it starts 44.5 units
+   down, runs through a control point at (500, 191.1) and leaves at 141.4, all
+   in units of a thousandth of the column's width. */
+const ARC_PATH = "M0,44.5 Q500,191.1 1000,141.4";
+---
+
+<section class="bt" style={`--field:${field}`} aria-label={title}>
+  <h1 class="sr-only">{title}</h1>
+
+  {
+    panels.map((p, i) => (
+      <div
+        class="bt-panel"
+        style={`--tint:${p.tint};--pos:${p.position ?? "20% center"};--offset:${p.offset ?? "0%"}`}
+      >
+        <Image
+          class="bt-ill"
+          src={p.illustration}
+          alt=""
+          loading="eager"
+          fetchpriority={i === 0 ? "high" : undefined}
+          sizes="34vw"
+        />
+
+        {/* The arc, in the variety's tint. Landscape cuts only. */}
+        <svg
+          class="bt-arc"
+          viewBox="0 0 1000 220"
+          fill="none"
+          preserveAspectRatio="xMidYMid meet"
+          aria-hidden="true"
+        >
+          <path d={ARC_PATH} stroke={p.tint} stroke-width="89" />
+        </svg>
+
+        <div class="bt-bottle">
+          <Image
+            class="bt-glass"
+            src={p.bottle}
+            alt={p.bottleAlt}
+            loading="eager"
+            fetchpriority={i === 0 ? "high" : undefined}
+            sizes="14vw"
+          />
+          {p.seal && (
+            <img class="bt-seal" src={p.seal.src} alt="" aria-hidden="true" />
+          )}
+        </div>
+      </div>
+    ))
+  }
+</section>
+
+<style>
+  .bt {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    min-height: 100svh;
+    width: 100%;
+    background-color: var(--field);
+    overflow: hidden;
+  }
+
+  .bt-panel {
+    position: relative;
+    container-type: inline-size;
+  }
+
+  /* MOBILE: the landscapes step down, one column against the next, and the
+     cream above each step is the field showing through. */
+  .bt-ill {
+    position: absolute;
+    top: var(--offset);
+    left: 0;
+    height: calc(100% - var(--offset));
+    width: 100%;
+    object-fit: cover;
+    object-position: var(--pos);
+  }
+
+  .bt-arc {
+    display: none;
+  }
+
+  /* The bottle is placed by WIDTH, but capped against the section's height so
+     a short, wide window cannot push it through the floor: whichever of the
+     two is smaller wins, and the cap is the artboard's height restated through
+     the bottle's own ratio. */
+  .bt-bottle {
+    position: absolute;
+    top: 49.9%;
+    left: 48.9%;
+    translate: -50% -50%;
+    width: min(78.3%, 14.65svh);
+    aspect-ratio: 620 / 2388;
+  }
+
+  .bt-glass {
+    display: block;
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+  }
+
+  /* Pinned to the BOTTLE, not to the column: the seal rides the shoulder. */
+  .bt-seal {
+    position: absolute;
+    top: 24.7%;
+    left: -15.6%;
+    width: 51.1%;
+    height: auto;
+  }
+
+  @media (min-width: 40rem) {
+    /* The landscape cut: the columns start together and the arc returns. */
+    .bt-ill {
+      top: 0;
+      height: 100%;
+    }
+
+    .bt-arc {
+      position: absolute;
+      top: 4.81%;
+      right: 0;
+      left: 0;
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    /* Right of the column's centre, where the artboard puts it: the three
+       bottles then read as evenly spaced across the whole triptych rather than
+       as three centred cards. */
+    .bt-bottle {
+      top: 48.5%;
+      left: 71%;
+      width: min(36.7%, 21.76svh);
+    }
+  }
+</style>

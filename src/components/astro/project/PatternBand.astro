@@ -1,0 +1,250 @@
+---
+/**
+ * PatternBand — a band that announces a sub-brand: its own field, its pattern
+ * laid over it, the illustration repeated across it, and the marks centred on
+ * top.
+ *
+ * Four LAYERS, and the order is the whole component: a flat colour, the
+ * pattern, the illustration, the type. The pattern's artwork is translucent —
+ * stripes at a tenth and a quarter opacity with no ground of its own — so it
+ * has to be laid OVER a field rather than used as one. That is why the field
+ * is a prop and not something the artwork carries.
+ *
+ * The illustration is laid ONCE, at the band's full width, and the band takes
+ * ITS ratio — so the scatter is shown as it was drawn, with the clear middle
+ * the marks sit in. It is not tiled and not repeated: the clearing is a
+ * property of the artwork, and no arrangement of a repeated piece reproduces
+ * it.
+ *
+ * Everything below is a share of the band's WIDTH, so the whole thing scales
+ * as one picture. Nothing here is a length.
+ */
+import type { ImageMetadata } from "astro";
+
+interface Mark {
+  src: ImageMetadata;
+  alt: string;
+}
+interface Props {
+  /** The flat colour the pattern is laid over. */
+  field: string;
+  /** The pattern's artwork. Translucent — see the note above. */
+  pattern: ImageMetadata;
+  /** The illustration. Laid once, and its ratio is the band's. */
+  art: { src: ImageMetadata; alt: string };
+  /**
+   * The illustration's width as a share of the band's, 0–1. Below 1 it pulls
+   * in from the band's edges, leaving the field showing all round — which is
+   * what gives the scatter air against the sections above and below. The marks
+   * take the same factor, so they keep their size against the beans.
+   */
+  artScale?: number;
+  /**
+   * The same scatter redrawn for a tall band: one group above the marks and one
+   * below. A phone's column cannot hold a wide scatter — held at that width the
+   * beans land too small to read as beans — so below `desktop` the band becomes
+   * a stack of three and these take over. Left out, the wide artwork is used at
+   * every width.
+   */
+  artStacked?: { top: Mark; bottom: Mark };
+  /** The sub-brand's lockup, centred at the top. Optional. */
+  lockup?: Mark;
+  /** The sub-brand's name, centred under it. */
+  wordmark: Mark;
+  /** Section landmark label. */
+  ariaLabel?: string;
+}
+const {
+  field,
+  pattern,
+  art,
+  artScale = 1,
+  artStacked,
+  lockup,
+  wordmark,
+  ariaLabel = "Sub-marca",
+} = Astro.props;
+
+// Half of what the illustration gives up, as a share of the band's WIDTH —
+// which is what the stylesheet measures everything in. The band's height is
+// its width over the artwork's ratio, so the inset above and below is that
+// same share divided by the ratio.
+const ratio = art.src.width / art.src.height;
+const inset = (((1 - artScale) / 2) * 100) / ratio;
+---
+
+<section
+  class="pb"
+  style={`--pb-field:${field};--pb-pattern:url("${pattern.src}");--pb-art:url("${art.src.src}");--pb-ratio:${art.src.width} / ${art.src.height};--pb-k:${artScale};--pb-inset:${inset.toFixed(2)}%`}
+  aria-label={ariaLabel}
+>
+  <div class="pb-stage">
+    <div class="pb-art" aria-hidden="true"></div>
+
+    {
+      artStacked && (
+        <img
+          class="pb-scatter pb-scatter--top"
+          src={artStacked.top.src.src}
+          alt={artStacked.top.alt}
+          loading="lazy"
+        />
+      )
+    }
+
+    <div class="pb-marks">
+      {
+        lockup && (
+          <img
+            class="pb-lockup"
+            src={lockup.src.src}
+            alt={lockup.alt}
+            loading="lazy"
+          />
+        )
+      }
+      <img
+        class="pb-wordmark"
+        src={wordmark.src.src}
+        alt={wordmark.alt}
+        loading="lazy"
+      />
+    </div>
+
+    {
+      artStacked && (
+        <img
+          class="pb-scatter pb-scatter--bottom"
+          src={artStacked.bottom.src.src}
+          alt=""
+          loading="lazy"
+        />
+      )
+    }
+  </div>
+</section>
+
+<style>
+  /* ── The artboard, in its own units ──────────────────────────────────────
+     band       the illustration's own ratio
+     lockup     18.5% of the band, 3.6% down
+     wordmark   41.7%, a further 1.6% under it
+     Shares of the band's width throughout, its height included. */
+  /* The band is the artwork PLUS a step of its own field above and below, so
+     the scatter is not left touching the sections it sits between. The padding
+     carries the pattern because the pattern is on the band, not on the stage —
+     which is the whole reason the two are separate elements. */
+  .pb {
+    position: relative;
+    padding-block: var(--spacing-section);
+    /* Above whatever came before. The sections this band follows set
+       themselves to `z-index: 1` so each can cover the one before it; without
+       a higher one here the band would be the first in the run that does not,
+       and the previous section's own layers would paint over its head. */
+    z-index: 2;
+    width: 100%;
+    background-color: var(--pb-field);
+    /* `cover`, not a tile: the pattern's stripes do not divide its own width a
+       whole number of times, so repeating it would show the join. Covering a
+       box whose ratio is fixed gives it one scale everywhere, which is what a
+       tile would have been for. */
+    background-image: var(--pb-pattern);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    overflow: clip;
+  }
+
+  /* The artwork's own box: it keeps the ratio the illustration was drawn at,
+     and `aspect-ratio` here rather than on the band is what lets the band take
+     padding at all — on one element the two fight, since `aspect-ratio` sizes
+     the border box and padding would only eat into it. */
+  /* Below `desktop` the band is a STACK: beans, marks, beans. The wide
+     scatter is a single picture whose clearing the marks sit in, and a picture
+     is the one thing that cannot be re-cut by CSS — so the stacked version is
+     its own artwork, and the band simply changes which one it lays. */
+  .pb-stage {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .pb-scatter {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* The marks close the gap a little at both ends, so the two groups read as
+     one scatter with a clearing rather than as two blocks with a caption. */
+  .pb-marks {
+    margin-block: -7%;
+  }
+
+  /* The illustration, once, filling the band. `100% 100%` rather than `cover`
+     because the band carries the artwork's own ratio: the two agree exactly,
+     so nothing is stretched and nothing is cropped. */
+  /* The wide scatter. Off while the stacked one is laid — see `.pb-stage`. */
+  .pb-art {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background-image: var(--pb-art);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: calc(var(--pb-k) * 100%) auto;
+  }
+
+  /* The marks take the illustration's own factor, so they keep their size
+     against the beans rather than against the band — and their head start is
+     the artwork's inset plus the artboard's own gap, scaled with it. */
+  .pb-marks {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .pb-lockup {
+    width: 32%;
+    height: auto;
+  }
+
+  .pb-wordmark {
+    margin-top: 2.5%;
+    width: 70%;
+    height: auto;
+  }
+
+  @media (min-width: 64rem) {
+    /* The artboard's own band: one wide scatter, laid once, with the marks in
+       the clearing it was drawn with. */
+    .pb-stage {
+      display: block;
+      aspect-ratio: var(--pb-ratio);
+    }
+
+    .pb-art {
+      display: block;
+    }
+
+    .pb-scatter {
+      display: none;
+    }
+
+    .pb-marks {
+      margin-block: 0;
+      padding-top: calc(var(--pb-inset) + var(--pb-k) * 3.6%);
+    }
+
+    .pb-lockup {
+      width: calc(var(--pb-k) * 18.5%);
+    }
+
+    .pb-wordmark {
+      margin-top: calc(var(--pb-k) * 1.6%);
+      width: calc(var(--pb-k) * 41.7%);
+    }
+  }
+</style>

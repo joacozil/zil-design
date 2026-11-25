@@ -116,7 +116,7 @@ const weights = row.map((p) => p.src.width / p.src.height);
      banner inset / gaps  25 (the hairline the row and the field share)
      Shares of the column unless they say otherwise. */
   .web-banners {
-    --wb-gap: clamp(0.5rem, 1.1vw, 1rem);
+    --wb-gap: var(--gap-piece);
     --wb-pad: 1.5rem;
     --wb-content: calc(min(100cqw, var(--container-8xl)) - 2 * var(--wb-pad));
 

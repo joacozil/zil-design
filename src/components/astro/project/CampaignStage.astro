@@ -1,0 +1,288 @@
+---
+/**
+ * CampaignStage — a campaign that owns the whole page width: its lockup on a
+ * flat field, a photograph that fades up out of that field and back down into
+ * it, and the pieces themselves standing in front of both.
+ *
+ * The FADE is the point, and it is why this is one component. The photograph
+ * never meets the field at an edge — it is masked so the field simply becomes
+ * the photograph and then becomes the field again, which is what lets a
+ * full-bleed shot sit inside a section without the band of it reading as a
+ * separate block. Masking the picture rather than stacking a gradient over it
+ * keeps that true whatever the field colour is, since there is no second colour
+ * to keep in step.
+ *
+ * The photograph runs FULL BLEED while the pieces stay in the content column —
+ * the one carries the place, the other is work to be read, and they are not
+ * measured against the same edge.
+ *
+ * The pieces are bottom-aligned: the phone is taller than the two cards and
+ * rises past them, the same floor-not-ceiling rule Combustion's feed row
+ * follows.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Piece {
+  src: ImageMetadata;
+  alt: string;
+  /** Share of the row's width. The artboard's own measurement. */
+  weight: number;
+}
+interface Props {
+  /** The brand lockup, centred at the top. */
+  logo: { src: ImageMetadata; alt: string };
+  /** The campaign's own wordmark, under it. */
+  wordmark: { src: ImageMetadata; alt: string };
+  /** The photograph that fades up out of the field. */
+  photo: { src: ImageMetadata; alt: string };
+  /** The pieces, left to right. The tall one may sit anywhere in the row. */
+  pieces: Piece[];
+  /** The flat field the whole thing stands on. */
+  field: string;
+  /** Section landmark label. */
+  ariaLabel?: string;
+}
+const {
+  logo,
+  wordmark,
+  photo,
+  pieces,
+  field,
+  ariaLabel = "Campaña",
+} = Astro.props;
+
+const total = pieces.reduce((n, p) => n + p.weight, 0);
+/* Which piece is the tall one — the phone among the cards. Read off the artwork
+   rather than named by the page: the row's whole point is that one piece rises
+   past the others, so the artwork already says which. */
+const tallest = Math.max(...pieces.map((p) => p.src.height / p.src.width));
+---
+
+<section class="cs" style={`--cs-field:${field}`} aria-label={ariaLabel}>
+  {
+    /* The photograph, masked at both ends. Its box starts under the lockup and
+      ends under the pieces; inside that box the mask fades it up over its first
+      tenth and back down over its last seventh, which is where the artboard
+      puts the two transitions. `aria-hidden` and an empty alt: it is the
+      campaign's setting, and the pieces in front of it are the content. */
+  }
+  <div class="cs-photo" aria-hidden="true">
+    <Image src={photo.src} alt="" loading="lazy" sizes="100vw" />
+  </div>
+
+  <div class="cs-head">
+    <img class="cs-logo" src={logo.src.src} alt={logo.alt} loading="lazy" />
+    <img
+      class="cs-wordmark"
+      src={wordmark.src.src}
+      alt={wordmark.alt}
+      loading="lazy"
+    />
+  </div>
+
+  <div class="cs-inner">
+    <div class="cs-pieces">
+      {
+        pieces.map((p) => (
+          <Image
+            class:list={[
+              "cs-piece",
+              p.src.height / p.src.width === tallest && "cs-piece--tall",
+            ]}
+            style={`--w:${p.weight}`}
+            src={p.src}
+            alt={p.alt}
+            loading="lazy"
+            sizes={`(min-width: 640px) ${Math.round((p.weight / total) * 90)}vw, ${Math.round((p.weight / total) * 100)}vw`}
+          />
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ── The artboard, in its own units ──────────────────────────────────────
+     page       698 wide
+     logo       x 279 → 418 (140), y 33;  wordmark 283 wide, y 93
+     photo      y 193 → 732, full bleed; opaque from 250 to 660
+     pieces     y 487 → 894, widths 188 / 198 / 189 with 26 between
+     Vertical measurements are shares of the page's WIDTH, written in `cqw`, so
+     the whole band scales as one picture. A percentage would resolve against
+     the section's height, which its own content decides. */
+  .cs {
+    position: relative;
+    container-type: inline-size;
+    padding-top: 10cqw;
+    padding-bottom: var(--spacing-section);
+    background-color: var(--cs-field);
+    /* Clipped on BOTH axes. The photograph's box is a share of the width while
+       the section's height is mostly its pieces, and those stop growing at the
+       container's cap — so past about 2700px the photo outgrows the section and
+       spills onto whatever follows. At 2560 there are only 87px of field left
+       under it. Clipping keeps the band its own. */
+    overflow: clip;
+  }
+
+  .cs-photo {
+    position: absolute;
+    right: 0;
+    left: 0;
+    /* Below `desktop` the band is dealt a taller photograph and bigger marks:
+       the artboard's shares were drawn for a page three times this wide, and
+       held at a phone's they leave a 300px strip under a 78px lockup. Only the
+       SIZES change — the order and the overlaps are the artboard's. */
+    top: 52cqw;
+    height: 100cqw;
+    /* Up over the first tenth, down over the last seventh — the artboard's own
+       transitions, as shares of this box. Both properties: Safari still wants
+       the prefix for mask-image. */
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      #000 10.6%,
+      #000 86.6%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      #000 10.6%,
+      #000 86.6%,
+      transparent 100%
+    );
+  }
+
+  .cs-photo :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* The lockup. Both marks are centred on the page, not on the content column,
+     because the field they sit on is the page. */
+  .cs-head {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4.5cqw;
+  }
+
+  /* The wordmark takes the page's own measure, and the lockup above it keeps
+     the artboard's proportion against it — 0.4948 of the wordmark — so the two
+     grow together rather than needing a second number each time. */
+  .cs-logo {
+    width: calc((100cqw - 2 * var(--gutter)) * 0.4948);
+    height: auto;
+  }
+
+  .cs-wordmark {
+    width: calc(100cqw - 2 * var(--gutter));
+    height: auto;
+  }
+
+  /* The content column — the pieces are work to be read, so they take the
+     page's own measure rather than the photograph's. */
+  /* Below `desktop` the pieces become a TRACK, so the column stops containing
+     them: it runs full width and the track carries the page's gutter as its own
+     padding, which is the site's full-bleed rule. */
+  .cs-inner {
+    position: relative;
+    margin-inline: auto;
+    width: 100%;
+  }
+
+  /* The gap from the wordmark's foot to the top of the tall piece. The row is
+     bottom-aligned, so this is the only vertical measurement it needs. */
+  /* A row that SCROLLS below `desktop`. Held in the column the three pieces
+     land near a third of a phone's width each, which is a thumbnail of a
+     mockup rather than a mockup — so they are set large enough to read, the
+     row runs past the screen, and the reader slides it. The leading edge keeps
+     the page's gutter so the first piece starts where the text does, and the
+     last one is cut by the screen, which is what says there is more. */
+  .cs-pieces {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--gap-piece);
+    margin-top: 78cqw;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: var(--gutter);
+    padding-inline: var(--gutter);
+    scrollbar-width: none;
+  }
+
+  .cs-pieces::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* The TALL piece leads the track. On the canvas it is the middle of three
+     and rises past the two beside it, which is the composition; in a row the
+     reader slides, the first piece is the one that has to say what this is, and
+     that is the phone. `order` re-reads the same markup rather than asking the
+     page for a second sequence — and it goes inert the moment the canvas takes
+     over. */
+  .cs-piece--tall {
+    order: -1;
+  }
+
+  .cs-piece {
+    flex: 0 0 55%;
+    scroll-snap-align: start;
+    /* A flex item's automatic minimum is its content size, and an image's
+       content is its intrinsic width, so without this floor the row keeps the
+       pieces at full size and overflows instead of splitting by weight. */
+    min-width: 0;
+    height: auto;
+  }
+
+  @media (min-width: 64rem) {
+    /* The artboard's own shares, at the width it was drawn for. */
+    .cs {
+      padding-top: 4.73cqw; /* 33 / 698 */
+    }
+
+    .cs-inner {
+      max-width: var(--container-8xl);
+      padding-inline: 3rem;
+    }
+
+    .cs-pieces {
+      gap: 4.1%;
+      overflow-x: visible;
+      padding-inline: 0;
+    }
+
+    .cs-piece {
+      flex: var(--w) 1 0;
+    }
+
+    .cs-piece--tall {
+      order: 0;
+    }
+
+    .cs-photo {
+      top: 27.65cqw; /* 193 / 698 */
+      height: 77.22cqw; /* (732 − 193) / 698 */
+    }
+
+    .cs-head {
+      gap: 3.3cqw; /* 23 / 698 */
+    }
+
+    .cs-logo {
+      width: 20.06cqw; /* 140 / 698 */
+    }
+
+    .cs-wordmark {
+      width: 40.54cqw; /* 283 / 698 */
+    }
+
+    .cs-pieces {
+      margin-top: 50.86cqw; /* 355 / 698 */
+    }
+  }
+</style>

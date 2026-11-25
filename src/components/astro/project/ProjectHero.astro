@@ -28,13 +28,66 @@ interface Props {
    * When omitted, the landscape `image` is used at every size.
    */
   mobileImage?: ImageMetadata;
+  /**
+   * Where the portrait artwork is anchored while it is being `object-cover`ed.
+   *
+   * Centred by default. Pass `"bottom"` when the subjects sit LOW in the
+   * composition: a tall portrait in a tablet's shorter box loses height at both
+   * ends, and centred that crop lands on the mockups at the foot. Anchored to
+   * the bottom it is spent on the empty field above them instead.
+   */
+  mobileAnchor?: "center" | "bottom";
+  /**
+   * How the portrait artwork meets the pinned viewport.
+   *
+   * `cover` by default — the field fills the frame and whatever does not fit is
+   * cropped. Pass `contain` when the artwork is a COMPOSITION rather than a
+   * field: a cropped composition loses the very thing it was made of, and at a
+   * tablet's proportions there is no anchor that keeps a tall one whole. The
+   * art is then shown entire and `field` paints the strip it does not cover, so
+   * the join is invisible as long as that colour is the artwork's own ground.
+   */
+  mobileFit?: "cover" | "contain";
+  /** The artwork's own ground, behind a `contain`ed portrait. */
+  field?: string;
+  /**
+   * How much a `contain`ed portrait is scaled up at TABLET, where the box is
+   * wider than the art and leaves a band of ground either side.
+   *
+   * Contain is the no-crop extreme and cover the all-crop one; this is the dial
+   * between them. Above 1 the art grows past the frame's height and loses that
+   * much, so it buys width with the margin the composition has at its ends —
+   * which is why it is a number per project and not a default.
+   */
+  tabletZoom?: number;
+  /**
+   * How far the zoomed portrait is lifted at TABLET, in `svh`.
+   *
+   * The zoom alone grows the art about its own centre, and this artwork is not
+   * centred inside its frame: it carries a tall band of empty ground above the
+   * composition. Lifting spends the overflow on that band instead of on the
+   * mockups' feet, and leaves the lockup its own air. Applied BEFORE the scale,
+   * so the shift on screen is this value times `tabletZoom`.
+   */
+  tabletLift?: number;
   /** The project's brand lockup, overlaid top-left. SVG for crisp scaling. */
   logo: ImageMetadata;
   /** Project name — becomes the <h1> text via the lockup's alt. */
   title: string;
 }
 
-const { image, imageAlt, mobileImage, logo, title } = Astro.props;
+const {
+  image,
+  imageAlt,
+  mobileImage,
+  mobileAnchor = "center",
+  mobileFit = "cover",
+  field,
+  tabletZoom,
+  tabletLift,
+  logo,
+  title,
+} = Astro.props;
 // The stacked (mobile/tablet) image is the portrait one when supplied, else the
 // landscape fallback.
 const stackImage = mobileImage ?? image;
@@ -42,6 +95,7 @@ const stackImage = mobileImage ?? image;
 
 <section
   class="relative min-h-svh w-full overflow-hidden bg-surface-muted"
+  style={field ? `background-color:${field}` : undefined}
 >
   {
     /* The brand lockup IS the page heading, an absolute overlay welded to the
@@ -73,7 +127,15 @@ const stackImage = mobileImage ?? image;
     loading="eager"
     fetchpriority="high"
     sizes="100vw"
-    class="absolute inset-0 h-full w-full object-cover desktop:hidden"
+    class:list={[
+      "absolute inset-0 h-full w-full desktop:hidden",
+      mobileFit === "contain" ? "object-contain" : "object-cover",
+      mobileFit !== "contain" && mobileAnchor === "bottom" && "object-bottom",
+      tabletZoom && mobileFit === "contain" && "hero-zoom",
+    ]}
+    style={tabletZoom
+      ? `--hero-zoom:${tabletZoom}${tabletLift ? `;--hero-lift:${tabletLift}svh` : ""}`
+      : undefined}
   />
 
   {
@@ -89,3 +151,14 @@ const stackImage = mobileImage ?? image;
     class="absolute inset-0 hidden h-full w-full object-cover desktop:block"
   />
 </section>
+
+<style>
+  /* Only between `tablet` and `desktop`: below it the art already fills the
+     column, and above it the landscape cut has taken over. */
+  @media (min-width: 40rem) and (max-width: 63.999rem) {
+    .hero-zoom {
+      translate: 0 var(--hero-lift, 0px);
+      scale: var(--hero-zoom);
+    }
+  }
+</style>

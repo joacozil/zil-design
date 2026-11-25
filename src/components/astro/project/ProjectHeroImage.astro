@@ -44,9 +44,11 @@ const stackImage = mobileImage ?? image;
   <h1 class="sr-only">{title}</h1>
 
   {
-    /* Mobile: the portrait cut fills the pinned viewport, anchored to its BOTTOM
-      so any crop is spent on empty ground above the subjects rather than cutting
-      into them.
+    /* Mobile ONLY: the portrait cut fills the pinned viewport, anchored to its
+      BOTTOM so any crop is spent on empty ground above the subjects rather than
+      cutting into them. A tablet is wide enough for the landscape cut, so the
+      swap is at `tablet` — the portrait is for a column, not for anything
+      narrower than a desktop.
 
       Only this one carries the descriptive alt — both are in the DOM at all
       times, so giving the pair the same text would have assistive tech announce
@@ -58,16 +60,16 @@ const stackImage = mobileImage ?? image;
     loading="eager"
     fetchpriority="high"
     sizes="100vw"
-    class="absolute inset-0 h-full w-full object-cover object-bottom desktop:hidden"
+    class="absolute inset-0 h-full w-full object-cover object-bottom tablet:hidden"
   />
 
-  {/* Desktop: the landscape cut takes over. Decorative — see above. */}
+  {/* From `tablet` up: the landscape cut takes over. Decorative — see above. */}
   <Image
     src={image}
     alt=""
     loading="eager"
     fetchpriority="high"
     sizes="100vw"
-    class="absolute inset-0 hidden h-full w-full object-cover desktop:block"
+    class="absolute inset-0 hidden h-full w-full object-cover tablet:block"
   />
 </section>

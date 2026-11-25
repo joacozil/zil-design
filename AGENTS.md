@@ -86,6 +86,24 @@ mobile base in `@theme` plus the two media-query blocks at the bottom of
 aligned with normal content while running to the true screen edge — it must be
 applied on a full-width element.
 
+### Text blocks always sit in the container
+
+A composition may be full-bleed; **the copy inside it is not.** Any block meant
+to be READ — a label chip, a caption, a paragraph — takes the container's
+measure (`max-w-8xl` + the `px-6 / px-8 / px-12` step), even when it is placed
+on a canvas that runs to the screen edges.
+
+Placing it at the artboard's own percentage is the trap: a share of the page
+tracks the viewport, the container stops at 88rem, and the two agree only at the
+width you happened to test. At 1280 a caption at 13% looks correctly indented;
+at 1920 it has drifted outside the column every other paragraph on the site is
+read against.
+
+So take the VERTICAL position from the canvas, and the horizontal from the
+container — `left: 0; right: 0; margin-inline: auto; padding-inline: 3rem` on
+the absolutely placed block does both. Artwork that happens to contain letters
+(a wordmark, a sticker, a lockup) is not a text block and stays on the canvas.
+
 ### Colour
 
 Use the semantic aliases (`primary`, `primary-dark`, `primary-light`, `accent`,

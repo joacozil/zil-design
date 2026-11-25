@@ -20,7 +20,7 @@
  * `aspect` then fixes the whole thing's proportion, and every track resolves
  * against it — change the ratio and the composition moves together.
  *
- * Below `tablet` there are two calls, and which one is right depends on the
+ * Below `desktop` there are two calls, and which one is right depends on the
  * bento. By default the grid is abandoned and the pieces stack full width in DOM
  * order: a nine-cell bento whose narrowest track is an eighth of the width
  * cannot survive a phone — there is no composition left at 40px a cell, only a
@@ -53,10 +53,10 @@ interface Props {
   columns: string;
   /** Row tracks, e.g. "91fr 91fr 92fr". */
   rows: string;
-  /** The bento's proportion, e.g. "408 / 286". Only read from `tablet` up. */
+  /** The bento's proportion, e.g. "408 / 286". Only read from `desktop` up. */
   aspect: string;
   /**
-   * The composition BELOW `tablet`, as the same four values. Pass all four or
+   * The composition BELOW `desktop`, as the same four values. Pass all four or
    * none: a mobile `areas` naming tracks the mobile lists do not declare is the
    * one way this silently draws the wrong grid.
    *
@@ -140,7 +140,7 @@ const gapRatioMobile = hasMobileGrid ? ratioOf(aspectMobile!) : gapRatio;
               src={item.src}
               alt={item.alt}
               widths={[Math.round(item.src.width / 2), item.src.width]}
-              sizes={hasMobileGrid ? "50vw" : "(min-width: 640px) 50vw, 100vw"}
+              sizes={hasMobileGrid ? "50vw" : "(min-width: 64rem) 50vw, 100vw"}
               loading="lazy"
             />
           </figure>
@@ -151,7 +151,7 @@ const gapRatioMobile = hasMobileGrid ? ratioOf(aspectMobile!) : gapRatio;
 </section>
 
 <style>
-  /* Stacked, below tablet: the grid is off and every piece is one full-width
+  /* Stacked, below desktop: the grid is off and every piece is one full-width
      block at its own ratio, in DOM order. */
   .pb-grid {
     display: flex;
@@ -178,10 +178,13 @@ const gapRatioMobile = hasMobileGrid ? ratioOf(aspectMobile!) : gapRatio;
 
   /* The phone-sized composition, when a page passed one. It is the same rules
      as the grid below, pointed at the mobile custom properties — and it runs
-     EDGE TO EDGE: the bento pulls out of the container by the page gutter,
-     because at 375px a 24px margin either side costs an eighth of the picture
-     and the grid's narrow tracks are the first thing to pay it. From `tablet`
-     up the margin goes back and the gallery sits on the content edge like every
+     nearly EDGE TO EDGE: the bento pulls out of the container by the page
+     gutter less its own gap, because at 375px a 24px margin either side costs
+     an eighth of the picture and the grid's narrow tracks are the first thing
+     to pay it. What is left round the outside is the SAME distance that
+     separates two cells, so the bento reads as one block with even air all
+     round rather than as a picture jammed against the screen. From `desktop` up
+     the margin goes back and the gallery sits on the content edge like every
      other section. */
   .pb-grid--m {
     display: grid;
@@ -191,7 +194,7 @@ const gapRatioMobile = hasMobileGrid ? ratioOf(aspectMobile!) : gapRatio;
     aspect-ratio: var(--pb-aspect-m);
     column-gap: var(--pb-gap);
     row-gap: calc(var(--pb-gap) * var(--pb-ar-m));
-    margin-inline: calc(-1 * var(--gutter));
+    margin-inline: calc(var(--pb-gap) - var(--gutter));
   }
 
   .pb-grid--m .pb-cell {
@@ -200,7 +203,11 @@ const gapRatioMobile = hasMobileGrid ? ratioOf(aspectMobile!) : gapRatio;
     min-height: 0;
   }
 
-  @media (width >= 640px) {
+  /* The artboard's bento waits for `desktop`, not `tablet`. Its narrowest track
+     is an eighth of the width: at 768 that cell is 90px, which is a thumbnail,
+     not a photograph. The two-column composition is the one a tablet has room
+     for, so it holds all the way up to the width the bento was drawn for. */
+  @media (width >= 64rem) {
     .pb-grid {
       display: grid;
       /* `grid-template-areas` cannot be read from a custom property as a bare

@@ -4,7 +4,7 @@ import Header from "../../components/astro/Header.astro";
 import Footer from "../../components/astro/Footer.astro";
 import ProjectEnd from "../../components/astro/project/ProjectEnd.astro";
 import BackToTop from "../../components/astro/project/BackToTop.astro";
-import ProjectHeroImage from "../../components/astro/project/ProjectHeroImage.astro";
+import LockupHero from "../../components/astro/project/LockupHero.astro";
 import ProjectBrief from "../../components/astro/project/ProjectBrief.astro";
 import ConceptCircles from "../../components/astro/project/ConceptCircles.astro";
 import LogoGrid from "../../components/astro/project/LogoGrid.astro";
@@ -61,8 +61,8 @@ import sticker10ExtraLlamas from "../../assets/combustion/sticker-10-extra-llama
 import stickerEnviosGratis from "../../assets/combustion/sticker-envios-gratis.svg";
 import stickerCuotas from "../../assets/combustion/sticker-cuotas.svg";
 import sticker3x2SelloRecto from "../../assets/combustion/sticker-3x2-sello-recto.svg";
-import heroImage from "../../assets/combustion/combustion-hero.webp";
-import heroImageMobile from "../../assets/combustion/combustion-hero-mobile.webp";
+import heroLogo from "../../assets/combustion/logo.svg";
+import heroMockup from "../../assets/combustion/mockup-hero.webp";
 import gridImage from "../../assets/combustion/combustion-grid.svg";
 import fontImage from "../../assets/combustion/combustion-font.svg";
 // IBM Plex Sans, self-hosted from Google Fonts' `latin` subset (which covers
@@ -147,15 +147,14 @@ const palette = [
   <Header />
   <main class="project-combustion">
     {
-      /* The key art already carries the wordmark at full height, so the hero is
-        JUST the artwork — ProjectHeroImage, not the variants that composite a
-        separate `logo`. Both cuts ship: the landscape frame is 2:1 and would
-        read as a thin strip across the middle of a phone. */
+      /* Two elements and a field, composed rather than flattened: the wordmark
+        stays type at every width instead of shrinking with a baked picture. */
     }
-    <ProjectHeroImage
-      image={heroImage}
-      mobileImage={heroImageMobile}
-      imageAlt="El logotipo de Combustion sobre fondo violeta, junto a la tienda online y las historias de la campaña Cyber Combustion en un monitor y un teléfono"
+    <LockupHero
+      field="#420A58"
+      logo={heroLogo}
+      art={heroMockup}
+      artAlt="La tienda online y las historias de la campaña Cyber Combustion en un monitor y un teléfono"
       title="Combustion"
     />
     <ProjectBrief meta={meta} blocks={brief} />
@@ -431,9 +430,9 @@ const palette = [
       }}
     />
     <ProjectEnd current="combustion" />
+    <BackToTop />
   </main>
   <Footer />
-  <BackToTop />
 </Layout>
 
 <style>

@@ -1,0 +1,380 @@
+---
+/**
+ * IngredientsBand — the campaign's opening picture: three ingredients thrown
+ * across one field, each with its own name repeated behind it, the campaign
+ * title across the middle, and a date label pinned over each one.
+ *
+ * The STACK is the component. Four layers, and the order is an argument the
+ * artboard makes, not a detail:
+ *
+ *   0  the names, repeated down the field — a texture, not type to read
+ *   1  the dulce de leche, falling from the top edge
+ *   2  FESTEJAMOS, across it
+ *   3  the chocolate and the coffee, in FRONT of the title
+ *   4  the three labels, over everything
+ *
+ * So the title is threaded THROUGH the picture: the caramel runs behind it and
+ * the solids in front, which is what stops the band reading as type laid on a
+ * photograph.
+ *
+ * TWO compositions, both of them pictures. The wide one is the artboard's; the
+ * narrow one is the same five things recomposed for a column — the caramel
+ * hangs from the top, the title crosses under it, the three labels stack down
+ * the middle and the solids fill the foot. Everything in both is a share of the
+ * band's WIDTH, so each scales as one picture; nothing below is a length.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+type Key = "chocolate" | "ddl" | "cafe";
+
+interface Strand {
+  /** Which set of placements below this one takes. */
+  key: Key;
+  /** The ingredient's name, set once. Repeated down the field by this file. */
+  word: ImageMetadata;
+  /** The ingredient itself. */
+  piece: { src: ImageMetadata; alt: string };
+  /** The date label pinned over it. */
+  label: string;
+}
+interface Props {
+  /** The flat field the whole band stands on. */
+  field: string;
+  /** The label chips' field and ink. */
+  labelField: string;
+  labelInk?: string;
+  /** The campaign title, laid between the caramel and the solids. */
+  title: { src: ImageMetadata; alt: string };
+  /** The three ingredients, in the order they should paint. */
+  strands: Strand[];
+  /** Section landmark label. */
+  ariaLabel?: string;
+}
+const {
+  field,
+  labelField,
+  labelInk = "#ffffff",
+  title,
+  strands,
+  ariaLabel = "Festejamos",
+} = Astro.props;
+
+/* ── The artboard, in its own units ──────────────────────────────────────────
+   band      1282 wide
+   names     CHOCOLATE      x 60,  309 wide, 48 pitch
+             DULCE DE LECHE x 460, 365 wide, 46 pitch, stopping at the drop
+             CAFÉ CAFÉ      x 928, 301 wide, 58 pitch
+   pieces    caramel   x 407, y −28, 482 wide  (cut by the top edge)
+             chocolate x −82, y 125, 568 wide  (cut by the left edge)
+             coffee    x 759, y 167, 527 wide  (cut by the right edge)
+   title     x 337, y 285, 603 wide
+   labels    41 tall; chocolate x 140 y 156, café x 976 y 220,
+             dulce de leche x 274 y 485
+   Divided through by 1282 below, so the whole band scales as one picture. */
+
+/**
+ * The band's FOOT is not the artboard's crop line: it is set by where the
+ * chocolate and the coffee actually end (56.8% of the width), so neither splash
+ * is cut off square. The wall that follows is lifted back over this extra
+ * strip, which is how its first mockups come to stand on the splashes.
+ */
+const BAND_FOOT = 57;
+const BAND_RATIO = 100 / BAND_FOOT;
+
+/**
+ * The narrow band is a portrait, 136 of its width tall — less the slice taken
+ * off its TOP. The composition below is measured from the uncut top, and the
+ * cut is applied once, here: it comes off the band's height and off every
+ * vertical in it, so the picture simply starts further into itself rather than
+ * every number having to be re-measured.
+ */
+const NARROW_CUT = 8;
+const NARROW_FOOT = 135.85 - NARROW_CUT;
+const NARROW_RATIO = 100 / NARROW_FOOT;
+/** Lift, for a vertical measured from the uncut top. */
+const up = (v: number) => v - NARROW_CUT;
+
+type Place = { left: number; top: number; width: number };
+/** A narrow placement may also be turned: see the note on `--nr` below. */
+type Turned = Place & { rotate?: number };
+type Strip = {
+  left: number;
+  width: number;
+  pitch: number;
+  phase: number;
+  /**
+   * Where the stack stops, as a share of the band's width. Left out, it runs to
+   * the foot of the band. The caramel's name sets one because the word belongs
+   * to the DROP: it stops where the drop's body does, and the thin tail below
+   * it falls through clear field.
+   */
+  stop?: number;
+};
+
+const WORDS: Record<Key, Strip> = {
+  chocolate: { left: 4.68, width: 24.1, pitch: 3.744, phase: -1.25 },
+  ddl: { left: 35.88, width: 28.47, pitch: 3.588, phase: 0.62, stop: 47.7 },
+  cafe: { left: 72.39, width: 23.48, pitch: 4.524, phase: -0.78 },
+};
+
+/*
+ * The solids are turned a QUARTER TURN INWARD in the narrow band: the
+ * chocolate bursts in from the left, the coffee from the right. Each splash was
+ * drawn bursting upward off a flat base, and in the wide band that base sits on
+ * the band's own foot, where it cannot be seen. Stood upright halfway up a
+ * column it is a straight edge across the artwork. On its side the base leaves
+ * by the edge of the band, and the splash reads as thrown in from there — which
+ * is what it is. The two are placed on one line, so they read as a pair meeting
+ * in the middle.
+ */
+const PIECES: Record<Key, { wide: Place; narrow: Turned }> = {
+  chocolate: {
+    wide: { left: -6.43, top: 9.72, width: 44.3 },
+    narrow: { left: -24, top: 68, width: 92, rotate: 90 },
+  },
+  ddl: {
+    /* Its ink sits at 52.2% of its own box, so the box is placed from that and
+       not from its edge — otherwise the stream hangs left of the band's middle
+       by the difference. */
+    wide: { left: 31.76, top: -2.19, width: 37.6 },
+    narrow: { left: 20.8, top: -2, width: 56 },
+  },
+  cafe: {
+    wide: { left: 59.2, top: 13.0, width: 41.1 },
+    narrow: { left: 32, top: 68, width: 92, rotate: -90 },
+  },
+};
+
+/* Narrow: the three stack down the CENTRE, so only their height differs. */
+const LABELS: Record<Key, { wide: { left: number; top: number }; top: number }> = {
+  chocolate: { wide: { left: 10.92, top: 12.17 }, top: 69.3 },
+  ddl: { wide: { left: 21.37, top: 37.83 }, top: 92.5 },
+  cafe: { wide: { left: 76.13, top: 17.16 }, top: 81.1 },
+};
+
+const TITLE = {
+  wide: { left: 26.3, top: 22.2, width: 47.0 },
+  narrow: { left: 7, top: 39.2, width: 86 },
+};
+
+/**
+ * A strip's rows are `<img>`s in a column, not a repeating background: the
+ * pitch the artboard sets is WIDER than the word's own height, and a repeated
+ * background can only space its tiles by stretching them. So the leading is a
+ * gap, and it is the pitch minus the height the word takes at that width —
+ * which is why the word's own ratio has to come into it.
+ */
+const strip = (word: ImageMetadata, s: Strip) => {
+  const height = (s.width * word.height) / word.width;
+  const gap = s.pitch - height;
+  /* Cut on the last row that FITS, not at the measurement itself: a stack cut
+     anywhere else ends on half a word. */
+  const rows =
+    s.stop === undefined
+      ? undefined
+      : Math.max(1, Math.floor((s.stop - s.phase - height) / s.pitch) + 1);
+  const end =
+    rows === undefined
+      ? BAND_FOOT
+      : s.phase + (rows - 1) * s.pitch + height + gap / 2;
+  return { ...s, gap, end };
+};
+
+/** Enough rows to reach the foot, whatever a strip's own stop turns out to be. */
+const rowsFor = (key: Key) =>
+  Math.ceil(Math.max(BAND_FOOT, NARROW_FOOT) / WORDS[key].pitch) + 1;
+---
+
+<section
+  class="ib"
+  style={`--ib-field:${field};--ib-label-field:${labelField};--ib-label-ink:${labelInk};--ib-ratio:${BAND_RATIO};--ib-ratio-narrow:${NARROW_RATIO}`}
+  aria-label={ariaLabel}
+>
+  <div class="ib-stage">
+    {
+      strands.map((s) => {
+        const w = strip(s.word, WORDS[s.key]);
+        const piece = PIECES[s.key];
+        const label = LABELS[s.key];
+        return (
+          <>
+            <div
+              class="ib-words"
+              aria-hidden="true"
+              style={`--l:${w.left}%;--w:${w.width}%;--g:${w.gap}cqw;--t:${w.phase}cqw;--he:${w.end - w.phase}cqw;--nt:${up(w.phase)}cqw;--nhe:${w.end - w.phase + NARROW_CUT}cqw`}
+            >
+              {Array.from({ length: rowsFor(s.key) }).map(() => (
+                <img src={s.word.src} alt="" loading="lazy" />
+              ))}
+            </div>
+
+            <Image
+              class={`ib-piece ib-piece--${s.key}`}
+              style={`--l:${piece.wide.left}%;--t:${piece.wide.top}cqw;--w:${piece.wide.width}%;--nl:${piece.narrow.left}%;--nt:${up(piece.narrow.top)}cqw;--nw:${piece.narrow.width}%;--nr:${piece.narrow.rotate ?? 0}deg`}
+              src={s.piece.src}
+              alt={s.piece.alt}
+              loading="lazy"
+              sizes="45vw"
+            />
+
+            {s.key === "ddl" && (
+              <img
+                class="ib-title"
+                style={`--l:${TITLE.wide.left}%;--t:${TITLE.wide.top}cqw;--w:${TITLE.wide.width}%;--nl:${TITLE.narrow.left}%;--nt:${up(TITLE.narrow.top)}cqw;--nw:${TITLE.narrow.width}%`}
+                src={title.src.src}
+                alt={title.alt}
+                loading="lazy"
+              />
+            )}
+
+            <span
+              class="ib-label"
+              style={`--l:${label.wide.left}%;--t:${label.wide.top}cqw;--nt:${up(label.top)}cqw`}
+            >
+              {s.label}
+            </span>
+          </>
+        );
+      })
+    }
+  </div>
+</section>
+
+<style>
+  .ib {
+    position: relative;
+    /* Above whatever came before, for the same reason PatternBand is: the
+       sections in this run each cover the one before it. */
+    z-index: 2;
+    background-color: var(--ib-field);
+    overflow: clip;
+  }
+
+  /* The band's ratio is the picture's, and `container-type` is what lets every
+     measurement below be a share of its WIDTH — the vertical ones included,
+     which is why they are written in `cqw` and not in per cent. */
+  .ib-stage {
+    position: relative;
+    container-type: inline-size;
+    aspect-ratio: var(--ib-ratio-narrow);
+  }
+
+  .ib-words,
+  .ib-piece,
+  .ib-title,
+  .ib-label {
+    position: absolute;
+    left: var(--l);
+    top: var(--t);
+  }
+
+  /* Narrow: the pieces and the title take their own places, and the labels
+     stack down the middle — so only their height is given, the centring does
+     the rest. */
+  .ib-piece,
+  .ib-title {
+    left: var(--nl);
+    top: var(--nt);
+    width: var(--nw);
+  }
+
+  .ib-piece {
+    transform: rotate(var(--nr));
+  }
+
+  .ib-label {
+    left: 50%;
+    top: var(--nt);
+    transform: translateX(-50%);
+  }
+
+  /* The name, repeated. A texture — it is the ingredient's own word, already
+     read in the label above it, so it carries no alternative text. */
+  .ib-words {
+    display: flex;
+    flex-direction: column;
+    top: var(--nt);
+    height: var(--nhe);
+    width: var(--w);
+    /* The strip holds more rows than it needs and is cut to where it ends: the
+       foot of the band, or the stop the strand names. */
+    overflow: clip;
+    row-gap: var(--g);
+    z-index: 0;
+    opacity: 0.16;
+  }
+
+  .ib-words img {
+    width: 100%;
+    height: auto;
+    /* A flex item's automatic minimum is its content size, and an image's is
+       its intrinsic width — without this floor the column runs at the SVG's
+       own 461px and overflows the strip. */
+    min-width: 0;
+    flex-shrink: 0;
+  }
+
+  .ib-piece,
+  .ib-title {
+    height: auto;
+  }
+
+  .ib-piece {
+    z-index: 3;
+  }
+
+  /* The caramel falls BEHIND the title; the solids stand in front of it. */
+  .ib-piece--ddl {
+    z-index: 1;
+  }
+
+  .ib-title {
+    z-index: 2;
+  }
+
+  /* The labels are the one thing here that is type to read, so they are text
+     and not an image — and like everything else they are sized off the band's
+     width, so each chip keeps its place in the picture at any size. */
+  .ib-label {
+    z-index: 4;
+    padding: 0.27cqw 0.94cqw 0.47cqw;
+    background-color: var(--ib-label-field);
+    color: var(--ib-label-ink);
+    font-family: "Wendys Fresh", var(--font-sans);
+    font-weight: 700;
+    font-size: 6.2cqw;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  @media (min-width: 64rem) {
+    /* The artboard's own band. */
+    .ib-stage {
+      aspect-ratio: var(--ib-ratio);
+    }
+
+    .ib-words {
+      top: var(--t);
+      height: var(--he);
+    }
+
+    .ib-piece,
+    .ib-title {
+      left: var(--l);
+      top: var(--t);
+      width: var(--w);
+    }
+
+    .ib-piece {
+      transform: none;
+    }
+
+    .ib-label {
+      left: var(--l);
+      top: var(--t);
+      transform: none;
+      font-size: 2.45cqw;
+    }
+  }
+</style>

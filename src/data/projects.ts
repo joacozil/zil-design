@@ -8,6 +8,7 @@ import vibra from "../assets/img/vibra.avif";
 import merienda from "../assets/img/merienda.webp";
 import nacidaYCriada from "../assets/img/nacida-y-criada.webp";
 import combustion from "../assets/img/combustion.webp";
+import wendys from "../assets/img/wendys.webp";
 
 /**
  * The project roster — the single source of truth shared by the homepage slider
@@ -43,6 +44,7 @@ export function projectHref(slug?: string): string | undefined {
 
 // TODO: confirm final categories from Figma.
 export const projects: ProjectEntry[] = [
+  { img: wendys, name: "Wendy's", category: "Social Media", slug: "wendys" },
   { img: clojure, name: "Clojure", category: "Branding", slug: "clojure" },
   {
     img: quantia,

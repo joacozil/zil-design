@@ -107,8 +107,19 @@ const fontFaceCss =
       reference material to scan, not prose to read, so generous leading only pulled
       the set apart. */}
   <div class="mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12">
+    {/* More than two cuts lay out as a 2×2 rather than a row. A row of four
+        measures about 1490px against a 1312px column, and `justify-end` sends
+        the surplus off the LEFT edge, where nothing scrolls — the first block
+        is silently lost. Left to wrap on its own it breaks 3 + 1, which is not
+        a pairing of anything; the grid is what gives Wendy's two widths beside
+        their two weights, the way its artboard reads them. */}
     <div
-      class="flex flex-col gap-16 desktop:flex-row desktop:justify-end"
+      class:list={[
+        "flex flex-col gap-16",
+        specimenList.length > 2
+          ? "desktop:ml-auto desktop:grid desktop:w-3/5 desktop:grid-cols-2"
+          : "desktop:flex-row desktop:justify-end",
+      ]}
     >
       {
         specimenList.map((s) => (

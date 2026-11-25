@@ -469,6 +469,18 @@ html.reveal-armed :is([data-reveal], [data-hero-image]):not([data-revealed]) {
 :root {
   --gutter: max(1.5rem, calc((100% - 88rem) / 2 + 1.5rem));
 
+  /* The seam between two PIECES sitting side by side inside one block — the
+     cells of a mosaic, a collage's columns, a pair of banners, a run of
+     photographs. It is not the section rhythm and it is not the page gutter:
+     it is the smallest distance on the site, the one that says "these are two
+     pieces" without putting air between them.
+
+     Shared because a reader meets it in every project, often two sections
+     apart, and two values that are nearly the same read as a mistake rather
+     than as a choice. Fluid between the breakpoints so it keeps its weight
+     against the pieces it separates. */
+  --gap-piece: clamp(0.5rem, 1.1vw, 1rem);
+
   /* Weight of the seam hairline (see --color-seam). Shared for the same reason
      the colour is: the hero's Z outline and the system section's top edge meet
      at the boundary between those two sections, and two different weights would

@@ -1,0 +1,258 @@
+---
+/**
+ * FramedHero — key art COMPOSED rather than flattened: one photograph, a cream
+ * band crossing it, a transparent frame drawn over the whole thing, and the
+ * brand lockup centred on the band.
+ *
+ * The band is drawn TWICE, at two heights, and that is the point of the piece.
+ * Outside the frame it sits higher and half-transparent, so the photograph
+ * reads through it; inside the frame it sits lower and opaque. The frame is a
+ * window on the same picture, and the band steps as it crosses the edge — the
+ * two heights are what makes the frame look like a plate laid over the photo
+ * rather than a border painted on it.
+ *
+ * Everything is a share of the SECTION, which is pinned to the viewport, so the
+ * composition scales as one thing. The numbers below come from the original
+ * artboard (3840 × 2160) and are re-measured per cut, because the piece is
+ * art-directed: a strip that reads as a band across a desktop frame is a slab
+ * across a phone's, so its height, the lockup's size and the step all change at
+ * the breakpoints.
+ *
+ * Why a component and not a flattened export: a baked JPEG fixes the type's
+ * size against the photograph's pixels, so the wordmark shrinks with the art on
+ * a phone, and the band's colour cannot be re-themed. Composed, the lockup is
+ * an SVG at whatever size the frame wants.
+ */
+import { Image } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  /** The photograph, cover-fitted to the pinned viewport. */
+  image: ImageMetadata;
+  /** Describes the photograph for readers who can't see it. */
+  imageAlt: string;
+  /** Where the photograph is anchored while it is cover-fitted. */
+  imagePosition?: string;
+  /** Same, on mobile — the frame turns portrait and the crop changes with it. */
+  imagePositionMobile?: string;
+  /** The wordmark laid on the band. SVG: it is set at the band's own size. */
+  wordmark: ImageMetadata;
+  /** The ornament flanking the wordmark, mirrored either side. */
+  star?: ImageMetadata;
+  /** The band's colour, opaque inside the frame and halved outside it. */
+  band?: string;
+  /** The colour the frame's foot fades to, and the frame's own hairline. */
+  veil?: string;
+  /** Project name — the page's <h1>, carried visually by the wordmark. */
+  title: string;
+}
+
+const {
+  image,
+  imageAlt,
+  imagePosition = "center",
+  imagePositionMobile,
+  wordmark,
+  star,
+  band = "#d0b079",
+  veil = "#fff9ef",
+  title,
+} = Astro.props;
+
+/* The wordmark is set by its HEIGHT (`--mark`) and draws its own width from the
+   asset's ratio, so one number per breakpoint sizes the lockup, its ornaments
+   and the gaps between them. */
+const markRatio = wordmark.width / wordmark.height;
+---
+
+<section
+  class="fh"
+  style={`--fh-band:${band};--fh-veil:${veil};--fh-mark-ratio:${markRatio}`}
+>
+  <h1 class="sr-only">{title}</h1>
+
+  {/* One photograph for the whole section: the frame is a window, not a crop. */}
+  <Image
+    class="fh-photo"
+    src={image}
+    alt={imageAlt}
+    loading="eager"
+    fetchpriority="high"
+    sizes="100vw"
+    style={`--fh-pos:${imagePosition};--fh-pos-m:${imagePositionMobile ?? imagePosition}`}
+  />
+
+  {/* The band as the page sees it: higher, and half-transparent. */}
+  <div class="fh-band fh-band--outer" aria-hidden="true"></div>
+
+  {/* The frame: a hairline and a clip, with nothing of its own behind it. */}
+  <div class="fh-frame">
+    {/* The band as the frame sees it: a step lower, and solid. */}
+    <div class="fh-band fh-band--inner" aria-hidden="true"></div>
+
+    {/* The foot of the frame fades to the brand's cream. */}
+    <div class="fh-veil" aria-hidden="true"></div>
+
+    <div class="fh-mark">
+      {star && <img class="fh-star" src={star.src} alt="" aria-hidden="true" />}
+      <img class="fh-word" src={wordmark.src} alt="" aria-hidden="true" />
+      {star && <img class="fh-star" src={star.src} alt="" aria-hidden="true" />}
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ── The artboard, as shares of the pinned section ───────────────────────
+     MOBILE is the base, as everywhere else on the site. Every number here is
+     UNITLESS — a share of the section — because the inner band has to restate
+     the band's place in the FRAME's units, and that is a division: `calc` will
+     divide by a number and not by a percentage.
+
+                      mobile     tablet     desktop
+     frame inset x     .05        .0486      .0486
+     frame top         .11        .0796      .0796   (mobile clears the header)
+     frame bottom      .05        .07        .0787
+     outer band top    .509       .46        .4111
+     band height       .0995      .125       .1533
+     step (in − out)   .0166      .024       .0324
+     wordmark height   8.23vw     5.38vw     3.1vw                              */
+  .fh {
+    --x: 0.05;
+    --top: 0.11;
+    --bottom: 0.05;
+    --band-top: 0.509;
+    --band-h: 0.0995;
+    --step: 0.0166;
+    --mark: 8.23vw;
+
+    /* The frame's own height, as a share of the section — the divisor that
+       turns a section share into a frame share. */
+    --frame-h: calc(1 - var(--top) - var(--bottom));
+    /* The inner band, in the frame's units. */
+    --inner-top: calc(
+      (var(--band-top) + var(--step) - var(--top)) / var(--frame-h) * 100%
+    );
+    --inner-h: calc(var(--band-h) / var(--frame-h) * 100%);
+
+    position: relative;
+    min-height: 100svh;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .fh-photo {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    object-position: var(--fh-pos-m);
+  }
+
+  .fh-band {
+    position: absolute;
+    left: 0;
+    right: 0;
+    background-color: var(--fh-band);
+  }
+
+  /* Half-transparent, so the photograph runs through it — and masked down to
+     the MARGINS either side of the frame. It is the page's band, not the
+     frame's: left whole it would also wash across the picture inside the
+     frame, a step above the solid one, and the two would read as a mistake
+     rather than as one band crossing an edge. */
+  .fh-band--outer {
+    top: calc(var(--band-top) * 100%);
+    height: calc(var(--band-h) * 100%);
+    opacity: 0.5;
+    mask-image: linear-gradient(
+      to right,
+      #000 0 calc(var(--x) * 100%),
+      transparent calc(var(--x) * 100%) calc(100% - var(--x) * 100%),
+      #000 calc(100% - var(--x) * 100%) 100%
+    );
+  }
+
+  .fh-frame {
+    position: absolute;
+    top: calc(var(--top) * 100%);
+    right: calc(var(--x) * 100%);
+    bottom: calc(var(--bottom) * 100%);
+    left: calc(var(--x) * 100%);
+    border: max(1px, 0.1vw) solid var(--fh-band);
+    /* The band and the veil run to the hairline, so the frame clips them. */
+    overflow: hidden;
+  }
+
+  /* The step: the same band, a touch lower, and solid. */
+  .fh-band--inner {
+    top: var(--inner-top);
+    height: var(--inner-h);
+  }
+
+  /* The fade starts where the band ends and is complete at the frame's foot.
+     The stops are the measured alphas, not a straight ramp: the artboard holds
+     the picture for a third of the run and then gives it up quickly. */
+  .fh-veil {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(
+      to bottom,
+      rgb(0 0 0 / 0) 61.4%,
+      color-mix(in srgb, var(--fh-veil) 8%, transparent) 64%,
+      color-mix(in srgb, var(--fh-veil) 41%, transparent) 75%,
+      color-mix(in srgb, var(--fh-veil) 62%, transparent) 85%,
+      color-mix(in srgb, var(--fh-veil) 92%, transparent) 96%,
+      var(--fh-veil) 100%
+    );
+  }
+
+  /* Centred on the INNER band, since that is the one it is printed on. */
+  .fh-mark {
+    position: absolute;
+    top: calc(var(--inner-top) + var(--inner-h) / 2);
+    left: 50%;
+    display: flex;
+    translate: -50% -50%;
+    align-items: center;
+    gap: calc(var(--mark) * 0.5);
+  }
+
+  .fh-word {
+    display: block;
+    height: var(--mark);
+    width: calc(var(--mark) * var(--fh-mark-ratio));
+  }
+
+  .fh-star {
+    display: block;
+    height: calc(var(--mark) * 0.45);
+    width: calc(var(--mark) * 0.45);
+  }
+
+  @media (min-width: 40rem) {
+    .fh {
+      --x: 0.0486;
+      --top: 0.0796;
+      --bottom: 0.07;
+      --band-top: 0.46;
+      --band-h: 0.125;
+      --step: 0.024;
+      --mark: 5.38vw;
+    }
+
+    .fh-photo {
+      object-position: var(--fh-pos);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .fh {
+      --bottom: 0.0787;
+      --band-top: 0.4111;
+      --band-h: 0.1533;
+      --step: 0.0324;
+      --mark: 3.1vw;
+    }
+  }
+</style>

@@ -118,17 +118,19 @@ const tallAspect = feed[2].src.width / feed[2].src.height;
           </h3>
           <p class="mt-4 text-p text-pretty text-muted">{body}</p>
         </div>
-        {
-          feed.map((p, i) => (
-            <Image
-              class:list={["sb-piece", i === 2 && "sb-piece--tall"]}
-              src={p.src}
-              alt={p.alt}
-              loading="lazy"
-              sizes="(min-width: 640px) 30vw, 100vw"
-            />
-          ))
-        }
+        <div class="sb-track">
+          {
+            feed.map((p, i) => (
+              <Image
+                class:list={["sb-piece", i === 2 && "sb-piece--tall"]}
+                src={p.src}
+                alt={p.alt}
+                loading="lazy"
+                sizes="(min-width: 640px) 30vw, 45vw"
+              />
+            ))
+          }
+        </div>
       </div>
     </div>
   </div>
@@ -318,27 +320,70 @@ const tallAspect = feed[2].src.width / feed[2].src.height;
 
   .sb-feed,
   .sb-stories {
+    --sb-gap: calc(var(--sb-content) * 0.027);
     display: grid;
-    gap: calc(var(--sb-content) * 0.027);
+    gap: var(--sb-gap);
   }
 
-  /* The feed row KEEPS its three columns on a phone. What this section argues
-     is the grid — three pieces that belong to one feed — and stacked they
-     become three unrelated pictures 6000px tall, where a reader never sees the
-     consistency that is the point. At 375px each piece lands around 101px,
-     which is small but still legibly a post. */
+  /* The feed runs as a horizontal SLIDER on a phone, the same way the stories
+     below it do. Held in three columns each piece lands near a hundred pixels —
+     legibly a post, but not a post you can read — and what this section argues
+     is that the three belong to one feed, which a row the reader slides says
+     just as well as a row that fits. Two and a half visible, the third cut by
+     the screen; the half piece is the whole affordance. */
   .sb-feed {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    row-gap: calc(var(--sb-content) * 0.104);
-    align-items: end;
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--sb-content) * 0.06);
   }
 
-  /* On a phone the caption leads across the whole row instead of taking a
-     column: a third of 375px is a 100px ribbon of text, and the copy stops
-     being readable long before the mockups beside it stop being legible. */
+  /* The pieces have a box of their own ONLY so the caption can stay out of the
+     track: it is the row's heading, not one of its cards, and a heading that
+     scrolls away with the cards is a heading the reader loses. Above the
+     breakpoint the box dissolves (`display: contents`) and the pieces go back
+     to being the grid's own children, which is what the artboard's placements
+     are written against. */
+  .sb-track {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--sb-gap);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline-start: var(--sb-pad);
+    margin-inline: calc(-1 * var(--sb-pad));
+    padding-inline: var(--sb-pad);
+    scrollbar-width: none;
+  }
+
+  .sb-track::-webkit-scrollbar,
+  .sb-stories::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sb-track > :global(.sb-piece) {
+    flex: 0 0 calc((100vw - var(--sb-pad) - 2 * var(--sb-gap)) / 2.5);
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+
+  /* The PHONE leads the track. On the grid it is the tall one at the right that
+     the other two are read against; in a row the reader slides, the first piece
+     is the one that has to say what this is. `order` re-reads the same markup,
+     and it goes inert the moment the grid takes over. */
+  .sb-track > :global(.sb-piece--tall) {
+    order: -1;
+  }
+
+  /* On a phone the caption leads ABOVE the track instead of taking a column: a
+     third of 375px is a 100px ribbon of text, and the copy stops being readable
+     long before the mockups beside it stop being legible. It is lifted out of
+     the slider so it does not scroll away with the pieces. */
   .sb-caption {
     grid-column: 1 / -1;
   }
+
+
 
   /* The stories run as a horizontal SLIDER on a phone: two and a half visible,
      the third cut against the screen's edge. The half piece is the whole
@@ -467,7 +512,21 @@ const tallAspect = feed[2].src.width / feed[2].src.height;
 
        `align-items: end` is the whole alignment rule here: the pieces are
        different heights and what they share is a floor, not a ceiling. */
+    /* Undo the phone slider explicitly, the same way the stories below do. */
+    .sb-track {
+      display: contents;
+    }
+
+    .sb-track > :global(.sb-piece--tall) {
+      order: 0;
+    }
+
     .sb-feed {
+      display: grid;
+      gap: var(--sb-gap);
+      /* The three columns live HERE, not in the base rule: below this width the
+         feed is a column of caption-then-track and has no columns of its own. */
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       grid-template-rows: auto auto;
       /* A percentage `row-gap` resolves against the grid's BLOCK size, which is
          auto here and therefore zero — so this one is written against the
@@ -481,13 +540,17 @@ const tallAspect = feed[2].src.width / feed[2].src.height;
       align-self: start;
     }
 
-    .sb-feed > .sb-piece:nth-of-type(1) {
+    .sb-feed .sb-piece:nth-of-type(1) {
       grid-area: 2 / 1;
     }
-    .sb-feed > .sb-piece:nth-of-type(2) {
+    .sb-feed .sb-piece:nth-of-type(2) {
       grid-area: 2 / 2;
     }
-    .sb-feed > .sb-piece--tall {
+    /* A descendant combinator, not a child one: the track above is
+       `display: contents` here, which takes away its BOX but not its place in
+       the DOM — so `.sb-feed > .sb-piece` stops matching while the pieces are
+       still the grid's items. */
+    .sb-feed .sb-piece--tall {
       grid-area: 1 / 3 / 3 / 4;
     }
 

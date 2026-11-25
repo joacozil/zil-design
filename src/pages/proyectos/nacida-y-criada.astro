@@ -4,14 +4,18 @@ import Header from "../../components/astro/Header.astro";
 import Footer from "../../components/astro/Footer.astro";
 import ProjectEnd from "../../components/astro/project/ProjectEnd.astro";
 import BackToTop from "../../components/astro/project/BackToTop.astro";
-import ProjectHeroImage from "../../components/astro/project/ProjectHeroImage.astro";
+import BottleTrio from "../../components/astro/project/BottleTrio.astro";
 import ProjectBrief from "../../components/astro/project/ProjectBrief.astro";
 import ConceptCircles from "../../components/astro/project/ConceptCircles.astro";
 import LogoGrid from "../../components/astro/project/LogoGrid.astro";
 import ColorPalette from "../../components/astro/project/ColorPalette.astro";
 import TypeSpecimen from "../../components/astro/project/TypeSpecimen.astro";
-import heroImage from "../../assets/nacida-y-criada/nacida-hero.webp";
-import heroImageMobile from "../../assets/nacida-y-criada/nacida-hero-mobile.webp";
+import ilusGolden from "../../assets/nacida-y-criada/ilus-golden.webp";
+import ilusIpa from "../../assets/nacida-y-criada/ilus-ipa.webp";
+import ilusHoney from "../../assets/nacida-y-criada/ilus-honey.webp";
+import selloGolden from "../../assets/nacida-y-criada/sello-golden.svg";
+import selloIpa from "../../assets/nacida-y-criada/sello-ipa.svg";
+import selloHoney from "../../assets/nacida-y-criada/sello-honey.svg";
 import gridImage from "../../assets/nacida-y-criada/nacida-grid.svg";
 import agencyFontImg from "../../assets/nacida-y-criada/nacida-font-agency.svg";
 import acmeFontImg from "../../assets/nacida-y-criada/nacida-font-acme.svg";
@@ -120,16 +124,45 @@ const palette = [
   <Header />
   <main class="project-nacida-y-criada">
     {
-      /* The key art already carries the brand on the bottles' own labels, so the
-        hero is JUST the artwork — ProjectHeroImage, not the variants that
-        composite a separate `logo`. Both cuts ship: the landscape triptych reads
-        as a thin strip on a phone and would crop two of its three panels off. */
+      /* The triptych is COMPOSED here, not flattened: each column is its own
+        landscape, tint, bottle and seal, so the bottles keep their size on a
+        phone instead of shrinking with the picture, and the arcs are drawn in
+        the variety's own colour rather than baked into a JPEG. */
     }
-    <ProjectHeroImage
-      image={heroImage}
-      mobileImage={heroImageMobile}
-      imageAlt="Tres botellas de Nacida y Criada — Golden, IPA y Honey — sobre ilustraciones de un bosque nevado, una cascada y un desierto con cactus"
+    <BottleTrio
       title="Nacida y Criada"
+      panels={[
+        {
+          illustration: ilusGolden,
+          position: "20% center",
+          bottle: botellaGolden,
+          bottleAlt:
+            "Botella de Nacida y Criada Golden sobre una ilustración de un lago de montaña",
+          seal: selloGolden,
+          tint: "#88B0E1",
+          offset: "14.66%",
+        },
+        {
+          illustration: ilusIpa,
+          position: "20% center",
+          bottle: botellaIpa,
+          bottleAlt:
+            "Botella de Nacida y Criada IPA sobre una ilustración de una cascada",
+          seal: selloIpa,
+          tint: "#6EC196",
+          offset: "21.61%",
+        },
+        {
+          illustration: ilusHoney,
+          position: "20% center",
+          bottle: botellaHoney,
+          bottleAlt:
+            "Botella de Nacida y Criada Honey sobre una ilustración de un desierto con cactus",
+          seal: selloHoney,
+          tint: "#FBCA38",
+          offset: "29.27%",
+        },
+      ]}
     />
     <ProjectBrief meta={meta} blocks={brief} />
     {
@@ -310,6 +343,10 @@ const palette = [
           the two ends instead of hanging all three from a shared top edge and
           leaving the cards floating. The same call Merienda's section makes.
 
+          `mobile="slider"` because three pieces across a phone land near a
+          hundred pixels each — legibly posts, but not posts you can read. The
+          track shows two and a half and the reader slides the rest.
+
           NOTE: this body copy is word for word Merienda's. Generic enough to
           read as studio boilerplate rather than a paste of another client's
           story — it names nobody — but worth a rewrite if these two cases are
@@ -318,7 +355,8 @@ const palette = [
       <ColumnCollage
         ariaLabel="Redes sociales"
         label="Redes sociales"
-        mobile="columns"
+        mobile="slider"
+        lead={3}
         body="Desarrollamos un sistema de contenido para redes sociales orientado a comunicar con claridad, fortalecer la identidad de la marca y mantener una presencia consistente. Cada pieza fue diseñada para captar la atención, transmitir el mensaje de forma inmediata y generar una comunicación más efectiva."
         align="center"
         gap="clamp(0.75rem, 2.4vw, 2.125rem)"
