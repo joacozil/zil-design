@@ -55,6 +55,14 @@ interface Props {
    * mockups standing on top of them.
    */
   lift?: number;
+  /**
+   * The same, in a COLUMN. Negative pushes the wall DOWN instead, opening a
+   * strip of the section above between the two — which is what a narrow cut
+   * needs: stacked, the splashes above end exactly where the first repeated
+   * word begins, and the two tangle into one another with nothing to say where
+   * one picture stops. Defaults to `lift`.
+   */
+  liftNarrow?: number;
   /** Section landmark label. */
   ariaLabel?: string;
 }
@@ -64,6 +72,7 @@ const {
   zones,
   wordOpacity = 0.25,
   lift = 0,
+  liftNarrow,
   ariaLabel = "Publicaciones",
 } = Astro.props;
 
@@ -165,7 +174,7 @@ const stack = (word: ImageMetadata, i: number, l: Layout, bandHeight: number) =>
 
 <section
   class="fw"
-  style={`--fw-field:${field};--fw-ar:${100 / wall.height};--fw-ar-narrow:${100 / narrow.height};--fw-word:${WIDE.word}%;--fw-word-narrow:${NARROW.word}%;--fw-word-opacity:${wordOpacity};--fw-lift:${lift}%;--fw-lift-q:${lift}cqw`}
+  style={`--fw-field:${field};--fw-ar:${100 / wall.height};--fw-ar-narrow:${100 / narrow.height};--fw-word:${WIDE.word}%;--fw-word-narrow:${NARROW.word}%;--fw-word-opacity:${wordOpacity};--fw-lift:${lift}%;--fw-lift-q:${lift}cqw;--fw-lift-n:${Math.max(0, liftNarrow ?? lift)}%;--fw-lift-nq:${Math.max(0, liftNarrow ?? lift)}cqw;--fw-gap-n:${Math.max(0, -(liftNarrow ?? lift))}%`}
   aria-label={ariaLabel}
 >
   <div class="fw-stage">
@@ -210,7 +219,11 @@ const stack = (word: ImageMetadata, i: number, l: Layout, bandHeight: number) =>
        the lift, so this overlap is clear and the section above shows through
        it — while everything in here paints on top. */
     z-index: 3;
-    margin-top: calc(-1 * var(--fw-lift));
+    margin-top: calc(-1 * var(--fw-lift-n));
+    /* A negative lift is a GAP, and it is padding rather than margin so the
+       wall's own field fills it: the two pictures part on the SAME dark ground
+       they are both printed on, instead of on a strip of the page. */
+    padding-top: var(--fw-gap-n);
     overflow: clip;
   }
 
@@ -221,7 +234,7 @@ const stack = (word: ImageMetadata, i: number, l: Layout, bandHeight: number) =>
     position: absolute;
     /* `cqw`, not the percentage the margin uses: a percentage `top` resolves
        against this box's HEIGHT, which is three times the wall's width. */
-    top: var(--fw-lift-q);
+    top: var(--fw-lift-nq);
     right: 0;
     bottom: 0;
     left: 0;
@@ -284,6 +297,16 @@ const stack = (word: ImageMetadata, i: number, l: Layout, bandHeight: number) =>
   }
 
   @media (min-width: 64rem) {
+    /* The artboard's own overlap returns. */
+    .fw {
+      margin-top: calc(-1 * var(--fw-lift));
+      padding-top: 0;
+    }
+
+    .fw-field {
+      top: var(--fw-lift-q);
+    }
+
     .fw-stage {
       aspect-ratio: var(--fw-ar);
     }
