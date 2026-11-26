@@ -148,9 +148,9 @@ const PIECES: Record<Key, { wide: Place; narrow: Turned }> = {
 
 /* Narrow: the three stack down the CENTRE, so only their height differs. */
 const LABELS: Record<Key, { wide: { left: number; top: number }; top: number }> = {
-  chocolate: { wide: { left: 10.92, top: 12.17 }, top: 71.3 },
-  ddl: { wide: { left: 21.37, top: 37.83 }, top: 92 },
-  cafe: { wide: { left: 76.13, top: 17.16 }, top: 81.6 },
+  chocolate: { wide: { left: 10.92, top: 12.17 }, top: 65.3 },
+  ddl: { wide: { left: 21.37, top: 37.83 }, top: 86 },
+  cafe: { wide: { left: 76.13, top: 17.16 }, top: 75.6 },
 };
 
 const TITLE = {
@@ -291,8 +291,13 @@ const rowsFor = (key: Key) =>
 
   /* The name, repeated. A texture — it is the ingredient's own word, already
      read in the label above it, so it carries no alternative text. */
+  /* Narrow: the repeated names go. Their whole job is to fill the field around
+     the picture, and in a column the picture takes that field — what is left of
+     the strips is type at a tenth of its drawn size, which reads as noise and
+     not as texture. (The wall of mockups below runs its own strips at its own
+     size; this is only about the band.) */
   .ib-words {
-    display: flex;
+    display: none;
     flex-direction: column;
     top: var(--nt);
     height: var(--nhe);
@@ -355,6 +360,7 @@ const rowsFor = (key: Key) =>
     }
 
     .ib-words {
+      display: flex;
       top: var(--t);
       height: var(--he);
     }
