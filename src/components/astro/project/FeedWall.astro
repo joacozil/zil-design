@@ -174,7 +174,7 @@ const stack = (word: ImageMetadata, i: number, l: Layout, bandHeight: number) =>
 
 <section
   class="fw"
-  style={`--fw-field:${field};--fw-ar:${100 / wall.height};--fw-ar-narrow:${100 / narrow.height};--fw-word:${WIDE.word}%;--fw-word-narrow:${NARROW.word}%;--fw-word-opacity:${wordOpacity};--fw-lift:${lift}%;--fw-lift-q:${lift}cqw;--fw-lift-n:${Math.max(0, liftNarrow ?? lift)}%;--fw-lift-nq:${Math.max(0, liftNarrow ?? lift)}cqw;--fw-gap-n:${Math.max(0, -(liftNarrow ?? lift))}%`}
+  style={`--fw-field:${field};--fw-ar:${100 / wall.height};--fw-ar-narrow:${100 / narrow.height};--fw-word:${WIDE.word}%;--fw-word-narrow:${NARROW.word}%;--fw-word-opacity:${wordOpacity};--fw-lift:${lift}%;--fw-lift-q:${lift}cqw;--fw-lift-n:${Math.max(0, liftNarrow ?? lift)}%;--fw-lift-nq:${Math.max(0, liftNarrow ?? lift)}cqw;--fw-gap-n:${Math.max(0, -(liftNarrow ?? lift))}%;--fw-gap-field:${(liftNarrow ?? lift) < 0 ? field : "none"}`}
   aria-label={ariaLabel}
 >
   <div class="fw-stage">
@@ -221,9 +221,14 @@ const stack = (word: ImageMetadata, i: number, l: Layout, bandHeight: number) =>
     z-index: 3;
     margin-top: calc(-1 * var(--fw-lift-n));
     /* A negative lift is a GAP, and it is padding rather than margin so the
-       wall's own field fills it: the two pictures part on the SAME dark ground
-       they are both printed on, instead of on a strip of the page. */
+       wall's own colour fills it: the two pictures part on the SAME dark ground
+       they are both printed on, instead of on a strip of the page. The colour
+       is on the SECTION and not on the field layer below, which starts where
+       the stage does. The layer paints over it, so all that shows is the strip
+       — the field's own first colour — and it is only set when there IS a gap,
+       so a lifted wall keeps its see-through strip. */
     padding-top: var(--fw-gap-n);
+    background: var(--fw-gap-field);
     overflow: clip;
   }
 
@@ -301,6 +306,7 @@ const stack = (word: ImageMetadata, i: number, l: Layout, bandHeight: number) =>
     .fw {
       margin-top: calc(-1 * var(--fw-lift));
       padding-top: 0;
+      background: none;
     }
 
     .fw-field {
