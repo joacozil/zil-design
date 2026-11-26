@@ -131,26 +131,26 @@ const WORDS: Record<Key, Strip> = {
 const PIECES: Record<Key, { wide: Place; narrow: Turned }> = {
   chocolate: {
     wide: { left: -6.43, top: 9.72, width: 44.3 },
-    narrow: { left: -24, top: 68, width: 92, rotate: 90 },
+    narrow: { left: -16, top: 76.5, width: 76, rotate: 90 },
   },
   ddl: {
     /* Its ink sits at 52.2% of its own box, so the box is placed from that and
        not from its edge — otherwise the stream hangs left of the band's middle
        by the difference. */
     wide: { left: 31.76, top: -2.19, width: 37.6 },
-    narrow: { left: 20.8, top: -2, width: 56 },
+    narrow: { left: 26, top: -2, width: 46 },
   },
   cafe: {
     wide: { left: 59.2, top: 13.0, width: 41.1 },
-    narrow: { left: 32, top: 68, width: 92, rotate: -90 },
+    narrow: { left: 40, top: 76.5, width: 76, rotate: -90 },
   },
 };
 
 /* Narrow: the three stack down the CENTRE, so only their height differs. */
 const LABELS: Record<Key, { wide: { left: number; top: number }; top: number }> = {
-  chocolate: { wide: { left: 10.92, top: 12.17 }, top: 69.3 },
-  ddl: { wide: { left: 21.37, top: 37.83 }, top: 92.5 },
-  cafe: { wide: { left: 76.13, top: 17.16 }, top: 81.1 },
+  chocolate: { wide: { left: 10.92, top: 12.17 }, top: 71.3 },
+  ddl: { wide: { left: 21.37, top: 37.83 }, top: 92 },
+  cafe: { wide: { left: 76.13, top: 17.16 }, top: 81.6 },
 };
 
 const TITLE = {
@@ -338,12 +338,12 @@ const rowsFor = (key: Key) =>
      width, so each chip keeps its place in the picture at any size. */
   .ib-label {
     z-index: 4;
-    padding: 0.27cqw 0.94cqw 0.47cqw;
+    padding: 0.21cqw 0.74cqw 0.37cqw;
     background-color: var(--ib-label-field);
     color: var(--ib-label-ink);
     font-family: "Wendys Fresh", var(--font-sans);
     font-weight: 700;
-    font-size: 6.2cqw;
+    font-size: 4.9cqw;
     line-height: 1;
     white-space: nowrap;
   }
@@ -373,6 +373,7 @@ const rowsFor = (key: Key) =>
     .ib-label {
       left: var(--l);
       top: var(--t);
+      padding: 0.27cqw 0.94cqw 0.47cqw;
       transform: none;
       font-size: 2.45cqw;
     }
