@@ -27,6 +27,14 @@ interface Photo {
   alt: string;
   /** Share of its row's width. The artboard's own measurement. */
   weight: number;
+  /**
+   * Where the photograph is anchored inside its cell. Centred by default.
+   *
+   * The band crops a near-square photograph to a fifth of its height, so which
+   * fifth it keeps is a composition decision, not a default — the subject is
+   * rarely at the exact middle of the frame.
+   */
+  position?: string;
 }
 interface Caption {
   label: string;
@@ -105,7 +113,7 @@ const bottomTotal = rowBottom.reduce((n, p) => n + p.weight, 0);
     <div class="ws-row ws-row--band" style={`--ar:${ROWS.band}`}>
       <Image
         class="ws-photo"
-        style="--w:1"
+        style={`--w:1${band.position ? `;object-position:${band.position}` : ""}`}
         src={band.src}
         alt={band.alt}
         loading="lazy"
