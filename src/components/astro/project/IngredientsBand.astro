@@ -90,7 +90,18 @@ const BAND_RATIO = 100 / BAND_FOOT;
  * every number having to be re-measured.
  */
 const NARROW_CUT = 8;
-const NARROW_FOOT = 135.85 - NARROW_CUT;
+/**
+ * And a TAIL added to its foot, for the turned splashes.
+ *
+ * Turned a quarter, a splash is as tall as it is wide — and at the width the
+ * column gives it, the artwork reaches past the band's own foot. Clipped there
+ * it ends on a straight line drawn across the chocolate and the beans, which is
+ * the one thing a splash cannot do. The tail is the room the turn costs: the
+ * splash's far side lands just inside the foot and the picture closes on its
+ * own spray.
+ */
+const NARROW_TAIL = 28.5;
+const NARROW_FOOT = 135.85 - NARROW_CUT + NARROW_TAIL;
 const NARROW_RATIO = 100 / NARROW_FOOT;
 /** Lift, for a vertical measured from the uncut top. */
 const up = (v: number) => v - NARROW_CUT;
