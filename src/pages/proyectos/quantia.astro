@@ -1,48 +1,115 @@
 ---
+/**
+ * Quantia — the case study, rebuilt.
+ *
+ * It replaced an earlier version of this page whose sections were drawn from a
+ * different board; nothing of that one survives but the brand's palette, its
+ * type and the Ubuntu files under `assets/quantia/ubuntu`.
+ */
 import Layout from "../../layouts/Layout.astro";
 import Header from "../../components/astro/Header.astro";
 import Footer from "../../components/astro/Footer.astro";
-import ProjectHero from "../../components/astro/project/ProjectHero.astro";
+import DiagonalHero from "../../components/astro/project/DiagonalHero.astro";
 import ProjectBrief from "../../components/astro/project/ProjectBrief.astro";
 import ConceptCircles from "../../components/astro/project/ConceptCircles.astro";
 import LogoGrid from "../../components/astro/project/LogoGrid.astro";
 import ColorPalette from "../../components/astro/project/ColorPalette.astro";
 import TypeSpecimen from "../../components/astro/project/TypeSpecimen.astro";
 import CampaignCollage from "../../components/astro/project/CampaignCollage.astro";
-import SocialCarousel from "../../components/astro/project/SocialCarousel.astro";
-import StoriesCarousel from "../../components/astro/project/StoriesCarousel.astro";
-import CarouselShowcase from "../../components/astro/project/CarouselShowcase.astro";
+import MockupShowcase from "../../components/astro/project/MockupShowcase.astro";
+import CreatureBand from "../../components/astro/project/CreatureBand.astro";
+import PhotoMosaic from "../../components/astro/project/PhotoMosaic.astro";
 import ProjectEnd from "../../components/astro/project/ProjectEnd.astro";
 import BackToTop from "../../components/astro/project/BackToTop.astro";
-import heroImage from "../../assets/quantia/quantia-hero.avif";
-import heroImageMobile from "../../assets/quantia/quantia-hero-mobile.avif";
-import heroLogo from "../../assets/quantia/quantia-logo-dot.svg";
-import gridImage from "../../assets/quantia/quantia-grid.svg";
-import quantiaFontImg from "../../assets/quantia/quantia-font.svg";
-import phoneImg from "../../assets/quantia/phone.avif";
-import tuDineroImg from "../../assets/quantia/tu-dinero.avif";
-import chicasImg from "../../assets/quantia/chicas.avif";
-import post1 from "../../assets/quantia/post1.avif";
-import post2 from "../../assets/quantia/post2.avif";
-import post3 from "../../assets/quantia/post3.avif";
-import historia1 from "../../assets/quantia/historia1.avif";
-import historia2 from "../../assets/quantia/historia2.avif";
-import historia3 from "../../assets/quantia/historia3.avif";
-import carruselVerde1 from "../../assets/quantia/carrusel-verde-1.avif";
-import carruselVerde2 from "../../assets/quantia/carrusel-verde-2.avif";
-import carruselVerde3 from "../../assets/quantia/carrusel-verde-3.avif";
-import carruselBlanco1 from "../../assets/quantia/carrusel-blanco-1.avif";
-import carruselBlanco2 from "../../assets/quantia/carrusel-blanco-2.avif";
-import carruselBlanco3 from "../../assets/quantia/carrusel-blanco-3.avif";
-import carruselBlanco4 from "../../assets/quantia/carrusel-blanco-4.avif";
-import carruselBlanco5 from "../../assets/quantia/carrusel-blanco-5.avif";
-import heartImg from "../../assets/quantia/heart.avif";
-import moneyImg from "../../assets/quantia/money.avif";
-import likeImg from "../../assets/quantia/like.avif";
-// Ubuntu is Quantia's brand face. Self-hosted (Google Fonts' `latin` subset,
-// which covers Spanish in full — Ñ is U+00D1) rather than loaded from
-// fonts.gstatic.com, so the page keeps its own asset graph and costs no
-// third-party connection. Only the three weights the design asks for.
+import heroImage from "../../assets/quantia/hero.webp";
+import heroLogo from "../../assets/quantia/logo.svg";
+import gridImage from "../../assets/quantia/grid.svg";
+import quantiaFontImg from "../../assets/quantia/font.svg";
+import edificioImg from "../../assets/quantia/campana-edificio.webp";
+import tuDineroImg from "../../assets/quantia/campana-tu-dinero.webp";
+import chicaImg from "../../assets/quantia/campana-chica.webp";
+import postCuenta from "../../assets/quantia/post-cuenta.webp";
+import postAccedes from "../../assets/quantia/post-accedes.webp";
+import mockupTodoEnUno from "../../assets/quantia/mockup-todo-en-uno.webp";
+import historiaPanama from "../../assets/quantia/historia-panama.webp";
+import historiaComparte from "../../assets/quantia/historia-comparte.webp";
+import historiaCalculadora from "../../assets/quantia/historia-calculadora.webp";
+import iconoMundo from "../../assets/quantia/icono-mundo.webp";
+import iconoBolsa from "../../assets/quantia/icono-bolsa.webp";
+import iconoChancho from "../../assets/quantia/icono-chancho.webp";
+import iconoCalendario from "../../assets/quantia/icono-calendario.webp";
+import iconoReloj from "../../assets/quantia/icono-reloj.webp";
+import iconoTienda from "../../assets/quantia/icono-tienda.webp";
+import iconoRelojArena from "../../assets/quantia/icono-reloj-arena.webp";
+import iconoDestellos from "../../assets/quantia/icono-destellos.webp";
+import iconoLibro from "../../assets/quantia/icono-libro.webp";
+import iconoRiesgo from "../../assets/quantia/icono-riesgo.webp";
+import iconoLupa from "../../assets/quantia/icono-lupa.webp";
+import iconoMeta from "../../assets/quantia/icono-meta.webp";
+import iconoMoneda from "../../assets/quantia/icono-moneda.webp";
+import iconoPlan from "../../assets/quantia/icono-plan.webp";
+import iconoDolar from "../../assets/quantia/icono-dolar.webp";
+import pautaPar from "../../assets/quantia/pauta-par.webp";
+import pautaSabias from "../../assets/quantia/pauta-sabias.webp";
+import pautaOrganiza from "../../assets/quantia/pauta-organiza.webp";
+import pautaDescarga from "../../assets/quantia/pauta-descarga.webp";
+import mosaicoColina from "../../assets/quantia/mosaico-colina.webp";
+import mosaicoCielo from "../../assets/quantia/mosaico-cielo.webp";
+import mosaicoTerraza from "../../assets/quantia/mosaico-terraza.webp";
+import mosaicoPasto from "../../assets/quantia/mosaico-pasto.webp";
+import mosaicoMuro from "../../assets/quantia/mosaico-muro.webp";
+import mosaicoEscalera from "../../assets/quantia/mosaico-escalera.webp";
+import mosaicoCeleste from "../../assets/quantia/mosaico-celeste.webp";
+import mosaicoJardin from "../../assets/quantia/mosaico-jardin.webp";
+import mosaicoBolso from "../../assets/quantia/mosaico-bolso.webp";
+import mcFondo from "../../assets/quantia/mc-fondo.webp";
+import patrioPar from "../../assets/quantia/patrio-par.webp";
+import hwTelefonos from "../../assets/quantia/hw-telefonos.webp";
+import hwFantasmaA from "../../assets/quantia/hw-fantasma-a.webp";
+import hwFantasmaB from "../../assets/quantia/hw-fantasma-b.webp";
+import hwFantasmaBrujo from "../../assets/quantia/hw-fantasma-brujo.webp";
+import hwFantasmaPensador from "../../assets/quantia/hw-fantasma-pensador.webp";
+import hwMurcielagoChico from "../../assets/quantia/hw-murcielago-chico.webp";
+import hwMurcielago from "../../assets/quantia/hw-murcielago.webp";
+import hwCaldero from "../../assets/quantia/hw-caldero.webp";
+import hwCalabaza from "../../assets/quantia/hw-calabaza.webp";
+import hwCalavera from "../../assets/quantia/hw-calavera.webp";
+import marcaDolar from "../../assets/quantia/marca-dolar.svg";
+import marcaCirculo from "../../assets/quantia/marca-circulo.svg";
+import marcaTelarana from "../../assets/quantia/marca-telarana.svg";
+import g2Escritorio from "../../assets/quantia/g2-escritorio.webp";
+import g2Recibe from "../../assets/quantia/g2-recibe.webp";
+import g2Cancha from "../../assets/quantia/g2-cancha.webp";
+import g2Bolsillo from "../../assets/quantia/g2-bolsillo.webp";
+import g2Ejecutiva from "../../assets/quantia/g2-ejecutiva.webp";
+import g2Joven from "../../assets/quantia/g2-joven.webp";
+import g2Calculadora from "../../assets/quantia/g2-calculadora.webp";
+import g2Arco from "../../assets/quantia/g2-arco.webp";
+import g2Pareja from "../../assets/quantia/g2-pareja.webp";
+import mcPar from "../../assets/quantia/mc-par.webp";
+import mcPostMasterclass from "../../assets/quantia/mc-post-masterclass.webp";
+import mcPostFinanzas from "../../assets/quantia/mc-post-finanzas.webp";
+import mcMockupInvertir from "../../assets/quantia/mc-mockup-invertir.webp";
+import mcHistoriaComenzar from "../../assets/quantia/mc-historia-comenzar.webp";
+import mcHistoriaPortafolio from "../../assets/quantia/mc-historia-portafolio.webp";
+import mcHistoriaCadaPaso from "../../assets/quantia/mc-historia-cada-paso.webp";
+import mcIconoMeta from "../../assets/quantia/mc-icono-meta.webp";
+import mcIconoDolar from "../../assets/quantia/mc-icono-dolar.webp";
+import mcIconoBanco from "../../assets/quantia/mc-icono-banco.webp";
+import mcIconoCalendario from "../../assets/quantia/mc-icono-calendario.webp";
+import mcIconoDistribuir from "../../assets/quantia/mc-icono-distribuir.webp";
+import mcIconoLupa from "../../assets/quantia/mc-icono-lupa.webp";
+import mcIconoEscalera from "../../assets/quantia/mc-icono-escalera.webp";
+import mcIconoDiversificar from "../../assets/quantia/mc-icono-diversificar.webp";
+import mcIconoOpciones from "../../assets/quantia/mc-icono-opciones.webp";
+import mcIconoRiesgo from "../../assets/quantia/mc-icono-riesgo.webp";
+import mcIconoUbicacion from "../../assets/quantia/mc-icono-ubicacion.webp";
+import mcIconoFicha from "../../assets/quantia/mc-icono-ficha.webp";
+import mcIconoCronometro from "../../assets/quantia/mc-icono-cronometro.webp";
+import mcIconoFlecha from "../../assets/quantia/mc-icono-flecha.webp";
+// Ubuntu is Quantia's brand face, self-hosted (Google Fonts' `latin` subset,
+// which covers Spanish in full) rather than loaded from fonts.gstatic.com, so
+// the page keeps its own asset graph and costs no third-party connection.
 import ubuntuRegular from "../../assets/quantia/ubuntu/Ubuntu-Regular.woff2?url";
 import ubuntuMedium from "../../assets/quantia/ubuntu/Ubuntu-Medium.woff2?url";
 import ubuntuBold from "../../assets/quantia/ubuntu/Ubuntu-Bold.woff2?url";
@@ -78,12 +145,12 @@ const brief = [
 
 const concepts = ["Educar", "Crecer", "Apoyar", "Cuidar", "Acompañar"];
 
-// Brand palette — single full-bleed swatches (no tint pairs), as in the Gelato
-// page. RGB is derived from the hex in the component, so a label can never drift
-// from its swatch. NOTE: the source mock lists Verde claro as R237/G237/B237,
-// which is #EDEDED, not #90D5AC — a stray value from another palette. Hex is
-// treated as source of truth, so the component renders the correct R144/G213/B172.
-// `dark` marks the three fields deep enough to carry white text.
+// Brand palette — single full-bleed swatches. RGB is derived from the hex in the
+// component, so a label can never drift from its swatch. NOTE: the source board
+// lists Verde claro as R237/G237/B237, which is #EDEDED, not #90D5AC — a stray
+// value from another palette. Hex is treated as source of truth, so the
+// component renders the correct R144/G213/B172. `dark` marks the three fields
+// deep enough to carry white text.
 const palette = [
   { name: "Verde", main: { hex: "#00AC69", dark: true }, weight: 1.55 },
   { name: "Verde oscuro", main: { hex: "#124734", dark: true }, weight: 1.4 },
@@ -103,16 +170,34 @@ const palette = [
 >
   <Header />
   <main class="project-quantia">
-    <ProjectHero
+    {
+      /* One photograph at every size: it is a landscape shot built around a
+        vertical subject (the hand and the phone in the pocket), so the portrait
+        crop lands on that subject on its own and needs no second artwork.
+
+        THE CUT. Landscape, the field is the wedge BELOW a line from 13.7% of
+        the height at the left edge to 46% of the width at the foot, and the
+        lockup stands in its wide end. The phone sits right of centre, so the
+        wedge takes the corner the composition had already given away.
+
+        Portrait, that same wedge would have to cross the phone to be big
+        enough to hold the lockup, so it lies down instead: a slope across the
+        FOOT, from 68% of the height at the left to 80% at the right. The
+        photograph keeps the whole upper frame — the hand, the pocket, the
+        screen — and the lockup still stands on the brand's own green. */
+    }
+    <DiagonalHero
       image={heroImage}
-      mobileImage={heroImageMobile}
-      mobileFit="contain"
-      field="#bfa8de"
-      tabletZoom={1.45}
-      tabletLift={-5.9}
-      imageAlt="Publicaciones de Quantia mostradas en dos teléfonos sobre un fondo lavanda"
+      imageAlt="Una persona guarda el teléfono en el bolsillo del pantalón con la app de Quantia Hub en pantalla"
+      imagePosition="center"
+      imagePositionMobile="58% center"
+      field="#00AC69"
       logo={heroLogo}
       title="Quantia — producto digital"
+      cut="polygon(0 13.7%, 46% 100%, 0 100%)"
+      cutMobile="polygon(0 68%, 100% 80%, 100% 100%, 0 100%)"
+      lockup={{ top: "79.2%", left: "5.4%", width: "19.1%" }}
+      lockupMobile={{ top: "83%", left: "6%", width: "46%" }}
     />
     <ProjectBrief meta={meta} blocks={brief} />
     <ConceptCircles
@@ -152,146 +237,463 @@ const palette = [
       ]}
     />
     {
-      /* Panel/graphic fills are Violeta claro and Verde claro straight from the
-        palette above — the artwork ships cut out on transparency, so the blocks
-        are CSS rather than baked into the images. */
+      /* Unlike the old collage, both left tiles carry their OWN ground — a
+        green gradient CSS would only approximate — so no fill colour is
+        passed. The building tile is still the one that breaks its box: its
+        artwork is 1.479 tiles tall against a ground of 1.498:1, and that
+        difference is the overhang. */
     }
     <CampaignCollage
       panel={{
-        src: phoneImg,
-        alt: "App de Quantia Hub en un teléfono sostenido en la mano",
+        src: edificioImg,
+        alt: "La torre de la sede de Quantia recortada sobre un campo degradado verde",
       }}
-      panelBg="#BEA8DD"
       graphic={{
         src: tuDineroImg,
         alt: "Pieza de campaña: tu dinero merece más que improvisar",
       }}
-      graphicBg="#90D5AC"
       photo={{
-        src: chicasImg,
-        alt: "Dos jóvenes conversando en unas escaleras, una de ellas con el teléfono en la mano",
+        src: chicaImg,
+        alt: "Una joven muestra la app de Quantia Hub en su teléfono",
+      }}
+      panelRatio={3329 / 2222}
+      graphicRatio={3329 / 1911}
+      photoRatio={3341 / 4183}
+      columns="485fr 490fr"
+    />
+    {
+      /* The pieces arrive FINISHED — the post cards carry their own Instagram
+        chrome and the phones their own device frames — so this section places
+        them and draws nothing. The first row's spans are the artboard's own
+        widths (164 / 164 / 178): the phone is the widest, stands taller than
+        the cards, and bottom-alignment is what puts the three on one line. */
+    }
+    <MockupShowcase
+      label="Redes Sociales"
+      body="Desarrollamos un sistema de contenido para redes sociales orientado a comunicar con claridad, fortalecer la identidad de la marca y mantener una presencia consistente. Cada pieza fue diseñada para captar la atención, transmitir el mensaje de forma inmediata y generar una comunicación más efectiva."
+      rows={[
+        [
+          {
+            src: postCuenta,
+            alt: "Publicación: abre tu cuenta corriente en minutos y recibe 4% de interés anual",
+            span: 164,
+          },
+          {
+            src: postAccedes,
+            alt: "Publicación: tu cuenta es solo el comienzo — alcancías, inversiones y fondo de retiro",
+            span: 164,
+          },
+          {
+            src: mockupTodoEnUno,
+            alt: "La publicación «todo en un solo lugar» vista en el feed de Instagram",
+            span: 178,
+          },
+        ],
+        [
+          {
+            src: historiaPanama,
+            alt: "Historia: hoy Panamá sale a la cancha, desde Quantia Hub acompañamos a nuestra selección",
+          },
+          {
+            src: historiaComparte,
+            alt: "Historia: compárteles la app y acércales una herramienta para dar el primer paso",
+          },
+          {
+            src: historiaCalculadora,
+            alt: "Historia: la calculadora de interés compuesto",
+          },
+        ],
+      ]}
+      {/* The strip, row by row as the board sets it: eight, then seven. */}
+      iconRows={[
+        [
+          { src: iconoMundo, alt: "" },
+          { src: iconoBolsa, alt: "" },
+          { src: iconoChancho, alt: "" },
+          { src: iconoCalendario, alt: "" },
+          { src: iconoReloj, alt: "" },
+          { src: iconoTienda, alt: "" },
+          { src: iconoRelojArena, alt: "" },
+          { src: iconoDestellos, alt: "" },
+        ],
+        [
+          { src: iconoLibro, alt: "" },
+          { src: iconoRiesgo, alt: "" },
+          { src: iconoLupa, alt: "" },
+          { src: iconoMeta, alt: "" },
+          { src: iconoMoneda, alt: "" },
+          { src: iconoPlan, alt: "" },
+          { src: iconoDolar, alt: "" },
+        ],
+      ]}
+    />
+    {
+      /* The pair arrives as ONE piece — the two phones were composed with
+        their overlap and their shadows together, and splitting them would mean
+        rebuilding that overlap in CSS for no gain. It is set off the column's
+        left edge (`lead`), and the copy reads as a caption to it, so the
+        heading takes a column beside the row rather than opening above it. */
+    }
+    <MockupShowcase
+      label="Piezas para pauta"
+      body="Desarrollamos piezas para campañas de pauta digital en formato de posteos estáticos e historias. Cada propuesta fue diseñada para captar la atención, transmitir mensajes de manera clara y reforzar la identidad de Quantia Hub en sus anuncios."
+      headingBeside
+      headingSpan={167}
+      trailing={63.5}
+      rows={[
+        [
+          {
+            src: pautaPar,
+            alt: "Dos publicaciones de pauta vistas en el feed: construye tu bienestar financiero y da el primer paso hacia tu inversión",
+            span: 325,
+            lead: 63.5,
+          },
+        ],
+        [
+          {
+            src: pautaSabias,
+            alt: "Historia: ¿sabías que existe una app para ahorrar, invertir y planificar tu futuro sin complicaciones?",
+          },
+          {
+            src: pautaOrganiza,
+            alt: "Historia: organiza tus ahorros con Quantia Hub — Alcancía Meta y Alcancía Libre",
+          },
+          {
+            src: pautaDescarga,
+            alt: "Historia: ahorra, invierte y planifica tu futuro desde una sola app",
+          },
+        ],
+      ]}
+    />
+    <PhotoMosaic
+      wideTop={{
+        src: mosaicoColina,
+        alt: "Una joven de camisa lila mira su teléfono sobre una colina",
+      }}
+      narrow={{
+        src: mosaicoCielo,
+        alt: "Una joven con el teléfono en la mano contra el cielo",
+      }}
+      pair={{
+        src: mosaicoTerraza,
+        alt: "Dos mujeres conversan en la mesa de una terraza",
+      }}
+      wideFoot={{
+        src: mosaicoPasto,
+        alt: "Una joven muestra la app de Quantia Hub al aire libre",
+      }}
+      tall={{
+        src: mosaicoMuro,
+        alt: "Una joven de camisa verde muestra la app sobre un muro claro",
+      }}
+      footLeft={{
+        src: mosaicoEscalera,
+        alt: "Dos amigas sentadas en unas escaleras con sus teléfonos",
+      }}
+      footRight={{
+        src: mosaicoCeleste,
+        alt: "Una mujer de vestido celeste sostiene su teléfono",
+      }}
+      corner={{
+        src: mosaicoJardin,
+        alt: "Una mujer de blazer muestra la app en un jardín",
+      }}
+      column={{
+        src: mosaicoBolso,
+        alt: "Un joven de suéter lila con el teléfono asomando del bolso",
       }}
     />
     {
-      /* Card chrome recoloured to the palette: Verde for the avatar dot, Verde
-        claro for the action icons (the lighter tone of the same green, mirroring
-        how Gelato tints its brown). No opening rule and a white field — unlike
-        Gelato, this section doesn't start a coloured band. */
+      /* The only section on a field of its own: the artboard's wash, shipped
+        as artwork because it is a mesh gradient and not a ramp CSS could
+        restate.
+
+        The heading takes the row's FIRST column here — the phone is tilted
+        into the frame from the right, and the copy reads into it. */
     }
-    <SocialCarousel
+    <MockupShowcase
+      label="Masterclass"
+      body="Diseño de identidad para la promoción de las Masterclasses realizadas por Quantia Hub. Tomamos esta identidad y la desarrollamos pieza por pieza en todos sus formatos, incluyendo estáticos, carruseles e historias, y un template personalizado para la edición de videos verticales para cada una de ellas. Además, se realizó un sistema de símbolos personalizado para este contenido."
+      headingBeside
+      headingSide="start"
+      headingSpan={133}
+      trailing={85}
+      fieldImage={mcFondo}
+      rows={[
+        [
+          {
+            src: mcPar,
+            alt: "La pieza «3 Masterclasses» vista en el feed de Instagram",
+            span: 131,
+            tail: 85,
+          },
+        ],
+        [
+          {
+            src: mcPostMasterclass,
+            alt: "Publicación: Masterclass 1, el primer paso antes de invertir",
+            span: 135,
+          },
+          {
+            src: mcPostFinanzas,
+            alt: "Publicación: conoce cómo están hoy tus finanzas",
+            span: 136,
+          },
+          {
+            src: mcMockupInvertir,
+            alt: "La publicación «invertir bien empieza con preparación» vista en el feed",
+            span: 149,
+          },
+        ],
+        [
+          {
+            src: mcHistoriaComenzar,
+            alt: "Historia: ¿quieres comenzar a invertir y entender mejor cuál puede ser tu primer paso?",
+          },
+          {
+            src: mcHistoriaPortafolio,
+            alt: "Historia: cada portafolio puede construirse según tus metas, tu plazo y tu perfil",
+          },
+          {
+            src: mcHistoriaCadaPaso,
+            alt: "Historia: cada paso suma en la construcción de tu bienestar financiero",
+          },
+        ],
+      ]}
+      {/* Siete y siete, en el orden del board. */}
+      iconRows={[
+        [
+          { src: mcIconoMeta, alt: "" },
+          { src: mcIconoDolar, alt: "" },
+          { src: mcIconoBanco, alt: "" },
+          { src: mcIconoCalendario, alt: "" },
+          { src: mcIconoDistribuir, alt: "" },
+          { src: mcIconoLupa, alt: "" },
+          { src: mcIconoEscalera, alt: "" },
+        ],
+        [
+          { src: mcIconoDiversificar, alt: "" },
+          { src: mcIconoOpciones, alt: "" },
+          { src: mcIconoRiesgo, alt: "" },
+          { src: mcIconoUbicacion, alt: "" },
+          { src: mcIconoFicha, alt: "" },
+          { src: mcIconoCronometro, alt: "" },
+          { src: mcIconoFlecha, alt: "" },
+        ],
+      ]}
+    />
+    {
+      /* Another composed pair, and the last row of the case: the two phones
+        were drawn tilted into each other, so the stagger between them is the
+        artwork's and not a second piece to place. The copy sits beside it, as
+        it does in the pauta row. */
+    }
+    <MockupShowcase
+      label="Contenido para fecha patria"
+      body="Desarrollamos piezas para campañas de pauta digital en formato de posteos estáticos e historias. Cada propuesta fue diseñada para captar la atención, transmitir mensajes de manera clara y reforzar la identidad de Quantia Hub en sus anuncios."
+      headingBeside
+      headingSpan={231}
+      trailing={50.5}
+      rows={[
+        [
+          {
+            src: patrioPar,
+            alt: "Dos piezas de fecha patria vistas en el feed: «un año de Quantia echando raíces» y «¿sabías que…?» sobre el balboa",
+            span: 511,
+            lead: 50.5,
+          },
+        ],
+      ]}
+    />
+    {
+      /* Halloween. The field is the piece: the board's own linear ramp, from
+        nothing to the deep violet and back to nothing, so the section fades
+        into the white ones either side instead of starting at a seam. The
+        fade's length is a share of the WIDTH, not of the section: a section's
+        height is whatever its rows add up to, so a percentage ramp would be
+        gentler on a long section than on a short one and the copy would land
+        somewhere different on each. Its stops are the board's own — white to
+        violet and back, nothing in between — but interpolated in OKLAB: mixed
+        in sRGB the ramp dives into the dark early and then crawls, and that
+        uneven middle is what reads as a knee however long the ramp is. The heading is white here, and white on a half-faded violet is the one place
+        this field could fail to be read. */
+    }
+    <MockupShowcase
       label="Redes Sociales"
       body="Desarrollamos un sistema de contenido para redes sociales orientado a comunicar con claridad, fortalecer la identidad de la marca y mantener una presencia consistente. Cada pieza fue diseñada para captar la atención, transmitir el mensaje de forma inmediata y generar una comunicación más efectiva."
-      fieldBg="var(--color-surface)"
-      rule={false}
-      avatarColor="#00AC69"
-      iconColor="#90D5AC"
-      posts={[
-        {
-          src: post1,
-          alt: "Publicación: por qué construir tu estrategia financiera con Quantia Hub",
-        },
-        {
-          src: post2,
-          alt: "Publicación: todo lo que necesitas para organizar tu dinero, desde una sola app",
-        },
-        {
-          src: post3,
-          alt: "Publicación: Quantia Hub se suma a la fiesta del fútbol",
-        },
+      fade="clamp(10rem, 40vw, 44rem)"
+      fieldBg="linear-gradient(to bottom in oklab, rgb(255 255 255 / 0) 0, #111047 var(--mk-fade), #111047 calc(100% - var(--mk-fade)), rgb(255 255 255 / 0) 100%)"
+      headingDrop="clamp(3rem, 38vw, 42rem)"
+      tailRoom="clamp(3rem, 34vw, 38rem)"
+      ink="#ffffff"
+      inkMuted="rgb(255 255 255 / 0.78)"
+      {
+        /* The texture. `top` is in cqw — a share of the WIDTH measured from
+          the section's crown — so the scatter stays put when a row is added.
+          They sit WITH the mockups, in the band from just above the phones to
+          the phones' crown: in the air over the copy they were only wallpaper,
+          and any lower they fall BEHIND a mockup, where a mark is not texture
+          but a smudge on the piece the section is there to show. The marks that would crowd the copy on a phone are
+          dropped rather than shrunk. */
+      }
+      marks={[
+        { src: marcaTelarana, left: -3, top: 44, width: 25, wideOnly: true },
+        { src: marcaCirculo, left: 78, top: 3, width: 21, opacity: 0.5 },
+        { src: marcaCirculo, left: 95, top: 20, width: 9, opacity: 0.45 },
+        { src: marcaCirculo, left: 2, top: 92, width: 17, opacity: 0.4 },
+        /* The band the ghosts and the shoot share: circles overlapping each
+           other, big and faint, so the field has weather in it where the
+           composition opens up. */
+        { src: marcaCirculo, left: 60, top: 104, width: 26, opacity: 0.3 },
+        { src: marcaCirculo, left: 17, top: 112, width: 30, opacity: 0.26 },
+        { src: marcaCirculo, left: 43, top: 124, width: 34, opacity: 0.22 },
+        { src: marcaCirculo, left: 2, top: 132, width: 22, opacity: 0.3 },
+        { src: marcaCirculo, left: 74, top: 134, width: 28, opacity: 0.24 },
+        { src: marcaCirculo, left: 28, top: 146, width: 25, opacity: 0.2 },
+        { src: marcaCirculo, left: 55, top: 156, width: 32, opacity: 0.18 },
+        { src: marcaDolar, left: 52, top: 44, width: 3.4, rotate: -12 },
+        { src: marcaDolar, left: 72, top: 40, width: 4, rotate: 8 },
+        { src: marcaDolar, left: 88, top: 50, width: 3, rotate: -6 },
+        { src: marcaDolar, left: 33, top: 47, width: 2.6, rotate: 14, wideOnly: true },
+        { src: marcaDolar, left: 93, top: 66, width: 3.8, rotate: 6 },
       ]}
-    />
-    {
-      /* No heading: the mockup shows the stories continuing straight on from the
-        posts above. Same green pairing as the posts — Verde claro on the reply
-        bar, and a white avatar since it sits ON the artwork rather than on a
-        white card. */
-    }
-    <StoriesCarousel
-      iconColor="#90D5AC"
-      stories={[
-        {
-          src: historia1,
-          alt: "Historia: hoy Panamá sale a la cancha, desde Quantia Hub acompañamos a nuestra selección",
-        },
-        {
-          src: historia2,
-          alt: "Historia: vamos Panamá, desde Quantia Hub apoyamos a los nuestros",
-        },
-        {
-          src: historia3,
-          alt: "Historia: hoy Panamá vuelve a la cancha, desde Quantia Hub seguimos alentando a nuestra selección",
-        },
+      rows={[
+        [
+          {
+            src: hwTelefonos,
+            alt: "Tres historias de Halloween vistas en el teléfono: la idea no es dejar de usar tu dinero, hazlos visibles y revísalos periódicamente",
+            span: 754,
+            lead: 134,
+            tail: 112,
+            fillNarrow: true,
+          },
+        ],
       ]}
-    />
-    {
-      /* Violeta claro field with Violeta chrome — the palette's purple pair.
+    >
+      {
+        /* The crowd. Shares of the band's own canvas, straight from the
+          board — three sizes at three heights, overlapping. */
+      }
+      <CreatureBand
+        ratio={491 / 157}
+        ratioNarrow={100 / 113.43}
+        creatures={[
+          {
+            src: hwCalavera,
+            left: 2.9,
+            top: 77.7,
+            width: 7.1,
+            narrow: { left: 1.8, top: 36.0, width: 14.2 },
+          },
+          {
+            src: hwFantasmaA,
+            left: 6.5,
+            top: 17.2,
+            width: 20.4,
+            narrow: { left: 0, top: 52.9, width: 37.5 },
+          },
+          {
+            src: hwMurcielagoChico,
+            left: 25.3,
+            top: 0,
+            width: 9.4,
+            narrow: { left: 78.0, top: 45.0, width: 22.0 },
+          },
+          {
+            src: hwFantasmaB,
+            left: 31,
+            top: 22.3,
+            width: 16.9,
+            narrow: { left: 16.5, top: 10.6, width: 29.7 },
+          },
+          {
+            src: hwCaldero,
+            left: 45.6,
+            top: 73.9,
+            width: 6.5,
+            narrow: { left: 40.2, top: 43.4, width: 14.2 },
+          },
+          {
+            src: hwFantasmaBrujo,
+            left: 51.9,
+            top: 9.6,
+            width: 20.8,
+            narrow: { left: 47.9, top: 63.1, width: 37.5 },
+          },
+          {
+            src: hwCalabaza,
+            left: 72.3,
+            top: 1.3,
+            width: 7.5,
+            narrow: { left: 70.3, top: 1.1, width: 14.2 },
+          },
+          {
+            src: hwFantasmaPensador,
+            left: 75.8,
+            top: 22.3,
+            width: 16.3,
+            narrow: { left: 54.4, top: 13.5, width: 32.3 },
+          },
+          {
+            src: hwMurcielago,
+            left: 84.5,
+            top: 77.7,
+            width: 11.2,
+            narrow: { left: 44.7, top: 0, width: 16.8 },
+          },
+        ]}
+      />
 
-        ORNAMENT PLACEMENT — tweak the three values on each line below.
-        `top` / `left` are % of the open area between the page container's left
-        edge and the phone, so `left: "0%"` is flush with the container and
-        `100%` is the phone's edge.
-
-        `width` is any CSS length, and height follows the artwork's own ratio.
-        It's a clamp rather than a % because that area is `34vw` wide: a straight
-        percentage shrank the ornaments in lockstep with the viewport (~30%
-        smaller by 1024px). The clamp's MAX is what you see on a wide screen —
-        raise that to make them bigger overall — and the MIN is the floor they
-        stop shrinking at, so they now lose only ~10–20% down to 1024px.
-        Heart's floor is the one real constraint: the area narrows faster than
-        the ornaments do, and at 1024px a floor above ~9.5rem runs it into money.
-        Current layout is a loose triangle: heart top-left, like tucked below it,
-        money out to the right. */
-    }
-    <CarouselShowcase
-      icons={[
-        { src: heartImg, alt: "", top: "4%", left: "2%", width: "clamp(11rem, 16.7vw, 15rem)" },
-        { src: moneyImg, alt: "", top: "34%", left: "56%", width: "clamp(4.4rem, 5.5vw, 4.9rem)" },
-        { src: likeImg, alt: "", top: "60%", left: "15%", width: "clamp(6rem, 7.6vw, 6.74rem)" },
-      ]}
-      carousels={[
-        {
-          indent: true,
-          slides: [
-            {
-              src: carruselVerde1,
-              alt: "Carrusel: ¿qué quieres lograr con tu dinero?",
-            },
-            {
-              src: carruselVerde2,
-              alt: "Carrusel: ¿cuál es tu punto de partida hoy? Quantia Hub te acompaña en cada etapa",
-            },
-            {
-              src: carruselVerde3,
-              alt: "Carrusel: construye tu bienestar financiero paso a paso",
-            },
-          ],
-        },
-        {
-          slides: [
-            {
-              src: carruselBlanco1,
-              alt: "Carrusel: todo lo que debes saber sobre AFP",
-            },
-            {
-              src: carruselBlanco2,
-              alt: "Carrusel: una AFP te ayuda a construir un fondo de jubilación a largo plazo",
-            },
-            {
-              src: carruselBlanco3,
-              alt: "Carrusel: cada aporte que realizas se acumula en tu fondo de jubilación",
-            },
-            {
-              src: carruselBlanco4,
-              alt: "Carrusel: en Quantia AFP puedes comenzar con aportes desde $30 mensuales",
-            },
-            {
-              src: carruselBlanco5,
-              alt: "Carrusel: construir tu jubilación también es construir tranquilidad para tu futuro",
-            },
-          ],
-        },
-      ]}
-    />
+      {
+        /* The shoot closes the section rather than opening one of its own: the
+          board runs it INTO the violet, so it keeps this field and the mosaic's
+          foot is where the field gives way to white. Same arrangement as the
+          first mosaic, with the two split bands mirrored. */
+      }
+      <PhotoMosaic
+        bare
+        leftSplit={[140, 117]}
+        centreSplit={[97, 137]}
+        wideTop={{
+          src: g2Escritorio,
+          alt: "Un joven estudia en una terraza con la ciudad de fondo",
+        }}
+        narrow={{
+          src: g2Recibe,
+          alt: "Una joven señala un cartel que anuncia 4% de interés",
+          fit: "contain",
+        }}
+        pair={{
+          src: g2Cancha,
+          alt: "La marca de Quantia pintada sobre el césped de una cancha",
+        }}
+        wideFoot={{
+          src: g2Bolsillo,
+          alt: "Un teléfono con la app de Quantia asomando del bolsillo",
+        }}
+        tall={{
+          src: g2Ejecutiva,
+          alt: "Una mujer muestra la app de Quantia en su teléfono",
+        }}
+        footLeft={{
+          src: g2Joven,
+          alt: "Un joven de camisa lila muestra la app",
+        }}
+        footRight={{
+          src: g2Calculadora,
+          alt: "Una calculadora con el mensaje «comienza a invertir»",
+          fit: "contain",
+        }}
+        corner={{
+          src: g2Arco,
+          alt: "La marca de Quantia sobre la red de un arco de fútbol",
+        }}
+        column={{
+          src: g2Pareja,
+          alt: "Dos personas miran sus teléfonos en la calle",
+        }}
+      />
+    </MockupShowcase>
     <BackToTop />
   </main>
   <ProjectEnd current="quantia" />
@@ -302,12 +704,7 @@ const palette = [
   /* Scoped project theme — remaps ONLY the semantic colour aliases within this
      page's subtree, so Quantia's branding can never leak into global scope.
      Everything structural (type scale, spacing rhythm, breakpoints) stays on the
-     global tokens.
-
-     Quantia's palette comes from the brand assets: the lavender field the hero
-     artwork is built on (#bfa8de), the green of the logo's dot (#00ac69) and the
-     deep green of the wordmark (#124734). The case-study body is a light field
-     with deep-green text; the hero opts out with its own full-bleed artwork. */
+     global tokens. */
   .project-quantia {
     --color-primary: #124734; /* Verde oscuro (brand palette) */
     --color-accent: #00ac69; /* Verde — the logo's dot */
@@ -319,29 +716,5 @@ const palette = [
 
     background-color: var(--color-surface);
     color: var(--color-text);
-  }
-
-  /* Hero lockup placement — Quantia only. The shared ProjectHero pins the lockup
-     high and hard against the gutter, which suits Clojure's and Gelato's artwork
-     but leaves Quantia's looking top-heavy: its phones sit centre-right and low,
-     so the default position strands the wordmark in the empty upper-left corner.
-     Nudging it down and inward balances it against the phones instead.
-     `:global` is required because the <h1> is rendered by the component, not by
-     this file — the `.project-quantia` parent still carries this page's scope
-     hash, so nothing here can leak to another project. */
-  .project-quantia :global(h1) {
-    top: max(9rem, 22%);
-  }
-
-  @media (width >= 1024px) {
-    .project-quantia :global(h1) {
-      top: max(8rem, 24%);
-      /* Indented FROM the container edge, never from the raw viewport: past
-         ~1400px the container stops growing and centres, so a percentage left
-         offset keeps sliding outward and the wordmark escapes the grid the
-         header and every section below it align to. `--gutter` is that content
-         edge, so this stays a fixed step inside it at any width. */
-      left: calc(var(--gutter) + 4rem);
-    }
   }
 </style>

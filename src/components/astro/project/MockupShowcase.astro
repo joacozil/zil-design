@@ -1,0 +1,754 @@
+---
+/**
+ * MockupShowcase — a section of FINISHED mockups: rows of pieces that arrive
+ * whole (a post card with its own chrome, a phone with its own device frame),
+ * optionally closed by a strip of icons.
+ *
+ * It is the counterpart to `SocialCarousel`, which DRAWS the Instagram chrome
+ * around a bare artwork. Here the chrome is part of the
+ * render, so the component's whole job is placement: it must not add a card, a
+ * border or a background that would sit behind a shadow the artwork already
+ * casts.
+ *
+ * Two things carry the composition:
+ *
+ * · Rows are bottom-aligned and each piece gets a SPAN — its width as it was
+ *   drawn, relative to the others in its row. That is what lets a phone stand
+ *   taller than the post cards beside it and still sit on their line, with no
+ *   per-piece offset to retune.
+ * · Everything is sized in `cqw` against the section's own container, so a row
+ *   keeps its proportions at every width instead of drifting from the artboard
+ *   at the one size nobody tested.
+ *
+ * Below `desktop` each row becomes the site's usual track — two and a half
+ * pieces across the screen, the next one cut by the edge — exactly as the
+ * other recent case studies run theirs. No dots and no arrows: the half piece
+ * is the affordance, and the whole thing is CSS.
+ */
+import { getImage } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Piece {
+  src: ImageMetadata;
+  alt: string;
+  /**
+   * The piece's width within its row, in the artboard's own units — any scale
+   * will do, since only the ratio between a row's spans is read. Defaults to
+   * an equal share.
+   */
+  span?: number;
+  /**
+   * Empty room BEFORE the piece inside its own column, in the same units as
+   * `span`. It is how a piece sits off the column's edge — the artboard's own
+   * indent — without a second element or a magic margin.
+   */
+  lead?: number;
+  /** The same, after the piece — the room the artboard leaves to its right. */
+  tail?: number;
+  /**
+   * Take the whole measure below `desktop`, whatever share the artboard drew.
+   * For a piece that is itself a ROW — several mockups composed into one
+   * image — the board's share describes its place among its neighbours, not
+   * how big the artwork wants to be once it is alone on a phone.
+   */
+  fillNarrow?: boolean;
+}
+
+interface Mark {
+  src: ImageMetadata;
+  /** Left edge, as a share of the section's width. */
+  left: number;
+  /**
+   * Distance from the section's top, in `cqw` — a share of the WIDTH, not of
+   * the height. A section's height is whatever its rows add up to, so a
+   * percentage would slide the whole scatter the day a row is added.
+   */
+  top: number;
+  /** Width, as a share of the section's width. */
+  width: number;
+  /** Degrees, if the mark is turned. */
+  rotate?: number;
+  /** How present it is. The board varies this mark to mark. */
+  opacity?: number;
+  /** Drop it below `desktop`, where it would collide with the copy. */
+  wideOnly?: boolean;
+}
+
+interface Icon {
+  src: ImageMetadata;
+  alt: string;
+}
+
+interface Props {
+  /** Optional section heading. */
+  label?: string;
+  /** Optional body copy under the heading. */
+  body?: string;
+  /** The rows of mockups, in order. */
+  rows: Piece[][];
+  /**
+   * The icon strip that closes the section, row by row as the artboard sets
+   * them (nine, then six). The rows are EXPLICIT and not a wrapping track:
+   * the icons are different widths, so a wrap would break the line wherever
+   * the widths happened to run out and the strip would re-order itself at
+   * every viewport. Each row is justified across the measure, so both rows
+   * start and end on the column's own edges.
+   */
+  iconRows?: Icon[][];
+  /**
+   * Set the heading BESIDE the first row instead of above it, as a column of
+   * its own. The artboard does this where the row is a single piece and the
+   * copy reads as a caption to it rather than as a section's opening.
+   */
+  headingBeside?: boolean;
+  /** Which side of the row the heading takes. */
+  headingSide?: "start" | "end";
+  /** That column's width, in the same span units as the row's pieces. */
+  headingSpan?: number;
+  /**
+   * An empty column on the far side of the heading, in the same span units.
+   * The artboard gives the piece its room on ONE side — a `lead` or a `tail`
+   * — which leaves the pair pinned to an edge with all the slack on the
+   * other. Half of that room declared here balances the two, and the pair
+   * reads as centred without any piece changing size.
+   */
+  trailing?: number;
+  /**
+   * The heading's ink, when the field is dark enough that the page's own ink
+   * would not read on it. Both are the semantic aliases this section's copy
+   * already uses, retinted for this field alone — never a colour written onto
+   * the markup, so the page stays re-themable from one place.
+   */
+  ink?: string;
+  inkMuted?: string;
+  /**
+   * Extra room above the heading. A field that fades IN needs the copy to
+   * start past the fade, and how far past is a share of the width rather than
+   * of the section: the fade's own length is, and a section's height is
+   * whatever its rows add up to.
+   */
+  headingDrop?: string;
+  /**
+   * Decorative marks scattered ON the field, behind everything. They are the
+   * section's texture, not its content: the layer takes no part in the
+   * reading order and no pointer events.
+   */
+  marks?: Mark[];
+  /**
+   * Extra room at the FOOT of the section, past its last row. A field that
+   * fades out needs somewhere to do it: without this the fade starts while
+   * the last row is still running and the piece sits half in the white.
+   */
+  tailRoom?: string;
+  /**
+   * How long the field takes to fade in and out at the section's edges, as a
+   * length. It is published as `--mk-fade`, so `fieldBg` can be written
+   * against it and the texture can be faded by the SAME figure: a mark that
+   * reaches the foot has to dissolve with the field, or it is cut off square
+   * against the white — which is exactly what a wide window does, since the
+   * marks scale with the width while the section's height does not.
+   */
+  fade?: string;
+  /** Section field colour. Default: the page surface. */
+  fieldBg?: string;
+  /**
+   * A field PAINTED rather than described — the artboard's own wash, when it
+   * is a mesh gradient CSS has no honest way to restate. It is stretched to
+   * the section rather than cropped to it: the artwork has no features to
+   * distort, and cropping a wash to a section several times its height would
+   * throw away most of the colour the wash is for.
+   */
+  fieldImage?: ImageMetadata;
+}
+
+const {
+  label,
+  body,
+  rows,
+  iconRows = [],
+  headingBeside = false,
+  headingSide = "end",
+  headingSpan = 1,
+  trailing = 0,
+  marks = [],
+  tailRoom,
+  fade,
+  ink,
+  inkMuted,
+  headingDrop,
+  fieldBg = "var(--color-surface)",
+  fieldImage,
+} = Astro.props;
+
+/* Which piece LEADS the track below desktop: the one the artboard drew taller
+   than the rest — a phone standing beside two post cards. It is read from the
+   artwork's own ratio rather than named by the page, and only when one piece
+   is strictly the tallest: a row of three stories is three peers, and picking
+   one of them would reorder the set for no reason. */
+const leadIndexes = rows.map((row) => {
+  if (row.length < 2) return -1;
+  const ratios = row.map((p) => p.src.width / p.src.height);
+  const min = Math.min(...ratios);
+  const first = ratios.indexOf(min);
+  const unique = ratios.every((r, i) => i === first || r > min * 1.05);
+  return unique ? first : -1;
+});
+
+const optimizedRows = await Promise.all(
+  rows.map((row) =>
+    Promise.all(
+      row.map(async (piece) => {
+        const image = await getImage({
+          src: piece.src,
+          width: 900,
+          format: "webp",
+        });
+        return {
+          src: image.src,
+          alt: piece.alt,
+          span: piece.span ?? 1,
+          lead: piece.lead ?? 0,
+          tail: piece.tail ?? 0,
+          fillNarrow: piece.fillNarrow ?? false,
+        };
+      }),
+    ),
+  ),
+);
+
+const optimizedIconRows = await Promise.all(
+  iconRows.map((row) =>
+    Promise.all(
+      row.map(async (icon) => {
+        const image = await getImage({
+          src: icon.src,
+          width: 320,
+          format: "webp",
+        });
+        return { src: image.src, alt: icon.alt };
+      }),
+    ),
+  ),
+);
+
+const field = fieldImage
+  ? await getImage({ src: fieldImage, width: 1200, format: "webp" })
+  : undefined;
+
+const container = "mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12";
+---
+
+<section
+  aria-label={label ?? "Piezas"}
+  class:list={["mk", field && "mk--painted", fade && "mk--fading"]}
+  style={`${fade ? `--mk-fade:${fade};` : ""}${
+    field ? `--mk-field:url(${field.src})` : `background:${fieldBg}`
+  }`}
+>
+  {/* Dither. A ramp this long between two near-blacks lands on fewer than one
+      tone per ten pixels, and 8-bit output turns that into visible bands —
+      the one thing a board never shows, because design tools dither and
+      browsers do not. A whisper of noise breaks the steps up. */}
+  {fade && <div class="mk-grain" aria-hidden="true" />}
+
+  {
+    marks.length > 0 && (
+      <div class="mk-marks" aria-hidden="true">
+        {marks.map((m) => (
+          <img
+            class:list={["mk-mark", m.wideOnly && "mk-mark--wide"]}
+            src={m.src.src}
+            alt=""
+            loading="lazy"
+            style={`left:${m.left}%;top:${m.top}cqw;width:${m.width}%;opacity:${m.opacity ?? 1}${m.rotate ? `;rotate:${m.rotate}deg` : ""}`}
+          />
+        ))}
+      </div>
+    )
+  }
+
+  <div class="py-section mk-body">
+    {
+      (label || body) && !headingBeside && (
+        <div
+          class={container}
+          style={`${headingDrop ? `margin-top:${headingDrop};` : ""}${ink ? `--color-text:${ink};` : ""}${inkMuted ? `--color-muted:${inkMuted};` : ""}` || undefined}
+        >
+          {label && (
+            <h3 class="text-p-sm font-bold tracking-wider text-text uppercase">
+              {label}
+            </h3>
+          )}
+          {body && (
+            <p class="mt-4 max-w-md text-p text-pretty text-muted">{body}</p>
+          )}
+        </div>
+      )
+    }
+
+    {
+      optimizedRows.map((row, rowIndex) => (
+        <div class="mk-row">
+          <div
+            class:list={[
+              "mk-row-grid",
+              headingBeside && rowIndex === 0 && `mk-row-grid--${headingSide}`,
+            ]}
+            style={
+              headingBeside && rowIndex === 0
+                ? `--mk-row-cols:${
+                    headingSide === "start"
+                      ? `${trailing}fr ${headingSpan}fr ${row.reduce((n, p) => n + p.span + p.lead + p.tail, 0)}fr`
+                      : `${row.reduce((n, p) => n + p.span + p.lead + p.tail, 0)}fr ${headingSpan}fr ${trailing}fr`
+                  }`
+                : undefined
+            }
+          >
+            {/* The spans become the grid's columns at desktop. They are
+                resolved here and not in CSS because a track cannot read a
+                value its own children declare. */}
+            <ul
+              class:list={["mk-track", row.length < 2 && "mk-track--single"]}
+              style={`--mk-cols:${row.map((p) => `${p.span + p.lead + p.tail}fr`).join(" ")}`}
+            >
+              {row
+                .map((piece, pieceIndex) => ({ piece, pieceIndex }))
+                .sort(
+                  (a, b) =>
+                    Number(b.pieceIndex === leadIndexes[rowIndex]) -
+                    Number(a.pieceIndex === leadIndexes[rowIndex]),
+                )
+                .map(({ piece, pieceIndex }) => (
+                <li
+                  class:list={[
+                    "mk-item",
+                    piece.fillNarrow && "mk-item--fill-narrow",
+                  ]}
+                  style={`--mk-col:${pieceIndex + 1}`}
+                >
+                  <img
+                    src={piece.src}
+                    alt={piece.alt}
+                    loading="lazy"
+                    style={
+                      piece.lead || piece.tail
+                        ? `--mk-piece:${(piece.span / (piece.span + piece.lead + piece.tail)) * 100}%;--mk-lead:${piece.lead ? "auto" : "0"};--mk-tail:${piece.tail ? "auto" : "0"}`
+                        : undefined
+                    }
+                  />
+                </li>
+              ))}
+            </ul>
+
+            {headingBeside && rowIndex === 0 && trailing > 0 && (
+              <div class="mk-spacer" aria-hidden="true" />
+            )}
+
+            {headingBeside && rowIndex === 0 && (label || body) && (
+              <div
+                class:list={[
+                  container,
+                  "mk-heading",
+                  headingSide === "start" && "mk-heading--start",
+                ]}
+                style={`${ink ? `--color-text:${ink};` : ""}${inkMuted ? `--color-muted:${inkMuted};` : ""}` || undefined}
+              >
+                {label && (
+                  <h3 class="text-p-sm font-bold tracking-wider text-text uppercase">
+                    {label}
+                  </h3>
+                )}
+                {body && (
+                  <p class="mt-4 max-w-md text-p text-pretty text-muted">
+                    {body}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+
+        </div>
+      ))
+    }
+
+    {
+      optimizedIconRows.length > 0 && (
+        <div class={`${container} mk-icons-wrap`}>
+          {optimizedIconRows.map((row) => (
+            /* `role` because the lines collapse to `display: contents` below
+               desktop, which takes a list's box away and, in several
+               browsers, its semantics with it. */
+            <ul class="mk-icons" role="list">
+              {row.map((icon) => (
+                <li>
+                  <img src={icon.src} alt={icon.alt} loading="lazy" />
+                </li>
+              ))}
+            </ul>
+          ))}
+        </div>
+      )
+    }
+
+    {/* Anything the section carries past its rows — a band of artwork that
+        belongs on this field and not on the white one after it. */}
+    <slot />
+
+    {tailRoom && <div style={`height:${tailRoom}`} aria-hidden="true" />}
+  </div>
+</section>
+
+<style>
+  .mk {
+    /* The measure every proportion below is taken against. An element is never
+       its own container query container, so this sits on the section and the
+       rows read it. */
+    container-type: inline-size;
+    position: relative;
+    /* The painted field below stacks against this section and nothing else. */
+    isolation: isolate;
+  }
+
+  /* A painted field FADES into the white sections either side of it, the way
+     the board draws it — a wash that starts at an edge is a seam. The artwork
+     is therefore laid on a layer of its own and masked at both ends, rather
+     than set as the section's background: masking the section itself would
+     take the copy and the mockups with it. */
+  .mk--painted::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: var(--mk-field);
+    background-size: 100% 100%;
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      #000 12%,
+      #000 88%,
+      transparent 100%
+    );
+  }
+  /* Above the field, which would otherwise paint over the whole section.
+     The content carries its own class rather than being matched as `.mk > *`:
+     Astro scopes a descendant selector by adding its attribute to BOTH
+     compounds, so `.mk > *` outranks any single-class rule on a child — and
+     the marks layer below, which must be absolute, never got to be. */
+  .mk-body {
+    position: relative;
+  }
+
+  /* The texture. It sits between the field and the content, blends into the
+     field rather than sitting on it — the artwork ships at full strength and
+     `soft-light` is what makes a mark read as something IN the violet — and
+     it is clipped to the section so a mark near an edge cannot widen the page
+     or spill into the white one next door. */
+  .mk-marks {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    /* The blend lives on the LAYER, not on each mark. A masked element is an
+       isolated group, so a mark blending inside it has only the group's own
+       empty backdrop to blend with and comes out at full strength — which is
+       what happened the moment the fade mask below was added. Blended as a
+       group, the layer meets the field once, and marks that overlap each
+       other no longer double up where they cross. */
+    mix-blend-mode: soft-light;
+  }
+  .mk-grain {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.045;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* The texture and the dither go with the field: where the field has given
+     way to white, neither has anything left to sit ON. */
+  .mk--fading .mk-grain,
+  .mk--fading .mk-marks {
+    /* The field's own easing, restated as alpha so the texture dissolves on
+       exactly the same curve. */
+    mask-image: linear-gradient(
+      to bottom,
+      rgb(0 0 0 / 0) 0,
+      rgb(0 0 0 / 0.15) calc(var(--mk-fade) * 0.25),
+      rgb(0 0 0 / 0.5) calc(var(--mk-fade) * 0.5),
+      rgb(0 0 0 / 0.85) calc(var(--mk-fade) * 0.75),
+      #000 var(--mk-fade),
+      #000 calc(100% - var(--mk-fade)),
+      rgb(0 0 0 / 0.85) calc(100% - var(--mk-fade) * 0.75),
+      rgb(0 0 0 / 0.5) calc(100% - var(--mk-fade) * 0.5),
+      rgb(0 0 0 / 0.15) calc(100% - var(--mk-fade) * 0.25),
+      rgb(0 0 0 / 0) 100%
+    );
+  }
+  .mk-mark {
+    position: absolute;
+    height: auto;
+  }
+
+  /* A phone has no room for the marks that crowd the copy: the web and the
+     text want the same corner at 375px. */
+  .mk-mark--wide {
+    display: none;
+  }
+
+  /* ── Rails (below desktop) ──────────────────────────────────────────────── */
+  .mk-row {
+    margin-top: clamp(3rem, 9cqw, 11rem);
+  }
+
+  /* A column below desktop: a heading set beside the row on the artboard reads
+     above it on a phone, which is where every other section puts one. It is
+     declared after the rail in the markup — the order it needs at desktop —
+     and pulled up here, so the copy is never duplicated. */
+  .mk-row-grid {
+    display: flex;
+    flex-direction: column;
+  }
+  .mk-heading {
+    order: -1;
+    margin-bottom: clamp(2rem, 6cqw, 4rem);
+  }
+  /* The balancing column is a desktop measure; in a stack there is nothing to
+     balance. */
+  .mk-spacer {
+    display: none;
+  }
+
+  /* The row runs as a TRACK below desktop, the way every other row of pieces
+     on the site does: two and a half across the screen, the third cut by the
+     edge, and that half piece is the whole affordance — no dots, no arrows.
+     The row is already full-bleed — the section never wraps it in the page
+     container — so the track only pads itself in to the content edge, and the
+     first piece starts on the page's own line.
+
+     This is the base state and the media query below undoes it piece by piece:
+     leave any one of those undos out and the row is still scrolling at
+     desktop. */
+  .mk-track {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--gap-piece);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline-start: var(--gutter);
+    padding-inline: var(--gutter);
+    scrollbar-width: none;
+  }
+  .mk-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* A row of one is not a track: there is nothing to scroll to, so it simply
+     takes the measure. */
+  .mk-track--single {
+    overflow-x: visible;
+    scroll-snap-type: none;
+  }
+
+  .mk-item {
+    /* The visible track is the screen less ONE gutter — the leading one. Two
+       pieces and two gaps sit inside it, and the third takes what is left. */
+    flex: 0 0 calc((100vw - var(--gutter) - 2 * var(--gap-piece)) / 2.5);
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+  .mk-track--single .mk-item {
+    flex: 0 0 100%;
+  }
+  /* A row of one still keeps the artboard's SENSE of scale. The piece's share
+     of its own column is what the board drew it at — a small tilted phone
+     beside its caption is not the same object as a pair of phones filling the
+     frame — and printing every single piece at the full measure flattens that
+     to one size, which on a phone means a mockup taller than the screen. The
+     floor is there because the board's smallest share, blown up to a column,
+     is still a legible mockup and anything under it is not. */
+  .mk-track--single .mk-item img {
+    width: max(55%, var(--mk-piece, 100%));
+    margin-inline: auto;
+  }
+  .mk-track--single .mk-item--fill-narrow img {
+    width: 100%;
+  }
+  .mk-item img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* The tall piece LEADS the track, and it leads it in the DOM rather than
+     through `order`: a reordered flex item is still the first thing the
+     browser's scroll anchoring points at, which left the rail resting one
+     piece in and the phone cut by the screen's left edge. In source order the
+     rail opens where it should, and the artboard's own order is restored at
+     desktop by placing each piece in its column by number. */
+
+  /* ── The row as drawn (desktop) ─────────────────────────────────────────── */
+  @media (width >= 1024px) {
+    .mk-mark--wide {
+      display: block;
+    }
+
+    /* The row's own measure — the pieces and a heading beside them share it. */
+    .mk-row-grid {
+      display: grid;
+      grid-template-columns: var(--mk-row-cols, 1fr);
+      gap: 3cqw;
+      align-items: start;
+      max-width: 88rem;
+      margin-inline: auto;
+      padding-inline: 3rem;
+    }
+
+    /* The artboard's row. Every scrolling property the base state set is
+       turned off here by name. */
+    .mk-track {
+      display: grid;
+      /* One column per piece, in the spans' own proportion. `fr` resolves the
+         ratio, so the unit the spans were written in never matters. */
+      grid-template-columns: var(--mk-cols);
+      gap: 3cqw;
+      overflow-x: visible;
+      scroll-snap-type: none;
+      margin-inline: 0;
+      padding-inline: 0;
+    }
+    .mk-item {
+      flex: initial;
+      min-width: 0;
+      grid-column: var(--mk-col);
+      /* And the row, explicitly. Placing the lead piece in a later column
+         while it comes FIRST in the markup moves grid's placement cursor past
+         that column, and sparse packing never walks it back — so every piece
+         after it was pushed onto a second row and the tall one floated alone
+         above the others. */
+      grid-row: 1;
+    }
+    /* `--mk-piece` is the piece's share of its own column when the artboard
+       leaves room before it; `margin-left: auto` is what spends that room on
+       the lead rather than on the trail. */
+    .mk-item img {
+      height: auto;
+      width: var(--mk-piece, 100%);
+      margin-left: var(--mk-lead, 0);
+      margin-right: var(--mk-tail, 0);
+    }
+
+    .mk-heading {
+      order: 0;
+      margin-bottom: 0;
+      max-width: none;
+      padding-inline: 0;
+      /* Centred against the row rather than dropped a measured distance into
+         it: the copy is a caption to the piece beside it, and a caption sits
+         on its subject's middle. A fixed offset only ever balanced at the one
+         height the artboard happened to draw. */
+      align-self: center;
+    }
+    /* The three cells are placed by NUMBER rather than by source order: the
+       heading is declared after the row either way, so the stack below
+       desktop reads heading-then-pieces, and the artboard's own order is
+       restored here. The ROW is pinned too — a cell placed in a later column
+       walks grid's placement cursor past it, and sparse packing never brings
+       it back, so the cell declared after it lands on a second row. */
+    .mk-row-grid--start > *,
+    .mk-row-grid--end > * {
+      grid-row: 1;
+    }
+    .mk-row-grid--end > .mk-track {
+      grid-column: 1;
+    }
+    .mk-row-grid--end > .mk-heading {
+      grid-column: 2;
+    }
+    .mk-row-grid--end > .mk-spacer {
+      grid-column: 3;
+    }
+    .mk-row-grid--start > .mk-spacer {
+      grid-column: 1;
+    }
+    .mk-row-grid--start > .mk-heading {
+      grid-column: 2;
+    }
+    .mk-row-grid--start > .mk-track {
+      grid-column: 3;
+    }
+    .mk-spacer {
+      display: block;
+    }
+  }
+
+  /* ── The icon strip ─────────────────────────────────────────────────────── */
+  /* Below desktop the two lines stop being lines: the whole set flows as ONE
+     wrapping track, centred, so it breaks evenly instead of leaving each
+     declared line with its own ragged remainder — eight across three columns
+     is five and an orphan of three, twice over, and that reads as four blocks
+     rather than one strip. */
+  .mk-icons-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: clamp(0.75rem, 2cqw, 2rem);
+    margin-top: clamp(2.5rem, 10cqw, 9rem);
+    /* The strip measures itself against the COLUMN it is set in, not against
+       the full-bleed section the rows use: its cell is a share of the text
+       measure, and reading the viewport instead costs a column at the width
+       the artboard was drawn for. */
+    container-type: inline-size;
+  }
+  /* Below desktop the strip REWRAPS rather than shrinks. The artboard's line
+     of nine is nine icons across a desktop measure; the same nine across a
+     phone's are 29px each, which is not a smaller icon but a different and
+     worse one — the modelling these are made of stops reading. So each line
+     becomes a track of equal cells with a floor under the cell, and the
+     icons-per-line follows the width: three on a phone, five on a tablet,
+     and the artboard's own line again from `desktop`. */
+  .mk-icons {
+    display: contents;
+  }
+  .mk-icons li {
+    display: grid;
+    place-items: center;
+    flex: 0 0 clamp(6rem, 18cqw, 11rem);
+  }
+  /* Sized by HEIGHT, not width: the set mixes a tall hourglass with a wide
+     gauge, and a common width would print them at visibly different sizes. */
+  .mk-icons img {
+    display: block;
+    height: clamp(4.5rem, 16cqw, 8rem);
+    width: auto;
+  }
+
+  /* The artboard's line: justified edge to edge, the icons at their drawn
+     sizes and the spacing between them whatever their different widths leave
+     over — which is the rhythm the board has, and the reason the lines are
+     declared rather than wrapped. */
+  @media (width >= 1024px) {
+    .mk-icons-wrap {
+      display: block;
+    }
+    .mk-icons {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: clamp(0.35rem, 1.5cqw, 2rem);
+    }
+    .mk-icons + .mk-icons {
+      margin-top: clamp(0.75rem, 2cqw, 2.5rem);
+    }
+    /* Never shrink: a flex item with a set height and an `auto` width gives up
+       the width first, and an icon 32 wide by 40 tall is a squashed icon. */
+    .mk-icons li {
+      display: block;
+      flex: none;
+    }
+    .mk-icons img {
+      height: 8.9cqw;
+    }
+  }
+
+</style>

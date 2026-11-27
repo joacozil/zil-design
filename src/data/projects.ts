@@ -1,6 +1,6 @@
 import type { ImageMetadata } from "astro";
 import mmg from "../assets/img/mmg.avif";
-import quantia from "../assets/img/quantia.avif";
+import quantia from "../assets/img/quantia.webp";
 import clojure from "../assets/img/clojure.avif";
 import gelato from "../assets/img/gelato.jpg";
 import netValue from "../assets/img/net-value.avif";

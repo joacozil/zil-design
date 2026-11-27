@@ -1,0 +1,122 @@
+---
+/**
+ * CreatureBand — a strip of cut-out artwork scattered across the measure, the
+ * way the artboard scatters it: pieces of three different sizes at three
+ * different heights, overlapping, so the band reads as a crowd and not as a
+ * row of icons.
+ *
+ * It is a PROPORTIONAL CANVAS, not a layout: the strip carries one aspect
+ * ratio and every piece is placed as a share of it, so the scatter the board
+ * drew survives at any width. Laying this out with flow would mean inventing
+ * an alignment the artboard never had — the pieces do not sit on a line, and
+ * two of them hang below the ones beside them.
+ *
+ * The canvas is `aria-hidden`: it is decoration, and nine alt texts for nine
+ * ghosts would be nine interruptions for a screen reader working through the
+ * case study.
+ */
+import { getImage } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Place {
+  /** Left edge, as a share of the canvas's WIDTH. */
+  left: number;
+  /** Top edge, as a share of the canvas's HEIGHT. */
+  top: number;
+  /** Width, as a share of the canvas's width. */
+  width: number;
+}
+
+interface Creature extends Place {
+  src: ImageMetadata;
+  /**
+   * Where the piece goes on the NARROW canvas. A strip three times wider than
+   * it is tall cannot simply shrink onto a phone — the pieces end up at a
+   * fifth of the size the board drew them and the crowd reads as crumbs. The
+   * scatter is re-composed upright instead, and the pieces come back up to a
+   * size worth looking at.
+   */
+  narrow?: Place;
+}
+
+interface Props {
+  creatures: Creature[];
+  /** The canvas's own proportion, `width / height`. */
+  ratio: number;
+  /** The same, for the upright composition below `desktop`. */
+  ratioNarrow?: number;
+  /** Room above the band, as a share of the section's width. */
+  gap?: string;
+}
+
+const {
+  creatures,
+  ratio,
+  ratioNarrow,
+  gap = "clamp(2rem, 6cqw, 6rem)",
+} = Astro.props;
+
+const optimized = await Promise.all(
+  creatures.map(async (c) => {
+    const image = await getImage({ src: c.src, width: 700, format: "webp" });
+    return { ...c, src: image.src };
+  }),
+);
+---
+
+<div
+  class="cb-wrap"
+  style={`--cb-gap:${gap}`}
+  aria-hidden="true"
+>
+  <div
+    class="cb"
+    style={`--cb-ratio:${ratio};--cb-ratio-n:${ratioNarrow ?? ratio}`}
+  >
+    {
+      optimized.map((c) => (
+        <img
+          src={c.src}
+          alt=""
+          loading="lazy"
+          style={`--l:${c.left}%;--t:${c.top}%;--w:${c.width}%;--ln:${(c.narrow ?? c).left}%;--tn:${(c.narrow ?? c).top}%;--wn:${(c.narrow ?? c).width}%`}
+        />
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .cb-wrap {
+    margin-top: var(--cb-gap);
+    padding-inline: var(--gutter);
+  }
+
+  .cb {
+    position: relative;
+    margin-inline: auto;
+    width: 100%;
+    max-width: 88rem;
+    aspect-ratio: var(--cb-ratio-n);
+  }
+
+  .cb img {
+    position: absolute;
+    height: auto;
+    left: var(--ln);
+    top: var(--tn);
+    width: var(--wn);
+  }
+
+  /* The board's own strip takes over where there is width for it. */
+  @media (width >= 64rem) {
+    .cb {
+      aspect-ratio: var(--cb-ratio);
+    }
+    .cb img {
+      left: var(--l);
+      top: var(--t);
+      width: var(--w);
+    }
+  }
+</style>

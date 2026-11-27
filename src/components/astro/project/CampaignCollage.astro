@@ -27,30 +27,66 @@ interface Tile {
   alt: string;
 }
 interface Props {
-  /** Top-left tile. Its artwork overflows the top edge of the coloured panel. */
+  /** Top-left tile. Its artwork overflows the top edge of the panel. */
   panel: Tile;
-  /** Fill colour behind the panel artwork. */
-  panelBg: string;
+  /**
+   * Fill colour behind the panel artwork.
+   *
+   * Omit it when the FIELD IS PART OF THE ARTWORK — a gradient, a texture,
+   * anything CSS would have to reproduce. The artwork then spans the tile's
+   * full width with its own ground flush to the tile's foot, and whatever the
+   * artwork carries above that ground stands above the tile. How much is the
+   * asset's own business: the tile's ratio is the ground's, the artwork's is
+   * taller, and the difference IS the overhang — nothing to re-state here.
+   */
+  panelBg?: string;
   /** Bottom-left tile — artwork centred inside its colour field. */
   graphic: Tile;
-  /** Fill colour behind the graphic artwork. */
-  graphicBg: string;
+  /** Fill colour behind the graphic artwork. Omit it when the tile IS the artwork. */
+  graphicBg?: string;
   /** Right tile — a photograph, full height of the left column. */
   photo: Tile;
+  /**
+   * The tiles' proportions, `width / height`. They are what size the grid — an
+   * `fr` row would make that circular — so they come from the artwork rather
+   * than from a house figure, and each collage states its own.
+   */
+  panelRatio?: number;
+  graphicRatio?: number;
+  /** The photograph's own proportion, used only in the MOBILE stack. */
+  photoRatio?: number;
+  /** The two columns' split at `tablet` and up. */
+  columns?: string;
 }
-const { panel, panelBg, graphic, graphicBg, photo } = Astro.props;
+const {
+  panel,
+  panelBg,
+  graphic,
+  graphicBg,
+  photo,
+  panelRatio = 755 / 510,
+  graphicRatio = 755 / 400,
+  photoRatio = 1714 / 2146,
+  columns = "755fr 782fr",
+} = Astro.props;
 ---
 
 <section class="py-section" aria-label="Piezas de campaña">
   <div class="mx-auto w-full max-w-8xl px-6 tablet:px-8 desktop:px-12">
-    <div class="cc-grid">
-      {/* Panel — the phone breaks out past the top edge. */}
-      <div class="cc-panel" style={`background-color:${panelBg}`}>
+    <div
+      class="cc-grid"
+      style={`--cc-cols:${columns};--cc-panel-ratio:${panelRatio};--cc-graphic-ratio:${graphicRatio};--cc-photo-ratio:${photoRatio}`}
+    >
+      {/* Panel — the artwork breaks out past the top edge. */}
+      <div
+        class="cc-panel"
+        style={panelBg ? `background-color:${panelBg}` : undefined}
+      >
         <Image
           src={panel.src}
           alt={panel.alt}
           sizes="(min-width: 640px) 40vw, 80vw"
-          class="cc-panel-art"
+          class:list={["cc-panel-art", !panelBg && "cc-panel-art--bleed"]}
         />
       </div>
 
@@ -64,13 +100,16 @@ const { panel, panelBg, graphic, graphicBg, photo } = Astro.props;
         />
       </div>
 
-      {/* Graphic — artwork centred in its colour field. */}
-      <div class="cc-graphic" style={`background-color:${graphicBg}`}>
+      {/* Graphic — artwork centred in its colour field, or the tile itself. */}
+      <div
+        class="cc-graphic"
+        style={graphicBg ? `background-color:${graphicBg}` : undefined}
+      >
         <Image
           src={graphic.src}
           alt={graphic.alt}
           sizes="(min-width: 640px) 42vw, 85vw"
-          class="cc-graphic-art"
+          class:list={["cc-graphic-art", !graphicBg && "cc-graphic-art--full"]}
         />
       </div>
     </div>
@@ -99,7 +138,7 @@ const { panel, panelBg, graphic, graphicBg, photo } = Astro.props;
   .cc-panel {
     grid-area: panel;
     position: relative;
-    aspect-ratio: 755 / 510;
+    aspect-ratio: var(--cc-panel-ratio);
   }
   .cc-panel-art {
     position: absolute;
@@ -111,16 +150,29 @@ const { panel, panelBg, graphic, graphicBg, photo } = Astro.props;
     height: auto;
     transform: translateX(-50%);
   }
+  /* A baked field: the artwork spans the tile and carries its own ground, so it
+     is pinned by that ground's foot and overhangs the tile by whatever more it
+     is tall. */
+  .cc-panel-art--bleed {
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    transform: none;
+  }
 
   .cc-graphic {
     grid-area: graphic;
     display: grid;
     place-items: center;
-    aspect-ratio: 755 / 400;
+    aspect-ratio: var(--cc-graphic-ratio);
   }
   .cc-graphic-art {
     width: 85%;
     height: auto;
+  }
+  /* No colour field of its own: the artwork IS the tile. */
+  .cc-graphic-art--full {
+    width: 100%;
   }
 
   .cc-photo {
@@ -128,7 +180,7 @@ const { panel, panelBg, graphic, graphicBg, photo } = Astro.props;
     position: relative;
     /* Mobile: the photo carries its own proportion. At tablet+ it drops the ratio
        and stretches to whatever the left column adds up to. */
-    aspect-ratio: 1714 / 2146;
+    aspect-ratio: var(--cc-photo-ratio);
     overflow: hidden;
   }
   /* Absolute, so the photograph contributes NO intrinsic height. Left in flow it
@@ -148,7 +200,7 @@ const { panel, panelBg, graphic, graphicBg, photo } = Astro.props;
   @media (width >= 640px) {
     .cc-grid {
       /* Slightly wider right column, as in the design. */
-      grid-template-columns: 755fr 782fr;
+      grid-template-columns: var(--cc-cols);
       grid-template-areas:
         "panel photo"
         "graphic photo";
